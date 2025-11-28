@@ -131,30 +131,39 @@ Recipes are tagged to help you find what you need:
 
 ## Adding Your Own Recipes
 
-Easily add your own dinner recipes:
+Easily add your own dinner recipes in markdown format:
 
-1. Open `/recipes/dinners.json`
-2. Add your recipe following this format:
+1. Open `/recipes/dinners.md`
+2. Add your recipe under the appropriate category (## Chicken, ## Beef, etc.)
+3. Follow this format:
 
-```json
-{
-  "id": "d021",
-  "name": "Your Dinner Recipe",
-  "prep_time": 15,
-  "cook_time": 30,
-  "servings": 4,
-  "difficulty": "easy",
-  "tags": ["meal-prep-friendly", "healthy"],
-  "ingredients": [
-    {"item": "chicken breast", "amount": "2 lbs"},
-    {"item": "vegetables", "amount": "2 cups"}
-  ],
-  "instructions": [
-    "Step 1 of your recipe",
-    "Step 2 of your recipe"
-  ]
-}
+```markdown
+### Your Recipe Name
+**Tags:**
+- Chicken
+- Quick
+- Meal-prep-friendly
+
+**Ingredients:**
+- 2 lbs chicken breast
+- 1 cup rice
+- 2 tbsp olive oil
+- ...
+
+**Instructions:**
+1. Preheat oven to 375°F
+2. Season chicken and prepare
+3. Cook for 25 minutes
+4. ...
+
+**Notes:**
+Optional notes about the recipe
+
+**Source:**
+https://example.com/recipe (optional)
 ```
+
+The app automatically assigns recipe IDs and timing information based on tags.
 
 ## Project Structure
 
@@ -167,9 +176,10 @@ MealPrepRecipes/
 │   ├── pantry.json          # Your ingredient inventory
 │   └── preferences.json.example
 ├── recipes/                 # Recipe database
-│   └── dinners.json         # 20 dinner recipes
+│   └── dinners.md           # 20 dinner recipes in markdown
 └── src/                     # Application modules
     ├── recipe_manager.py    # Recipe loading and searching
+    ├── markdown_parser.py   # Markdown recipe parser
     ├── pantry.py           # Ingredient inventory
     ├── ingredient_matcher.py # Recipe matching logic
     ├── meal_planner.py     # Dinner plan generation

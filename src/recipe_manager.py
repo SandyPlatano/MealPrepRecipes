@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 from typing import List, Dict, Optional
+from src.markdown_parser import MarkdownRecipeParser
 
 
 class RecipeManager:
@@ -24,18 +25,31 @@ class RecipeManager:
         self._load_all_recipes()
 
     def _load_all_recipes(self):
-        """Load all recipes from JSON files."""
+        """Load all recipes from markdown files."""
         self.recipes = []
 
         if not self.recipes_dir.exists():
             print(f"Warning: Recipes directory not found: {self.recipes_dir}")
             return
 
+        parser = MarkdownRecipeParser()
+
+        # Look for markdown files first
+        for recipe_file in self.recipes_dir.glob("*.md"):
+            try:
+                recipes_data = parser.parse_file(recipe_file)
+                self.recipes.extend(recipes_data)
+                print(f"Loaded {len(recipes_data)} recipes from {recipe_file.name}")
+            except Exception as e:
+                print(f"Error loading {recipe_file}: {e}")
+
+        # Fallback: also support JSON files for backward compatibility
         for recipe_file in self.recipes_dir.glob("*.json"):
             try:
                 with open(recipe_file, 'r') as f:
                     recipes_data = json.load(f)
                     self.recipes.extend(recipes_data)
+                    print(f"Loaded {len(recipes_data)} recipes from {recipe_file.name}")
             except Exception as e:
                 print(f"Error loading {recipe_file}: {e}")
 
@@ -119,7 +133,7 @@ class RecipeManager:
         print(f"\n{'='*60}")
         print(f"{recipe['name']}")
         print(f"{'='*60}")
-        print(f"Category: {recipe['category'].title()}")
+        print(f"ID: {recipe['id']} | Category: {recipe['category'].title()}")
         print(f"Prep Time: {recipe['prep_time']} min | Cook Time: {recipe['cook_time']} min")
         print(f"Servings: {recipe['servings']} | Difficulty: {recipe['difficulty']}")
         print(f"Tags: {', '.join(recipe.get('tags', []))}")
@@ -131,4 +145,12 @@ class RecipeManager:
         print(f"\nInstructions:")
         for i, step in enumerate(recipe['instructions'], 1):
             print(f"  {i}. {step}")
+
+        if recipe.get('notes'):
+            print(f"\nNotes:")
+            print(f"  {recipe['notes']}")
+
+        if recipe.get('source'):
+            print(f"\nSource: {recipe['source']}")
+
         print(f"{'='*60}\n")
