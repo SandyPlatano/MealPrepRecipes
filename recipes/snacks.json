@@ -1,0 +1,80 @@
+[
+  {
+    "id": "s001",
+    "name": "Energy Balls",
+    "category": "snack",
+    "prep_time": 10,
+    "cook_time": 0,
+    "servings": 12,
+    "difficulty": "easy",
+    "tags": ["no-cook", "vegetarian", "healthy"],
+    "ingredients": [
+      {"item": "dates", "amount": "1 cup pitted"},
+      {"item": "almonds", "amount": "1/2 cup"},
+      {"item": "oats", "amount": "1/2 cup"},
+      {"item": "cocoa powder", "amount": "2 tbsp"},
+      {"item": "honey", "amount": "2 tbsp"},
+      {"item": "vanilla extract", "amount": "1 tsp"},
+      {"item": "coconut flakes", "amount": "for rolling"}
+    ],
+    "instructions": [
+      "Add all ingredients except coconut to food processor",
+      "Pulse until mixture comes together",
+      "Roll into 1-inch balls",
+      "Roll in coconut flakes",
+      "Refrigerate for 30 minutes",
+      "Store in airtight container for up to 2 weeks"
+    ]
+  },
+  {
+    "id": "s002",
+    "name": "Hummus with Veggie Sticks",
+    "category": "snack",
+    "prep_time": 10,
+    "cook_time": 0,
+    "servings": 6,
+    "difficulty": "easy",
+    "tags": ["vegan", "healthy", "no-cook"],
+    "ingredients": [
+      {"item": "chickpeas", "amount": "2 cans"},
+      {"item": "tahini", "amount": "1/4 cup"},
+      {"item": "lemon juice", "amount": "3 tbsp"},
+      {"item": "garlic", "amount": "2 cloves"},
+      {"item": "olive oil", "amount": "2 tbsp"},
+      {"item": "carrots", "amount": "4 large"},
+      {"item": "celery", "amount": "4 stalks"},
+      {"item": "bell peppers", "amount": "2"}
+    ],
+    "instructions": [
+      "Blend chickpeas, tahini, lemon juice, garlic, and olive oil",
+      "Add water to reach desired consistency",
+      "Season with salt and cumin",
+      "Cut vegetables into sticks",
+      "Serve hummus with veggie sticks"
+    ]
+  },
+  {
+    "id": "s003",
+    "name": "Greek Yogurt Parfait",
+    "category": "snack",
+    "prep_time": 5,
+    "cook_time": 0,
+    "servings": 1,
+    "difficulty": "easy",
+    "tags": ["vegetarian", "high-protein", "quick"],
+    "ingredients": [
+      {"item": "greek yogurt", "amount": "1 cup"},
+      {"item": "granola", "amount": "1/4 cup"},
+      {"item": "mixed berries", "amount": "1/2 cup"},
+      {"item": "honey", "amount": "1 tbsp"},
+      {"item": "almonds", "amount": "2 tbsp sliced"}
+    ],
+    "instructions": [
+      "Layer yogurt in a glass or bowl",
+      "Add half the berries",
+      "Sprinkle with granola",
+      "Add remaining yogurt and berries",
+      "Top with almonds and drizzle with honey"
+    ]
+  }
+]
