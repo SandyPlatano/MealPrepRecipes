@@ -38,3 +38,8 @@ data/meal_plans/*
 # OS
 .DS_Store
 Thumbs.db
+
+# Node.js / React
+node_modules/
+dist/
+.vite/
