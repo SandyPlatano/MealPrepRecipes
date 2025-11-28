@@ -49,21 +49,16 @@ class ShoppingListGenerator:
 
     def generate_from_meal_plan(self, meal_plan: Dict,
                                 skip_pantry: bool = True) -> Dict[str, List[Dict]]:
-        """Generate shopping list from a meal plan.
+        """Generate shopping list from a dinner plan.
 
         Args:
-            meal_plan: Meal plan dictionary
+            meal_plan: Dinner plan dictionary
             skip_pantry: Skip ingredients already in pantry
 
         Returns:
             Categorized shopping list
         """
-        recipes = []
-
-        for day, meals in meal_plan['meals'].items():
-            for meal_type, recipe in meals.items():
-                recipes.append(recipe)
-
+        recipes = list(meal_plan['dinners'].values())
         return self.generate_from_recipes(recipes, skip_pantry)
 
     def _categorize_ingredients(self, ingredient_list: Dict) -> Dict[str, List[Dict]]:

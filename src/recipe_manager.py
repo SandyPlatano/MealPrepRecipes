@@ -1,4 +1,4 @@
-"""Recipe Manager - Handles loading and searching recipes."""
+"""Recipe Manager - Handles loading and searching dinner recipes."""
 
 import json
 import os
@@ -7,7 +7,7 @@ from typing import List, Dict, Optional
 
 
 class RecipeManager:
-    """Manages recipe database operations."""
+    """Manages dinner recipe database operations."""
 
     def __init__(self, recipes_dir: str = None):
         """Initialize the recipe manager.
@@ -57,16 +57,6 @@ class RecipeManager:
                 return recipe
         return None
 
-    def search_by_category(self, category: str) -> List[Dict]:
-        """Search recipes by category.
-
-        Args:
-            category: Category name (breakfast, lunch, dinner, snack)
-
-        Returns:
-            List of matching recipes
-        """
-        return [r for r in self.recipes if r.get('category', '').lower() == category.lower()]
 
     def search_by_tag(self, tag: str) -> List[Dict]:
         """Search recipes by tag.
