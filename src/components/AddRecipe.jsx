@@ -15,6 +15,8 @@ const AddRecipe = ({ onRecipeAdded }) => {
 
   const [errors, setErrors] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
+  const [inputMode, setInputMode] = useState('manual'); // 'manual' or 'paste'
+  const [pasteText, setPasteText] = useState('');
 
   const validateForm = () => {
     const newErrors = {};
@@ -136,6 +138,92 @@ const AddRecipe = ({ onRecipeAdded }) => {
     }
   };
 
+  const parsePastedRecipe = (text) => {
+    const lines = text.split('\n');
+    let proteinType = '';
+    let title = '';
+    let tags = [];
+    let ingredients = [];
+    let instructions = '';
+    let currentSection = '';
+    let currentSubsection = '';
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      // Parse category (## Category)
+      if (line.startsWith('## ') && !title) {
+        proteinType = line.substring(3).trim();
+        continue;
+      }
+
+      // Parse recipe title (### Title)
+      if (line.startsWith('### ')) {
+        title = line.substring(4).trim();
+        continue;
+      }
+
+      // Parse sections
+      if (line.startsWith('**') && line.endsWith(':**')) {
+        currentSection = line.substring(2, line.length - 3).toLowerCase();
+        currentSubsection = '';
+        continue;
+      }
+
+      // Parse subsections (like "Blackened Seasoning:")
+      if (line.endsWith(':') && !line.startsWith('**') && currentSection === 'ingredients') {
+        currentSubsection = line.substring(0, line.length - 1);
+        ingredients.push(`\n${currentSubsection}:`);
+        continue;
+      }
+
+      // Skip empty lines
+      if (!line) {
+        continue;
+      }
+
+      // Parse content based on current section
+      if (currentSection === 'tags' && line.startsWith('- ')) {
+        tags.push(line.substring(2).trim());
+      } else if (currentSection === 'ingredients' && line.startsWith('- ')) {
+        ingredients.push(line.substring(2).trim());
+      } else if (currentSection === 'instructions' && line !== 'None') {
+        if (instructions) {
+          instructions += '\n' + line;
+        } else {
+          instructions = line;
+        }
+      }
+    }
+
+    return {
+      title,
+      proteinType,
+      tags: tags.join(', '),
+      ingredients: ingredients.join('\n'),
+      instructions: instructions || 'To be added',
+      prepTime: '0 minutes',
+      cookTime: '0 minutes',
+      servings: '4'
+    };
+  };
+
+  const handlePaste = () => {
+    if (!pasteText.trim()) {
+      return;
+    }
+
+    const parsed = parsePastedRecipe(pasteText);
+    setFormData(prev => ({
+      ...prev,
+      ...parsed
+    }));
+
+    // Switch to manual mode so user can see and edit the parsed data
+    setInputMode('manual');
+    setPasteText('');
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold mb-4 text-gray-800">Add New Recipe</h2>
@@ -146,6 +234,82 @@ const AddRecipe = ({ onRecipeAdded }) => {
         </div>
       )}
 
+      {/* Input Mode Toggle */}
+      <div className="mb-6 flex gap-2 border-b border-gray-200">
+        <button
+          type="button"
+          onClick={() => setInputMode('manual')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            inputMode === 'manual'
+              ? 'border-b-2 border-purple-600 text-purple-600'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Manual Entry
+        </button>
+        <button
+          type="button"
+          onClick={() => setInputMode('paste')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            inputMode === 'paste'
+              ? 'border-b-2 border-purple-600 text-purple-600'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Paste Recipe Format
+        </button>
+      </div>
+
+      {/* Paste Mode */}
+      {inputMode === 'paste' && (
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Paste your recipe in this format:
+          </label>
+          <div className="mb-2 p-3 bg-gray-50 border border-gray-200 rounded text-xs text-gray-600">
+            <pre className="whitespace-pre-wrap">{`## Protein Type
+
+### Recipe Name
+**Tags:**
+- Tag 1
+- Tag 2
+
+**Ingredients:**
+- Ingredient 1
+- Ingredient 2
+
+**Instructions:**
+Step 1
+Step 2
+
+**Notes:**
+Optional notes
+
+**Source:**
+Optional source`}</pre>
+          </div>
+          <textarea
+            value={pasteText}
+            onChange={(e) => setPasteText(e.target.value)}
+            placeholder="Paste your recipe here..."
+            rows="15"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-sm"
+          />
+          <button
+            type="button"
+            onClick={handlePaste}
+            className="mt-2 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            Parse Recipe
+          </button>
+          <p className="mt-2 text-sm text-gray-600">
+            Click "Parse Recipe" to automatically fill the form with your pasted recipe. You can then edit it in the Manual Entry tab.
+          </p>
+        </div>
+      )}
+
+      {/* Manual Entry Form */}
+      {inputMode === 'manual' && (
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Recipe Title */}
         <div>
@@ -315,11 +479,12 @@ const AddRecipe = ({ onRecipeAdded }) => {
         >
           Add Recipe
         </button>
-      </form>
 
-      <p className="mt-4 text-sm text-gray-600">
-        * Required fields. The markdown file will be created in the /recipes directory.
-      </p>
+        <p className="mt-4 text-sm text-gray-600">
+          * Required fields. The markdown file will be created in the /recipes directory.
+        </p>
+      </form>
+      )}
     </div>
   );
 };
