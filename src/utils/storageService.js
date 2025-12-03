@@ -80,9 +80,30 @@ export async function uploadShoppingListFile(content, filename, contentType = 't
       };
     }
 
+    // For HTML files, we need to use a different approach since Supabase Storage
+    // serves HTML files as downloads. Create a signed URL with download option disabled.
+    let finalUrl = urlData.publicUrl;
+    
+    if (contentType.includes('text/html')) {
+      // Use signed URL for HTML files with proper inline display
+      try {
+        const { data: signedData, error: signedError } = await supabase.storage
+          .from(SHOPPING_LISTS_BUCKET)
+          .createSignedUrl(filePath, 60 * 60 * 24 * 7, { // 7 days expiry
+            download: false, // Force inline display
+          });
+        
+        if (!signedError && signedData?.signedUrl) {
+          finalUrl = signedData.signedUrl;
+        }
+      } catch (e) {
+        console.warn('Failed to create signed URL, using public URL:', e);
+      }
+    }
+
     return {
       success: true,
-      url: urlData.publicUrl,
+      url: finalUrl,
       error: null,
     };
   } catch (error) {

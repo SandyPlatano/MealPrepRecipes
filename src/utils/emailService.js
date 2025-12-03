@@ -242,12 +242,14 @@ export async function sendShoppingListEmail({
           supabaseAnonKey,
         });
         
-        // Upload interactive list
+        // Upload interactive list to Supabase Storage
+        // The storage service now uses signed URLs with download:false to ensure
+        // HTML files are rendered inline instead of downloaded
         const interactiveFilename = filename.replace('.md', '-interactive.html');
         const interactiveResult = await uploadShoppingListFile(
           interactiveListHtml,
           interactiveFilename,
-          'text/html'
+          'text/html; charset=utf-8'
         );
         
         if (interactiveResult.success) {
