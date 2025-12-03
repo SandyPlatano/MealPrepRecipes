@@ -1,7 +1,7 @@
 {
   "name": "meal-prep-web-app",
   "version": "1.0.0",
-  "description": "Meal prep web app with recipe search and management",
+  "description": "Babe, What's for Dinner? - Meal planning for couples",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

@@ -74,14 +74,14 @@ export default function Search() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Search Recipes</CardTitle>
-          <CardDescription>Find recipes by type, proteins, or search term</CardDescription>
+          <CardTitle>What Are We Making?</CardTitle>
+          <CardDescription>Search your recipes. Yes, you have recipes now.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[200px]">
               <Input
-                placeholder="Search recipes..."
+                placeholder="Search for that thing you loved last time..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full"
@@ -102,7 +102,7 @@ export default function Search() {
             </Select>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder="Proteins" />
+                <SelectValue placeholder="Protein" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Proteins</SelectItem>
@@ -129,8 +129,8 @@ export default function Search() {
                 )}
                 <p className="text-muted-foreground">
                   {searchQuery || typeFilter !== 'all' || categoryFilter !== 'all'
-                    ? 'No recipes found matching your search.'
-                    : 'No recipes yet. Add your first recipe to get started!'}
+                    ? 'Nothing matches. Try being less picky?'
+                    : 'No recipes yet. Time to actually save one instead of bookmarking it and forgetting.'}
                 </p>
               </div>
             </CardContent>

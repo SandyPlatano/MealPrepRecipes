@@ -130,8 +130,8 @@
   <div class="email-container">
     <!-- Header -->
     <div class="header">
-      <h1>Meal Prep Recipe Manager</h1>
-      <p>Plan, cook, and organize your meals</p>
+      <h1>Babe, What's for Dinner?</h1>
+      <p>Finally, an answer.</p>
     </div>
     
     <!-- Content -->
@@ -181,8 +181,8 @@
     
     <!-- Footer -->
     <div class="footer">
-      <p>Meal Prep Recipe Manager</p>
-      <p class="version">v1.0.0 • Built with React & Tailwind</p>
+      <p>Babe, What's for Dinner?</p>
+      <p class="version">v1.0.0 • Made with love (and mild guilt)</p>
     </div>
   </div>
 </body>

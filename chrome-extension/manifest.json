@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Meal Prep Recipe Manager",
+  "name": "Babe, What's for Dinner?",
   "version": "1.0.0",
-  "description": "Capture recipes from any website and add them to your Meal Prep Recipe Manager",
+  "description": "Capture recipes from any website and add them to your recipe collection",
   "permissions": [
     "activeTab",
     "storage"

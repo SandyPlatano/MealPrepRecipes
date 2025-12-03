@@ -54,7 +54,7 @@ export default function Settings() {
       const saved = storage.settings.set(localSettings);
       
       if (!saved) {
-        toast.error('Failed to save settings. Check browser console for details.');
+        toast.error('Couldn't save. Check the console.');
         return;
       }
       
@@ -64,13 +64,13 @@ export default function Settings() {
       // Verify the save worked
       const verify = storage.settings.get();
       if (JSON.stringify(verify) === JSON.stringify(localSettings)) {
-        toast.success('Settings saved successfully!');
+        toast.success('Settings saved!');
       } else {
-        toast.warning('Settings saved, but verification failed. Please check your browser storage.');
+        toast.warning('Saved, but something looks off. Check your browser storage.');
       }
     } catch (error) {
       console.error('Error saving settings:', error);
-      toast.error('Failed to save settings: ' + error.message);
+      toast.error('Couldn't save: ' + error.message);
     }
   };
 
@@ -91,10 +91,10 @@ export default function Settings() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      toast.success('Settings exported successfully!');
+      toast.success('Settings exported!');
     } catch (error) {
       console.error('Error exporting settings:', error);
-      toast.error('Failed to export settings');
+      toast.error('Export failed');
     }
   };
 
@@ -117,10 +117,10 @@ export default function Settings() {
           setLocalSettings(mergedSettings);
           updateSettings(mergedSettings);
           resetSupabaseClient();
-          toast.success('Settings imported successfully!');
+          toast.success('Settings imported!');
         } catch (error) {
           console.error('Error importing settings:', error);
-          toast.error('Failed to import settings. Invalid file format.');
+          toast.error('Couldn't import. Is that the right file?');
         }
       };
       reader.readAsText(file);
@@ -130,7 +130,7 @@ export default function Settings() {
 
   const handleMigrate = async () => {
     if (!localSettings.supabaseUrl || !localSettings.supabaseAnonKey) {
-      toast.error('Please configure Supabase URL and Anon Key first');
+      toast.error('Set up Supabase URL and Key first');
       return;
     }
 
@@ -138,7 +138,7 @@ export default function Settings() {
     updateSettings(localSettings);
     resetSupabaseClient();
 
-    toast.loading('Migrating data to Supabase...', { id: 'migration' });
+    toast.loading('Migrating your data...', { id: 'migration' });
     
     try {
       // Wait a bit for client to initialize
@@ -146,13 +146,13 @@ export default function Settings() {
       const success = await migrateToSupabase();
       
       if (success) {
-        toast.success('Data migrated to Supabase successfully!', { id: 'migration' });
+        toast.success('All synced up!', { id: 'migration' });
       } else {
-        toast.error('Migration failed. Check console for details.', { id: 'migration' });
+        toast.error('Migration failed. Check the console.', { id: 'migration' });
       }
     } catch (error) {
       console.error('Migration error:', error);
-      toast.error('Migration failed. Check console for details.', { id: 'migration' });
+      toast.error('Migration failed. Check the console.', { id: 'migration' });
     }
   };
 
@@ -182,7 +182,7 @@ export default function Settings() {
       <Card>
         <CardHeader>
           <CardTitle>Settings</CardTitle>
-          <CardDescription>Configure your meal prep app</CardDescription>
+          <CardDescription>Set it up once, stop hearing 'you never plan anything'</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Dark Mode */}
@@ -213,14 +213,14 @@ export default function Settings() {
 
           {/* Cook Names */}
           <div>
-            <Label className="text-base font-semibold mb-3 block font-mono">Cook Names</Label>
+            <Label className="text-base font-semibold mb-3 block font-mono">Who's Cooking?</Label>
             <div className="space-y-2">
               {localSettings.cookNames.map((name, index) => (
                 <div key={index} className="flex gap-2">
                   <Input
                     value={name}
                     onChange={(e) => updateCookName(index, e.target.value)}
-                    placeholder={`Cook ${index + 1} name`}
+                    placeholder="Name"
                   />
                   {localSettings.cookNames.length > 1 && (
                     <Button
@@ -234,34 +234,37 @@ export default function Settings() {
                 </div>
               ))}
               <Button variant="outline" onClick={addCookName} className="w-full">
-                + Add Cook
+                + Add Another Cook
               </Button>
             </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              Add everyone who cooks so you can assign meals fairly. No more 'I cooked last time' arguments.
+            </p>
           </div>
 
           <Separator />
 
           {/* Email Address */}
           <div>
-            <Label className="text-base font-semibold mb-3 block font-mono">Email Address</Label>
+            <Label className="text-base font-semibold mb-3 block font-mono">Email Setup</Label>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="email-address">Primary Email</Label>
+                <Label htmlFor="email-address">Your Email</Label>
                 <Input
                   id="email-address"
                   type="email"
                   value={localSettings.emailAddress || ''}
                   onChange={(e) => updateLocalSetting('emailAddress', e.target.value)}
-                  placeholder="your@email.com"
+                  placeholder="you@email.com"
                 />
                 <p className="text-sm text-muted-foreground mt-2">
-                  Your email address where you will receive shopping lists and calendar invites.
+                  Where we'll send shopping lists and calendar invites.
                 </p>
               </div>
               
               {/* Additional Recipients */}
               <div>
-                <Label className="text-sm font-medium mb-2 block">Additional Recipients</Label>
+                <Label className="text-sm font-medium mb-2 block">Also Send To</Label>
                 <div className="space-y-2">
                   {(localSettings.additionalEmails || []).map((email, index) => (
                     <div key={index} className="flex gap-2">
@@ -273,7 +276,7 @@ export default function Settings() {
                           newEmails[index] = e.target.value;
                           updateLocalSetting('additionalEmails', newEmails);
                         }}
-                        placeholder="additional@email.com"
+                        placeholder="babe@email.com"
                       />
                       <Button
                         variant="outline"
@@ -294,11 +297,11 @@ export default function Settings() {
                     }} 
                     className="w-full"
                   >
-                    + Add Recipient
+                    + Add Another
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Additional email addresses that will also receive shopping lists and calendar invites.
+                  Add your partner, roommate, or anyone else who needs the list.
                 </p>
               </div>
             </div>
@@ -308,7 +311,7 @@ export default function Settings() {
 
           {/* Anthropic API Key */}
           <div>
-            <Label className="text-base font-semibold mb-3 block font-mono">Anthropic API Key</Label>
+            <Label className="text-base font-semibold mb-3 block font-mono">Recipe Parsing (AI)</Label>
             <div className="flex gap-2">
               <Input
                 type={showApiKey ? 'text' : 'password'}
@@ -325,7 +328,7 @@ export default function Settings() {
               </Button>
             </div>
             <p className="text-sm text-muted-foreground mt-2">
-              Required for recipe parsing. Get your key at{' '}
+              Powers the magic that turns messy recipe pages into clean data. Get yours at{' '}
               <a
                 href="https://console.anthropic.com"
                 target="_blank"
@@ -341,7 +344,7 @@ export default function Settings() {
 
           {/* EmailJS Credentials */}
           <div>
-            <Label className="text-base font-semibold mb-3 block font-mono">EmailJS Credentials</Label>
+            <Label className="text-base font-semibold mb-3 block font-mono">Email Sending</Label>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="emailjs-service">Service ID</Label>
@@ -372,7 +375,7 @@ export default function Settings() {
               </div>
             </div>
             <p className="text-sm text-muted-foreground mt-2">
-              Get these from{' '}
+              For sending shopping lists. Get these from{' '}
               <a
                 href="https://www.emailjs.com"
                 target="_blank"
@@ -418,7 +421,7 @@ export default function Settings() {
               <GoogleCalendarButton />
             </div>
             <p className="text-sm text-muted-foreground mt-2">
-              Set up OAuth credentials in{' '}
+              Connect to add meals to your calendar automatically. Set up OAuth in{' '}
               <a
                 href="https://console.cloud.google.com"
                 target="_blank"
@@ -434,14 +437,13 @@ export default function Settings() {
 
           {/* Supabase Configuration */}
           <div>
-            <Label className="text-base font-semibold mb-3 block font-mono">Supabase (Shared Data)</Label>
+            <Label className="text-base font-semibold mb-3 block font-mono">Cloud Sync</Label>
             <p className="text-sm text-muted-foreground mb-4">
-              Configure Supabase to sync recipes, favorites, and cart between devices. 
-              Both you and your partner should use the same credentials.
+              Sync recipes between devices so you and babe are always on the same page.
             </p>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="supabase-url">Project URL</Label>
+                <Label htmlFor="supabase-url">Supabase URL</Label>
                 <Input
                   id="supabase-url"
                   value={localSettings.supabaseUrl || ''}
@@ -479,7 +481,7 @@ export default function Settings() {
               >
                 Supabase Dashboard
               </a>
-              {' '}(Project Settings → API)
+              {' '}→ Project Settings → API
             </p>
             <div className="mt-4">
               <Button
@@ -489,10 +491,10 @@ export default function Settings() {
                 disabled={!localSettings.supabaseUrl || !localSettings.supabaseAnonKey}
               >
                 <Upload className="h-4 w-4 mr-2" />
-                Migrate Local Data to Supabase
+                Migrate My Data
               </Button>
               <p className="text-xs text-muted-foreground mt-2">
-                One-time migration: copies all recipes, favorites, cart, and history from this device to Supabase.
+                One-time sync: uploads all your local recipes, favorites, and history to the cloud.
               </p>
             </div>
           </div>
@@ -503,7 +505,7 @@ export default function Settings() {
           <div>
             <Label className="text-base font-semibold mb-3 block font-mono">Backup & Restore</Label>
             <p className="text-sm text-muted-foreground mb-4">
-              Export your settings to a file for backup, or import previously saved settings.
+              Export your settings to keep them safe. You know, just in case.
             </p>
             <div className="flex gap-2">
               <Button
@@ -524,7 +526,7 @@ export default function Settings() {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              Export creates a JSON file with all your credentials and settings. Keep this file secure!
+              Creates a JSON file with all your config. Keep it somewhere safe!
             </p>
           </div>
 

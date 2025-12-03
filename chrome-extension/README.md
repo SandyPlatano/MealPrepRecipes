@@ -1,4 +1,4 @@
-# Meal Prep Recipe Manager - Chrome Extension
+# Babe, What's for Dinner? - Chrome Extension
 
 ## Setup Instructions
 

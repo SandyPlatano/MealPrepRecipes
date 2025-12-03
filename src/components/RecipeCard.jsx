@@ -54,31 +54,31 @@ export default function RecipeCard({ recipe, onViewDetails }) {
 
   const handleAddToCart = () => {
     if (addToCart(recipe)) {
-      toast.success('Added to meal plan');
+      toast.success('Added to the plan');
     } else {
-      toast.info('Already in meal plan');
+      toast.info('Already on there');
     }
   };
 
   const handleRemoveFromCart = () => {
     removeFromCart(recipe.id);
-    toast.success('Removed from meal plan');
+    toast.success('Removed');
   };
 
   const handleToggleFavorite = () => {
     toggleFavorite(recipe.id);
-    toast.success(isFavorite(recipe.id) ? 'Removed from favorites' : 'Added to favorites');
+    toast.success(isFavorite(recipe.id) ? 'Removed from favorites' : 'Added to favorites ❤️');
   };
 
   const handleExportMarkdown = () => {
     const markdown = exportRecipeAsMarkdown(recipe);
     downloadTextAsFile(markdown, `${recipe.title.replace(/[^a-z0-9]/gi, '_')}.md`, 'text/markdown');
-    toast.success('Recipe exported as Markdown');
+    toast.success('Exported as Markdown');
   };
 
   const handleExportPDF = () => {
     exportRecipeAsPDF(recipe);
-    toast.success('Opening PDF preview');
+    toast.success('Opening PDF...');
   };
 
   const handleDelete = () => {
@@ -163,13 +163,13 @@ export default function RecipeCard({ recipe, onViewDetails }) {
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Recipe</AlertDialogTitle>
+                  <AlertDialogTitle>Delete This Recipe?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Are you sure you want to delete "{recipe.title}"? This action cannot be undone and will remove the recipe from your collection, favorites, and any meal plans.
+                    You're about to delete "{recipe.title}" forever. Gone from your collection, favorites, and any meal plans. No take-backs.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>Keep It</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDelete}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -199,7 +199,7 @@ export default function RecipeCard({ recipe, onViewDetails }) {
               handleRemoveFromCart();
             }}
           >
-            Remove from Meal Plan
+            Remove
           </Button>
         ) : (
           <Button
@@ -210,7 +210,7 @@ export default function RecipeCard({ recipe, onViewDetails }) {
               handleAddToCart();
             }}
           >
-            Add to Meal Plan
+            Add to Plan
           </Button>
         )}
       </CardContent>

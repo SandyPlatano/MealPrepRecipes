@@ -76,15 +76,15 @@ export default function Stats() {
     });
     const maxCount = Math.max(...Object.values(categoryCounts), 0);
     const favorite = Object.keys(categoryCounts).find(cat => categoryCounts[cat] === maxCount);
-    return favorite || 'None yet';
+    return favorite || 'TBD';
   }, [history, recipes]);
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Cooking Statistics</CardTitle>
-          <CardDescription>Your meal prep insights and achievements</CardDescription>
+          <CardTitle>The Receipts</CardTitle>
+          <CardDescription>Proof you've been pulling your weight</CardDescription>
         </CardHeader>
       </Card>
 
@@ -92,7 +92,7 @@ export default function Stats() {
         {/* Total Recipes Cooked */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Total Recipes Cooked</CardTitle>
+            <CardTitle className="text-lg">Meals Crushed</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{history.length}</div>
@@ -105,7 +105,7 @@ export default function Stats() {
         {/* Most-Made Recipe */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Most-Made Recipe</CardTitle>
+            <CardTitle className="text-lg">Go-To Recipe</CardTitle>
           </CardHeader>
           <CardContent>
             {mostMadeRecipe ? (
@@ -116,7 +116,7 @@ export default function Stats() {
                 </p>
               </>
             ) : (
-              <p className="text-muted-foreground">No recipes cooked yet</p>
+              <p className="text-muted-foreground">No data yet</p>
             )}
           </CardContent>
         </Card>
@@ -138,7 +138,7 @@ export default function Stats() {
         {/* Favorite Category */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Favorite Category</CardTitle>
+            <CardTitle className="text-lg">Favorite Protein</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-xl font-semibold">{favoriteCategory}</div>
@@ -148,7 +148,7 @@ export default function Stats() {
         {/* Recipes by Type */}
         <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle className="text-lg">Recipes by Type</CardTitle>
+            <CardTitle className="text-lg">What You've Been Making</CardTitle>
           </CardHeader>
           <CardContent>
             {Object.keys(recipesByType).length > 0 ? (
@@ -173,7 +173,7 @@ export default function Stats() {
                   ))}
               </div>
             ) : (
-              <p className="text-muted-foreground">No cooking history yet</p>
+              <p className="text-muted-foreground">No history yet</p>
             )}
           </CardContent>
         </Card>

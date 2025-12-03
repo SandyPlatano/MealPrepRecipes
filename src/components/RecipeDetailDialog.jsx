@@ -96,7 +96,7 @@ export default function RecipeDetailDialog({ recipe, open, onOpenChange }) {
       setRating(latest.rating || null);
       setNotes(latest.notes || '');
     }
-    toast.success('Recipe marked as cooked! Now you can rate it.');
+    toast.success('Nice! Now rate it.');
   };
 
   const handleRatingChange = (newRating) => {
@@ -118,16 +118,16 @@ export default function RecipeDetailDialog({ recipe, open, onOpenChange }) {
 
   const handleAddToCart = () => {
     if (addToCart(recipe)) {
-      toast.success('Added to meal plan');
+      toast.success('Added!');
       onOpenChange(false);
     } else {
-      toast.info('Already in meal plan');
+      toast.info('Already there');
     }
   };
 
   const handleRemoveFromCart = () => {
     removeFromCart(recipe.id);
-    toast.success('Removed from meal plan');
+    toast.success('Removed');
   };
 
   const handlePrint = () => {
@@ -242,7 +242,7 @@ export default function RecipeDetailDialog({ recipe, open, onOpenChange }) {
           <div className="space-y-6">
             {/* Serving Scale */}
             <div className="flex items-center gap-4">
-              <Label>Scale Servings:</Label>
+              <Label>Servings:</Label>
               <div className="flex gap-2">
                 {[0.5, 1, 1.5, 2, 3].map(scale => (
                   <Button
@@ -251,7 +251,7 @@ export default function RecipeDetailDialog({ recipe, open, onOpenChange }) {
                     size="sm"
                     onClick={() => setServingScale(scale)}
                   >
-                    {scale}x
+                    {scale === 0.5 ? '½x' : scale === 1.5 ? '1½x' : `${scale}x`}
                   </Button>
                 ))}
               </div>
@@ -292,7 +292,7 @@ export default function RecipeDetailDialog({ recipe, open, onOpenChange }) {
             {hasBeenCooked && (
               <div className="space-y-4">
                 <div>
-                  <Label>Rating</Label>
+                  <Label>How Was It?</Label>
                   <StarRating
                     rating={rating}
                     onRatingChange={handleRatingChange}
@@ -304,7 +304,7 @@ export default function RecipeDetailDialog({ recipe, open, onOpenChange }) {
                     id="notes"
                     value={notes}
                     onChange={(e) => handleNotesChange(e.target.value)}
-                    placeholder="Add notes about this recipe (e.g., 'Morgan loved this!', 'Double the garlic next time')"
+                    placeholder="Add notes for next time (e.g., 'Babe loved this', 'Needs more garlic', 'Never again')"
                     rows={3}
                   />
                 </div>
@@ -317,10 +317,10 @@ export default function RecipeDetailDialog({ recipe, open, onOpenChange }) {
           {!hasBeenCooked ? (
             <>
               <Button onClick={handleMarkAsCooked} className="w-full">
-                Mark as Cooked
+                I Made This
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                Mark this recipe as cooked to rate it and add notes
+                Mark it done to rate and add notes
               </p>
             </>
           ) : null}
@@ -331,7 +331,7 @@ export default function RecipeDetailDialog({ recipe, open, onOpenChange }) {
                 className="flex-1 border-orange-300 text-orange-700 hover:bg-orange-50 hover:text-orange-800 hover:border-orange-400 dark:border-orange-600 dark:text-orange-400 dark:hover:bg-orange-950 dark:hover:text-orange-300 dark:hover:border-orange-500"
                 onClick={handleRemoveFromCart}
               >
-                Remove from Meal Plan
+                Remove from Plan
               </Button>
             ) : (
               <Button
@@ -339,7 +339,7 @@ export default function RecipeDetailDialog({ recipe, open, onOpenChange }) {
                 className="flex-1"
                 onClick={handleAddToCart}
               >
-                Add to Meal Plan
+                Add to Plan
               </Button>
             )}
           </div>

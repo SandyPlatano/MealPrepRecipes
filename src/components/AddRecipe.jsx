@@ -25,12 +25,12 @@ export default function AddRecipe() {
 
   const handleParseText = async () => {
     if (!rawText.trim()) {
-      toast.error('Please enter recipe text');
+      toast.error('You gotta paste something first');
       return;
     }
 
     if (!settings.anthropicApiKey) {
-      toast.error('Please set your Anthropic API key in Settings');
+      toast.error('Set up your Anthropic API key in Settings first');
       return;
     }
 
@@ -40,9 +40,9 @@ export default function AddRecipe() {
       setParsedRecipe(parsed);
       setEditableRecipe(parsed);
       setShowPreview(true);
-      toast.success('Recipe parsed successfully! Review and edit if needed.');
+      toast.success('Got it! Review and save when ready.');
     } catch (error) {
-      toast.error(`Failed to parse recipe: ${error.message}`);
+      toast.error(`Couldn't parse that: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -50,12 +50,12 @@ export default function AddRecipe() {
 
   const handleFetchFromURL = async () => {
     if (!url.trim()) {
-      toast.error('Please enter a URL');
+      toast.error('Need a URL to fetch');
       return;
     }
 
     if (!settings.anthropicApiKey) {
-      toast.error('Please set your Anthropic API key in Settings');
+      toast.error('Set up your Anthropic API key in Settings first');
       return;
     }
 
@@ -69,9 +69,9 @@ export default function AddRecipe() {
       setParsedRecipe(parsed);
       setEditableRecipe(parsed);
       setShowPreview(true);
-      toast.success('Recipe fetched and parsed! Review and edit if needed.');
+      toast.success('Grabbed it! Take a look and save.');
     } catch (error) {
-      toast.error(`Failed to fetch recipe: ${error.message}`);
+      toast.error(`Couldn't fetch that: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -79,12 +79,12 @@ export default function AddRecipe() {
 
   const handleSave = () => {
     if (!editableRecipe || !editableRecipe.title) {
-      toast.error('Please parse a recipe first');
+      toast.error('Parse a recipe first');
       return;
     }
 
     const newRecipe = addRecipe(editableRecipe);
-    toast.success(`Recipe "${newRecipe.title}" added!`);
+    toast.success(`"${newRecipe.title}" saved! Look at you go.`);
     
     // Reset form
     setRawText('');
@@ -102,14 +102,14 @@ export default function AddRecipe() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Add New Recipe</CardTitle>
-          <CardDescription>Paste recipe text or import from a URL</CardDescription>
+          <CardTitle>Save a Recipe</CardTitle>
+          <CardDescription>Before you forget where you found it</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs value={mode} onValueChange={setMode}>
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="text">Free-form Text</TabsTrigger>
-              <TabsTrigger value="url">Import from URL</TabsTrigger>
+              <TabsTrigger value="text">Paste It</TabsTrigger>
+              <TabsTrigger value="url">Grab from URL</TabsTrigger>
             </TabsList>
             
             <TabsContent value="text" className="space-y-4 mt-4">
@@ -117,7 +117,7 @@ export default function AddRecipe() {
                 <Label htmlFor="recipe-text">Recipe Text</Label>
                 <Textarea
                   id="recipe-text"
-                  placeholder="Paste your recipe here. For example:&#10;Grilled Lemon Chicken&#10;Ingredients: 2 lbs chicken breast, 2 tbsp honey, 1 lemon...&#10;Instructions: Marinate chicken, grill for 10 minutes..."
+                  placeholder="Paste the recipe here before you close that tab and lose it forever.&#10;&#10;Example:&#10;Grilled Lemon Chicken&#10;Ingredients: 2 lbs chicken breast, 2 tbsp honey, 1 lemon...&#10;Instructions: Marinate chicken, grill for 10 minutes..."
                   value={rawText}
                   onChange={(e) => setRawText(e.target.value)}
                   rows={12}
@@ -128,10 +128,10 @@ export default function AddRecipe() {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Parsing...
+                    Working...
                   </>
                 ) : (
-                  'Parse with AI'
+                  'Parse It'
                 )}
               </Button>
             </TabsContent>
@@ -142,12 +142,12 @@ export default function AddRecipe() {
                 <Input
                   id="recipe-url"
                   type="url"
-                  placeholder="https://example.com/recipe"
+                  placeholder="https://that-recipe-you-found.com"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                 />
                 <p className="text-sm text-muted-foreground mt-2">
-                  Works with most recipe websites. If the site blocks access, copy the recipe text and use the free-form input instead.
+                  Works with most recipe sites. If it fails, just copy-paste the recipe text instead.
                 </p>
               </div>
               <Button onClick={handleFetchFromURL} disabled={loading || !url.trim()}>
@@ -157,7 +157,7 @@ export default function AddRecipe() {
                     Fetching...
                   </>
                 ) : (
-                  'Fetch & Parse Recipe'
+                  'Grab Recipe'
                 )}
               </Button>
             </TabsContent>
@@ -168,12 +168,12 @@ export default function AddRecipe() {
       {showPreview && editableRecipe && (
         <Card>
           <CardHeader>
-            <CardTitle>Review & Edit Recipe</CardTitle>
-            <CardDescription>Make any corrections before saving</CardDescription>
+            <CardTitle>Review Before Saving</CardTitle>
+            <CardDescription>Make sure it looks right. You know how the internet is.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="title">Recipe Title</Label>
+              <Label htmlFor="title">Recipe Name</Label>
               <Input
                 id="title"
                 value={editableRecipe.title}
@@ -188,11 +188,11 @@ export default function AddRecipe() {
                   id="recipeType"
                   value={editableRecipe.recipeType || 'Dinner'}
                   onChange={(e) => updateEditableField('recipeType', e.target.value)}
-                  placeholder="Dinner, Baking, Breakfast, etc."
+                  placeholder="Dinner, Breakfast, etc."
                 />
               </div>
               <div>
-                <Label htmlFor="category">Category</Label>
+                <Label htmlFor="category">Protein</Label>
                 <Input
                   id="category"
                   value={editableRecipe.category || editableRecipe.proteinType || ''}
@@ -200,7 +200,7 @@ export default function AddRecipe() {
                     updateEditableField('category', e.target.value);
                     updateEditableField('proteinType', e.target.value);
                   }}
-                  placeholder="Chicken, Cookies, etc."
+                  placeholder="Chicken, Beef, Tofu, etc."
                 />
               </div>
             </div>
@@ -275,7 +275,7 @@ export default function AddRecipe() {
                   setEditableRecipe(null);
                 }}
               >
-                Cancel
+                Nevermind
               </Button>
             </div>
           </CardContent>

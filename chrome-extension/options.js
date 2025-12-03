@@ -89,7 +89,7 @@ testBtn.addEventListener('click', async () => {
       showStatus(`Connection successful! (Status: ${response.status})`, 'success');
     }
   } catch (error) {
-    showStatus('Connection failed: ' + error.message + '. Make sure your app is deployed and the URL is correct.', 'error');
+    showStatus('Couldn't connect: ' + error.message + '. Is your app URL right?', 'error');
   } finally {
     testBtn.disabled = false;
     testBtn.textContent = 'Test Connection';

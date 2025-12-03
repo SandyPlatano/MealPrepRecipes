@@ -94,7 +94,7 @@ async function captureRecipe() {
     showState('form');
   } catch (error) {
     console.error('Error capturing recipe:', error);
-    elements.errorMessage.textContent = error.message || 'Failed to capture recipe. Please try again.';
+    elements.errorMessage.textContent = error.message || 'Couldn't capture. Try again?';
     showState('error');
   }
 }
@@ -155,7 +155,7 @@ async function saveRecipe() {
   const recipeData = getFormData();
   
   if (!recipeData.title) {
-    alert('Please enter a recipe title');
+    alert('Give it a name first');
     return;
   }
   
@@ -171,11 +171,11 @@ async function saveRecipe() {
       throw new Error(response.error || 'Failed to save recipe');
     }
     
-    elements.successMessage.textContent = response.data.message || `Recipe "${recipeData.title}" added successfully!`;
+    elements.successMessage.textContent = response.data.message || `"${recipeData.title}" saved!`;
     showState('success');
   } catch (error) {
     console.error('Error saving recipe:', error);
-    elements.errorMessage.textContent = error.message || 'Failed to save recipe. Please try again.';
+    elements.errorMessage.textContent = error.message || 'Couldn't save. Try again?';
     showState('error');
   }
 }

@@ -87,8 +87,8 @@ function App() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground font-mono">Meal Prep Recipe Manager</h1>
-              <p className="text-sm text-muted-foreground mt-1">Plan, cook, and organize your meals</p>
+              <h1 className="text-2xl font-bold text-foreground font-mono">Babe, What's for Dinner?</h1>
+              <p className="text-sm text-muted-foreground mt-1">Finally, an answer.</p>
             </div>
             <Button
               variant="outline"
@@ -117,7 +117,7 @@ function App() {
             <TabsList className="w-full justify-start bg-transparent h-auto p-0">
               <TabsTrigger value="search" className="data-[state=active]:border-b-2 data-[state=active]:border-foreground rounded-none">
                 <SearchIcon className="h-4 w-4 mr-2" />
-                Search
+                Find Food
               </TabsTrigger>
               <TabsTrigger value="add" className="data-[state=active]:border-b-2 data-[state=active]:border-foreground rounded-none">
                 <Plus className="h-4 w-4 mr-2" />
@@ -125,11 +125,11 @@ function App() {
               </TabsTrigger>
               <TabsTrigger value="my-recipes" className="data-[state=active]:border-b-2 data-[state=active]:border-foreground rounded-none">
                 <BookOpen className="h-4 w-4 mr-2" />
-                My Recipes
+                The Vault
               </TabsTrigger>
               <TabsTrigger value="stats" className="data-[state=active]:border-b-2 data-[state=active]:border-foreground rounded-none">
                 <BarChart3 className="h-4 w-4 mr-2" />
-                Stats
+                Receipts
               </TabsTrigger>
               <TabsTrigger value="settings" className="data-[state=active]:border-b-2 data-[state=active]:border-foreground rounded-none">
                 <SettingsIcon className="h-4 w-4 mr-2" />
@@ -181,12 +181,12 @@ function App() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col items-center gap-2">
             <p className="text-sm text-muted-foreground font-mono">
-              Meal Prep Recipe Manager
+              Babe, What's for Dinner?
             </p>
             <div className="flex items-center gap-4 text-xs text-muted-foreground/70">
               <span className="font-mono">v1.0.0</span>
               <span>•</span>
-              <span>Built with React & Tailwind</span>
+              <span>Made with love (and mild guilt)</span>
             </div>
           </div>
         </div>

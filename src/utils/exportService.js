@@ -48,7 +48,7 @@ export function exportAllRecipesAsMarkdown(recipes) {
     byProtein[protein].push(recipe);
   });
 
-  let markdown = `# Meal Prep Recipe Collection\n\n`;
+  let markdown = `# Recipe Collection\n\n`;
   markdown += `*Exported on ${new Date().toLocaleDateString()}*\n\n`;
 
   Object.keys(byProtein).sort().forEach(protein => {

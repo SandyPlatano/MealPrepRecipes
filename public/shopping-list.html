@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#3b82f6">
-  <meta name="description" content="Interactive Shopping List - Meal Prep Recipe Manager">
-  <title>Shopping List - Meal Prep Recipe Manager</title>
+  <meta name="description" content="Shopping List | Babe, What's for Dinner?">
+  <title>Shopping List | Babe, What's for Dinner?</title>
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -404,10 +404,10 @@
   </style>
 </head>
 <body>
-  <div class="offline-indicator" id="offlineIndicator">◉ Offline - Changes saved locally</div>
+  <div class="offline-indicator" id="offlineIndicator">📴 Offline – changes saved locally</div>
   
   <header class="header">
-    <h1>🛒 Shopping List</h1>
+    <h1>🛒 The List</h1>
     <div class="subtitle" id="weekRange">Loading...</div>
   </header>
   
@@ -415,16 +415,16 @@
     <div class="progress-bar">
       <div class="progress-fill" id="progressFill" style="width: 0%"></div>
     </div>
-    <div class="progress-text" id="progressText">0 of 0 items</div>
+    <div class="progress-text" id="progressText">0 of 0 grabbed</div>
   </div>
   
   <main class="content" id="mainContent">
-    <div class="loading">Loading shopping list...</div>
+    <div class="loading">Loading your list...</div>
   </main>
   
   <div class="bottom-bar">
-    <button class="btn btn-primary" onclick="openAddDialog()">+ Add Item</button>
-    <button class="btn btn-secondary" onclick="shareList()">Share ↗</button>
+    <button class="btn btn-primary" onclick="openAddDialog()">+ Add</button>
+    <button class="btn btn-secondary" onclick="shareList()">Share</button>
   </div>
   
   <div class="dialog-overlay" id="addDialog" onclick="closeAddDialog(event)">
@@ -432,7 +432,7 @@
       <h2>Add Item</h2>
       <input type="text" id="newItemText" placeholder="e.g., Milk (1 gallon)" onkeydown="handleAddItemKeydown(event)">
       <select id="newItemCategory">
-        <option value="">Select category...</option>
+        <option value="">Aisle...</option>
       </select>
       <div class="dialog-actions">
         <button class="btn btn-secondary" onclick="closeAddDialog()">Cancel</button>
@@ -442,7 +442,7 @@
   </div>
   
   <footer class="footer">
-    <div>Meal Prep Recipe Manager</div>
+    <div>Babe, What's for Dinner?</div>
     <div style="margin-top: 4px; font-size: 11px;">v1.0.0</div>
   </footer>
   
@@ -472,7 +472,7 @@
     // Initialize
     async function init() {
       if (!listId) {
-        showError('No shopping list ID provided', 'Please use a valid shopping list link from your email.');
+        showError('No list found', 'Use a valid link from your email.');
         return;
       }
       
@@ -500,7 +500,7 @@
           state.categories = data.categories || [];
           state.checkedItems = new Set(data.checkedItems || []);
           
-          document.getElementById('weekRange').textContent = state.weekRange || 'Shopping List';
+          document.getElementById('weekRange').textContent = state.weekRange || 'The List';
           render();
           updateProgress();
         }
@@ -548,7 +548,7 @@
         if (!data || data.length === 0) {
           // Check if we have local data
           if (state.items.length === 0) {
-            showError('Shopping list not found', 'This shopping list may have expired or been deleted.');
+            showError('List not found', 'It may have expired or been deleted.');
           }
           return;
         }
@@ -590,7 +590,7 @@
         console.error('Error loading from Supabase:', error);
         // If we have local data, continue with that
         if (state.items.length === 0) {
-          showError('Error loading shopping list', error.message);
+          showError('Couldn't load list', error.message);
         }
       }
     }
@@ -723,8 +723,8 @@
       if (navigator.share) {
         try {
           await navigator.share({
-            title: 'Shopping List - ' + state.weekRange,
-            text: 'Check out our shopping list!',
+            title: 'Shopping List – ' + state.weekRange,
+            text: 'Here's what we need!',
             url: url,
           });
         } catch (e) {
@@ -756,7 +756,7 @@
       const pct = total > 0 ? (checked / total) * 100 : 0;
       
       document.getElementById('progressFill').style.width = pct + '%';
-      document.getElementById('progressText').textContent = checked + ' of ' + total + ' items';
+      document.getElementById('progressText').textContent = checked + ' of ' + total + ' grabbed';
     }
     
     // Render
@@ -764,7 +764,7 @@
       const container = document.getElementById('mainContent');
       
       if (state.items.length === 0) {
-        container.innerHTML = '<div class="loading">No items in shopping list</div>';
+        container.innerHTML = '<div class="loading">Nothing on the list yet</div>';
         return;
       }
       

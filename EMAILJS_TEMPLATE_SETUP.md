@@ -1,6 +1,6 @@
 # EmailJS Template Setup with Branded Design
 
-This guide shows you how to set up your EmailJS template to match the Meal Prep Recipe Manager branding.
+This guide shows you how to set up your EmailJS template to match the Babe, What's for Dinner? branding.
 
 ## ⚠️ Critical Setup Step: Configure "To Email" Field
 
@@ -164,8 +164,8 @@ Copy this entire HTML into your EmailJS template:
   <div class="email-container">
     <!-- Header -->
     <div class="header">
-      <h1>Meal Prep Recipe Manager</h1>
-      <p>Plan, cook, and organize your meals</p>
+      <h1>Babe, What's for Dinner?</h1>
+      <p>Finally, an answer.</p>
     </div>
     
     <!-- Content -->
@@ -226,8 +226,8 @@ Copy this entire HTML into your EmailJS template:
     
     <!-- Footer -->
     <div class="footer">
-      <p>Meal Prep Recipe Manager</p>
-      <p class="version">v1.0.0 • Built with React & Tailwind</p>
+      <p>Babe, What's for Dinner?</p>
+      <p class="version">v1.0.0 • Made with love (and mild guilt)</p>
     </div>
   </div>
 </body>
@@ -239,7 +239,7 @@ Copy this entire HTML into your EmailJS template:
 Use this for your email subject:
 
 ```text
-Meal Prep Shopping List - {{week_range}}
+This Week's Plan - Week of {{week_range}}
 ```
 
 ## Template Variables Used

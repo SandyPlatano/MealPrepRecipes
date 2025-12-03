@@ -227,17 +227,17 @@ export default function Cart({ open, onOpenChange }) {
 
   const handleSendEmailAndCalendar = async () => {
     if (assignedItems.length === 0) {
-      toast.error('Please assign cooks and days to all recipes');
+      toast.error('Assign everyone first. No free rides.');
       return;
     }
 
     if (!settings.emailAddress) {
-      toast.error('Please set your email address in Settings');
+      toast.error('Add your email in Settings first');
       return;
     }
 
     if (!settings.emailjsServiceId || !settings.emailjsTemplateId || !settings.emailjsPublicKey) {
-      toast.error('Please configure EmailJS credentials in Settings');
+      toast.error('Set up EmailJS in Settings to send emails');
       return;
     }
 
@@ -277,18 +277,18 @@ export default function Cart({ open, onOpenChange }) {
 
         console.log('EmailJS result:', emailResult);
 
-        if (emailResult.successful > 0) {
-          emailSuccess = true;
-          if (emailResult.failed > 0) {
-            const errorDetails = emailResult.errors?.map(e => `${e.email}: ${e.error}`).join('; ') || 'Unknown error';
-            toast.warning(`Email sent to ${emailResult.successful} recipient(s), but ${emailResult.failed} failed. Check console for details.`);
-            console.error('Failed emails:', emailResult.errors);
+          if (emailResult.successful > 0) {
+            emailSuccess = true;
+            if (emailResult.failed > 0) {
+              const errorDetails = emailResult.errors?.map(e => `${e.email}: ${e.error}`).join('; ') || 'Unknown error';
+              toast.warning(`Sent to ${emailResult.successful}, but ${emailResult.failed} failed. Check console.`);
+              console.error('Failed emails:', emailResult.errors);
+            } else {
+              toast.success(`Sent to ${emailResult.successful} people!`);
+            }
           } else {
-            toast.success(`Email sent successfully to ${emailResult.successful} recipient(s)!`);
-          }
-        } else {
-          const errorDetails = emailResult.errors?.map(e => `${e.email}: ${e.error}`).join('; ') || 'Unknown error';
-          toast.error(`Email failed to send to all recipients. Check console for details.`);
+            const errorDetails = emailResult.errors?.map(e => `${e.email}: ${e.error}`).join('; ') || 'Unknown error';
+            toast.error(`Couldn't send to anyone. Check console.`);
           console.error('EmailJS configuration:', {
             serviceId: settings.emailjsServiceId ? 'Set' : 'Missing',
             templateId: settings.emailjsTemplateId ? 'Set' : 'Missing',
@@ -304,7 +304,7 @@ export default function Cart({ open, onOpenChange }) {
           templateId: settings.emailjsTemplateId ? 'Set' : 'Missing',
           publicKey: settings.emailjsPublicKey ? 'Set' : 'Missing',
         });
-        toast.error(`Email failed: ${emailError.message}. Check console for details.`);
+        toast.error(`Failed: ${emailError.message}`);
       }
 
       // Create calendar events if Google Calendar is connected
@@ -368,13 +368,13 @@ export default function Cart({ open, onOpenChange }) {
           });
 
           if (calendarResult.successful > 0) {
-            toast.success(`Created ${calendarResult.successful} calendar event(s)!`);
+            toast.success(`Added ${calendarResult.successful} events to calendar!`);
             if (calendarResult.failed > 0) {
-              toast.warning(`${calendarResult.failed} event(s) failed. Check console for details.`);
+              toast.warning(`${calendarResult.failed} events failed. Check console.`);
               console.error('Calendar event errors:', calendarResult.errors);
             }
           } else if (calendarResult.failed > 0) {
-            toast.error(`Failed to create calendar events: ${calendarResult.errors.join(', ')}`);
+            toast.error(`Calendar events failed: ${calendarResult.errors.join(', ')}`);
             console.error('All calendar events failed:', calendarResult.errors);
           }
         } catch (calendarError) {
@@ -383,25 +383,25 @@ export default function Cart({ open, onOpenChange }) {
           
           // Check for common error types
           if (errorMessage.includes('invalid_grant') || errorMessage.includes('token') || errorMessage.includes('401')) {
-            toast.error('Google Calendar authentication expired. Please reconnect in Settings.');
+            toast.error('Google Calendar disconnected. Reconnect in Settings.');
           } else if (errorMessage.includes('403') || errorMessage.includes('permission')) {
-            toast.error('Google Calendar permission denied. Please check your OAuth scopes.');
+            toast.error('Calendar permission denied. Check your OAuth setup.');
           } else {
-            toast.error(`Calendar events failed: ${errorMessage}. Check console for details.`);
+            toast.error(`Calendar events failed: ${errorMessage}`);
           }
         }
       } else if (emailSuccess) {
         // Only show this if email succeeded but calendar isn't configured
-        toast.info('Email sent! Connect Google Calendar in Settings to also create calendar invites.');
+        toast.info('Email sent! Connect Google Calendar in Settings to also add to your calendar.');
       }
 
       // Show final summary
       if (emailSuccess) {
-        toast.success('Meal plan sent successfully!');
+        toast.success('Boom. Plan sent!');
       }
     } catch (error) {
       console.error('Error sending meal plan:', error);
-      toast.error(`Failed to send meal plan: ${error.message}. Check console for details.`);
+      toast.error(`Something went wrong: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -423,12 +423,12 @@ export default function Cart({ open, onOpenChange }) {
 
   const handleSaveTemplate = () => {
     if (!templateName.trim()) {
-      toast.error('Please enter a template name');
+      toast.error('Give it a name');
       return;
     }
 
     if (assignedItems.length === 0) {
-      toast.error('Please assign recipes to days before saving');
+      toast.error('Assign meals to days first');
       return;
     }
 
@@ -458,7 +458,7 @@ export default function Cart({ open, onOpenChange }) {
     
     setSaveTemplateOpen(false);
     setTemplateName('');
-    toast.success(`Template "${template.name}" saved!`);
+    toast.success(`"${template.name}" saved!`);
   };
 
   const handleLoadTemplate = (template) => {
@@ -477,7 +477,7 @@ export default function Cart({ open, onOpenChange }) {
       }
     });
     
-    toast.success(`Template "${template.name}" loaded!`);
+    toast.success(`"${template.name}" loaded!`);
   };
 
   const handleDeleteTemplate = (templateId) => {
@@ -501,9 +501,9 @@ export default function Cart({ open, onOpenChange }) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Shopping Cart & Meal Plan</SheetTitle>
+          <SheetTitle>This Week's Plan</SheetTitle>
           <SheetDescription>
-            Assign recipes to cooks and days, then generate your shopping list
+            Assign meals, generate the shopping list, and finally have an answer when babe asks.
           </SheetDescription>
         </SheetHeader>
 
@@ -512,8 +512,8 @@ export default function Cart({ open, onOpenChange }) {
           {templates.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>Saved Templates</CardTitle>
-                <CardDescription>Load a previously saved meal plan</CardDescription>
+                <CardTitle>Saved Plans</CardTitle>
+                <CardDescription>Reuse a plan from before</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
@@ -545,7 +545,7 @@ export default function Cart({ open, onOpenChange }) {
           {/* Week Selector */}
           <Card>
             <CardHeader>
-              <CardTitle>Select Week</CardTitle>
+              <CardTitle>Week</CardTitle>
             </CardHeader>
             <CardContent>
               <WeekSelector selectedWeek={selectedWeek} onWeekChange={setSelectedWeek} />
@@ -557,9 +557,9 @@ export default function Cart({ open, onOpenChange }) {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Meal Assignment</CardTitle>
+                  <CardTitle>Who's Making What</CardTitle>
                   <CardDescription>
-                    Assign each recipe to a cook and day
+                    Assign each meal to a cook and day. No ambiguity. No excuses.
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">
@@ -607,7 +607,7 @@ export default function Cart({ open, onOpenChange }) {
               <CardHeader>
                 <CardTitle>Shopping List</CardTitle>
                 <CardDescription>
-                  {allIngredients.length} items organized by store aisle
+                  {allIngredients.length} items, sorted by aisle so you're not wandering around like a lost puppy
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -675,19 +675,19 @@ export default function Cart({ open, onOpenChange }) {
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Save Meal Plan Template</DialogTitle>
+                    <DialogTitle>Save This Plan</DialogTitle>
                     <DialogDescription>
-                      Save this week's meal plan to reuse later
+                      Name it something you'll remember
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="template-name">Template Name</Label>
+                      <Label htmlFor="template-name">Plan Name</Label>
                       <Input
                         id="template-name"
                         value={templateName}
                         onChange={(e) => setTemplateName(e.target.value)}
-                        placeholder="e.g., Healthy Week, Quick Meals"
+                        placeholder="e.g., Lazy Week, Healthy-ish, The Classics"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             handleSaveTemplate();
@@ -727,7 +727,7 @@ export default function Cart({ open, onOpenChange }) {
               ) : (
                 <>
                   <Mail className="mr-2 h-4 w-4" />
-                  Send Email & Calendar Invites
+                  Send the Plan
                 </>
               )}
             </Button>
@@ -737,11 +737,11 @@ export default function Cart({ open, onOpenChange }) {
               className="border-orange-300 text-orange-700 hover:bg-orange-50 hover:text-orange-800 hover:border-orange-400 dark:border-orange-600 dark:text-orange-400 dark:hover:bg-orange-950 dark:hover:text-orange-300 dark:hover:border-orange-500"
               onClick={() => {
                 clearCart();
-                toast.success('Cart cleared');
+                toast.success('Starting fresh');
               }}
               disabled={cartItems.length === 0}
             >
-              Clear Cart
+              Start Over
             </Button>
           </div>
         </div>

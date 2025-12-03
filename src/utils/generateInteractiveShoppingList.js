@@ -54,8 +54,8 @@ export function generateInteractiveShoppingListHTML({
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#3b82f6">
-  <meta name="description" content="Interactive shopping list for ${escapedWeekRange}">
-  <title>Shopping List - ${escapedWeekRange}</title>
+  <meta name="description" content="Shopping List | Babe, What's for Dinner?">
+  <title>Shopping List | Babe, What's for Dinner?</title>
   
   <!-- PWA Manifest -->
   <link rel="manifest" href="data:application/json;base64,${manifestBase64}">
@@ -471,10 +471,10 @@ export function generateInteractiveShoppingListHTML({
   </style>
 </head>
 <body>
-  <div class="offline-indicator" id="offlineIndicator">◉ Offline - Changes will sync when online</div>
+  <div class="offline-indicator" id="offlineIndicator">📴 Offline – changes saved locally</div>
   
   <header class="header">
-    <h1>Meal Prep Recipe Manager</h1>
+    <h1>🛒 The List</h1>
     <div class="subtitle">Shopping List</div>
   </header>
   
@@ -482,16 +482,16 @@ export function generateInteractiveShoppingListHTML({
     <div class="progress-bar">
       <div class="progress-fill" id="progressFill" style="width: 0%"></div>
     </div>
-    <div class="progress-text" id="progressText">0 of 0 items</div>
+    <div class="progress-text" id="progressText">0 of 0 grabbed</div>
   </div>
   
   <main class="content" id="mainContent">
-    <div class="loading">Loading shopping list...</div>
+    <div class="loading">Loading your list...</div>
   </main>
   
   <div class="bottom-bar">
-    <button class="btn btn-primary" onclick="openAddDialog()">+ Add Item</button>
-    <button class="btn btn-secondary" onclick="shareList()">Share ↗</button>
+    <button class="btn btn-primary" onclick="openAddDialog()">+ Add</button>
+    <button class="btn btn-secondary" onclick="shareList()">Share</button>
   </div>
   
   <div class="dialog-overlay" id="addDialog" onclick="closeAddDialog(event)">
@@ -499,7 +499,7 @@ export function generateInteractiveShoppingListHTML({
       <h2>Add Item</h2>
       <input type="text" id="newItemText" placeholder="e.g., Milk (1 gallon)" onkeydown="handleAddItemKeydown(event)">
       <select id="newItemCategory">
-        <option value="">Select category...</option>
+        <option value="">Aisle...</option>
       </select>
       <div class="dialog-actions">
         <button class="btn btn-secondary" onclick="closeAddDialog()">Cancel</button>
@@ -509,8 +509,8 @@ export function generateInteractiveShoppingListHTML({
   </div>
   
   <footer class="footer">
-    <div>Meal Prep Recipe Manager</div>
-    <div style="margin-top: 4px; font-size: 11px;">v1.0.0 • Built with React & Tailwind</div>
+    <div>Babe, What's for Dinner?</div>
+    <div style="margin-top: 4px; font-size: 11px;">v1.0.0</div>
   </footer>
   
   <!-- Supabase SDK -->
@@ -587,7 +587,7 @@ export function generateInteractiveShoppingListHTML({
         // Note: IndexedDB provides offline storage - no service worker needed for this use case
       } catch (error) {
         console.error('Initialization error:', error);
-        document.getElementById('mainContent').innerHTML = '<div class="empty-state">Error loading shopping list. Please refresh.</div>';
+        document.getElementById('mainContent').innerHTML = '<div class="empty-state">Couldn't load list. Refresh?</div>';
       }
     }
     
@@ -837,8 +837,8 @@ export function generateInteractiveShoppingListHTML({
       if (navigator.share) {
         try {
           await navigator.share({
-            title: 'Shopping List - ' + CONFIG.weekRange,
-            text: 'Check out our shopping list!',
+            title: 'Shopping List – ' + CONFIG.weekRange,
+            text: 'Here's what we need!',
             url: url,
           });
         } catch (error) {
@@ -855,7 +855,7 @@ export function generateInteractiveShoppingListHTML({
     function copyToClipboard(text) {
       if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(() => {
-          alert('Link copied to clipboard!');
+          alert('Link copied!');
         });
       } else {
         // Fallback
@@ -876,7 +876,7 @@ export function generateInteractiveShoppingListHTML({
       const percentage = total > 0 ? (checked / total) * 100 : 0;
       
       document.getElementById('progressFill').style.width = percentage + '%';
-      document.getElementById('progressText').textContent = checked + ' of ' + total + ' items';
+      document.getElementById('progressText').textContent = checked + ' of ' + total + ' grabbed';
     }
     
     // Render shopping list
@@ -884,7 +884,7 @@ export function generateInteractiveShoppingListHTML({
       const container = document.getElementById('mainContent');
       
       if (state.items.length === 0) {
-        container.innerHTML = '<div class="empty-state">No items in shopping list</div>';
+        container.innerHTML = '<div class="empty-state">Nothing on the list yet</div>';
         return;
       }
       

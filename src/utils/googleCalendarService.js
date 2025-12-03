@@ -173,7 +173,7 @@ export async function createMealPlanEvents({
  * Format recipe data as description for calendar event
  */
 function formatRecipeDescription(recipe) {
-  if (!recipe) return 'Meal prep cooking time.';
+  if (!recipe) return 'Cooking time.';
   
   let desc = `Prep Time: ${recipe.prepTime} | Cook Time: ${recipe.cookTime} | Servings: ${recipe.servings}\n\n`;
   

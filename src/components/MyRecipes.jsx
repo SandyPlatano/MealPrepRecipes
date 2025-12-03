@@ -47,9 +47,9 @@ export default function MyRecipes() {
 
   const handleMakeAgain = (recipe) => {
     if (addToCart(recipe)) {
-      toast.success('Added to meal plan!');
+      toast.success('Added to this week\'s plan!');
     } else {
-      toast.info('Already in meal plan');
+      toast.info('Already on the menu');
     }
   };
 
@@ -57,16 +57,16 @@ export default function MyRecipes() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>My Recipes</CardTitle>
-          <CardDescription>Your favorites and cooking history</CardDescription>
+          <CardTitle>The Vault</CardTitle>
+          <CardDescription>Your favorites and everything you've actually made</CardDescription>
         </CardHeader>
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="favorites">Favorites</TabsTrigger>
-          <TabsTrigger value="recent">Recently Made</TabsTrigger>
-          <TabsTrigger value="history">All History</TabsTrigger>
+          <TabsTrigger value="recent">Recent Wins</TabsTrigger>
+          <TabsTrigger value="history">Full History</TabsTrigger>
         </TabsList>
 
         <TabsContent value="favorites" className="mt-6">
@@ -76,7 +76,7 @@ export default function MyRecipes() {
                 <div className="flex flex-col items-center gap-3">
                   <Heart className="h-12 w-12 text-muted-foreground opacity-50" />
                   <p className="text-muted-foreground">
-                    No favorite recipes yet. Click the heart icon on any recipe to add it here.
+                    No favorites yet. Heart the ones you love so you can find them when babe asks.
                   </p>
                 </div>
               </CardContent>
@@ -101,7 +101,7 @@ export default function MyRecipes() {
                 <div className="flex flex-col items-center gap-3">
                   <History className="h-12 w-12 text-muted-foreground opacity-50" />
                   <p className="text-muted-foreground">
-                    No cooking history yet. Mark recipes as cooked to see them here.
+                    Nothing cooked yet. Mark recipes as done to build your track record.
                   </p>
                 </div>
               </CardContent>
@@ -135,7 +135,7 @@ export default function MyRecipes() {
                         onClick={() => handleMakeAgain(recipe)}
                       >
                         <ShoppingCart className="h-4 w-4 mr-2" />
-                        Make Again
+                        Make It Again
                       </Button>
                     </div>
                   </CardHeader>
@@ -152,7 +152,7 @@ export default function MyRecipes() {
                 <div className="flex flex-col items-center gap-3">
                   <History className="h-12 w-12 text-muted-foreground opacity-50" />
                   <p className="text-muted-foreground">
-                    No cooking history yet. Mark recipes as cooked to see them here.
+                    Nothing cooked yet. Mark recipes as done to build your track record.
                   </p>
                 </div>
               </CardContent>
