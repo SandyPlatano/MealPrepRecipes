@@ -81,8 +81,7 @@ export const storage = {
   settings: {
     get: () => getStorageItem(STORAGE_KEYS.SETTINGS, {
       cookNames: ['You', 'Morgan'],
-      yourEmail: '',
-      partnerEmail: '',
+      emailAddress: '',
       anthropicApiKey: '',
       emailjsServiceId: '',
       emailjsTemplateId: '',

@@ -6,8 +6,7 @@ const SettingsContext = createContext(null);
 const defaultSettings = {
   darkMode: false,
   cookNames: ['You', 'Morgan'],
-  yourEmail: '',
-  partnerEmail: '',
+  emailAddress: '',
   anthropicApiKey: '',
   emailjsServiceId: '',
   emailjsTemplateId: '',
@@ -29,6 +28,20 @@ export function SettingsProvider({ children }) {
   useEffect(() => {
     try {
       const savedSettings = storage.settings.get();
+      
+      // Migrate old email fields to new single emailAddress field
+      if (savedSettings && (savedSettings.yourEmail || savedSettings.partnerEmail)) {
+        // Use yourEmail if available, otherwise partnerEmail, otherwise empty
+        if (!savedSettings.emailAddress) {
+          savedSettings.emailAddress = savedSettings.yourEmail || savedSettings.partnerEmail || '';
+        }
+        // Remove old fields
+        delete savedSettings.yourEmail;
+        delete savedSettings.partnerEmail;
+        // Save migrated settings
+        storage.settings.set(savedSettings);
+      }
+      
       // Merge with defaults to ensure all fields exist
       const finalSettings = { ...defaultSettings, ...savedSettings };
       

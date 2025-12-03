@@ -240,8 +240,8 @@ export default function Cart({ open, onOpenChange }) {
       return;
     }
 
-    if (!settings.yourEmail || !settings.partnerEmail) {
-      toast.error('Please set email addresses in Settings');
+    if (!settings.emailAddress) {
+      toast.error('Please set your email address in Settings');
       return;
     }
 
@@ -263,9 +263,9 @@ export default function Cart({ open, onOpenChange }) {
       const shoppingListMarkdown = generateShoppingListMarkdown();
       const schedule = generateSchedule();
 
-      // Send emails
+      // Send email
       const emailResult = await sendShoppingListEmail({
-        toEmails: [settings.yourEmail, settings.partnerEmail],
+        toEmails: [settings.emailAddress],
         weekRange,
         schedule,
         shoppingListHtml,
@@ -277,7 +277,7 @@ export default function Cart({ open, onOpenChange }) {
       });
 
       if (emailResult.successful > 0) {
-        toast.success(`Email sent to ${emailResult.successful} recipient(s)`);
+        toast.success(`Email sent successfully!`);
       }
 
       // Create calendar events if Google Calendar is connected
@@ -306,7 +306,7 @@ export default function Cart({ open, onOpenChange }) {
           const calendarResult = await createMealPlanEvents({
             accessToken,
             events,
-            attendeeEmail: settings.partnerEmail,
+            attendeeEmail: settings.emailAddress,
           });
 
           if (calendarResult.successful > 0) {

@@ -38,6 +38,7 @@ export async function sendShoppingListEmail({
           user_id: emailjsPublicKey,
           template_params: {
             to_email: email,
+            subject: `Meal Plan & Shopping List - Week of ${weekRange}`,
             week_range: weekRange,
             schedule_table: formatScheduleTable(schedule),
             shopping_list_html: shoppingListHtml,

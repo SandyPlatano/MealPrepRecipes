@@ -241,30 +241,21 @@ export default function Settings() {
 
           <Separator />
 
-          {/* Email Addresses */}
+          {/* Email Address */}
           <div>
-            <Label className="text-base font-semibold mb-3 block font-mono">Email Addresses</Label>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="your-email">Your Email</Label>
-                <Input
-                  id="your-email"
-                  type="email"
-                  value={localSettings.yourEmail}
-                  onChange={(e) => updateLocalSetting('yourEmail', e.target.value)}
-                  placeholder="your@email.com"
-                />
-              </div>
-              <div>
-                <Label htmlFor="partner-email">Partner's Email</Label>
-                <Input
-                  id="partner-email"
-                  type="email"
-                  value={localSettings.partnerEmail}
-                  onChange={(e) => updateLocalSetting('partnerEmail', e.target.value)}
-                  placeholder="partner@email.com"
-                />
-              </div>
+            <Label className="text-base font-semibold mb-3 block font-mono">Email Address</Label>
+            <div>
+              <Label htmlFor="email-address">Sending Email Address</Label>
+              <Input
+                id="email-address"
+                type="email"
+                value={localSettings.emailAddress || ''}
+                onChange={(e) => updateLocalSetting('emailAddress', e.target.value)}
+                placeholder="your@email.com"
+              />
+              <p className="text-sm text-muted-foreground mt-2">
+                This email address will be used to send shopping lists and calendar invites.
+              </p>
             </div>
           </div>
 
