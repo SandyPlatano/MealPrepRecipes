@@ -95,3 +95,20 @@ CREATE TRIGGER update_cooking_history_updated_at BEFORE UPDATE ON cooking_histor
 CREATE TRIGGER update_templates_updated_at BEFORE UPDATE ON templates
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+-- Storage bucket for shopping list files (for email downloads)
+-- Note: Storage buckets must be created through the Supabase Dashboard or using the SQL below
+-- Go to Storage section in Supabase Dashboard, or run the following:
+
+-- Create storage bucket for shopping lists (public access for downloads)
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('shopping-lists', 'shopping-lists', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Allow public read access to shopping lists
+CREATE POLICY "Public read access" ON storage.objects 
+FOR SELECT USING (bucket_id = 'shopping-lists');
+
+-- Allow authenticated/anon insert (for uploading shopping lists)
+CREATE POLICY "Allow uploads" ON storage.objects 
+FOR INSERT WITH CHECK (bucket_id = 'shopping-lists');
+
