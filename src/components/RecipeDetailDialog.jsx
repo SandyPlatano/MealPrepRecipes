@@ -288,17 +288,8 @@ export default function RecipeDetailDialog({ recipe, open, onOpenChange }) {
 
             <Separator />
 
-            {/* Mark as Cooked / Rating / Notes */}
-            {!hasBeenCooked ? (
-              <div>
-                <Button onClick={handleMarkAsCooked} className="w-full">
-                  Mark as Cooked
-                </Button>
-                <p className="text-xs text-muted-foreground mt-2 text-center">
-                  Mark this recipe as cooked to rate it and add notes
-                </p>
-              </div>
-            ) : (
+            {/* Rating / Notes (only shown if cooked) */}
+            {hasBeenCooked && (
               <div className="space-y-4">
                 <div>
                   <Label>Rating</Label>
@@ -322,24 +313,36 @@ export default function RecipeDetailDialog({ recipe, open, onOpenChange }) {
           </div>
         </ScrollArea>
 
-        <div className="flex gap-2 pt-4 border-t">
-          {isInCart(recipe.id) ? (
-            <Button
-              variant="outline"
-              className="flex-1 border-orange-300 text-orange-700 hover:bg-orange-50 hover:text-orange-800 hover:border-orange-400 dark:border-orange-600 dark:text-orange-400 dark:hover:bg-orange-950 dark:hover:text-orange-300 dark:hover:border-orange-500"
-              onClick={handleRemoveFromCart}
-            >
-              Remove from Meal Plan
-            </Button>
-          ) : (
-            <Button
-              variant="default"
-              className="flex-1"
-              onClick={handleAddToCart}
-            >
-              Add to Meal Plan
-            </Button>
-          )}
+        <div className="flex flex-col gap-2 pt-4 border-t">
+          {!hasBeenCooked ? (
+            <>
+              <Button onClick={handleMarkAsCooked} className="w-full">
+                Mark as Cooked
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                Mark this recipe as cooked to rate it and add notes
+              </p>
+            </>
+          ) : null}
+          <div className="flex gap-2">
+            {isInCart(recipe.id) ? (
+              <Button
+                variant="outline"
+                className="flex-1 border-orange-300 text-orange-700 hover:bg-orange-50 hover:text-orange-800 hover:border-orange-400 dark:border-orange-600 dark:text-orange-400 dark:hover:bg-orange-950 dark:hover:text-orange-300 dark:hover:border-orange-500"
+                onClick={handleRemoveFromCart}
+              >
+                Remove from Meal Plan
+              </Button>
+            ) : (
+              <Button
+                variant="default"
+                className="flex-1"
+                onClick={handleAddToCart}
+              >
+                Add to Meal Plan
+              </Button>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
