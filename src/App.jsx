@@ -1,16 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Button } from './components/ui/button';
 import { Badge } from './components/ui/badge';
-import { ShoppingCart, Search as SearchIcon, Plus, BookOpen, BarChart3, Settings as SettingsIcon } from 'lucide-react';
+import { ShoppingCart, Search as SearchIcon, Plus, BookOpen, BarChart3, Settings as SettingsIcon, Loader2 } from 'lucide-react';
 import { useCart } from './context/CartContext';
 import { useSettings } from './context/SettingsContext';
-import Search from './components/Search';
-import AddRecipe from './components/AddRecipe';
-import MyRecipes from './components/MyRecipes';
-import Stats from './components/Stats';
-import Settings from './components/Settings';
-import Cart from './components/Cart';
+
+// Lazy load tab components for code splitting
+const Search = lazy(() => import('./components/Search'));
+const AddRecipe = lazy(() => import('./components/AddRecipe'));
+const MyRecipes = lazy(() => import('./components/MyRecipes'));
+const Stats = lazy(() => import('./components/Stats'));
+const Settings = lazy(() => import('./components/Settings'));
+const Cart = lazy(() => import('./components/Cart'));
+
+// Loading fallback component
+const TabLoader = () => (
+  <div className="flex items-center justify-center py-12">
+    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+  </div>
+);
 
 function App() {
   // Load active tab from URL hash, localStorage, or default to 'search'
@@ -135,25 +144,37 @@ function App() {
       <main className="container mx-auto px-4 py-8 flex-grow">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsContent value="search" className="mt-0">
-            <Search />
+            <Suspense fallback={<TabLoader />}>
+              <Search />
+            </Suspense>
           </TabsContent>
           <TabsContent value="add" className="mt-0">
-            <AddRecipe />
+            <Suspense fallback={<TabLoader />}>
+              <AddRecipe />
+            </Suspense>
           </TabsContent>
           <TabsContent value="my-recipes" className="mt-0">
-            <MyRecipes />
+            <Suspense fallback={<TabLoader />}>
+              <MyRecipes />
+            </Suspense>
           </TabsContent>
           <TabsContent value="stats" className="mt-0">
-            <Stats />
+            <Suspense fallback={<TabLoader />}>
+              <Stats />
+            </Suspense>
           </TabsContent>
           <TabsContent value="settings" className="mt-0">
-            <Settings />
+            <Suspense fallback={<TabLoader />}>
+              <Settings />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </main>
 
       {/* Cart Sheet */}
-      <Cart open={cartOpen} onOpenChange={setCartOpen} />
+      <Suspense fallback={null}>
+        <Cart open={cartOpen} onOpenChange={setCartOpen} />
+      </Suspense>
 
       {/* Footer */}
       <footer className="border-t border-border bg-card mt-auto">
