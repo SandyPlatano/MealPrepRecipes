@@ -75,7 +75,7 @@ export default function Search() {
       <Card>
         <CardHeader>
           <CardTitle>Search Recipes</CardTitle>
-          <CardDescription>Find recipes by type, category, or search term</CardDescription>
+          <CardDescription>Find recipes by type, proteins, or search term</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap gap-4">
@@ -102,10 +102,10 @@ export default function Search() {
             </Select>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder="Category" />
+                <SelectValue placeholder="Proteins" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="all">All Proteins</SelectItem>
                 {categories.map(cat => (
                   <SelectItem key={cat} value={cat}>
                     {cat}

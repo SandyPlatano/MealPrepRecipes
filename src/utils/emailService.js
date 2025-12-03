@@ -159,10 +159,21 @@ export async function sendShoppingListEmail({
           templateParams.shopping_list_attachment_text = attachmentContent;
           templateParams.shopping_list_attachment_html = markdownToHtml(attachmentContent);
           
-          // Also provide base64 for potential attachment use (requires template configuration)
-          if (attachmentBase64) {
-            templateParams.shopping_list_attachment_base64 = attachmentBase64;
-            templateParams.shopping_list_attachment_filename = `shopping-list-${weekRange.replace(/\s+/g, '-').toLowerCase()}.md`;
+          // Create a downloadable data URI link (free alternative to EmailJS paid attachments)
+          // This creates a clickable download link in the email body
+          if (attachmentContent) {
+            const filename = `shopping-list-${weekRange.replace(/\s+/g, '-').toLowerCase()}.md`;
+            // Create data URI for download (works in most email clients)
+            const dataUri = `data:text/markdown;charset=utf-8,${encodeURIComponent(attachmentContent)}`;
+            templateParams.shopping_list_download_link = dataUri;
+            templateParams.shopping_list_download_filename = filename;
+            
+            // Also provide base64 for EmailJS dynamic attachment (requires paid plan + template configuration)
+            // The parameter name 'shopping_list_attachment' must match the Parameter Name in EmailJS template's Attachments tab
+            if (attachmentBase64) {
+              templateParams.shopping_list_attachment = attachmentBase64;
+              templateParams.shopping_list_attachment_filename = filename;
+            }
           }
         }
 
@@ -504,6 +515,36 @@ export function getBrandedEmailTemplate() {
         <div style="margin-top: 16px;">
           {{{shopping_list_html}}}
         </div>
+      </div>
+      
+      <!-- Download Shopping List (Free Alternative to EmailJS Attachments) -->
+      <div class="section" style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #e5e5e5;">
+        <h2 class="section-title">Download Shopping List</h2>
+        <p style="color: #737373; font-size: 14px; margin-bottom: 16px;">
+          Click the button below to download your shopping list as a markdown file ({{shopping_list_download_filename}}).
+        </p>
+        <div style="text-align: center; margin: 20px 0;">
+          <a href="{{shopping_list_download_link}}" download="{{shopping_list_download_filename}}" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-family: Inter, system-ui, sans-serif; font-size: 14px;">
+            📥 Download Shopping List
+          </a>
+        </div>
+        <p style="color: #737373; font-size: 12px; margin-top: 12px; font-style: italic;">
+          Note: If the download button doesn't work in your email client, use the copy option below instead.
+        </p>
+      </div>
+      
+      <!-- Shopping List Attachment (for Apple Notes & Google Keep) -->
+      <div class="section" style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #e5e5e5;">
+        <h2 class="section-title">Copy to Apple Notes or Google Keep</h2>
+        <p style="color: #737373; font-size: 14px; margin-bottom: 16px;">
+          Copy the shopping list below into Apple Notes or Google Keep for an interactive checklist while shopping.
+        </p>
+        <div style="background-color: #f5f5f5; padding: 16px; border-radius: 8px; font-family: 'JetBrains Mono', 'Fira Code', Consolas, Monaco, monospace; font-size: 13px; white-space: pre-wrap; overflow-x: auto; border: 1px solid #e5e5e5;">
+          {{shopping_list_attachment_text}}
+        </div>
+        <p style="color: #737373; font-size: 12px; margin-top: 12px; font-style: italic;">
+          Tip: Select all text in the box above, copy it, and paste it into a new note in Apple Notes or Google Keep. The checkboxes will work as interactive lists.
+        </p>
       </div>
     </div>
     
