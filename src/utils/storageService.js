@@ -99,6 +99,9 @@ export async function uploadShoppingListFile(content, filename, contentType = 't
       } catch (e) {
         console.warn('Failed to create signed URL, using public URL:', e);
       }
+      
+      // Note: Even with signed URLs, Supabase Storage may still serve HTML as text/plain
+      // The emailService will use data URI fallback for HTML files to ensure proper rendering
     }
 
     return {

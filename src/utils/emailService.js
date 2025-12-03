@@ -73,6 +73,18 @@ function textToBase64(text) {
 }
 
 /**
+ * Convert HTML content to a data URI
+ * This ensures HTML files render properly in browsers regardless of server content-type
+ * @param {string} htmlContent - The HTML content to encode
+ * @returns {string} Data URI string (e.g., "data:text/html;base64,<encoded>")
+ */
+function htmlToDataUri(htmlContent) {
+  // Encode HTML to base64
+  const base64 = btoa(unescape(encodeURIComponent(htmlContent)));
+  return `data:text/html;charset=utf-8;base64,${base64}`;
+}
+
+/**
  * Parse shopping list markdown into structured data
  * Returns items with categories for interactive list
  */
@@ -242,9 +254,9 @@ export async function sendShoppingListEmail({
           supabaseAnonKey,
         });
         
-        // Upload interactive list to Supabase Storage
-        // The storage service now uses signed URLs with download:false to ensure
-        // HTML files are rendered inline instead of downloaded
+        // Upload interactive list to Supabase Storage (for backup/fallback)
+        // However, we'll use data URI for the email link to ensure proper HTML rendering
+        // Supabase Storage often serves HTML as text/plain, causing browsers to display raw HTML
         const interactiveFilename = filename.replace('.md', '-interactive.html');
         const interactiveResult = await uploadShoppingListFile(
           interactiveListHtml,
@@ -252,15 +264,21 @@ export async function sendShoppingListEmail({
           'text/html; charset=utf-8'
         );
         
+        // Use data URI for reliable HTML rendering in browsers
+        // Data URIs bypass server content-type issues entirely
+        // The HTML is embedded directly in the URL, so browsers always render it correctly
+        interactiveListUrl = htmlToDataUri(interactiveListHtml);
+        
+        // Still upload to Supabase for backup/analytics, but use data URI in email
         if (interactiveResult.success) {
-          interactiveListUrl = interactiveResult.url;
-          
-          // Initialize state in Supabase if available
-          if (isSupabaseConfigured() && parsed.items.length > 0) {
-            await initializeShoppingListState(listId, parsed.items);
-          }
+          console.log('Interactive shopping list uploaded to Supabase Storage as backup');
         } else {
-          console.warn('Failed to upload interactive shopping list:', interactiveResult.error);
+          console.warn('Failed to upload interactive shopping list to Supabase (using data URI):', interactiveResult.error);
+        }
+        
+        // Initialize state in Supabase if available
+        if (isSupabaseConfigured() && parsed.items.length > 0) {
+          await initializeShoppingListState(listId, parsed.items);
         }
       } catch (error) {
         console.error('Error generating interactive shopping list:', error);
