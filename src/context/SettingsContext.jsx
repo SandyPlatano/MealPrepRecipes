@@ -27,18 +27,36 @@ export function SettingsProvider({ children }) {
 
   // Load from localStorage on mount
   useEffect(() => {
-    const savedSettings = storage.settings.get();
-    const finalSettings = { ...defaultSettings, ...savedSettings };
-    setSettings(finalSettings);
-    
-    // Apply dark mode immediately
-    if (finalSettings.darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    try {
+      const savedSettings = storage.settings.get();
+      // Merge with defaults to ensure all fields exist
+      const finalSettings = { ...defaultSettings, ...savedSettings };
+      
+      // Log for debugging (remove sensitive data)
+      if (savedSettings && Object.keys(savedSettings).length > 0) {
+        const debugSettings = { ...savedSettings };
+        if (debugSettings.anthropicApiKey) debugSettings.anthropicApiKey = '***hidden***';
+        if (debugSettings.emailjsPublicKey) debugSettings.emailjsPublicKey = '***hidden***';
+        if (debugSettings.googleClientSecret) debugSettings.googleClientSecret = '***hidden***';
+        if (debugSettings.supabaseAnonKey) debugSettings.supabaseAnonKey = '***hidden***';
+        console.log('Loaded settings from localStorage:', debugSettings);
+      }
+      
+      setSettings(finalSettings);
+      
+      // Apply dark mode immediately
+      if (finalSettings.darkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch (error) {
+      console.error('Error loading settings:', error);
+      // Fall back to defaults
+      setSettings(defaultSettings);
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   }, []);
 
   // Save to localStorage whenever settings change

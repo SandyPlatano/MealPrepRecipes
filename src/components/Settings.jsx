@@ -8,7 +8,7 @@ import { Switch } from './ui/switch';
 import { useSettings } from '../context/SettingsContext';
 import GoogleCalendarButton from './GoogleCalendarButton';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Moon, Sun, Upload } from 'lucide-react';
+import { Eye, EyeOff, Moon, Sun, Upload, Download, FileUp } from 'lucide-react';
 import { migrateToSupabase } from '../utils/supabaseStorage';
 import { resetSupabaseClient } from '../utils/supabaseClient';
 
@@ -23,10 +23,87 @@ export default function Settings() {
   }, [settings]);
 
   const handleSave = () => {
-    updateSettings(localSettings);
-    // Reset Supabase client if URL or key changed
-    resetSupabaseClient();
-    toast.success('Settings saved!');
+    try {
+      // Update context (which will trigger localStorage save)
+      updateSettings(localSettings);
+      
+      // Also directly save to localStorage to ensure it's persisted
+      const { storage } = require('../utils/localStorage');
+      const saved = storage.settings.set(localSettings);
+      
+      if (!saved) {
+        toast.error('Failed to save settings. Check browser console for details.');
+        return;
+      }
+      
+      // Reset Supabase client if URL or key changed
+      resetSupabaseClient();
+      
+      // Verify the save worked
+      const verify = storage.settings.get();
+      if (JSON.stringify(verify) === JSON.stringify(localSettings)) {
+        toast.success('Settings saved successfully!');
+      } else {
+        toast.warning('Settings saved, but verification failed. Please check your browser storage.');
+      }
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast.error('Failed to save settings: ' + error.message);
+    }
+  };
+
+  const handleExportSettings = () => {
+    try {
+      const settingsToExport = {
+        ...localSettings,
+        exportedAt: new Date().toISOString(),
+        version: '1.0.0',
+      };
+      const dataStr = JSON.stringify(settingsToExport, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `meal-prep-settings-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success('Settings exported successfully!');
+    } catch (error) {
+      console.error('Error exporting settings:', error);
+      toast.error('Failed to export settings');
+    }
+  };
+
+  const handleImportSettings = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target.result);
+          // Remove metadata fields
+          const { exportedAt, version, ...settings } = imported;
+          // Merge with current settings to preserve any new fields
+          const mergedSettings = { ...localSettings, ...settings };
+          setLocalSettings(mergedSettings);
+          updateSettings(mergedSettings);
+          resetSupabaseClient();
+          toast.success('Settings imported successfully!');
+        } catch (error) {
+          console.error('Error importing settings:', error);
+          toast.error('Failed to import settings. Invalid file format.');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
   };
 
   const handleMigrate = async () => {
@@ -354,6 +431,37 @@ export default function Settings() {
                 One-time migration: copies all recipes, favorites, cart, and history from this device to Supabase.
               </p>
             </div>
+          </div>
+
+          <Separator />
+
+          {/* Settings Backup & Restore */}
+          <div>
+            <Label className="text-base font-semibold mb-3 block font-mono">Backup & Restore</Label>
+            <p className="text-sm text-muted-foreground mb-4">
+              Export your settings to a file for backup, or import previously saved settings.
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={handleExportSettings}
+                className="flex-1"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export Settings
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleImportSettings}
+                className="flex-1"
+              >
+                <FileUp className="h-4 w-4 mr-2" />
+                Import Settings
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Export creates a JSON file with all your credentials and settings. Keep this file secure!
+            </p>
           </div>
 
           <Separator />
