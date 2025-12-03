@@ -23,6 +23,9 @@ wheels/
 .installed.cfg
 *.egg
 
+# Don't ignore src/lib (needed for React app)
+!src/lib/
+
 # IDE
 .vscode/
 .idea/
