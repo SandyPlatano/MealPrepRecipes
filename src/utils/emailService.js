@@ -242,11 +242,23 @@ export async function sendShoppingListEmail({
             console.error('Error storing shopping list data:', insertError);
           } else {
             // Generate URL to Vercel-hosted shopping list page
-            // Use the current origin or fallback to production URL
+            // Include Supabase credentials so the page can fetch from the correct project
             const baseUrl = typeof window !== 'undefined' && window.location.origin 
               ? window.location.origin 
               : 'https://meal-prep-recipes.vercel.app';
-            interactiveListUrl = `${baseUrl}/shopping-list.html?id=${encodeURIComponent(listId)}`;
+            
+            // Get Supabase credentials to pass in URL
+            const settings = storage.settings.get();
+            const supabaseUrl = settings?.supabaseUrl?.trim() || '';
+            const supabaseKey = settings?.supabaseAnonKey?.trim() || '';
+            
+            // Build URL with all needed parameters
+            const params = new URLSearchParams({
+              id: listId,
+              url: supabaseUrl,
+              key: supabaseKey,
+            });
+            interactiveListUrl = `${baseUrl}/shopping-list.html?${params.toString()}`;
             console.log('Interactive shopping list URL:', interactiveListUrl);
           }
         }
