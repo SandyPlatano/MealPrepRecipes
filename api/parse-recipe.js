@@ -19,10 +19,62 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Recipe formatter skill instructions
+    const skillInstructions = `You are a recipe formatter. Format and organize recipes into consistent structure for meal prep collections.
+
+## Extraction Guidelines
+
+### Recipe Name
+Extract the recipe title/name clearly.
+
+### Tags
+Extract relevant tags including:
+- Protein type (REQUIRED: chicken, beef, pork, fish, seafood, vegetarian, vegan, mixed protein)
+- Cuisine type (optional: Italian, Mexican, Asian, etc.)
+- Meal prep friendly indicator (if applicable)
+- Other descriptors (quick, spicy, comfort food, healthy, etc.)
+
+### Ingredients
+Extract ingredients with quantities. Format as: "[Quantity] [Unit] [Ingredient name]"
+Examples: "2 lbs chicken breast", "1 cup diced onion", "2 tbsp olive oil", "Salt and pepper to taste"
+Include quantities whenever provided. Keep ingredient names simple and clear.
+
+### Instructions
+Extract clear, sequential, actionable steps. Each instruction should be a complete step.
+Preserve measurements as provided (cups, tbsp, lbs, etc.).
+
+### Notes
+Extract any modifications, tips, storage instructions, or observations. If none provided, use "None".
+
+### Source
+Include the original URL if from a website, or "User provided" if from personal notes.
+
+### Protein Categories
+Determine the primary protein type for categorization:
+- Chicken
+- Beef
+- Pork
+- Fish
+- Seafood
+- Vegetarian
+- Vegan
+- Mixed Protein (for recipes with multiple protein sources)
+
+### Recipe Type
+Determine recipeType based on content:
+- Baking: cookies, cakes, bread, muffins, pastries, pies, brownies, etc.
+- Dessert: ice cream, pudding, non-baked sweets
+- Breakfast: eggs, pancakes, waffles, oatmeal, smoothies
+- Dinner: main courses with proteins or substantial vegetarian dishes
+- Side Dish: salads, vegetables, rice, sides
+- Snack: appetizers, dips, small bites`;
+
     // Determine which prompt to use
     let prompt;
     if (htmlContent) {
-      prompt = `Extract recipe information from this HTML content. The recipe is from: ${sourceUrl}
+      prompt = `${skillInstructions}
+
+Extract recipe information from this HTML content. The recipe is from: ${sourceUrl}
 
 HTML content:
 ${htmlContent.substring(0, 10000)} ${htmlContent.length > 10000 ? '... (truncated)' : ''}
@@ -38,14 +90,27 @@ Return a JSON object with this exact structure:
   "servings": "e.g., 4 or 'Makes 24 cookies'",
   "ingredients": ["2 lbs chicken breast", "1 cup flour", ...],
   "instructions": ["Step 1", "Step 2", ...],
-  "tags": ["tag1", "tag2", ...],
+  "tags": ["chicken", "Italian", "meal prep friendly", ...],
+  "notes": "Any tips or modifications, or 'None'",
   "sourceUrl": "${sourceUrl || ''}"
 }
 
+IMPORTANT:
+- Include protein type as the FIRST tag (required)
+- Extract ingredients with quantities in format: "[Quantity] [Unit] [Ingredient]"
+- Make instructions clear, sequential, and actionable
+- Include notes if available, otherwise "None"
+
 Return ONLY valid JSON, no markdown formatting, no explanation.`;
     } else {
-      prompt = `You are a recipe formatter. Parse the following recipe text and extract structured information. Return a JSON object with this exact structure:
+      prompt = `${skillInstructions}
 
+Parse the following recipe text and extract structured information.
+
+Recipe text:
+${text}
+
+Return a JSON object with this exact structure:
 {
   "title": "Recipe name",
   "recipeType": "Dinner|Baking|Breakfast|Dessert|Snack|Side Dish",
@@ -56,19 +121,15 @@ Return ONLY valid JSON, no markdown formatting, no explanation.`;
   "servings": "e.g., 4 or 'Makes 24 cookies'",
   "ingredients": ["2 lbs chicken breast", "1 cup flour", ...],
   "instructions": ["Step 1", "Step 2", ...],
-  "tags": ["tag1", "tag2", ...]
+  "tags": ["chicken", "Italian", "meal prep friendly", ...],
+  "notes": "Any tips or modifications, or 'None'"
 }
 
-Determine the recipeType based on the content:
-- Baking: cookies, cakes, bread, muffins, pastries, pies, brownies, etc.
-- Dessert: ice cream, pudding, non-baked sweets
-- Breakfast: eggs, pancakes, waffles, oatmeal, smoothies
-- Dinner: main courses with proteins or substantial vegetarian dishes
-- Side Dish: salads, vegetables, rice, sides
-- Snack: appetizers, dips, small bites
-
-Recipe text:
-${text}
+IMPORTANT:
+- Include protein type as the FIRST tag (required)
+- Extract ingredients with quantities in format: "[Quantity] [Unit] [Ingredient]"
+- Make instructions clear, sequential, and actionable
+- Include notes if available, otherwise "None"
 
 Return ONLY valid JSON, no markdown formatting, no explanation.`;
     }
@@ -82,7 +143,7 @@ Return ONLY valid JSON, no markdown formatting, no explanation.`;
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-3-5-sonnet-latest',
         max_tokens: 2000,
         messages: [
           {
@@ -123,6 +184,7 @@ Return ONLY valid JSON, no markdown formatting, no explanation.`;
       ingredients: Array.isArray(parsed.ingredients) ? parsed.ingredients : [],
       instructions: Array.isArray(parsed.instructions) ? parsed.instructions : [],
       tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+      notes: parsed.notes || 'None',
     };
 
     if (sourceUrl) {
