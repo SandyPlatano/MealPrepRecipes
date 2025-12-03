@@ -39,9 +39,8 @@ import CalendarView from './CalendarView';
 import { groupByAisle } from '../utils/aisleCategories';
 import { sendShoppingListEmail } from '../utils/emailService';
 import { createMealPlanEvents, refreshAccessToken } from '../utils/googleCalendarService';
-import { downloadTextAsFile } from '../utils/exportService';
 import { toast } from 'sonner';
-import { Loader2, Download, Mail, Calendar, Save, FolderOpen, Trash2 } from 'lucide-react';
+import { Loader2, Mail, Calendar, Save, FolderOpen, Trash2 } from 'lucide-react';
 import { format, startOfWeek, addDays, parseISO } from 'date-fns';
 
 const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -224,15 +223,6 @@ export default function Cart({ open, onOpenChange }) {
         recipeData: item.recipe,
       };
     });
-  };
-
-  const handleDownload = () => {
-    const markdown = generateShoppingListMarkdown();
-    const monday = startOfWeek(selectedWeek, { weekStartsOn: 1 });
-    const sunday = addDays(monday, 6);
-    const filename = `shopping-list-${format(monday, 'yyyy-MM-dd')}.md`;
-    downloadTextAsFile(markdown, filename, 'text/markdown');
-    toast.success('Shopping list downloaded!');
   };
 
   const handleSendEmailAndCalendar = async () => {
@@ -724,15 +714,6 @@ export default function Cart({ open, onOpenChange }) {
               </Dialog>
             )}
 
-            <Button
-              onClick={handleDownload}
-              disabled={allIngredients.length === 0}
-              variant="outline"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Download Shopping List
-            </Button>
-            
             <Button
               onClick={handleSendEmailAndCalendar}
               disabled={loading || assignedCount === 0 || cartItems.length === 0}
