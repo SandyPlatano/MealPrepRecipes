@@ -96,12 +96,7 @@ textarea {
 
 [data-radix-dialog-content] {
   z-index: 9999 !important;
-  background: white !important;
   opacity: 1 !important;
-}
-
-.dark [data-radix-dialog-content] {
-  background: hsl(0 0% 3.9%) !important;
 }
 
 /* Enhanced button hover effects with glow */

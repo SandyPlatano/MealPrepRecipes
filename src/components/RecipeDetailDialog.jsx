@@ -55,18 +55,19 @@ export default function RecipeDetailDialog({ recipe, open, onOpenChange }) {
   
   const [servingScale, setServingScale] = useState(1);
   const [hasBeenCooked, setHasBeenCooked] = useState(false);
-  const [rating, setRating] = useState(recipe.rating || null);
-  const [notes, setNotes] = useState(recipe.notes || '');
+  const [rating, setRating] = useState(recipe?.rating || null);
+  const [notes, setNotes] = useState(recipe?.notes || '');
 
   // Check if recipe has been cooked
-  const recipeHistory = useMemo(() => getRecipeHistory(recipe.id), [recipe.id, getRecipeHistory, open]);
-  const lastMadeDate = useMemo(() => getLastMadeDate(recipe.id), [recipe.id, getLastMadeDate, open]);
+  const recipeHistory = useMemo(() => recipe?.id ? getRecipeHistory(recipe.id) : [], [recipe?.id, getRecipeHistory, open]);
+  const lastMadeDate = useMemo(() => recipe?.id ? getLastMadeDate(recipe.id) : null, [recipe?.id, getLastMadeDate, open]);
   
   // Get latest history entry for rating/notes
   const latestHistory = recipeHistory.length > 0 ? recipeHistory[0] : null;
   
   // Initialize state from latest history or recipe
   useEffect(() => {
+    if (!recipe) return;
     if (latestHistory) {
       setHasBeenCooked(true);
       setRating(latestHistory.rating || recipe.rating || null);
@@ -76,12 +77,13 @@ export default function RecipeDetailDialog({ recipe, open, onOpenChange }) {
       setRating(recipe.rating || null);
       setNotes(recipe.notes || '');
     }
-  }, [recipe.id, latestHistory, recipe.rating, recipe.notes]);
+  }, [recipe?.id, latestHistory, recipe?.rating, recipe?.notes]);
 
   const scaledIngredients = useMemo(() => {
+    if (!recipe?.ingredients) return [];
     if (servingScale === 1) return recipe.ingredients;
     return scaleRecipeIngredients(recipe.ingredients, servingScale);
-  }, [recipe.ingredients, servingScale]);
+  }, [recipe?.ingredients, servingScale]);
 
   const handleMarkAsCooked = () => {
     const newEntry = markAsCooked(recipe.id);
@@ -185,9 +187,14 @@ export default function RecipeDetailDialog({ recipe, open, onOpenChange }) {
     };
   };
 
+  // Don't render if recipe is missing
+  if (!recipe) {
+    return null;
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col bg-background text-foreground">
         <DialogHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
