@@ -149,16 +149,18 @@ export default function RecipeCard({ recipe, onViewDetails }) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeleteDialogOpen(true);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete Recipe</AlertDialogTitle>
