@@ -2,7 +2,10 @@
  * EmailJS service for sending shopping lists
  */
 
-import { uploadShoppingListFile, isStorageAvailable } from './storageService';
+import { uploadShoppingListFile, isStorageAvailable, initializeShoppingListState } from './storageService';
+import { generateInteractiveShoppingListHTML } from './generateInteractiveShoppingList';
+import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
+import { storage } from './localStorage';
 
 /**
  * Generate shopping list attachment optimized for Apple Notes and Google Keep
@@ -70,6 +73,73 @@ function textToBase64(text) {
 }
 
 /**
+ * Parse shopping list markdown into structured data
+ * Returns items with categories for interactive list
+ */
+function parseShoppingListMarkdown(markdown) {
+  const items = [];
+  const lines = markdown.split('\n');
+  let currentCategory = null;
+  let recipes = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    // Extract recipes section
+    if (line.startsWith('### Recipes This Week:') || line.startsWith('## Recipes This Week')) {
+      // Skip recipes section - we'll extract it separately
+      continue;
+    }
+    
+    // Extract recipe items
+    if (line.match(/^-\s+[^(]+\s+\([^)]+\)$/)) {
+      // Format: "- Recipe Name (Cook - Day)"
+      const match = line.match(/^-\s+(.+?)\s+\((.+?)\s+-\s+(.+?)\)$/);
+      if (match) {
+        recipes.push({
+          recipe: match[1],
+          cook: match[2],
+          day: match[3],
+        });
+      }
+      continue;
+    }
+    
+    // Category header
+    if (line.startsWith('### ')) {
+      currentCategory = line.substring(4).trim();
+      continue;
+    }
+    
+    // Shopping list item with checkbox
+    if (line.match(/^-\s+\[\s*\]\s+/)) {
+      const itemText = line.replace(/^-\s+\[\s*\]\s+/, '').trim();
+      if (itemText) {
+        // Create unique item ID from text (simple hash)
+        const itemId = btoa(itemText).replace(/[+/=]/g, '').substring(0, 20);
+        items.push({
+          item_id: itemId,
+          item_text: itemText,
+          category: currentCategory || 'Other',
+        });
+      }
+    }
+  }
+
+  return { items, recipes };
+}
+
+/**
+ * Generate unique list ID
+ */
+function generateListId(weekRange) {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 8);
+  const weekHash = btoa(weekRange).replace(/[+/=]/g, '').substring(0, 8);
+  return `list-${timestamp}-${weekHash}-${random}`;
+}
+
+/**
  * Send shopping list email via EmailJS
  */
 export async function sendShoppingListEmail({
@@ -119,6 +189,7 @@ export async function sendShoppingListEmail({
   // Upload markdown file and copy page to Supabase Storage if available (for working download links)
   let markdownFileUrl = null;
   let copyPageUrl = null;
+  let interactiveListUrl = null;
   let storageError = null;
   
   if (attachmentContent && isStorageAvailable()) {
@@ -133,7 +204,68 @@ export async function sendShoppingListEmail({
       console.warn('Failed to upload markdown file to Supabase Storage:', markdownResult.error);
     }
     
-    // Create and upload copy page with JavaScript copy functionality
+    // Generate and upload interactive shopping list page
+    if (attachmentContent && shoppingListMarkdown && isStorageAvailable()) {
+      try {
+        // Parse shopping list markdown into structured data
+        const parsed = parseShoppingListMarkdown(shoppingListMarkdown);
+        
+        // Convert to itemsByCategory format for interactive list
+        const itemsByCategory = {};
+        parsed.items.forEach(item => {
+          if (!itemsByCategory[item.category]) {
+            itemsByCategory[item.category] = [];
+          }
+          itemsByCategory[item.category].push(item.item_text);
+        });
+        
+        // Generate unique list ID
+        const listId = generateListId(weekRange);
+        
+        // Get Supabase credentials for embedding in HTML
+        let supabaseUrl = null;
+        let supabaseAnonKey = null;
+        
+        if (isSupabaseConfigured()) {
+          const settings = storage.settings.get();
+          supabaseUrl = settings?.supabaseUrl?.trim() || null;
+          supabaseAnonKey = settings?.supabaseAnonKey?.trim() || null;
+        }
+        
+        // Generate interactive HTML
+        const interactiveListHtml = generateInteractiveShoppingListHTML({
+          listId,
+          weekRange,
+          schedule,
+          itemsByCategory,
+          supabaseUrl,
+          supabaseAnonKey,
+        });
+        
+        // Upload interactive list
+        const interactiveFilename = filename.replace('.md', '-interactive.html');
+        const interactiveResult = await uploadShoppingListFile(
+          interactiveListHtml,
+          interactiveFilename,
+          'text/html'
+        );
+        
+        if (interactiveResult.success) {
+          interactiveListUrl = interactiveResult.url;
+          
+          // Initialize state in Supabase if available
+          if (isSupabaseConfigured() && parsed.items.length > 0) {
+            await initializeShoppingListState(listId, parsed.items);
+          }
+        } else {
+          console.warn('Failed to upload interactive shopping list:', interactiveResult.error);
+        }
+      } catch (error) {
+        console.error('Error generating interactive shopping list:', error);
+      }
+    }
+    
+    // Keep old copy page as fallback for backwards compatibility
     const copyPageHtml = `<!DOCTYPE html>
 <html>
 <head>
@@ -467,11 +599,16 @@ export async function sendShoppingListEmail({
             }
           }
           
-          // Add copy page URL if available
-          if (copyPageUrl) {
+          // Add interactive list URL (preferred) or copy page URL as fallback
+          if (interactiveListUrl) {
+            templateParams.copy_page_url = interactiveListUrl;
+            templateParams.has_interactive_list = true;
+          } else if (copyPageUrl) {
             templateParams.copy_page_url = copyPageUrl;
+            templateParams.has_interactive_list = false;
           } else {
             templateParams.copy_page_url = '';
+            templateParams.has_interactive_list = false;
           }
           
           // Also provide base64 for EmailJS dynamic attachment (requires paid plan + template configuration)
@@ -845,19 +982,19 @@ export function getBrandedEmailTemplate() {
         </p>
       </div>
       
-      <!-- Shopping List Attachment (for Apple Notes & Google Keep) -->
+      <!-- Interactive Shopping List -->
       <div class="section" style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #e5e5e5;">
-        <h2 class="section-title">Copy to Apple Notes or Google Keep</h2>
+        <h2 class="section-title">Interactive Shopping List</h2>
         <p style="color: #737373; font-size: 14px; margin-bottom: 16px;">
-          Copy the shopping list into Apple Notes or Google Keep for an interactive checklist while shopping.
+          Open your interactive shopping list to check off items while shopping. Tap items to cross them off, add new items, and share with family. Works offline and syncs across devices!
         </p>
         <div style="text-align: center; margin: 20px 0;">
           <a href="{{copy_page_url}}" target="_blank" style="display: inline-block; background-color: #10b981; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; font-family: Inter, system-ui, sans-serif; font-size: 16px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);">
-            📋 Copy to Clipboard (Easy!)
+            🛒 Open Interactive Shopping List
           </a>
         </div>
         <p style="color: #737373; font-size: 12px; margin-top: 12px; text-align: center; font-style: italic;">
-          Click the button above to open a page with a one-click copy button. Works on both PC and mobile!
+          Click the button above to open your interactive shopping list. Tap items to check them off, add new items on the fly, and share with others. Works on mobile and desktop!
         </p>
         <div style="background-color: #f5f5f5; padding: 16px; border-radius: 8px; font-family: 'JetBrains Mono', 'Fira Code', Consolas, Monaco, monospace; font-size: 13px; white-space: pre-wrap; overflow-x: auto; border: 1px solid #e5e5e5; margin-top: 16px;">
           {{shopping_list_attachment_text}}

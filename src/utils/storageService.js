@@ -103,3 +103,66 @@ export function isStorageAvailable() {
   return isSupabaseConfigured();
 }
 
+/**
+ * Initialize shopping list state in Supabase
+ * Called when generating interactive shopping list HTML
+ * @param {string} listId - Unique ID for the shopping list
+ * @param {Array<{item_id: string, item_text: string, category: string}>} items - List of items to initialize
+ * @returns {Promise<{success: boolean, error: string|null}>}
+ */
+export async function initializeShoppingListState(listId, items) {
+  if (!isSupabaseConfigured()) {
+    return {
+      success: false,
+      error: 'Supabase is not configured.',
+    };
+  }
+
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return {
+      success: false,
+      error: 'Failed to initialize Supabase client.',
+    };
+  }
+
+  try {
+    // Insert or update items (upsert)
+    const itemsToInsert = items.map(item => ({
+      list_id: listId,
+      item_id: item.item_id,
+      item_text: item.item_text,
+      category: item.category || null,
+      checked: false,
+      added_by_user: false,
+    }));
+
+    // Use upsert to handle duplicates
+    const { error } = await supabase
+      .from('shopping_list_state')
+      .upsert(itemsToInsert, {
+        onConflict: 'list_id,item_id',
+        ignoreDuplicates: false,
+      });
+
+    if (error) {
+      console.error('Error initializing shopping list state:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to initialize shopping list state.',
+      };
+    }
+
+    return {
+      success: true,
+      error: null,
+    };
+  } catch (error) {
+    console.error('Error in initializeShoppingListState:', error);
+    return {
+      success: false,
+      error: error.message || 'Unexpected error initializing shopping list state.',
+    };
+  }
+}
+

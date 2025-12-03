@@ -112,3 +112,34 @@ FOR SELECT USING (bucket_id = 'shopping-lists');
 CREATE POLICY "Allow uploads" ON storage.objects 
 FOR INSERT WITH CHECK (bucket_id = 'shopping-lists');
 
+-- Shopping list state table for interactive shopping lists
+CREATE TABLE IF NOT EXISTS shopping_list_state (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  list_id TEXT NOT NULL,
+  item_id TEXT NOT NULL,
+  checked BOOLEAN DEFAULT false,
+  added_by_user BOOLEAN DEFAULT false,
+  item_text TEXT,
+  category TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(list_id, item_id)
+);
+
+-- Enable RLS for shopping list state
+ALTER TABLE shopping_list_state ENABLE ROW LEVEL SECURITY;
+
+-- Allow public read/write for shared shopping lists (same pattern as other tables)
+CREATE POLICY "Allow public read access" ON shopping_list_state FOR SELECT USING (true);
+CREATE POLICY "Allow public write access" ON shopping_list_state FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update access" ON shopping_list_state FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete access" ON shopping_list_state FOR DELETE USING (true);
+
+-- Create index for faster lookups
+CREATE INDEX IF NOT EXISTS idx_shopping_list_state_list_id ON shopping_list_state(list_id);
+CREATE INDEX IF NOT EXISTS idx_shopping_list_state_item_id ON shopping_list_state(list_id, item_id);
+
+-- Trigger to update updated_at timestamp
+CREATE TRIGGER update_shopping_list_state_updated_at BEFORE UPDATE ON shopping_list_state
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
