@@ -194,15 +194,18 @@ Copy this entire HTML into your EmailJS template:
       <div class="section" style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #e5e5e5;">
         <h2 class="section-title">Download Shopping List</h2>
         <p style="color: #737373; font-size: 14px; margin-bottom: 16px;">
-          Click the button below to download your shopping list as a markdown file ({{shopping_list_download_filename}}).
+          Download your shopping list as a file. Try the buttons below, or use the copy option further down.
         </p>
         <div style="text-align: center; margin: 20px 0;">
-          <a href="{{shopping_list_download_link}}" download="{{shopping_list_download_filename}}" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-family: Inter, system-ui, sans-serif; font-size: 14px;">
-            📥 Download Shopping List
+          <a href="{{shopping_list_download_link}}" target="_blank" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-family: Inter, system-ui, sans-serif; font-size: 14px; margin: 4px;">
+            📥 Download as Markdown
+          </a>
+          <a href="{{shopping_list_download_link_html}}" target="_blank" style="display: inline-block; background-color: #10b981; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-family: Inter, system-ui, sans-serif; font-size: 14px; margin: 4px;">
+            📄 Download as HTML
           </a>
         </div>
         <p style="color: #737373; font-size: 12px; margin-top: 12px; font-style: italic;">
-          Note: If the download button doesn't work in your email client, use the copy option below instead.
+          <strong>Tip:</strong> If the buttons don't work, click them to open in your browser, then right-click and "Save As" to download. Or use the copy option below.
         </p>
       </div>
       
@@ -250,8 +253,10 @@ The template uses these variables (automatically provided by the app):
 - `{{shopping_list_markdown}}` - Shopping list in markdown format
 - `{{shopping_list_attachment_text}}` - **Shopping list optimized for Apple Notes & Google Keep** - Markdown format with checkboxes that can be copied into notes apps
 - `{{shopping_list_attachment_html}}` - HTML version of the attachment (alternative to text version)
-- `{{shopping_list_download_link}}` - **FREE: Data URI download link for shopping list** - Clickable download button (works in most email clients, no paid plan needed)
-- `{{shopping_list_download_filename}}` - Filename for the downloadable shopping list (e.g., `shopping-list-dec-1-dec-7-2024.md`)
+- `{{shopping_list_download_link}}` - **FREE: Data URI link for markdown file** - Opens shopping list in browser (right-click to save, no paid plan needed)
+- `{{shopping_list_download_link_html}}` - **FREE: Data URI link for HTML file** - Opens shopping list as HTML page (right-click to save)
+- `{{shopping_list_download_filename}}` - Filename for the downloadable markdown shopping list (e.g., `shopping-list-dec-1-dec-7-2024.md`)
+- `{{shopping_list_download_filename_html}}` - Filename for the downloadable HTML shopping list (e.g., `shopping-list-dec-1-dec-7-2024.html`)
 - `{{shopping_list_attachment}}` - **PAID PLAN ONLY: Base64-encoded shopping list** - Used by EmailJS Attachments tab (Parameter Name: `shopping_list_attachment`, requires paid EmailJS subscription)
 - `{{shopping_list_attachment_filename}}` - Dynamic filename for EmailJS attachment (e.g., `shopping-list-dec-1-dec-7-2024.md`)
 - `{{item_count}}` - Number of shopping list items
