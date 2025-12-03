@@ -54,7 +54,7 @@ export default function Settings() {
       const saved = storage.settings.set(localSettings);
       
       if (!saved) {
-        toast.error('Couldn't save. Check the console.');
+        toast.error("Couldn't save. Check the console.");
         return;
       }
       
@@ -70,7 +70,7 @@ export default function Settings() {
       }
     } catch (error) {
       console.error('Error saving settings:', error);
-      toast.error('Couldn't save: ' + error.message);
+      toast.error("Couldn't save: " + error.message);
     }
   };
 
@@ -120,7 +120,7 @@ export default function Settings() {
           toast.success('Settings imported!');
         } catch (error) {
           console.error('Error importing settings:', error);
-          toast.error('Couldn't import. Is that the right file?');
+          toast.error("Couldn't import. Is that the right file?");
         }
       };
       reader.readAsText(file);
