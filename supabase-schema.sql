@@ -143,3 +143,30 @@ CREATE INDEX IF NOT EXISTS idx_shopping_list_state_item_id ON shopping_list_stat
 CREATE TRIGGER update_shopping_list_state_updated_at BEFORE UPDATE ON shopping_list_state
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+-- Shopping list data table for storing complete list info (for interactive shopping list page)
+CREATE TABLE IF NOT EXISTS shopping_list_data (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  list_id TEXT NOT NULL UNIQUE,
+  week_range TEXT,
+  schedule JSONB DEFAULT '[]'::jsonb,
+  items_by_category JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable RLS for shopping list data
+ALTER TABLE shopping_list_data ENABLE ROW LEVEL SECURITY;
+
+-- Allow public read/write for shared shopping lists
+CREATE POLICY "Allow public read access" ON shopping_list_data FOR SELECT USING (true);
+CREATE POLICY "Allow public write access" ON shopping_list_data FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update access" ON shopping_list_data FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete access" ON shopping_list_data FOR DELETE USING (true);
+
+-- Create index for faster lookups
+CREATE INDEX IF NOT EXISTS idx_shopping_list_data_list_id ON shopping_list_data(list_id);
+
+-- Trigger to update updated_at timestamp
+CREATE TRIGGER update_shopping_list_data_updated_at BEFORE UPDATE ON shopping_list_data
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+

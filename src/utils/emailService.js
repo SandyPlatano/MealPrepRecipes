@@ -3,7 +3,6 @@
  */
 
 import { uploadShoppingListFile, isStorageAvailable, initializeShoppingListState } from './storageService';
-import { generateInteractiveShoppingListHTML } from './generateInteractiveShoppingList';
 import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
 import { storage } from './localStorage';
 
@@ -188,7 +187,6 @@ export async function sendShoppingListEmail({
 
   // Upload markdown file and copy page to Supabase Storage if available (for working download links)
   let markdownFileUrl = null;
-  let copyPageUrl = null;
   let interactiveListUrl = null;
   let storageError = null;
   
@@ -204,8 +202,8 @@ export async function sendShoppingListEmail({
       console.warn('Failed to upload markdown file to Supabase Storage:', markdownResult.error);
     }
     
-    // Generate and upload interactive shopping list page
-    if (attachmentContent && shoppingListMarkdown && isStorageAvailable()) {
+    // Generate interactive shopping list with Vercel-hosted page
+    if (attachmentContent && shoppingListMarkdown && isSupabaseConfigured()) {
       try {
         // Parse shopping list markdown into structured data
         const parsed = parseShoppingListMarkdown(shoppingListMarkdown);
@@ -222,46 +220,39 @@ export async function sendShoppingListEmail({
         // Generate unique list ID
         const listId = generateListId(weekRange);
         
-        // Get Supabase credentials for embedding in HTML
-        let supabaseUrl = null;
-        let supabaseAnonKey = null;
-        
-        if (isSupabaseConfigured()) {
-          const settings = storage.settings.get();
-          supabaseUrl = settings?.supabaseUrl?.trim() || null;
-          supabaseAnonKey = settings?.supabaseAnonKey?.trim() || null;
-        }
-        
-        // Generate interactive HTML
-        const interactiveListHtml = generateInteractiveShoppingListHTML({
-          listId,
-          weekRange,
-          schedule,
-          itemsByCategory,
-          supabaseUrl,
-          supabaseAnonKey,
-        });
-        
-        // Upload interactive list to Supabase Storage
-        // Use the Supabase Storage URL directly - data URIs are too long for emails
-        const interactiveFilename = filename.replace('.md', '-interactive.html');
-        const interactiveResult = await uploadShoppingListFile(
-          interactiveListHtml,
-          interactiveFilename,
-          'text/html; charset=utf-8'
-        );
-        
-        if (interactiveResult.success) {
-          // Use the Supabase Storage URL directly
-          interactiveListUrl = interactiveResult.url;
-          console.log('Interactive shopping list uploaded to Supabase Storage:', interactiveListUrl);
-        } else {
-          console.warn('Failed to upload interactive shopping list to Supabase:', interactiveResult.error);
-          // No fallback - data URIs don't work reliably in emails
+        // Store list data in Supabase for the Vercel-hosted page to fetch
+        const supabase = getSupabaseClient();
+        if (supabase) {
+          const { error: insertError } = await supabase
+            .from('shopping_list_data')
+            .upsert({
+              list_id: listId,
+              week_range: weekRange,
+              schedule: schedule.map(s => ({
+                recipe: s.recipe,
+                cook: s.cook,
+                day: s.day,
+              })),
+              items_by_category: itemsByCategory,
+            }, {
+              onConflict: 'list_id',
+            });
+          
+          if (insertError) {
+            console.error('Error storing shopping list data:', insertError);
+          } else {
+            // Generate URL to Vercel-hosted shopping list page
+            // Use the current origin or fallback to production URL
+            const baseUrl = typeof window !== 'undefined' && window.location.origin 
+              ? window.location.origin 
+              : 'https://meal-prep-recipes.vercel.app';
+            interactiveListUrl = `${baseUrl}/shopping-list.html?id=${encodeURIComponent(listId)}`;
+            console.log('Interactive shopping list URL:', interactiveListUrl);
+          }
         }
         
         // Initialize state in Supabase if available
-        if (isSupabaseConfigured() && parsed.items.length > 0) {
+        if (parsed.items.length > 0) {
           await initializeShoppingListState(listId, parsed.items);
         }
       } catch (error) {
@@ -269,274 +260,6 @@ export async function sendShoppingListEmail({
       }
     }
     
-    // Keep old copy page as fallback for backwards compatibility
-    const copyPageHtml = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Copy Shopping List - ${weekRange}</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .container {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      max-width: 800px;
-      width: 100%;
-      padding: 32px;
-    }
-    h1 {
-      font-family: 'JetBrains Mono', 'Fira Code', Consolas, Monaco, monospace;
-      font-size: 24px;
-      margin-bottom: 8px;
-      color: #0a0a0a;
-    }
-    .subtitle {
-      color: #737373;
-      font-size: 14px;
-      margin-bottom: 24px;
-    }
-    .copy-section {
-      background: #f5f5f5;
-      border: 2px solid #e5e5e5;
-      border-radius: 8px;
-      padding: 20px;
-      margin: 24px 0;
-      position: relative;
-    }
-    #shoppingListText {
-      font-family: 'JetBrains Mono', 'Fira Code', Consolas, Monaco, monospace;
-      font-size: 13px;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      color: #0a0a0a;
-      background: transparent;
-      border: none;
-      width: 100%;
-      min-height: 200px;
-      resize: vertical;
-      outline: none;
-    }
-    .button-container {
-      display: flex;
-      gap: 12px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-    }
-    .copy-btn {
-      background: #3b82f6;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      flex: 1;
-      min-width: 200px;
-    }
-    .copy-btn:hover {
-      background: #2563eb;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-    }
-    .copy-btn:active {
-      transform: translateY(0);
-    }
-    .copy-btn.copied {
-      background: #10b981;
-    }
-    .copy-btn:disabled {
-      background: #9ca3af;
-      cursor: not-allowed;
-    }
-    .instructions {
-      background: #fef3c7;
-      border-left: 4px solid #f59e0b;
-      padding: 16px;
-      border-radius: 4px;
-      margin-top: 24px;
-    }
-    .instructions h3 {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #92400e;
-    }
-    .instructions ol {
-      margin-left: 20px;
-      color: #78350f;
-      font-size: 14px;
-      line-height: 1.8;
-    }
-    .success-message {
-      background: #d1fae5;
-      border: 2px solid #10b981;
-      color: #065f46;
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-top: 16px;
-      display: none;
-      font-weight: 500;
-    }
-    .success-message.show {
-      display: block;
-      animation: slideIn 0.3s ease-out;
-    }
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    @media (max-width: 600px) {
-      .container {
-        padding: 20px;
-      }
-      .copy-btn {
-        min-width: 100%;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>📋 Shopping List</h1>
-    <p class="subtitle">Week of ${weekRange}</p>
-    
-    <div class="copy-section">
-      <textarea id="shoppingListText" readonly>${attachmentContent.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
-    </div>
-    
-    <div class="button-container">
-      <button class="copy-btn" onclick="copyToClipboard()" id="copyBtn">
-        📋 Copy to Clipboard
-      </button>
-      <button class="copy-btn" onclick="selectAll()" style="background: #6b7280;">
-        📝 Select All
-      </button>
-    </div>
-    
-    <div class="success-message" id="successMessage">
-      ✅ Copied to clipboard! Now paste it into Apple Notes or Google Keep.
-    </div>
-    
-    <div class="instructions">
-      <h3>How to use:</h3>
-      <ol>
-        <li>Click "Copy to Clipboard" button above</li>
-        <li>Open Apple Notes or Google Keep</li>
-        <li>Create a new note</li>
-        <li>Paste the shopping list (Cmd+V / Ctrl+V)</li>
-        <li>The checkboxes will work as interactive lists!</li>
-      </ol>
-    </div>
-  </div>
-  
-  <script>
-    function copyToClipboard() {
-      const textarea = document.getElementById('shoppingListText');
-      const btn = document.getElementById('copyBtn');
-      const successMsg = document.getElementById('successMessage');
-      
-      // Select the text
-      textarea.select();
-      textarea.setSelectionRange(0, 99999); // For mobile devices
-      
-      try {
-        // Copy to clipboard
-        const successful = document.execCommand('copy');
-        
-        if (successful) {
-          // Show success message
-          btn.textContent = '✅ Copied!';
-          btn.classList.add('copied');
-          successMsg.classList.add('show');
-          
-          // Reset button after 2 seconds
-          setTimeout(() => {
-            btn.textContent = '📋 Copy to Clipboard';
-            btn.classList.remove('copied');
-            successMsg.classList.remove('show');
-          }, 2000);
-        } else {
-          // Fallback: use Clipboard API
-          navigator.clipboard.writeText(textarea.value).then(() => {
-            btn.textContent = '✅ Copied!';
-            btn.classList.add('copied');
-            successMsg.classList.add('show');
-            setTimeout(() => {
-              btn.textContent = '📋 Copy to Clipboard';
-              btn.classList.remove('copied');
-              successMsg.classList.remove('show');
-            }, 2000);
-          }).catch(() => {
-            alert('Failed to copy. Please use "Select All" and copy manually.');
-          });
-        }
-      } catch (err) {
-        // Fallback: use Clipboard API
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(textarea.value).then(() => {
-            btn.textContent = '✅ Copied!';
-            btn.classList.add('copied');
-            successMsg.classList.add('show');
-            setTimeout(() => {
-              btn.textContent = '📋 Copy to Clipboard';
-              btn.classList.remove('copied');
-              successMsg.classList.remove('show');
-            }, 2000);
-          }).catch(() => {
-            alert('Failed to copy. Please use "Select All" and copy manually.');
-          });
-        } else {
-          alert('Your browser does not support clipboard copying. Please use "Select All" and copy manually.');
-        }
-      }
-    }
-    
-    function selectAll() {
-      const textarea = document.getElementById('shoppingListText');
-      textarea.select();
-      textarea.setSelectionRange(0, 99999); // For mobile devices
-    }
-    
-    // Auto-select on page load for easier copying
-    window.addEventListener('load', () => {
-      const textarea = document.getElementById('shoppingListText');
-      textarea.focus();
-    });
-  </script>
-</body>
-</html>`;
-    
-    const copyPageFilename = filename.replace('.md', '-copy.html');
-    const copyPageResult = await uploadShoppingListFile(copyPageHtml, copyPageFilename, 'text/html');
-    if (copyPageResult.success) {
-      copyPageUrl = copyPageResult.url;
-    } else {
-      console.warn('Failed to upload copy page to Supabase Storage:', copyPageResult.error);
-    }
   }
 
   // EmailJS doesn't support multiple recipients in one call, so we send to each
@@ -603,13 +326,10 @@ export async function sendShoppingListEmail({
             }
           }
           
-          // Add interactive list URL (preferred) or copy page URL as fallback
+          // Add interactive list URL
           if (interactiveListUrl) {
             templateParams.copy_page_url = interactiveListUrl;
             templateParams.has_interactive_list = true;
-          } else if (copyPageUrl) {
-            templateParams.copy_page_url = copyPageUrl;
-            templateParams.has_interactive_list = false;
           } else {
             templateParams.copy_page_url = '';
             templateParams.has_interactive_list = false;

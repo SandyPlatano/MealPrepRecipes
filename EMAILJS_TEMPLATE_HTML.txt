@@ -156,25 +156,6 @@
         </div>
       </div>
       
-      <!-- Download Shopping List -->
-      <div class="section" style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #e5e5e5;">
-        <h2 class="section-title">Download Shopping List</h2>
-        <p style="color: #737373; font-size: 14px; margin-bottom: 16px;">
-          {{download_section_message}}
-        </p>
-        <div style="text-align: center; margin: 20px 0;">
-          <a href="{{shopping_list_download_link}}" target="_blank" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-family: Inter, system-ui, sans-serif; font-size: 14px; margin: 4px;">
-            📥 Download as Markdown
-          </a>
-        </div>
-        <p style="color: #737373; font-size: 12px; margin-top: 12px; font-style: italic;">
-          <strong>Tip:</strong> Click the button above to download your shopping list. The file will open in your browser - you can then save it to your device.
-        </p>
-        <p style="color: #737373; font-size: 12px; margin-top: 8px; font-style: italic;">
-          {{storage_error_message}}
-        </p>
-      </div>
-      
       <!-- Interactive Shopping List -->
       <div class="section" style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #e5e5e5;">
         <h2 class="section-title">Interactive Shopping List</h2>
@@ -206,4 +187,3 @@
   </div>
 </body>
 </html>
-
