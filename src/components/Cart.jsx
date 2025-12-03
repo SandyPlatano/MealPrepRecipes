@@ -32,6 +32,7 @@ import { useCart } from '../context/CartContext';
 import { useSettings } from '../context/SettingsContext';
 import { useRecipes } from '../context/RecipeContext';
 import { storage } from '../utils/localStorage';
+import { supabaseStorage, shouldUseSupabase } from '../utils/supabaseStorage';
 import WeekSelector from './WeekSelector';
 import MealAssignmentTable from './MealAssignmentTable';
 import CalendarView from './CalendarView';
@@ -68,10 +69,18 @@ export default function Cart({ open, onOpenChange }) {
   const [templateName, setTemplateName] = useState('');
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'calendar'
 
-  // Load templates
+  // Load templates from Supabase or localStorage
   useEffect(() => {
-    const savedTemplates = storage.templates.get();
-    setTemplates(savedTemplates);
+    const loadTemplates = async () => {
+      if (shouldUseSupabase()) {
+        const savedTemplates = await supabaseStorage.templates.get();
+        setTemplates(savedTemplates || []);
+      } else {
+        const savedTemplates = storage.templates.get();
+        setTemplates(savedTemplates || []);
+      }
+    };
+    loadTemplates();
   }, []);
 
   // Get all ingredients from assigned recipes
@@ -356,7 +365,17 @@ export default function Cart({ open, onOpenChange }) {
 
     const newTemplates = [...templates, template];
     setTemplates(newTemplates);
-    storage.templates.set(newTemplates);
+    
+    // Save to Supabase or localStorage
+    if (shouldUseSupabase()) {
+      supabaseStorage.templates.set(newTemplates).catch(err => {
+        console.error('Error saving template to Supabase:', err);
+        storage.templates.set(newTemplates);
+      });
+    } else {
+      storage.templates.set(newTemplates);
+    }
+    
     setSaveTemplateOpen(false);
     setTemplateName('');
     toast.success(`Template "${template.name}" saved!`);
@@ -384,7 +403,17 @@ export default function Cart({ open, onOpenChange }) {
   const handleDeleteTemplate = (templateId) => {
     const newTemplates = templates.filter(t => t.id !== templateId);
     setTemplates(newTemplates);
-    storage.templates.set(newTemplates);
+    
+    // Save to Supabase or localStorage
+    if (shouldUseSupabase()) {
+      supabaseStorage.templates.set(newTemplates).catch(err => {
+        console.error('Error deleting template from Supabase:', err);
+        storage.templates.set(newTemplates);
+      });
+    } else {
+      storage.templates.set(newTemplates);
+    }
+    
     toast.success('Template deleted');
   };
 

@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Eye, EyeOff, Moon, Sun, Upload, Download, FileUp } from 'lucide-react';
 import { migrateToSupabase } from '../utils/supabaseStorage';
 import { resetSupabaseClient } from '../utils/supabaseClient';
+import { storage } from '../utils/localStorage';
 
 export default function Settings() {
   const { settings, updateSettings, getMaskedApiKey } = useSettings();
@@ -28,7 +29,6 @@ export default function Settings() {
       updateSettings(localSettings);
       
       // Also directly save to localStorage to ensure it's persisted
-      const { storage } = require('../utils/localStorage');
       const saved = storage.settings.set(localSettings);
       
       if (!saved) {

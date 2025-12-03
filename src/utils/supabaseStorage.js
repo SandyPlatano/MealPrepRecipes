@@ -57,6 +57,53 @@ async function getData(tableName, defaultValue = null) {
 }
 
 /**
+ * Generic function to get data with metadata (data and updated_at) from Supabase
+ * Returns { data, updatedAt } or just data if not using Supabase
+ */
+async function getDataWithMetadata(tableName, defaultValue = null) {
+  const storageKey = tableToStorageKey[tableName] || tableName;
+  
+  if (!isSupabaseConfigured()) {
+    // Fall back to localStorage
+    const data = localStorage[storageKey]?.get() || defaultValue;
+    return { data, updatedAt: null };
+  }
+
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    const data = localStorage[storageKey]?.get() || defaultValue;
+    return { data, updatedAt: null };
+  }
+
+  try {
+    const { data: result, error } = await supabase
+      .from(tableName)
+      .select('data, updated_at')
+      .single();
+
+    if (error) {
+      // If no row exists, return default
+      if (error.code === 'PGRST116') {
+        return { data: defaultValue, updatedAt: null };
+      }
+      console.error(`Error reading from Supabase table "${tableName}":`, error);
+      // Fall back to localStorage on error
+      const data = localStorage[storageKey]?.get() || defaultValue;
+      return { data, updatedAt: null };
+    }
+
+    return {
+      data: result?.data || defaultValue,
+      updatedAt: result?.updated_at || null,
+    };
+  } catch (error) {
+    console.error(`Error reading from Supabase table "${tableName}":`, error);
+    const data = localStorage[storageKey]?.get() || defaultValue;
+    return { data, updatedAt: null };
+  }
+}
+
+/**
  * Generic function to set data in Supabase or localStorage
  */
 async function setData(tableName, value) {
@@ -100,22 +147,27 @@ async function setData(tableName, value) {
 export const supabaseStorage = {
   recipes: {
     get: async () => await getData('recipes', []),
+    getWithMetadata: async () => await getDataWithMetadata('recipes', []),
     set: async (recipes) => await setData('recipes', recipes),
   },
   favorites: {
     get: async () => await getData('favorites', []),
+    getWithMetadata: async () => await getDataWithMetadata('favorites', []),
     set: async (favorites) => await setData('favorites', favorites),
   },
   cart: {
     get: async () => await getData('cart', []),
+    getWithMetadata: async () => await getDataWithMetadata('cart', []),
     set: async (cart) => await setData('cart', cart),
   },
   history: {
     get: async () => await getData('cooking_history', []),
+    getWithMetadata: async () => await getDataWithMetadata('cooking_history', []),
     set: async (history) => await setData('cooking_history', history),
   },
   templates: {
     get: async () => await getData('templates', []),
+    getWithMetadata: async () => await getDataWithMetadata('templates', []),
     set: async (templates) => await setData('templates', templates),
   },
 };

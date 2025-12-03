@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generate Extension Icons</title>
+</head>
+<body>
+  <h1>Extension Icon Generator</h1>
+  <p>Open browser console and run: generateIcons()</p>
+  <canvas id="canvas" style="border: 1px solid #ccc;"></canvas>
+  <div id="downloads"></div>
+
+  <script>
+    function generateIcons() {
+      const sizes = [16, 48, 128];
+      const downloads = document.getElementById('downloads');
+      downloads.innerHTML = '';
+
+      sizes.forEach(size => {
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+
+        // Draw blue background
+        ctx.fillStyle = '#2563eb';
+        ctx.fillRect(0, 0, size, size);
+
+        // Draw simple chef hat icon
+        ctx.fillStyle = 'white';
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = size / 32;
+
+        // Chef hat (simplified)
+        const hatY = size * 0.2;
+        const hatWidth = size * 0.6;
+        const hatHeight = size * 0.3;
+        ctx.beginPath();
+        ctx.moveTo(size * 0.2, hatY);
+        ctx.lineTo(size * 0.5, hatY + hatHeight);
+        ctx.lineTo(size * 0.8, hatY);
+        ctx.closePath();
+        ctx.fill();
+
+        // Utensils
+        const utensilX1 = size * 0.3;
+        const utensilX2 = size * 0.7;
+        const utensilY = size * 0.6;
+        const utensilHeight = size * 0.25;
+
+        // Spoon
+        ctx.fillRect(utensilX1 - size * 0.02, utensilY, size * 0.04, utensilHeight);
+        ctx.beginPath();
+        ctx.arc(utensilX1, utensilY + utensilHeight, size * 0.06, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Fork
+        ctx.fillRect(utensilX2 - size * 0.02, utensilY, size * 0.04, utensilHeight);
+        for (let i = 0; i < 3; i++) {
+          const tineX = utensilX2 - size * 0.03 + (i * size * 0.03);
+          ctx.fillRect(tineX, utensilY + utensilHeight, size * 0.01, size * 0.02);
+        }
+
+        // Download
+        canvas.toBlob(blob => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `icon${size}.png`;
+          a.textContent = `Download icon${size}.png`;
+          a.style.display = 'block';
+          a.style.margin = '10px';
+          downloads.appendChild(a);
+        });
+      });
+    }
+
+    // Auto-run
+    window.onload = () => {
+      setTimeout(generateIcons, 500);
+    };
+  </script>
+</body>
+</html>
+

@@ -4,10 +4,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Get API key from request body
+  // Get API key from request body or environment variable
   const { apiKey, text, htmlContent, sourceUrl } = req.body;
+  
+  // Use API key from request body, or fall back to environment variable
+  const anthropicApiKey = apiKey || process.env.ANTHROPIC_API_KEY;
 
-  if (!apiKey) {
+  if (!anthropicApiKey) {
     return res.status(400).json({ error: 'API key is required' });
   }
 
@@ -75,7 +78,7 @@ Return ONLY valid JSON, no markdown formatting, no explanation.`;
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        'x-api-key': anthropicApiKey,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({

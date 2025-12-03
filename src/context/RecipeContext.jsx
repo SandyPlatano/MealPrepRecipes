@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { storage } from '../utils/localStorage';
 import { supabaseStorage, shouldUseSupabase } from '../utils/supabaseStorage';
 import { sampleRecipes } from '../utils/recipeParser';
@@ -10,17 +10,38 @@ export function RecipeProvider({ children }) {
   const [favorites, setFavorites] = useState([]);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Track last update timestamps for polling (use ref to avoid closure issues)
+  const lastUpdateTimesRef = useRef({
+    recipes: null,
+    favorites: null,
+    history: null,
+  });
+  
+  // Track if we're currently saving to prevent conflicts
+  const savingRef = useRef({ recipes: false, favorites: false, history: false });
 
   // Load from Supabase or localStorage on mount
   useEffect(() => {
     const loadData = async () => {
       let savedRecipes, savedFavorites, savedHistory;
+      let recipesUpdatedAt = null;
+      let favoritesUpdatedAt = null;
+      let historyUpdatedAt = null;
 
       if (shouldUseSupabase()) {
-        // Load from Supabase
-        savedRecipes = await supabaseStorage.recipes.get();
-        savedFavorites = await supabaseStorage.favorites.get();
-        savedHistory = await supabaseStorage.history.get();
+        // Load from Supabase with metadata
+        const recipesResult = await supabaseStorage.recipes.getWithMetadata();
+        savedRecipes = recipesResult.data;
+        recipesUpdatedAt = recipesResult.updatedAt;
+        
+        const favoritesResult = await supabaseStorage.favorites.getWithMetadata();
+        savedFavorites = favoritesResult.data;
+        favoritesUpdatedAt = favoritesResult.updatedAt;
+        
+        const historyResult = await supabaseStorage.history.getWithMetadata();
+        savedHistory = historyResult.data;
+        historyUpdatedAt = historyResult.updatedAt;
       } else {
         // Load from localStorage
         savedRecipes = storage.recipes.get();
@@ -46,9 +67,14 @@ export function RecipeProvider({ children }) {
         }
       }
       
-      setRecipes(savedRecipes);
-      setFavorites(savedFavorites);
-      setHistory(savedHistory);
+      setRecipes(savedRecipes || []);
+      setFavorites(savedFavorites || []);
+      setHistory(savedHistory || []);
+      lastUpdateTimesRef.current = {
+        recipes: recipesUpdatedAt,
+        favorites: favoritesUpdatedAt,
+        history: historyUpdatedAt,
+      };
       setLoading(false);
     };
 
@@ -58,47 +84,164 @@ export function RecipeProvider({ children }) {
   // Save to Supabase or localStorage whenever recipes change
   useEffect(() => {
     if (!loading && recipes.length > 0) {
-      if (shouldUseSupabase()) {
-        supabaseStorage.recipes.set(recipes).catch(err => {
-          console.error('Error saving recipes to Supabase:', err);
-          // Fall back to localStorage
+      savingRef.current.recipes = true;
+      const saveRecipes = async () => {
+        if (shouldUseSupabase()) {
+          try {
+            await supabaseStorage.recipes.set(recipes);
+            // Update last update time after successful save
+            const result = await supabaseStorage.recipes.getWithMetadata();
+            if (result.updatedAt) {
+              lastUpdateTimesRef.current.recipes = result.updatedAt;
+            }
+          } catch (err) {
+            console.error('Error saving recipes to Supabase:', err);
+            // Fall back to localStorage
+            storage.recipes.set(recipes);
+          }
+        } else {
           storage.recipes.set(recipes);
-        });
-      } else {
-        storage.recipes.set(recipes);
-      }
+        }
+        savingRef.current.recipes = false;
+      };
+      saveRecipes();
     }
   }, [recipes, loading]);
 
   // Save to Supabase or localStorage whenever favorites change
   useEffect(() => {
     if (!loading) {
-      if (shouldUseSupabase()) {
-        supabaseStorage.favorites.set(favorites).catch(err => {
-          console.error('Error saving favorites to Supabase:', err);
-          // Fall back to localStorage
+      savingRef.current.favorites = true;
+      const saveFavorites = async () => {
+        if (shouldUseSupabase()) {
+          try {
+            await supabaseStorage.favorites.set(favorites);
+            // Update last update time after successful save
+            const result = await supabaseStorage.favorites.getWithMetadata();
+            if (result.updatedAt) {
+              lastUpdateTimesRef.current.favorites = result.updatedAt;
+            }
+          } catch (err) {
+            console.error('Error saving favorites to Supabase:', err);
+            // Fall back to localStorage
+            storage.favorites.set(favorites);
+          }
+        } else {
           storage.favorites.set(favorites);
-        });
-      } else {
-        storage.favorites.set(favorites);
-      }
+        }
+        savingRef.current.favorites = false;
+      };
+      saveFavorites();
     }
   }, [favorites, loading]);
 
   // Save to Supabase or localStorage whenever history changes
   useEffect(() => {
     if (!loading) {
-      if (shouldUseSupabase()) {
-        supabaseStorage.history.set(history).catch(err => {
-          console.error('Error saving history to Supabase:', err);
-          // Fall back to localStorage
+      savingRef.current.history = true;
+      const saveHistory = async () => {
+        if (shouldUseSupabase()) {
+          try {
+            await supabaseStorage.history.set(history);
+            // Update last update time after successful save
+            const result = await supabaseStorage.history.getWithMetadata();
+            if (result.updatedAt) {
+              lastUpdateTimesRef.current.history = result.updatedAt;
+            }
+          } catch (err) {
+            console.error('Error saving history to Supabase:', err);
+            // Fall back to localStorage
+            storage.history.set(history);
+          }
+        } else {
           storage.history.set(history);
-        });
-      } else {
-        storage.history.set(history);
-      }
+        }
+        savingRef.current.history = false;
+      };
+      saveHistory();
     }
   }, [history, loading]);
+
+  // Periodic polling to sync data from Supabase (every 5 seconds)
+  useEffect(() => {
+    if (!shouldUseSupabase() || loading) return;
+
+    const POLL_INTERVAL = 5000; // 5 seconds
+    let pollInterval;
+    let isTabActive = true;
+
+    // Track tab visibility to pause polling when inactive
+    const handleVisibilityChange = () => {
+      isTabActive = !document.hidden;
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    const pollForUpdates = async () => {
+      // Skip polling if tab is inactive or we're currently saving
+      if (!isTabActive || 
+          savingRef.current.recipes || 
+          savingRef.current.favorites || 
+          savingRef.current.history) {
+        return;
+      }
+
+      try {
+        // Check for recipe updates
+        if (!savingRef.current.recipes) {
+          const recipesResult = await supabaseStorage.recipes.getWithMetadata();
+          const remoteUpdatedAt = recipesResult.updatedAt;
+          const localUpdatedAt = lastUpdateTimesRef.current.recipes;
+
+          if (remoteUpdatedAt && remoteUpdatedAt !== localUpdatedAt) {
+            // Check if remote is actually newer
+            if (!localUpdatedAt || new Date(remoteUpdatedAt) > new Date(localUpdatedAt)) {
+              setRecipes(recipesResult.data || []);
+              lastUpdateTimesRef.current.recipes = remoteUpdatedAt;
+            }
+          }
+        }
+
+        // Check for favorites updates
+        if (!savingRef.current.favorites) {
+          const favoritesResult = await supabaseStorage.favorites.getWithMetadata();
+          const remoteUpdatedAt = favoritesResult.updatedAt;
+          const localUpdatedAt = lastUpdateTimesRef.current.favorites;
+
+          if (remoteUpdatedAt && remoteUpdatedAt !== localUpdatedAt) {
+            if (!localUpdatedAt || new Date(remoteUpdatedAt) > new Date(localUpdatedAt)) {
+              setFavorites(favoritesResult.data || []);
+              lastUpdateTimesRef.current.favorites = remoteUpdatedAt;
+            }
+          }
+        }
+
+        // Check for history updates
+        if (!savingRef.current.history) {
+          const historyResult = await supabaseStorage.history.getWithMetadata();
+          const remoteUpdatedAt = historyResult.updatedAt;
+          const localUpdatedAt = lastUpdateTimesRef.current.history;
+
+          if (remoteUpdatedAt && remoteUpdatedAt !== localUpdatedAt) {
+            if (!localUpdatedAt || new Date(remoteUpdatedAt) > new Date(localUpdatedAt)) {
+              setHistory(historyResult.data || []);
+              lastUpdateTimesRef.current.history = remoteUpdatedAt;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error polling for updates:', error);
+      }
+    };
+
+    // Start polling
+    pollInterval = setInterval(pollForUpdates, POLL_INTERVAL);
+
+    // Cleanup
+    return () => {
+      clearInterval(pollInterval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [loading]);
 
   const addRecipe = (recipe) => {
     const newRecipe = {
