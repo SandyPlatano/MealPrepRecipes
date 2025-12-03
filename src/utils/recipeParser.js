@@ -101,6 +101,8 @@ export const sampleRecipes = [
   {
     id: 1,
     title: 'Sheet Pan Lemon Herb Chicken',
+    recipeType: 'Dinner',
+    category: 'Chicken',
     proteinType: 'Chicken',
     prepTime: '15 minutes',
     cookTime: '35 minutes',
@@ -132,7 +134,9 @@ export const sampleRecipes = [
   {
     id: 2,
     title: 'Teriyaki Salmon with Broccoli',
-    proteinType: 'Salmon',
+    recipeType: 'Dinner',
+    category: 'Fish',
+    proteinType: 'Fish',
     prepTime: '10 minutes',
     cookTime: '15 minutes',
     servings: '4',
@@ -162,6 +166,8 @@ export const sampleRecipes = [
   {
     id: 3,
     title: 'Vegetarian Stuffed Bell Peppers',
+    recipeType: 'Dinner',
+    category: 'Vegetarian',
     proteinType: 'Vegetarian',
     prepTime: '20 minutes',
     cookTime: '40 minutes',
@@ -195,6 +201,8 @@ export const sampleRecipes = [
   {
     id: 4,
     title: 'Honey Garlic Pork Chops',
+    recipeType: 'Dinner',
+    category: 'Pork',
     proteinType: 'Pork',
     prepTime: '10 minutes',
     cookTime: '20 minutes',
@@ -227,6 +235,8 @@ export const sampleRecipes = [
   {
     id: 5,
     title: 'Beef and Broccoli Stir-Fry',
+    recipeType: 'Dinner',
+    category: 'Beef',
     proteinType: 'Beef',
     prepTime: '15 minutes',
     cookTime: '15 minutes',

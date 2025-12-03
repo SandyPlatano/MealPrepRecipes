@@ -3,14 +3,16 @@
 // Search recipes by protein type
 export const searchByProtein = (recipes, proteinQuery) => {
   if (!proteinQuery || !proteinQuery.trim()) {
-    return [];
+    return recipes; // Return all recipes if no query
   }
 
   const query = proteinQuery.toLowerCase().trim();
 
   return recipes.filter(recipe => {
-    const proteinType = recipe.proteinType.toLowerCase();
-    return proteinType.includes(query);
+    const proteinType = (recipe.proteinType || '').toLowerCase();
+    const title = (recipe.title || '').toLowerCase();
+    // Search in both protein type and title
+    return proteinType.includes(query) || title.includes(query);
   });
 };
 

@@ -36,7 +36,7 @@ export async function parseRecipeWithClaude(rawText, apiKey) {
       title: parsed.title || 'Untitled Recipe',
       recipeType: parsed.recipeType || 'Dinner',
       category: parsed.category || parsed.proteinType || 'Other',
-      proteinType: parsed.category || parsed.proteinType || 'Other', // Keep for backwards compatibility
+      proteinType: parsed.proteinType || parsed.category || 'Other', // Keep for backwards compatibility
       prepTime: parsed.prepTime || '15 minutes',
       cookTime: parsed.cookTime || parsed.bakeTime || '30 minutes',
       servings: parsed.servings || '4',
@@ -82,7 +82,7 @@ export async function parseRecipeFromHTML(htmlContent, sourceUrl, apiKey) {
       title: parsed.title || 'Untitled Recipe',
       recipeType: parsed.recipeType || 'Dinner',
       category: parsed.category || parsed.proteinType || 'Other',
-      proteinType: parsed.category || parsed.proteinType || 'Other', // Keep for backwards compatibility
+      proteinType: parsed.proteinType || parsed.category || 'Other', // Keep for backwards compatibility
       prepTime: parsed.prepTime || '15 minutes',
       cookTime: parsed.cookTime || parsed.bakeTime || '30 minutes',
       servings: parsed.servings || '4',
