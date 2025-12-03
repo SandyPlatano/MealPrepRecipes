@@ -351,6 +351,12 @@ export default function Settings() {
                   placeholder="GOCSPX-xxxxx"
                 />
               </div>
+              {localSettings.googleConnectedAccount && (
+                <div className="p-3 rounded-lg border border-border bg-muted/50">
+                  <Label className="text-sm font-medium text-muted-foreground">Connected Account</Label>
+                  <p className="text-sm font-mono mt-1">{localSettings.googleConnectedAccount}</p>
+                </div>
+              )}
               <GoogleCalendarButton />
             </div>
             <p className="text-sm text-muted-foreground mt-2">

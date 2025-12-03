@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google OAuth Callback</title>
+</head>
+<body>
+  <script>
+    // Parse the OAuth callback URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const error = urlParams.get('error');
+    const errorDescription = urlParams.get('error_description');
+
+    // Send message to parent window (opener)
+    if (window.opener) {
+      if (code) {
+        // Success - send code to parent
+        window.opener.postMessage({
+          type: 'GOOGLE_OAUTH_SUCCESS',
+          code: code
+        }, window.location.origin);
+      } else if (error) {
+        // Error - send error to parent
+        window.opener.postMessage({
+          type: 'GOOGLE_OAUTH_ERROR',
+          error: error,
+          errorDescription: errorDescription
+        }, window.location.origin);
+      }
+      
+      // Close the popup
+      window.close();
+    } else {
+      // If no opener, display message (shouldn't happen in normal flow)
+      document.body.innerHTML = '<h1>OAuth Callback</h1><p>This window should close automatically. If it doesn\'t, please close it manually.</p>';
+    }
+  </script>
+</body>
+</html>
+

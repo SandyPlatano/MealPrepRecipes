@@ -5,6 +5,7 @@
 const GOOGLE_OAUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const GOOGLE_CALENDAR_API = 'https://www.googleapis.com/calendar/v3';
+const GOOGLE_USERINFO_API = 'https://www.googleapis.com/oauth2/v2/userinfo';
 
 /**
  * Generate Google OAuth URL
@@ -14,7 +15,7 @@ export function getGoogleOAuthURL(clientId, redirectUri) {
     client_id: clientId,
     redirect_uri: redirectUri,
     response_type: 'code',
-    scope: 'https://www.googleapis.com/auth/calendar.events',
+    scope: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.email',
     access_type: 'offline',
     prompt: 'consent',
   });
@@ -67,6 +68,25 @@ export async function refreshAccessToken(refreshToken, clientId, clientSecret) {
 
   if (!response.ok) {
     throw new Error('Failed to refresh access token');
+  }
+
+  return await response.json();
+}
+
+/**
+ * Get user info (email) from Google
+ */
+export async function getUserInfo(accessToken) {
+  const response = await fetch(GOOGLE_USERINFO_API, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error?.message || 'Failed to fetch user info');
   }
 
   return await response.json();

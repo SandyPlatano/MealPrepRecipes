@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
 import { useSettings } from '../context/SettingsContext';
-import { getGoogleOAuthURL, exchangeCodeForTokens } from '../utils/googleCalendarService';
+import { getGoogleOAuthURL, exchangeCodeForTokens, getUserInfo } from '../utils/googleCalendarService';
 import { toast } from 'sonner';
 import { Loader2, Calendar } from 'lucide-react';
 
@@ -48,10 +48,20 @@ export default function GoogleCalendarButton() {
             redirectUri
           );
           
+          // Fetch user email
+          let userEmail = '';
+          try {
+            const userInfo = await getUserInfo(tokens.access_token);
+            userEmail = userInfo.email || '';
+          } catch (error) {
+            console.warn('Failed to fetch user email:', error);
+            // Continue without email - connection still works
+          }
+          
           updateGoogleTokens({
             access_token: tokens.access_token,
             refresh_token: tokens.refresh_token,
-            email: '', // We'll need to fetch this separately
+            email: userEmail,
           });
           
           toast.success('Google Calendar connected!');

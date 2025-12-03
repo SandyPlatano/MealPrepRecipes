@@ -21,6 +21,7 @@ const elements = {
   successMessage: document.getElementById('success-message'),
   openAppBtn: document.getElementById('open-app-btn'),
   newRecipeBtn: document.getElementById('new-recipe-btn'),
+  cancelBtn: document.getElementById('cancel-btn'),
   optionsLink: document.getElementById('options-link'),
 };
 

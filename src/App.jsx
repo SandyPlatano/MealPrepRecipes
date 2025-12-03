@@ -13,10 +13,44 @@ import Settings from './components/Settings';
 import Cart from './components/Cart';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('search');
+  // Load active tab from URL hash, localStorage, or default to 'search'
+  const [activeTab, setActiveTab] = useState(() => {
+    // First check URL hash
+    const hash = window.location.hash.slice(1); // Remove the '#'
+    if (hash && ['search', 'add', 'my-recipes', 'stats', 'settings'].includes(hash)) {
+      return hash;
+    }
+    // Then check localStorage
+    const savedTab = localStorage.getItem('activeTab');
+    if (savedTab && ['search', 'add', 'my-recipes', 'stats', 'settings'].includes(savedTab)) {
+      return savedTab;
+    }
+    // Default to search
+    return 'search';
+  });
   const [cartOpen, setCartOpen] = useState(false);
   const { getCartCount } = useCart();
   const { settings } = useSettings();
+
+  // Save active tab to localStorage and URL hash whenever it changes
+  useEffect(() => {
+    localStorage.setItem('activeTab', activeTab);
+    // Update URL hash without causing a page reload
+    window.history.replaceState(null, '', `#${activeTab}`);
+  }, [activeTab]);
+
+  // Listen for browser back/forward button to handle hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1);
+      if (hash && ['search', 'add', 'my-recipes', 'stats', 'settings'].includes(hash)) {
+        setActiveTab(hash);
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   // Apply dark mode on mount and when settings change
   useEffect(() => {
