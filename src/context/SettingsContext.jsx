@@ -7,6 +7,7 @@ const defaultSettings = {
   darkMode: false,
   cookNames: ['You', 'Morgan'],
   emailAddress: '',
+  additionalEmails: [],
   anthropicApiKey: '',
   emailjsServiceId: '',
   emailjsTemplateId: '',

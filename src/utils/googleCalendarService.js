@@ -101,7 +101,7 @@ export async function createCalendarEvent({
   description,
   startDateTime,
   endDateTime,
-  attendeeEmail,
+  attendeeEmails,
 }) {
   const event = {
     summary,
@@ -116,8 +116,8 @@ export async function createCalendarEvent({
     },
   };
 
-  if (attendeeEmail) {
-    event.attendees = [{ email: attendeeEmail }];
+  if (attendeeEmails && attendeeEmails.length > 0) {
+    event.attendees = attendeeEmails.map(email => ({ email }));
   }
 
   const response = await fetch(`${GOOGLE_CALENDAR_API}/calendars/primary/events`, {
@@ -143,7 +143,7 @@ export async function createCalendarEvent({
 export async function createMealPlanEvents({
   accessToken,
   events,
-  attendeeEmail,
+  attendeeEmails,
 }) {
   const results = await Promise.allSettled(
     events.map(event => 
@@ -153,7 +153,7 @@ export async function createMealPlanEvents({
         description: formatRecipeDescription(event.recipeData),
         startDateTime: event.startDateTime,
         endDateTime: event.endDateTime,
-        attendeeEmail,
+        attendeeEmails,
       })
     )
   );

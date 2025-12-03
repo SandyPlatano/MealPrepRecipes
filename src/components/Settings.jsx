@@ -244,18 +244,63 @@ export default function Settings() {
           {/* Email Address */}
           <div>
             <Label className="text-base font-semibold mb-3 block font-mono">Email Address</Label>
-            <div>
-              <Label htmlFor="email-address">Sending Email Address</Label>
-              <Input
-                id="email-address"
-                type="email"
-                value={localSettings.emailAddress || ''}
-                onChange={(e) => updateLocalSetting('emailAddress', e.target.value)}
-                placeholder="your@email.com"
-              />
-              <p className="text-sm text-muted-foreground mt-2">
-                This email address will be used to send shopping lists and calendar invites.
-              </p>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="email-address">Primary Email</Label>
+                <Input
+                  id="email-address"
+                  type="email"
+                  value={localSettings.emailAddress || ''}
+                  onChange={(e) => updateLocalSetting('emailAddress', e.target.value)}
+                  placeholder="your@email.com"
+                />
+                <p className="text-sm text-muted-foreground mt-2">
+                  Your email address where you will receive shopping lists and calendar invites.
+                </p>
+              </div>
+              
+              {/* Additional Recipients */}
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Additional Recipients</Label>
+                <div className="space-y-2">
+                  {(localSettings.additionalEmails || []).map((email, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(e) => {
+                          const newEmails = [...(localSettings.additionalEmails || [])];
+                          newEmails[index] = e.target.value;
+                          updateLocalSetting('additionalEmails', newEmails);
+                        }}
+                        placeholder="additional@email.com"
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          const newEmails = (localSettings.additionalEmails || []).filter((_, i) => i !== index);
+                          updateLocalSetting('additionalEmails', newEmails);
+                        }}
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  ))}
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      updateLocalSetting('additionalEmails', [...(localSettings.additionalEmails || []), '']);
+                    }} 
+                    className="w-full"
+                  >
+                    + Add Recipient
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Additional email addresses that will also receive shopping lists and calendar invites.
+                </p>
+              </div>
             </div>
           </div>
 

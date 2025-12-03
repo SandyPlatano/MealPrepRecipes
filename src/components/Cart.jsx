@@ -266,8 +266,14 @@ export default function Cart({ open, onOpenChange }) {
       // Send email
       let emailSuccess = false;
       try {
+        // Combine primary email with additional recipients
+        const allRecipients = [
+          settings.emailAddress,
+          ...(settings.additionalEmails || [])
+        ].filter(Boolean);
+        
         const emailResult = await sendShoppingListEmail({
-          toEmails: [settings.emailAddress],
+          toEmails: allRecipients,
           weekRange,
           schedule,
           shoppingListHtml,
@@ -338,10 +344,16 @@ export default function Cart({ open, onOpenChange }) {
           });
 
           console.log(`Creating ${events.length} calendar events...`);
+          // Combine primary email with additional recipients for calendar invites
+          const allAttendeeEmails = [
+            settings.emailAddress,
+            ...(settings.additionalEmails || [])
+          ].filter(Boolean);
+          
           const calendarResult = await createMealPlanEvents({
             accessToken,
             events,
-            attendeeEmail: settings.emailAddress,
+            attendeeEmails: allAttendeeEmails,
           });
 
           if (calendarResult.successful > 0) {
@@ -510,7 +522,7 @@ export default function Cart({ open, onOpenChange }) {
                         onClick={() => handleDeleteTemplate(template.id)}
                         className="h-8 w-8"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4 text-gray-500 hover:text-red-500 transition-colors" />
                       </Button>
                     </div>
                   ))}

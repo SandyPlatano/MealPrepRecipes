@@ -152,13 +152,13 @@ export default function RecipeCard({ recipe, onViewDetails }) {
             <Button
               variant="ghost"
               size="icon"
-              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="hover:bg-destructive/10"
               onClick={(e) => {
                 e.stopPropagation();
                 setDeleteDialogOpen(true);
               }}
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4 text-gray-500 hover:text-red-500 transition-colors" />
             </Button>
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
               <AlertDialogContent>
