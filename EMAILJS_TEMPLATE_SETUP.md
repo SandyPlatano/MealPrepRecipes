@@ -2,6 +2,19 @@
 
 This guide shows you how to set up your EmailJS template to match the Meal Prep Recipe Manager branding.
 
+## ⚠️ Critical Setup Step: Configure "To Email" Field
+
+**This step is REQUIRED and must be done in the EmailJS dashboard, not in the HTML template.**
+
+1. Go to your EmailJS dashboard → **Email Templates** → Select your template
+2. Find the **"To Email"** field (usually at the top of the template settings)
+3. Set it to: `{{to_email}}`
+4. **Do NOT leave it empty** - this will cause a 422 error when sending emails
+
+**Why this is needed:** EmailJS requires the recipient email address to be configured in the template settings. The app sends `to_email` as a template parameter, but EmailJS needs to know which field to use for the recipient address.
+
+If you see errors like "The recipient email address is invalid" or get a 422 status code, this is almost always because the "To Email" field is not set to `{{to_email}}`.
+
 ## Quick Setup
 
 1. **Copy the Branded Template HTML**
@@ -10,6 +23,7 @@ This guide shows you how to set up your EmailJS template to match the Meal Prep 
 
 2. **In EmailJS Dashboard:**
    - Go to **Email Templates** → Your template
+   - **Set "To Email" field to `{{to_email}}`** (see Critical Setup Step above)
    - Paste the HTML below into the template editor
    - Make sure to use the exact variable names shown
 
@@ -175,6 +189,20 @@ Copy this entire HTML into your EmailJS template:
           {{{shopping_list_html}}}
         </div>
       </div>
+      
+      <!-- Shopping List Attachment (for Apple Notes & Google Keep) -->
+      <div class="section" style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #e5e5e5;">
+        <h2 class="section-title">Copy to Apple Notes or Google Keep</h2>
+        <p style="color: #737373; font-size: 14px; margin-bottom: 16px;">
+          Copy the shopping list below into Apple Notes or Google Keep for an interactive checklist while shopping.
+        </p>
+        <div style="background-color: #f5f5f5; padding: 16px; border-radius: 8px; font-family: 'JetBrains Mono', 'Fira Code', Consolas, Monaco, monospace; font-size: 13px; white-space: pre-wrap; overflow-x: auto; border: 1px solid #e5e5e5;">
+          {{shopping_list_attachment_text}}
+        </div>
+        <p style="color: #737373; font-size: 12px; margin-top: 12px; font-style: italic;">
+          Tip: Select all text in the box above, copy it, and paste it into a new note in Apple Notes or Google Keep. The checkboxes will work as interactive lists.
+        </p>
+      </div>
     </div>
     
     <!-- Footer -->
@@ -190,7 +218,8 @@ Copy this entire HTML into your EmailJS template:
 ## Email Subject Line
 
 Use this for your email subject:
-```
+
+```text
 Meal Prep Shopping List - {{week_range}}
 ```
 
@@ -201,9 +230,13 @@ The template uses these variables (automatically provided by the app):
 - `{{week_range}}` - Week date range (e.g., "Dec 1 - Dec 7, 2024")
 - `{{{schedule_table}}}` - HTML table of meals (use triple braces for HTML)
 - `{{{shopping_list_html}}}` - Shopping list HTML (use triple braces for HTML)
+- `{{shopping_list_text}}` - Shopping list in plain text format
+- `{{shopping_list_markdown}}` - Shopping list in markdown format
+- `{{shopping_list_attachment_text}}` - **Shopping list optimized for Apple Notes & Google Keep** - Markdown format with checkboxes that can be copied into notes apps
+- `{{shopping_list_attachment_html}}` - HTML version of the attachment (alternative to text version)
 - `{{item_count}}` - Number of shopping list items
 - `{{recipe_count}}` - Number of recipes this week
-- `{{to_email}}` - Recipient email address (used by EmailJS, not in template)
+- `{{to_email}}` - **Recipient email address** - **MUST be set in EmailJS template's "To Email" field** (see Critical Setup Step above). This variable is used by EmailJS to determine where to send the email, not in the HTML body.
 
 ## Branding Details
 
@@ -211,13 +244,41 @@ The template matches your app's design:
 
 - **Primary Font**: JetBrains Mono / Fira Code (monospace) for headings
 - **Body Font**: Inter (sans-serif) for content
-- **Colors**: 
+- **Colors**:
   - Primary text: `#0a0a0a`
   - Muted text: `#737373`
   - Borders: `#e5e5e5`
   - Background: `#ffffff` / `#fafafa`
 - **Spacing**: Consistent 24px/32px padding
 - **Typography**: Matches app's letter-spacing and font weights
+
+## Shopping List Attachment for Apple Notes & Google Keep
+
+The email includes a shopping list attachment that's optimized for copying into Apple Notes and Google Keep. This provides an interactive checklist format that's easy to use while shopping.
+
+**How it works:**
+
+- The shopping list is included in the email as a formatted text block with checkboxes
+- Recipients can copy the text and paste it into Apple Notes or Google Keep
+- The checkboxes (`- [ ] item`) will work as interactive lists in both apps
+
+**Included in template:**
+
+The template HTML above includes a section that displays `{{shopping_list_attachment_text}}` in a copyable format. This is automatically generated and includes:
+
+- Week range
+- Recipes for the week
+- Categorized ingredients with checkboxes
+- Optimized markdown format
+
+**Using the attachment:**
+
+1. Open the email on your device
+2. Find the "Copy to Apple Notes or Google Keep" section
+3. Select all the text in the gray box
+4. Copy it
+5. Paste into a new note in Apple Notes or Google Keep
+6. The checkboxes will be interactive - tap them to check off items while shopping!
 
 ## Testing
 
@@ -228,10 +289,27 @@ After updating your EmailJS template:
 3. Add recipes to cart and assign them
 4. Click "Send Email & Calendar Invites"
 5. Check your email - it should match your app's branding!
+6. Try copying the shopping list attachment into Apple Notes or Google Keep
 
 ## Troubleshooting
+
+### 422 Error: "The recipient email address is invalid" or "Failed to send to all recipients"
+
+**This is the most common error.** It means the EmailJS template's "To Email" field is not configured correctly.
+
+**Solution:**
+
+1. Go to EmailJS Dashboard → Email Templates → Your template
+2. Find the **"To Email"** field in the template settings (not in the HTML editor)
+3. Set it to exactly: `{{to_email}}`
+4. Save the template
+5. Try sending again
+
+**Why this happens:** EmailJS requires the recipient email to be specified in the template settings. Even though the app sends `to_email` as a parameter, EmailJS needs to know which field to use for the recipient address.
+
+### Other Common Issues
 
 - **Variables not showing**: Make sure you use `{{{triple_braces}}}` for HTML content
 - **Styling looks off**: Some email clients strip CSS - the template uses inline styles where possible
 - **Fonts not loading**: Email clients may fall back to system fonts, which is fine
-
+- **Email credentials error**: Double-check your EmailJS Service ID, Template ID, and Public Key in the app's Settings

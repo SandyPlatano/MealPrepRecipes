@@ -112,11 +112,11 @@ export default function Cart({ open, onOpenChange }) {
     const sunday = addDays(monday, 6);
     const weekRange = `${format(monday, 'MMM d')} - ${format(sunday, 'MMM d, yyyy')}`;
 
-    let markdown = `# Shopping List\n`;
+    let markdown = `# Shopping List\n\n`;
     markdown += `## Week of ${weekRange}\n\n`;
 
       if (assignedItems.length > 0) {
-        markdown += `### Recipes This Week:\n`;
+        markdown += `### Recipes This Week:\n\n`;
         assignedItems.forEach(item => {
           markdown += `- ${item.recipe.title} (${item.cook} - ${item.day})\n`;
         });
@@ -153,13 +153,14 @@ export default function Cart({ open, onOpenChange }) {
     const sunday = addDays(monday, 6);
     const weekRange = `${format(monday, 'MMM d')} - ${format(sunday, 'MMM d, yyyy')}`;
 
-    let html = `<h2>Shopping List</h2>`;
-    html += `<p><strong>Week of ${weekRange}</strong></p>`;
+    let html = `<h2 style="margin: 0 0 16px 0; padding: 0;">Shopping List</h2>`;
+    html += `<p style="margin: 0 0 24px 0; padding: 0;"><strong>Week of ${weekRange}</strong></p>`;
 
     if (assignedItems.length > 0) {
-      html += `<h3>Recipes This Week:</h3><ul>`;
+      html += `<h3 style="margin: 0 0 12px 0; padding: 0;">Recipes This Week:</h3>`;
+      html += `<ul style="margin: 0 0 24px 0; padding-left: 20px;">`;
       assignedItems.forEach(item => {
-        html += `<li>${item.recipe.title} (${item.cook} - ${item.day})</li>`;
+        html += `<li style="margin: 4px 0; padding: 0;">${item.recipe.title} (${item.cook} - ${item.day})</li>`;
       });
       html += `</ul>`;
     }
