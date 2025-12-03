@@ -35,15 +35,25 @@ function App() {
   // Save active tab to localStorage and URL hash whenever it changes
   useEffect(() => {
     localStorage.setItem('activeTab', activeTab);
-    // Update URL hash without causing a page reload
-    window.history.replaceState(null, '', `#${activeTab}`);
+    // Only update URL hash if it doesn't match current activeTab to avoid conflicts with back button
+    const currentHash = window.location.hash.slice(1);
+    if (currentHash !== activeTab) {
+      window.history.replaceState(null, '', `#${activeTab}`);
+    }
   }, [activeTab]);
 
   // Listen for browser back/forward button to handle hash changes
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1);
-      if (hash && ['search', 'add', 'my-recipes', 'stats', 'settings'].includes(hash)) {
+      // Handle empty hash (user navigated back to base URL)
+      if (!hash) {
+        // Default to 'search' when hash is removed
+        setActiveTab('search');
+        return;
+      }
+      // Update tab if hash is valid
+      if (['search', 'add', 'my-recipes', 'stats', 'settings'].includes(hash)) {
         setActiveTab(hash);
       }
     };

@@ -30,13 +30,21 @@ export default function GoogleCalendarButton() {
       `width=${width},height=${height},left=${left},top=${top}`
     );
 
+    // Check if popup was blocked
+    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+      toast.error('Popup was blocked. Please allow popups for this site and try again.');
+      return;
+    }
+
     // Listen for OAuth callback
     const handleMessage = async (event) => {
       if (event.origin !== window.location.origin) return;
       
       if (event.data.type === 'GOOGLE_OAUTH_SUCCESS') {
         const { code } = event.data;
-        popup.close();
+        if (popup && !popup.closed) {
+          popup.close();
+        }
         window.removeEventListener('message', handleMessage);
         
         setLoading(true);
@@ -71,7 +79,9 @@ export default function GoogleCalendarButton() {
           setLoading(false);
         }
       } else if (event.data.type === 'GOOGLE_OAUTH_ERROR') {
-        popup.close();
+        if (popup && !popup.closed) {
+          popup.close();
+        }
         window.removeEventListener('message', handleMessage);
         toast.error('Failed to connect Google Calendar');
       }
@@ -81,7 +91,7 @@ export default function GoogleCalendarButton() {
     
     // Check if popup was closed
     const checkClosed = setInterval(() => {
-      if (popup.closed) {
+      if (!popup || popup.closed) {
         clearInterval(checkClosed);
         window.removeEventListener('message', handleMessage);
       }

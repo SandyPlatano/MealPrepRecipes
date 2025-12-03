@@ -12,9 +12,10 @@ import { Eye, EyeOff, Moon, Sun, Upload, Download, FileUp } from 'lucide-react';
 import { migrateToSupabase } from '../utils/supabaseStorage';
 import { resetSupabaseClient } from '../utils/supabaseClient';
 import { storage } from '../utils/localStorage';
+import { getUserInfo } from '../utils/googleCalendarService';
 
 export default function Settings() {
-  const { settings, updateSettings, getMaskedApiKey } = useSettings();
+  const { settings, updateSettings, updateGoogleTokens, getMaskedApiKey } = useSettings();
   const [showApiKey, setShowApiKey] = useState(false);
   const [localSettings, setLocalSettings] = useState(settings);
 
@@ -22,6 +23,27 @@ export default function Settings() {
   useEffect(() => {
     setLocalSettings(settings);
   }, [settings]);
+
+  // Fetch email if we have a token but no email stored
+  useEffect(() => {
+    const fetchEmailIfNeeded = async () => {
+      if (settings.googleAccessToken && !settings.googleConnectedAccount) {
+        try {
+          const userInfo = await getUserInfo(settings.googleAccessToken);
+          if (userInfo.email) {
+            updateGoogleTokens({
+              email: userInfo.email,
+            });
+          }
+        } catch (error) {
+          console.warn('Failed to fetch Google account email:', error);
+          // Don't show error toast - this is a background operation
+        }
+      }
+    };
+
+    fetchEmailIfNeeded();
+  }, [settings.googleAccessToken, settings.googleConnectedAccount, updateGoogleTokens]);
 
   const handleSave = () => {
     try {
@@ -351,10 +373,10 @@ export default function Settings() {
                   placeholder="GOCSPX-xxxxx"
                 />
               </div>
-              {localSettings.googleConnectedAccount && (
+              {settings.googleConnectedAccount && (
                 <div className="p-3 rounded-lg border border-border bg-muted/50">
                   <Label className="text-sm font-medium text-muted-foreground">Connected Account</Label>
-                  <p className="text-sm font-mono mt-1">{localSettings.googleConnectedAccount}</p>
+                  <p className="text-sm font-mono mt-1">{settings.googleConnectedAccount}</p>
                 </div>
               )}
               <GoogleCalendarButton />
