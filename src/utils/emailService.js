@@ -4,7 +4,6 @@
 
 import { uploadShoppingListFile, isStorageAvailable, initializeShoppingListState } from './storageService';
 import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
-import { storage } from './localStorage';
 
 /**
  * Generate shopping list attachment optimized for Apple Notes and Google Keep
@@ -151,6 +150,8 @@ export async function sendShoppingListEmail({
   emailjsServiceId,
   emailjsTemplateId,
   emailjsPublicKey,
+  supabaseUrl = '',
+  supabaseAnonKey = '',
   includeAttachment = true,
 }) {
   if (!emailjsServiceId || !emailjsTemplateId || !emailjsPublicKey) {
@@ -247,16 +248,11 @@ export async function sendShoppingListEmail({
               ? window.location.origin 
               : 'https://meal-prep-recipes.vercel.app';
             
-            // Get Supabase credentials to pass in URL
-            const settings = storage.settings.get();
-            const supabaseUrl = settings?.supabaseUrl?.trim() || '';
-            const supabaseKey = settings?.supabaseAnonKey?.trim() || '';
-            
-            // Build URL with all needed parameters
+            // Build URL with all needed parameters (using passed Supabase credentials)
             const params = new URLSearchParams({
               id: listId,
-              url: supabaseUrl,
-              key: supabaseKey,
+              url: supabaseUrl?.trim() || '',
+              key: supabaseAnonKey?.trim() || '',
             });
             interactiveListUrl = `${baseUrl}/shopping-list.html?${params.toString()}`;
             console.log('Interactive shopping list URL:', interactiveListUrl);

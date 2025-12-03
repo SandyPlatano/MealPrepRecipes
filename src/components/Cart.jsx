@@ -273,6 +273,8 @@ export default function Cart({ open, onOpenChange }) {
           emailjsServiceId: settings.emailjsServiceId,
           emailjsTemplateId: settings.emailjsTemplateId,
           emailjsPublicKey: settings.emailjsPublicKey,
+          supabaseUrl: settings.supabaseUrl,
+          supabaseAnonKey: settings.supabaseAnonKey,
         });
 
         console.log('EmailJS result:', emailResult);
