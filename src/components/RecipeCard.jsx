@@ -1,13 +1,24 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Heart, Download, UtensilsCrossed, Cookie, Croissant, Coffee, IceCream, Salad } from 'lucide-react';
+import { Heart, Download, Trash2, UtensilsCrossed, Cookie, Croissant, Coffee, IceCream, Salad } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from './ui/alert-dialog';
 import { useCart } from '../context/CartContext';
 import { useRecipes } from '../context/RecipeContext';
 import { exportRecipeAsMarkdown, exportRecipeAsPDF, downloadTextAsFile } from '../utils/exportService';
@@ -36,7 +47,8 @@ const getRecipeIcon = (recipeType) => {
 
 export default function RecipeCard({ recipe, onViewDetails }) {
   const { addToCart, removeFromCart, isInCart } = useCart();
-  const { toggleFavorite, isFavorite, getLastMadeDate } = useRecipes();
+  const { toggleFavorite, isFavorite, getLastMadeDate, deleteRecipe } = useRecipes();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   
   const lastMadeDate = getLastMadeDate(recipe.id);
 
@@ -67,6 +79,17 @@ export default function RecipeCard({ recipe, onViewDetails }) {
   const handleExportPDF = () => {
     exportRecipeAsPDF(recipe);
     toast.success('Opening PDF preview');
+  };
+
+  const handleDelete = () => {
+    // Remove from cart if it's in cart
+    if (isInCart(recipe.id)) {
+      removeFromCart(recipe.id);
+    }
+    // Delete the recipe
+    deleteRecipe(recipe.id);
+    toast.success('Recipe deleted');
+    setDeleteDialogOpen(false);
   };
 
   return (
@@ -126,6 +149,34 @@ export default function RecipeCard({ recipe, onViewDetails }) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Recipe</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete "{recipe.title}"? This action cannot be undone and will remove the recipe from your collection, favorites, and any meal plans.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </CardHeader>

@@ -264,27 +264,61 @@ export default function Cart({ open, onOpenChange }) {
       const schedule = generateSchedule();
 
       // Send email
-      const emailResult = await sendShoppingListEmail({
-        toEmails: [settings.emailAddress],
-        weekRange,
-        schedule,
-        shoppingListHtml,
-        shoppingListText,
-        shoppingListMarkdown,
-        emailjsServiceId: settings.emailjsServiceId,
-        emailjsTemplateId: settings.emailjsTemplateId,
-        emailjsPublicKey: settings.emailjsPublicKey,
-      });
+      let emailSuccess = false;
+      try {
+        const emailResult = await sendShoppingListEmail({
+          toEmails: [settings.emailAddress],
+          weekRange,
+          schedule,
+          shoppingListHtml,
+          shoppingListText,
+          shoppingListMarkdown,
+          emailjsServiceId: settings.emailjsServiceId,
+          emailjsTemplateId: settings.emailjsTemplateId,
+          emailjsPublicKey: settings.emailjsPublicKey,
+        });
 
-      if (emailResult.successful > 0) {
-        toast.success(`Email sent successfully!`);
+        if (emailResult.successful > 0) {
+          emailSuccess = true;
+          toast.success(`Email sent successfully to ${emailResult.successful} recipient(s)!`);
+        } else {
+          toast.error(`Email failed to send. Please check your EmailJS configuration.`);
+          console.error('EmailJS result:', emailResult);
+        }
+      } catch (emailError) {
+        console.error('Email sending error:', emailError);
+        toast.error(`Email failed: ${emailError.message}. Check console for details.`);
       }
 
       // Create calendar events if Google Calendar is connected
       if (settings.googleAccessToken && settings.googleClientId) {
         try {
-          // Check if we need to refresh token
           let accessToken = settings.googleAccessToken;
+          
+          // Try to refresh token if we have a refresh token
+          if (settings.googleRefreshToken && settings.googleClientSecret) {
+            try {
+              console.log('Attempting to refresh Google Calendar access token...');
+              const refreshedTokens = await refreshAccessToken(
+                settings.googleRefreshToken,
+                settings.googleClientId,
+                settings.googleClientSecret
+              );
+              
+              // Update stored tokens
+              if (refreshedTokens.access_token) {
+                accessToken = refreshedTokens.access_token;
+                updateGoogleTokens({
+                  access_token: refreshedTokens.access_token,
+                  refresh_token: refreshedTokens.refresh_token || settings.googleRefreshToken,
+                });
+                console.log('Google Calendar token refreshed successfully');
+              }
+            } catch (refreshError) {
+              console.warn('Token refresh failed, trying with existing token:', refreshError);
+              // Continue with existing token - it might still be valid
+            }
+          }
           
           // Create events
           const events = schedule.map(item => {
@@ -303,6 +337,7 @@ export default function Cart({ open, onOpenChange }) {
             };
           });
 
+          console.log(`Creating ${events.length} calendar events...`);
           const calendarResult = await createMealPlanEvents({
             accessToken,
             events,
@@ -310,18 +345,40 @@ export default function Cart({ open, onOpenChange }) {
           });
 
           if (calendarResult.successful > 0) {
-            toast.success(`Created ${calendarResult.successful} calendar event(s)`);
+            toast.success(`Created ${calendarResult.successful} calendar event(s)!`);
+            if (calendarResult.failed > 0) {
+              toast.warning(`${calendarResult.failed} event(s) failed. Check console for details.`);
+              console.error('Calendar event errors:', calendarResult.errors);
+            }
+          } else if (calendarResult.failed > 0) {
+            toast.error(`Failed to create calendar events: ${calendarResult.errors.join(', ')}`);
+            console.error('All calendar events failed:', calendarResult.errors);
           }
         } catch (calendarError) {
-          console.error('Calendar error:', calendarError);
-          toast.error(`Calendar events failed: ${calendarError.message}`);
+          console.error('Calendar error details:', calendarError);
+          const errorMessage = calendarError.message || 'Unknown error';
+          
+          // Check for common error types
+          if (errorMessage.includes('invalid_grant') || errorMessage.includes('token') || errorMessage.includes('401')) {
+            toast.error('Google Calendar authentication expired. Please reconnect in Settings.');
+          } else if (errorMessage.includes('403') || errorMessage.includes('permission')) {
+            toast.error('Google Calendar permission denied. Please check your OAuth scopes.');
+          } else {
+            toast.error(`Calendar events failed: ${errorMessage}. Check console for details.`);
+          }
         }
+      } else if (emailSuccess) {
+        // Only show this if email succeeded but calendar isn't configured
+        toast.info('Email sent! Connect Google Calendar in Settings to also create calendar invites.');
       }
 
-      toast.success('Meal plan sent!');
+      // Show final summary
+      if (emailSuccess) {
+        toast.success('Meal plan sent successfully!');
+      }
     } catch (error) {
       console.error('Error sending meal plan:', error);
-      toast.error(`Failed to send meal plan: ${error.message}`);
+      toast.error(`Failed to send meal plan: ${error.message}. Check console for details.`);
     } finally {
       setLoading(false);
     }
