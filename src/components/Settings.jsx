@@ -1,0 +1,369 @@
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Button } from './ui/button';
+import { Separator } from './ui/separator';
+import { Switch } from './ui/switch';
+import { useSettings } from '../context/SettingsContext';
+import GoogleCalendarButton from './GoogleCalendarButton';
+import { toast } from 'sonner';
+import { Eye, EyeOff, Moon, Sun, Upload } from 'lucide-react';
+import { migrateToSupabase } from '../utils/supabaseStorage';
+import { resetSupabaseClient } from '../utils/supabaseClient';
+
+export default function Settings() {
+  const { settings, updateSettings, getMaskedApiKey } = useSettings();
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [localSettings, setLocalSettings] = useState(settings);
+
+  // Sync localSettings with context settings when they change
+  useEffect(() => {
+    setLocalSettings(settings);
+  }, [settings]);
+
+  const handleSave = () => {
+    updateSettings(localSettings);
+    // Reset Supabase client if URL or key changed
+    resetSupabaseClient();
+    toast.success('Settings saved!');
+  };
+
+  const handleMigrate = async () => {
+    if (!localSettings.supabaseUrl || !localSettings.supabaseAnonKey) {
+      toast.error('Please configure Supabase URL and Anon Key first');
+      return;
+    }
+
+    // Save settings first to ensure Supabase client is initialized
+    updateSettings(localSettings);
+    resetSupabaseClient();
+
+    toast.loading('Migrating data to Supabase...', { id: 'migration' });
+    
+    try {
+      // Wait a bit for client to initialize
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const success = await migrateToSupabase();
+      
+      if (success) {
+        toast.success('Data migrated to Supabase successfully!', { id: 'migration' });
+      } else {
+        toast.error('Migration failed. Check console for details.', { id: 'migration' });
+      }
+    } catch (error) {
+      console.error('Migration error:', error);
+      toast.error('Migration failed. Check console for details.', { id: 'migration' });
+    }
+  };
+
+  const updateLocalSetting = (key, value) => {
+    setLocalSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  const updateCookName = (index, value) => {
+    const newNames = [...localSettings.cookNames];
+    newNames[index] = value;
+    updateLocalSetting('cookNames', newNames);
+  };
+
+  const addCookName = () => {
+    updateLocalSetting('cookNames', [...localSettings.cookNames, '']);
+  };
+
+  const removeCookName = (index) => {
+    if (localSettings.cookNames.length > 1) {
+      const newNames = localSettings.cookNames.filter((_, i) => i !== index);
+      updateLocalSetting('cookNames', newNames);
+    }
+  };
+
+  return (
+    <div className="space-y-6 w-2/3 max-w-4xl mx-auto">
+      <Card>
+        <CardHeader>
+          <CardTitle>Settings</CardTitle>
+          <CardDescription>Configure your meal prep app</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Dark Mode */}
+          <div className="p-4 rounded-lg border border-border bg-card/50">
+            <Label className="text-base font-semibold mb-4 block font-mono">Appearance</Label>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {localSettings.darkMode ? (
+                  <Moon className="h-5 w-5 text-foreground" />
+                ) : (
+                  <Sun className="h-5 w-5 text-foreground" />
+                )}
+                <span className="font-mono text-sm">Dark Mode</span>
+              </div>
+              <Switch
+                checked={localSettings.darkMode || false}
+                onCheckedChange={(checked) => {
+                  const updatedSettings = { ...localSettings, darkMode: checked };
+                  setLocalSettings(updatedSettings);
+                  // Immediately update context and apply dark mode
+                  updateSettings(updatedSettings);
+                }}
+              />
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Cook Names */}
+          <div>
+            <Label className="text-base font-semibold mb-3 block font-mono">Cook Names</Label>
+            <div className="space-y-2">
+              {localSettings.cookNames.map((name, index) => (
+                <div key={index} className="flex gap-2">
+                  <Input
+                    value={name}
+                    onChange={(e) => updateCookName(index, e.target.value)}
+                    placeholder={`Cook ${index + 1} name`}
+                  />
+                  {localSettings.cookNames.length > 1 && (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => removeCookName(index)}
+                    >
+                      ×
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button variant="outline" onClick={addCookName} className="w-full">
+                + Add Cook
+              </Button>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Email Addresses */}
+          <div>
+            <Label className="text-base font-semibold mb-3 block font-mono">Email Addresses</Label>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="your-email">Your Email</Label>
+                <Input
+                  id="your-email"
+                  type="email"
+                  value={localSettings.yourEmail}
+                  onChange={(e) => updateLocalSetting('yourEmail', e.target.value)}
+                  placeholder="your@email.com"
+                />
+              </div>
+              <div>
+                <Label htmlFor="partner-email">Partner's Email</Label>
+                <Input
+                  id="partner-email"
+                  type="email"
+                  value={localSettings.partnerEmail}
+                  onChange={(e) => updateLocalSetting('partnerEmail', e.target.value)}
+                  placeholder="partner@email.com"
+                />
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Anthropic API Key */}
+          <div>
+            <Label className="text-base font-semibold mb-3 block font-mono">Anthropic API Key</Label>
+            <div className="flex gap-2">
+              <Input
+                type={showApiKey ? 'text' : 'password'}
+                value={localSettings.anthropicApiKey}
+                onChange={(e) => updateLocalSetting('anthropicApiKey', e.target.value)}
+                placeholder="sk-ant-api03-..."
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setShowApiKey(!showApiKey)}
+              >
+                {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              Required for recipe parsing. Get your key at{' '}
+              <a
+                href="https://console.anthropic.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                console.anthropic.com
+              </a>
+            </p>
+          </div>
+
+          <Separator />
+
+          {/* EmailJS Credentials */}
+          <div>
+            <Label className="text-base font-semibold mb-3 block font-mono">EmailJS Credentials</Label>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="emailjs-service">Service ID</Label>
+                <Input
+                  id="emailjs-service"
+                  value={localSettings.emailjsServiceId}
+                  onChange={(e) => updateLocalSetting('emailjsServiceId', e.target.value)}
+                  placeholder="service_xxxxx"
+                />
+              </div>
+              <div>
+                <Label htmlFor="emailjs-template">Template ID</Label>
+                <Input
+                  id="emailjs-template"
+                  value={localSettings.emailjsTemplateId}
+                  onChange={(e) => updateLocalSetting('emailjsTemplateId', e.target.value)}
+                  placeholder="template_xxxxx"
+                />
+              </div>
+              <div>
+                <Label htmlFor="emailjs-public">Public Key</Label>
+                <Input
+                  id="emailjs-public"
+                  value={localSettings.emailjsPublicKey}
+                  onChange={(e) => updateLocalSetting('emailjsPublicKey', e.target.value)}
+                  placeholder="xxxxxxxxxxxxx"
+                />
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              Get these from{' '}
+              <a
+                href="https://www.emailjs.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                emailjs.com
+              </a>
+            </p>
+          </div>
+
+          <Separator />
+
+          {/* Google Calendar */}
+          <div>
+            <Label className="text-base font-semibold mb-3 block font-mono">Google Calendar</Label>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="google-client-id">Client ID</Label>
+                <Input
+                  id="google-client-id"
+                  value={localSettings.googleClientId}
+                  onChange={(e) => updateLocalSetting('googleClientId', e.target.value)}
+                  placeholder="xxxxx.apps.googleusercontent.com"
+                />
+              </div>
+              <div>
+                <Label htmlFor="google-client-secret">Client Secret</Label>
+                <Input
+                  id="google-client-secret"
+                  type="password"
+                  value={localSettings.googleClientSecret}
+                  onChange={(e) => updateLocalSetting('googleClientSecret', e.target.value)}
+                  placeholder="GOCSPX-xxxxx"
+                />
+              </div>
+              <GoogleCalendarButton />
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              Set up OAuth credentials in{' '}
+              <a
+                href="https://console.cloud.google.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                Google Cloud Console
+              </a>
+            </p>
+          </div>
+
+          <Separator />
+
+          {/* Supabase Configuration */}
+          <div>
+            <Label className="text-base font-semibold mb-3 block font-mono">Supabase (Shared Data)</Label>
+            <p className="text-sm text-muted-foreground mb-4">
+              Configure Supabase to sync recipes, favorites, and cart between devices. 
+              Both you and your partner should use the same credentials.
+            </p>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="supabase-url">Project URL</Label>
+                <Input
+                  id="supabase-url"
+                  value={localSettings.supabaseUrl || ''}
+                  onChange={(e) => updateLocalSetting('supabaseUrl', e.target.value)}
+                  placeholder="https://xxxxx.supabase.co"
+                />
+              </div>
+              <div>
+                <Label htmlFor="supabase-anon-key">Anon Key</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="supabase-anon-key"
+                    type={showApiKey ? 'text' : 'password'}
+                    value={localSettings.supabaseAnonKey || ''}
+                    onChange={(e) => updateLocalSetting('supabaseAnonKey', e.target.value)}
+                    placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                  >
+                    {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              Get these from your{' '}
+              <a
+                href="https://supabase.com/dashboard"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                Supabase Dashboard
+              </a>
+              {' '}(Project Settings → API)
+            </p>
+            <div className="mt-4">
+              <Button
+                variant="outline"
+                onClick={handleMigrate}
+                className="w-full"
+                disabled={!localSettings.supabaseUrl || !localSettings.supabaseAnonKey}
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Migrate Local Data to Supabase
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                One-time migration: copies all recipes, favorites, cart, and history from this device to Supabase.
+              </p>
+            </div>
+          </div>
+
+          <Separator />
+
+          <Button onClick={handleSave} className="w-full">
+            Save Settings
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
