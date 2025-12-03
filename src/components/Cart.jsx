@@ -284,15 +284,35 @@ export default function Cart({ open, onOpenChange }) {
           emailjsPublicKey: settings.emailjsPublicKey,
         });
 
+        console.log('EmailJS result:', emailResult);
+
         if (emailResult.successful > 0) {
           emailSuccess = true;
-          toast.success(`Email sent successfully to ${emailResult.successful} recipient(s)!`);
+          if (emailResult.failed > 0) {
+            const errorDetails = emailResult.errors?.map(e => `${e.email}: ${e.error}`).join('; ') || 'Unknown error';
+            toast.warning(`Email sent to ${emailResult.successful} recipient(s), but ${emailResult.failed} failed. Check console for details.`);
+            console.error('Failed emails:', emailResult.errors);
+          } else {
+            toast.success(`Email sent successfully to ${emailResult.successful} recipient(s)!`);
+          }
         } else {
-          toast.error(`Email failed to send. Please check your EmailJS configuration.`);
-          console.error('EmailJS result:', emailResult);
+          const errorDetails = emailResult.errors?.map(e => `${e.email}: ${e.error}`).join('; ') || 'Unknown error';
+          toast.error(`Email failed to send to all recipients. Check console for details.`);
+          console.error('EmailJS configuration:', {
+            serviceId: settings.emailjsServiceId ? 'Set' : 'Missing',
+            templateId: settings.emailjsTemplateId ? 'Set' : 'Missing',
+            publicKey: settings.emailjsPublicKey ? 'Set' : 'Missing',
+            recipients: allRecipients,
+          });
+          console.error('Failed emails:', emailResult.errors);
         }
       } catch (emailError) {
         console.error('Email sending error:', emailError);
+        console.error('EmailJS configuration:', {
+          serviceId: settings.emailjsServiceId ? 'Set' : 'Missing',
+          templateId: settings.emailjsTemplateId ? 'Set' : 'Missing',
+          publicKey: settings.emailjsPublicKey ? 'Set' : 'Missing',
+        });
         toast.error(`Email failed: ${emailError.message}. Check console for details.`);
       }
 
@@ -522,7 +542,7 @@ export default function Cart({ open, onOpenChange }) {
                         onClick={() => handleDeleteTemplate(template.id)}
                         className="h-8 w-8"
                       >
-                        <Trash2 className="h-4 w-4 text-gray-500 hover:text-red-500 transition-colors" />
+                        <Trash2 className="h-4 w-4 text-gray-800 dark:text-white hover:text-red-500 dark:hover:text-red-500 transition-colors" />
                       </Button>
                     </div>
                   ))}

@@ -7,6 +7,7 @@ const Toaster = ({
     <Sonner
       theme="system"
       className="toaster group"
+      expand={true}
       toastOptions={{
         classNames: {
           toast:

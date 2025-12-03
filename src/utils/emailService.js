@@ -20,42 +20,76 @@ export async function sendShoppingListEmail({
     throw new Error('EmailJS credentials are required');
   }
 
+  // Validate credentials are not just whitespace
+  if (!emailjsServiceId.trim() || !emailjsTemplateId.trim() || !emailjsPublicKey.trim()) {
+    throw new Error('EmailJS credentials cannot be empty');
+  }
+
   if (!toEmails || toEmails.length === 0) {
     throw new Error('At least one email address is required');
+  }
+
+  // Validate email addresses
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const invalidEmails = toEmails.filter(email => !emailRegex.test(email));
+  if (invalidEmails.length > 0) {
+    throw new Error(`Invalid email addresses: ${invalidEmails.join(', ')}`);
   }
 
   // EmailJS doesn't support multiple recipients in one call, so we send to each
   const results = await Promise.allSettled(
     toEmails.map(async (email) => {
-      const response = await fetch(`https://api.emailjs.com/api/v1.0/email/send`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          service_id: emailjsServiceId,
-          template_id: emailjsTemplateId,
-          user_id: emailjsPublicKey,
-          template_params: {
-            to_email: email,
-            subject: `Meal Plan & Shopping List - Week of ${weekRange}`,
-            week_range: weekRange,
-            schedule_table: formatScheduleTable(schedule),
-            shopping_list_html: shoppingListHtml,
-            shopping_list_text: shoppingListText,
-            shopping_list_markdown: shoppingListMarkdown,
-            item_count: countShoppingListItems(shoppingListText),
-            recipe_count: schedule.length,
+      try {
+        const response = await fetch(`https://api.emailjs.com/api/v1.0/email/send`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-        }),
-      });
+          body: JSON.stringify({
+            service_id: emailjsServiceId,
+            template_id: emailjsTemplateId,
+            user_id: emailjsPublicKey,
+            template_params: {
+              to_email: email,
+              subject: `Meal Plan & Shopping List - Week of ${weekRange}`,
+              week_range: weekRange,
+              schedule_table: formatScheduleTable(schedule),
+              shopping_list_html: shoppingListHtml,
+              shopping_list_text: shoppingListText,
+              shopping_list_markdown: shoppingListMarkdown,
+              item_count: countShoppingListItems(shoppingListText),
+              recipe_count: schedule.length,
+            },
+          }),
+        });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`EmailJS error: ${response.status} - ${errorText}`);
+        // EmailJS returns 200 even on errors, so we need to check the response body
+        const responseData = await response.json();
+        
+        // Check if the response indicates success
+        if (response.status !== 200 || responseData.status !== 200 || responseData.text !== 'OK') {
+          const errorMessage = responseData.text || responseData.message || `HTTP ${response.status}`;
+          console.error('EmailJS error response:', {
+            status: response.status,
+            responseData,
+            email,
+            serviceId: emailjsServiceId,
+            templateId: emailjsTemplateId,
+          });
+          throw new Error(`EmailJS error for ${email}: ${errorMessage}`);
+        }
+
+        console.log('EmailJS success for:', email);
+        return { email, success: true };
+      } catch (error) {
+        // If it's already our error, rethrow it
+        if (error.message && error.message.includes('EmailJS error')) {
+          throw error;
+        }
+        // Otherwise, wrap it
+        console.error('EmailJS fetch error:', error);
+        throw new Error(`Failed to send email to ${email}: ${error.message}`);
       }
-
-      return { email, success: true };
     })
   );
 
@@ -63,13 +97,20 @@ export async function sendShoppingListEmail({
   const failed = results.filter(r => r.status === 'rejected');
 
   if (failed.length > 0) {
-    console.error('Some emails failed to send:', failed);
+    console.error('Some emails failed to send:', failed.map(f => ({
+      reason: f.reason?.message || f.reason,
+      email: f.reason?.email || 'unknown',
+    })));
   }
 
   return {
     successful,
     total: toEmails.length,
     failed: failed.length,
+    errors: failed.map(f => ({
+      email: f.reason?.email || 'unknown',
+      error: f.reason?.message || String(f.reason),
+    })),
   };
 }
 

@@ -158,7 +158,7 @@ export default function RecipeCard({ recipe, onViewDetails }) {
                 setDeleteDialogOpen(true);
               }}
             >
-              <Trash2 className="h-4 w-4 text-gray-500 hover:text-red-500 transition-colors" />
+              <Trash2 className="h-4 w-4 text-gray-800 dark:text-white hover:text-red-500 dark:hover:text-red-500 transition-colors" />
             </Button>
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
               <AlertDialogContent>
