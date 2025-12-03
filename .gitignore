@@ -29,6 +29,7 @@ wheels/
 # IDE
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
 *~
@@ -47,3 +48,6 @@ node_modules/
 dist/
 .vite/
 .vercel
+
+# CSV files
+*.csv

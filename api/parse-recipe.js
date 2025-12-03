@@ -177,7 +177,7 @@ Return ONLY valid JSON, no markdown formatting, no explanation.`;
       title: parsed.title || 'Untitled Recipe',
       recipeType: parsed.recipeType || 'Dinner',
       category: parsed.category || parsed.proteinType || 'Other',
-      proteinType: parsed.category || parsed.proteinType || 'Other',
+      proteinType: parsed.proteinType || parsed.category || 'Other',
       prepTime: parsed.prepTime || '15 minutes',
       cookTime: parsed.cookTime || parsed.bakeTime || '30 minutes',
       servings: parsed.servings || '4',

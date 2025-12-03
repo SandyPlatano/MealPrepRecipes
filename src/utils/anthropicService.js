@@ -43,6 +43,7 @@ export async function parseRecipeWithClaude(rawText, apiKey) {
       ingredients: Array.isArray(parsed.ingredients) ? parsed.ingredients : [],
       instructions: Array.isArray(parsed.instructions) ? parsed.instructions : [],
       tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+      notes: parsed.notes || 'None',
     };
   } catch (error) {
     console.error('Error parsing recipe with Claude:', error);
@@ -89,6 +90,7 @@ export async function parseRecipeFromHTML(htmlContent, sourceUrl, apiKey) {
       ingredients: Array.isArray(parsed.ingredients) ? parsed.ingredients : [],
       instructions: Array.isArray(parsed.instructions) ? parsed.instructions : [],
       tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+      notes: parsed.notes || 'None',
       sourceUrl: parsed.sourceUrl || sourceUrl,
     };
   } catch (error) {
