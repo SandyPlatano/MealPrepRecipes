@@ -450,11 +450,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
   
   <script>
+    // Default Supabase credentials (fallback if not in URL)
+    const DEFAULT_SUPABASE_URL = 'https://dqzalifzavpzvskkubal.supabase.co';
+    const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxemFsaWZ6YXZwenZza2t1YmFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3Nzc5MTQsImV4cCI6MjA4MDM1MzkxNH0.qGGJdR1dU5KowI4L8pWez5_fZdsdLndK_Pu9Etd3uDs';
+    
     // Get parameters from URL
     const urlParams = new URLSearchParams(window.location.search);
     const listId = urlParams.get('id');
-    const supabaseUrl = urlParams.get('url');
-    const supabaseKey = urlParams.get('key');
+    // Use URL params if provided, otherwise use defaults
+    const supabaseUrl = urlParams.get('url') || DEFAULT_SUPABASE_URL;
+    const supabaseKey = urlParams.get('key') || DEFAULT_SUPABASE_KEY;
+    
+    console.log('Shopping list init:', { listId, supabaseUrl: supabaseUrl ? 'set' : 'missing' });
     
     // State
     let state = {
@@ -480,10 +487,7 @@
         return;
       }
       
-      if (!supabaseUrl || !supabaseKey) {
-        showError('Missing configuration', 'The link is incomplete. Please use the link from your email.');
-        return;
-      }
+      console.log('Loading shopping list:', listId);
       
       // Try to load from localStorage first (for offline support)
       loadFromLocalStorage();
@@ -540,6 +544,8 @@
         // Build Supabase REST API URL
         const apiUrl = `${state.supabaseUrl}/rest/v1/shopping_list_data?list_id=eq.${encodeURIComponent(listId)}&select=*`;
         
+        console.log('Fetching from:', apiUrl);
+        
         // Fetch list data from Supabase
         const response = await fetch(apiUrl, {
           headers: {
@@ -548,13 +554,19 @@
           }
         });
         
+        console.log('Response status:', response.status);
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch list data');
+          const errorText = await response.text();
+          console.error('Supabase error:', errorText);
+          throw new Error(`Failed to fetch list data: ${response.status}`);
         }
         
         const data = await response.json();
+        console.log('Received data:', data);
         
         if (!data || data.length === 0) {
+          console.log('No data found for list:', listId);
           // Check if we have local data
           if (state.items.length === 0) {
             showError('List not found', 'It may have expired or been deleted.');

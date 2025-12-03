@@ -279,17 +279,17 @@ export default function Cart({ open, onOpenChange }) {
 
         console.log('EmailJS result:', emailResult);
 
-          if (emailResult.successful > 0) {
-            emailSuccess = true;
-            if (emailResult.failed > 0) {
-              const errorDetails = emailResult.errors?.map(e => `${e.email}: ${e.error}`).join('; ') || 'Unknown error';
-              toast.warning(`Sent to ${emailResult.successful}, but ${emailResult.failed} failed. Check console.`);
-              console.error('Failed emails:', emailResult.errors);
-            } else {
-              toast.success(`Sent to ${emailResult.successful} people!`);
-            }
-          } else {
+        if (emailResult.successful > 0) {
+          emailSuccess = true;
+          if (emailResult.failed > 0) {
             const errorDetails = emailResult.errors?.map(e => `${e.email}: ${e.error}`).join('; ') || 'Unknown error';
+              toast.warning(`Sent to ${emailResult.successful}, but ${emailResult.failed} failed. Check console.`);
+            console.error('Failed emails:', emailResult.errors);
+          } else {
+              toast.success(`Sent to ${emailResult.successful} people!`);
+          }
+        } else {
+          const errorDetails = emailResult.errors?.map(e => `${e.email}: ${e.error}`).join('; ') || 'Unknown error';
             toast.error(`Couldn't send to anyone. Check console.`);
           console.error('EmailJS configuration:', {
             serviceId: settings.emailjsServiceId ? 'Set' : 'Missing',
@@ -715,7 +715,7 @@ export default function Cart({ open, onOpenChange }) {
                 </DialogContent>
               </Dialog>
             )}
-
+            
             <Button
               onClick={handleSendEmailAndCalendar}
               disabled={loading || assignedCount === 0 || cartItems.length === 0}

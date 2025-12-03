@@ -241,7 +241,7 @@ export async function sendShoppingListEmail({
           
           if (insertError) {
             console.error('Error storing shopping list data:', insertError);
-          } else {
+        } else {
             // Generate URL to Vercel-hosted shopping list page
             // Include Supabase credentials so the page can fetch from the correct project
             const baseUrl = typeof window !== 'undefined' && window.location.origin 
