@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/actions/auth";
-import { History, PlusCircle, Settings, Menu } from "lucide-react";
+import { History, Settings, Menu, Sparkles, BookOpen, Calendar } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -11,14 +11,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { CartButton } from "@/components/cart/cart-button";
 import { BrandLogoCompact } from "@/components/brand/logo";
+import { AppNav } from "@/components/navigation/app-nav";
 
-// Navigation: Add Recipe, History
+// Navigation: Plan, Recipes, Discover, History
 const navItems = [
-  { href: "/app/recipes/new", icon: PlusCircle, label: "Add Recipe" },
-  { href: "/app/history", icon: History, label: "History" },
+  { href: "/app/plan", iconKey: "plan" as const, label: "Plan" },
+  { href: "/app/recipes", iconKey: "recipes" as const, label: "Recipes" },
+  { href: "/app/recipes/discover", iconKey: "discover" as const, label: "Discover" },
+  { href: "/app/history", iconKey: "history" as const, label: "History" },
 ];
+const settingsItem = { href: "/app/settings", iconKey: "settings" as const, label: "Settings" };
 
 export default async function AppLayout({
   children,
@@ -36,33 +39,17 @@ export default async function AppLayout({
     <div className="min-h-screen bg-background">
       {/* Header with navigation */}
       <header className="border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/app" className="hover:opacity-80 transition-opacity">
-              <BrandLogoCompact />
-            </Link>
+        <div className="container mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
+          <Link href="/app" className="hover:opacity-80 transition-opacity">
+            <BrandLogoCompact />
+          </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
-              {navItems.map((item) => (
-                <Link key={item.href} href={item.href}>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                    <item.icon className="mr-2 h-4 w-4" />
-                    {item.label}
-                  </Button>
-                </Link>
-              ))}
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Cart Button */}
-            <CartButton />
-
-            {/* Desktop Settings */}
-            <div className="hidden md:flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {/* Desktop Navigation + Settings grouped */}
+            <div className="hidden md:flex items-center gap-3">
+              <AppNav items={navItems} variant="desktop" />
               <Link href="/app/settings">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="h-9 w-9">
                   <Settings className="h-4 w-4" />
                 </Button>
               </Link>
@@ -75,26 +62,37 @@ export default async function AppLayout({
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[280px]">
+              <SheetContent side="right" className="w-[300px]">
                 <SheetHeader>
                   <SheetTitle className="font-mono text-left">Menu</SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-2 mt-6">
                   {navItems.map((item) => (
                     <Link key={item.href} href={item.href}>
-                      <Button variant="ghost" className="w-full justify-start">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-base hover:bg-primary/5"
+                      >
                         <item.icon className="mr-3 h-4 w-4" />
                         {item.label}
                       </Button>
                     </Link>
                   ))}
-                  <div className="border-t my-2" />
+                  <div className="border-t my-3" />
                   <Link href="/app/settings">
-                    <Button variant="ghost" className="w-full justify-start">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-base hover:bg-primary/5"
+                    >
                       <Settings className="mr-3 h-4 w-4" />
                       Settings
                     </Button>
                   </Link>
+                  <form action={logout} className="mt-2">
+                    <Button variant="outline" className="w-full justify-center">
+                      Sign out
+                    </Button>
+                  </form>
                 </div>
               </SheetContent>
             </Sheet>
@@ -108,22 +106,12 @@ export default async function AppLayout({
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
-        <div className="flex items-center justify-around py-2">
-          <Link href="/app/recipes/new" className="flex flex-col items-center gap-1 p-2">
-            <PlusCircle className="h-5 w-5" />
-            <span className="text-[10px]">Add</span>
-          </Link>
-          <Link href="/app/history" className="flex flex-col items-center gap-1 p-2">
-            <History className="h-5 w-5" />
-            <span className="text-[10px]">History</span>
-          </Link>
-          <Link href="/app/settings" className="flex flex-col items-center gap-1 p-2">
-            <Settings className="h-5 w-5" />
-            <span className="text-[10px]">Settings</span>
-          </Link>
-        </div>
-      </nav>
+      <AppNav
+        items={navItems}
+        includeSettings
+        settingsItem={settingsItem}
+        variant="mobile"
+      />
 
       {/* Spacer for mobile bottom nav */}
       <div className="md:hidden h-16" />

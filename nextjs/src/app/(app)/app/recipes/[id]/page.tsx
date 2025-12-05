@@ -7,10 +7,16 @@ import { ArrowLeft, Edit } from "lucide-react";
 
 interface RecipePageProps {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ from?: string | string[] }>;
 }
 
-export default async function RecipePage({ params }: RecipePageProps) {
+export default async function RecipePage({ params, searchParams }: RecipePageProps) {
   const { id } = await params;
+  const search = searchParams ? await searchParams : {};
+  const fromParam = search?.from;
+  const from = Array.isArray(fromParam) ? fromParam[0] : fromParam;
+  const backHref = from === "plan" ? "/app/plan" : "/app/recipes";
+  const backLabel = from === "plan" ? "Back to Plan" : "Back to The Vault";
   const [recipeResult, favoritesResult, historyResult] = await Promise.all([
     getRecipe(id),
     getFavorites(),
@@ -29,10 +35,10 @@ export default async function RecipePage({ params }: RecipePageProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Link href="/app/recipes">
+        <Link href={backHref}>
           <Button variant="ghost" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to The Vault
+            {backLabel}
           </Button>
         </Link>
         <Link href={`/app/recipes/${id}/edit`}>

@@ -147,3 +147,62 @@
 button:not(:disabled):hover {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Calendar component fixes - ensure proper spacing and alignment */
+.rdp-head_cell,
+[class*="head_cell"] {
+  width: 2.5rem !important;
+  min-width: 2.5rem !important;
+  max-width: 2.5rem !important;
+  flex: 0 0 2.5rem !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  text-align: center !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.rdp-cell,
+[class*="rdp-cell"] {
+  width: 2.5rem !important;
+  min-width: 2.5rem !important;
+  max-width: 2.5rem !important;
+  flex: 0 0 2.5rem !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  padding: 0 !important;
+}
+
+.rdp-head_row,
+.rdp-row,
+[class*="head_row"],
+[class*="rdp-row"] {
+  display: flex !important;
+  width: 100% !important;
+  gap: 0.25rem !important;
+}
+
+/* Hide scrollbar utility */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Selection pulse animation */
+@keyframes selection-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px hsl(var(--primary) / 0);
+  }
+}
+
+.animate-selection-pulse {
+  animation: selection-pulse 2s ease-in-out infinite;
+}

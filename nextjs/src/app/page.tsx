@@ -7,20 +7,35 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   ArrowRight,
   Check,
   Sparkles,
 } from "lucide-react";
-import {
-  RecipeCardDemo,
-  MealPlanDemo,
-  ShoppingListDemo,
-  RecipeImportDemo,
-} from "@/components/landing/animated-demo";
 import { FAQ } from "@/components/landing/faq";
 import { BrandLogo, BrandLogoCompact } from "@/components/brand/logo";
-import { ThemeToggle } from "@/components/theme-toggle";
+
+// Lazy load animated demos for better initial page load
+const RecipeCardDemo = dynamic(
+  () => import("@/components/landing/animated-demo").then((mod) => ({ default: mod.RecipeCardDemo })),
+  { ssr: false, loading: () => <div className="h-96 bg-muted/30 rounded-xl animate-pulse" /> }
+);
+
+const MealPlanDemo = dynamic(
+  () => import("@/components/landing/animated-demo").then((mod) => ({ default: mod.MealPlanDemo })),
+  { ssr: false, loading: () => <div className="h-96 bg-muted/30 rounded-xl animate-pulse" /> }
+);
+
+const ShoppingListDemo = dynamic(
+  () => import("@/components/landing/animated-demo").then((mod) => ({ default: mod.ShoppingListDemo })),
+  { ssr: false, loading: () => <div className="h-96 bg-muted/30 rounded-xl animate-pulse" /> }
+);
+
+const RecipeImportDemo = dynamic(
+  () => import("@/components/landing/animated-demo").then((mod) => ({ default: mod.RecipeImportDemo })),
+  { ssr: false, loading: () => <div className="h-96 bg-muted/30 rounded-xl animate-pulse" /> }
+);
 
 export default function Home() {
   return (
@@ -33,6 +48,12 @@ export default function Home() {
           </Link>
           <div className="flex items-center gap-4">
             <Link
+              href="/about"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              About
+            </Link>
+            <Link
               href="/pricing"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
@@ -44,7 +65,6 @@ export default function Home() {
             >
               Log in
             </Link>
-            <ThemeToggle />
             <Link href="/signup">
               <Button>Start Planning</Button>
             </Link>
@@ -317,6 +337,9 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <BrandLogoCompact />
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <Link href="/about" className="hover:text-foreground transition-colors">
+                About
+              </Link>
               <Link href="/privacy" className="hover:text-foreground transition-colors">
                 Privacy
               </Link>

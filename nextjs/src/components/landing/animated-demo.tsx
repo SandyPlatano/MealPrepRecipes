@@ -20,21 +20,26 @@ export function RecipeCardDemo() {
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
+    const timeouts: NodeJS.Timeout[] = [];
+    
+    // Initial animation
+    timeouts.push(setTimeout(() => setIsFavorite(true), 1000));
+    timeouts.push(setTimeout(() => setIsAdded(true), 2500));
+
     const interval = setInterval(() => {
       // Cycle through states
-      setTimeout(() => setIsFavorite(true), 0);
-      setTimeout(() => setIsAdded(true), 1500);
-      setTimeout(() => {
+      timeouts.push(setTimeout(() => setIsFavorite(true), 0));
+      timeouts.push(setTimeout(() => setIsAdded(true), 1500));
+      timeouts.push(setTimeout(() => {
         setIsFavorite(false);
         setIsAdded(false);
-      }, 4000);
+      }, 4000));
     }, 5000);
 
-    // Initial animation
-    setTimeout(() => setIsFavorite(true), 1000);
-    setTimeout(() => setIsAdded(true), 2500);
-
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      timeouts.forEach(clearTimeout);
+    };
   }, []);
 
   return (
@@ -120,6 +125,8 @@ export function MealPlanDemo() {
   ];
 
   useEffect(() => {
+    const timeouts: NodeJS.Timeout[] = [];
+    
     const steps = [
       () => setAssignments({ "0": { cook: "Sarah", day: "Monday" } }),
       () => setAssignments({ "0": { cook: "Sarah", day: "Monday" }, "1": { cook: "Mike", day: "Wednesday" } }),
@@ -129,13 +136,17 @@ export function MealPlanDemo() {
 
     const runAnimation = () => {
       steps.forEach((stepFn, i) => {
-        setTimeout(stepFn, i * 1200);
+        timeouts.push(setTimeout(stepFn, i * 1200));
       });
     };
 
     runAnimation();
     const interval = setInterval(runAnimation, 6000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      timeouts.forEach(clearTimeout);
+    };
   }, []);
 
   return (
@@ -208,17 +219,23 @@ export function ShoppingListDemo() {
   ];
 
   useEffect(() => {
+    const timeouts: NodeJS.Timeout[] = [];
+    
     const runAnimation = () => {
       setCheckedItems([]);
-      setTimeout(() => setCheckedItems([0]), 800);
-      setTimeout(() => setCheckedItems([0, 1]), 1600);
-      setTimeout(() => setCheckedItems([0, 1, 2]), 2400);
-      setTimeout(() => setCheckedItems([0, 1, 2, 3]), 3200);
+      timeouts.push(setTimeout(() => setCheckedItems([0]), 800));
+      timeouts.push(setTimeout(() => setCheckedItems([0, 1]), 1600));
+      timeouts.push(setTimeout(() => setCheckedItems([0, 1, 2]), 2400));
+      timeouts.push(setTimeout(() => setCheckedItems([0, 1, 2, 3]), 3200));
     };
 
     runAnimation();
     const interval = setInterval(runAnimation, 5000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      timeouts.forEach(clearTimeout);
+    };
   }, []);
 
   return (
@@ -290,16 +307,22 @@ export function RecipeImportDemo() {
   const [stage, setStage] = useState(0);
 
   useEffect(() => {
+    const timeouts: NodeJS.Timeout[] = [];
+    
     const runAnimation = () => {
       setStage(0);
-      setTimeout(() => setStage(1), 1000);
-      setTimeout(() => setStage(2), 2500);
-      setTimeout(() => setStage(3), 4000);
+      timeouts.push(setTimeout(() => setStage(1), 1000));
+      timeouts.push(setTimeout(() => setStage(2), 2500));
+      timeouts.push(setTimeout(() => setStage(3), 4000));
     };
 
     runAnimation();
     const interval = setInterval(runAnimation, 6000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      timeouts.forEach(clearTimeout);
+    };
   }, []);
 
   return (

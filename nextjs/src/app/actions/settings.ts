@@ -1,18 +1,18 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
 import { revalidatePath } from "next/cache";
 
 // Get user profile
 export async function getProfile() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated", data: null };
   }
+
+  const supabase = await createClient();
 
   const { data: profile, error } = await supabase
     .from("profiles")
@@ -29,14 +29,13 @@ export async function getProfile() {
 
 // Update user profile
 export async function updateProfile(firstName: string, lastName: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated" };
   }
+
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("profiles")
@@ -60,14 +59,13 @@ export async function updateProfile(firstName: string, lastName: string) {
 
 // Get user settings (from user_settings table, or create default)
 export async function getSettings() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated", data: null };
   }
+
+  const supabase = await createClient();
 
   // Try to get existing settings
   let { data: settings } = await supabase
@@ -114,16 +112,17 @@ export async function getSettings() {
 export async function updateSettings(settings: {
   dark_mode?: boolean;
   cook_names?: string[];
+  cook_colors?: Record<string, string>;
   email_notifications?: boolean;
+  category_order?: string[] | null;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated" };
   }
+
+  const supabase = await createClient();
 
   // Upsert settings
   const { error } = await supabase.from("user_settings").upsert(
@@ -145,34 +144,20 @@ export async function updateSettings(settings: {
 
 // Get household info
 export async function getHouseholdInfo() {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError || "No household found", data: null };
+  }
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { error: "Not authenticated", data: null };
-  }
-
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select(
-      `
-      household_id,
-      role,
-      households (
-        id,
-        name,
-        created_at
-      )
-    `
-    )
-    .eq("user_id", user.id)
+  
+  // Get full household details
+  const { data: householdDetails } = await supabase
+    .from("households")
+    .select("id, name, created_at")
+    .eq("id", household.household_id)
     .single();
-
-  if (!membership) {
-    return { error: "No household found", data: null };
-  }
 
   // Get household members
   const { data: members } = await supabase
@@ -187,13 +172,13 @@ export async function getHouseholdInfo() {
       )
     `
     )
-    .eq("household_id", membership.household_id);
+    .eq("household_id", household.household_id);
 
   return {
     error: null,
     data: {
-      household: membership.households,
-      role: membership.role,
+      household: householdDetails,
+      role: household.role,
       members: members || [],
     },
   };
@@ -201,35 +186,23 @@ export async function getHouseholdInfo() {
 
 // Update household name
 export async function updateHouseholdName(name: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
-    return { error: "Not authenticated" };
-  }
-
-  // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id, role")
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership) {
-    return { error: "No household found" };
+  if (authError || !user || !household) {
+    return { error: authError || "No household found" };
   }
 
   // Only owners can update household name
-  if (membership.role !== "owner") {
+  if (household.role !== "owner") {
     return { error: "Only the household owner can update the name" };
   }
+
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("households")
     .update({ name })
-    .eq("id", membership.household_id);
+    .eq("id", household.household_id);
 
   if (error) {
     return { error: error.message };
@@ -242,14 +215,13 @@ export async function updateHouseholdName(name: string) {
 
 // Delete account permanently
 export async function deleteAccount() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated" };
   }
+
+  const supabase = await createClient();
 
   try {
     // Delete the user's auth account
@@ -268,73 +240,3 @@ export async function deleteAccount() {
   }
 }
 
-// Get recipe stats
-export async function getRecipeStats() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { error: "Not authenticated", data: null };
-  }
-
-  // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .single();
-
-  // Get recipe counts by type
-  const { data: recipes } = await supabase
-    .from("recipes")
-    .select("id, recipe_type, category, created_at")
-    .or(
-      `user_id.eq.${user.id},and(household_id.eq.${membership?.household_id},is_shared_with_household.eq.true)`
-    );
-
-  // Get favorites count
-  const { count: favoritesCount } = await supabase
-    .from("favorites")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", user.id);
-
-  // Get cooking history
-  const { data: history } = await supabase
-    .from("recipe_history")
-    .select("id, cooked_at, rating")
-    .eq("user_id", user.id);
-
-  // Calculate stats
-  const recipesByType: Record<string, number> = {};
-  const recipesByCategory: Record<string, number> = {};
-
-  (recipes || []).forEach((recipe) => {
-    recipesByType[recipe.recipe_type] =
-      (recipesByType[recipe.recipe_type] || 0) + 1;
-    if (recipe.category) {
-      recipesByCategory[recipe.category] =
-        (recipesByCategory[recipe.category] || 0) + 1;
-    }
-  });
-
-  const totalCooked = (history || []).length;
-  const avgRating =
-    totalCooked > 0
-      ? (history || []).reduce((sum, h) => sum + (h.rating || 0), 0) /
-        (history || []).filter((h) => h.rating).length
-      : 0;
-
-  return {
-    error: null,
-    data: {
-      totalRecipes: (recipes || []).length,
-      favoritesCount: favoritesCount || 0,
-      totalCooked,
-      avgRating: avgRating || 0,
-      recipesByType,
-      recipesByCategory,
-    },
-  };
-}

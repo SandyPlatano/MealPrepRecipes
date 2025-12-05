@@ -1,7 +1,8 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
+import { revalidatePath, revalidateTag } from "next/cache";
 import type {
   MealPlan,
   MealAssignmentWithRecipe,
@@ -11,31 +12,19 @@ import type {
 
 // Get or create a meal plan for a specific week
 export async function getOrCreateMealPlan(weekStart: string) {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found", data: null };
+  }
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { error: "Not authenticated", data: null };
-  }
-
-  // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership) {
-    return { error: "No household found", data: null };
-  }
 
   // Try to get existing meal plan
   let { data: mealPlan } = await supabase
     .from("meal_plans")
     .select("*")
-    .eq("household_id", membership.household_id)
+    .eq("household_id", household.household_id)
     .eq("week_start", weekStart)
     .single();
 
@@ -44,7 +33,7 @@ export async function getOrCreateMealPlan(weekStart: string) {
     const { data: newPlan, error } = await supabase
       .from("meal_plans")
       .insert({
-        household_id: membership.household_id,
+        household_id: household.household_id,
         week_start: weekStart,
       })
       .select()
@@ -64,31 +53,19 @@ export async function getWeekPlan(weekStart: string): Promise<{
   error: string | null;
   data: WeekPlanData | null;
 }> {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found", data: null };
+  }
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { error: "Not authenticated", data: null };
-  }
-
-  // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership) {
-    return { error: "No household found", data: null };
-  }
 
   // Get meal plan for the week
   const { data: mealPlan } = await supabase
     .from("meal_plans")
     .select("*")
-    .eq("household_id", membership.household_id)
+    .eq("household_id", household.household_id)
     .eq("week_start", weekStart)
     .single();
 
@@ -141,14 +118,13 @@ export async function addMealAssignment(
   dayOfWeek: DayOfWeek,
   cook?: string
 ) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated" };
   }
+
+  const supabase = await createClient();
 
   // Get or create meal plan
   const planResult = await getOrCreateMealPlan(weekStart);
@@ -168,20 +144,24 @@ export async function addMealAssignment(
     return { error: error.message };
   }
 
+  // Get household for cache tag
+  const { household } = await getCachedUserWithHousehold();
+  if (household) {
+    revalidateTag(`meal-plan-${household.household_id}`);
+  }
   revalidatePath("/app/plan");
   return { error: null };
 }
 
 // Remove an assignment
 export async function removeMealAssignment(assignmentId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated" };
   }
+
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("meal_assignments")
@@ -192,6 +172,11 @@ export async function removeMealAssignment(assignmentId: string) {
     return { error: error.message };
   }
 
+  // Get household for cache tag
+  const { household } = await getCachedUserWithHousehold();
+  if (household) {
+    revalidateTag(`meal-plan-${household.household_id}`);
+  }
   revalidatePath("/app/plan");
   return { error: null };
 }
@@ -201,14 +186,13 @@ export async function updateMealAssignment(
   assignmentId: string,
   updates: { day_of_week?: DayOfWeek; cook?: string }
 ) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated" };
   }
+
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("meal_assignments")
@@ -219,6 +203,11 @@ export async function updateMealAssignment(
     return { error: error.message };
   }
 
+  // Get household for cache tag
+  const { household } = await getCachedUserWithHousehold();
+  if (household) {
+    revalidateTag(`meal-plan-${household.household_id}`);
+  }
   revalidatePath("/app/plan");
   return { error: null };
 }
@@ -233,28 +222,20 @@ export async function moveAssignment(
 
 // Get recipes available for planning (user's + household shared)
 export async function getRecipesForPlanning() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated", data: [] };
   }
 
-  // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .single();
+  const supabase = await createClient();
 
   // Get recipes
   const { data, error } = await supabase
     .from("recipes")
     .select("id, title, recipe_type, category, prep_time, cook_time, tags")
     .or(
-      `user_id.eq.${user.id},and(household_id.eq.${membership?.household_id},is_shared_with_household.eq.true)`
+      `user_id.eq.${user.id},and(household_id.eq.${household?.household_id},is_shared_with_household.eq.true)`
     )
     .order("title");
 
@@ -267,31 +248,19 @@ export async function getRecipesForPlanning() {
 
 // Clear all assignments for a day
 export async function clearDayAssignments(weekStart: string, dayOfWeek: DayOfWeek) {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found" };
+  }
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { error: "Not authenticated" };
-  }
-
-  // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership) {
-    return { error: "No household found" };
-  }
 
   // Get the meal plan
   const { data: mealPlan } = await supabase
     .from("meal_plans")
     .select("id")
-    .eq("household_id", membership.household_id)
+    .eq("household_id", household.household_id)
     .eq("week_start", weekStart)
     .single();
 
@@ -310,68 +279,46 @@ export async function clearDayAssignments(weekStart: string, dayOfWeek: DayOfWee
     return { error: error.message };
   }
 
+  revalidateTag(`meal-plan-${household.household_id}`);
   revalidatePath("/app/plan");
   return { error: null };
 }
 
 // Mark a meal plan as sent (finalized)
 export async function markMealPlanAsSent(weekStart: string) {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found" };
+  }
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { error: "Not authenticated" };
-  }
-
-  // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership) {
-    return { error: "No household found" };
-  }
 
   // Update the meal plan to mark it as sent
   const { error } = await supabase
     .from("meal_plans")
     .update({ sent_at: new Date().toISOString() })
-    .eq("household_id", membership.household_id)
+    .eq("household_id", household.household_id)
     .eq("week_start", weekStart);
 
   if (error) {
     return { error: error.message };
   }
 
+  revalidateTag(`meal-plan-${household.household_id}`);
   revalidatePath("/app/history");
   return { error: null };
 }
 
 // Get all past meal plans that were sent
 export async function getSentMealPlans() {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found", data: [] };
+  }
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { error: "Not authenticated", data: [] };
-  }
-
-  // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership) {
-    return { error: "No household found", data: [] };
-  }
 
   // Get all meal plans that were sent, with their assignments
   const { data: mealPlans, error } = await supabase
@@ -385,7 +332,7 @@ export async function getSentMealPlans() {
       )
     `
     )
-    .eq("household_id", membership.household_id)
+    .eq("household_id", household.household_id)
     .not("sent_at", "is", null)
     .order("week_start", { ascending: false });
 

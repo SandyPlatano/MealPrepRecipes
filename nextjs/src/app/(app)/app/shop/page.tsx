@@ -1,17 +1,26 @@
 import { getShoppingListWithItems } from "@/app/actions/shopping-list";
+import { getPantryItems } from "@/app/actions/pantry";
+import { getSettings } from "@/app/actions/settings";
 import { ShoppingListView } from "@/components/shopping-list/shopping-list-view";
 
 export default async function ShopPage() {
-  const result = await getShoppingListWithItems();
+  const [listResult, pantryResult, settingsResult] = await Promise.all([
+    getShoppingListWithItems(),
+    getPantryItems(),
+    getSettings(),
+  ]);
 
-  const shoppingList = result.data || {
+  const shoppingList = listResult.data || {
     id: "",
     household_id: "",
-    name: "Shopping List",
+    meal_plan_id: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     items: [],
   };
+
+  const pantryItems = pantryResult.data || [];
+  const categoryOrder = settingsResult.data?.category_order || null;
 
   return (
     <div className="space-y-6">
@@ -22,7 +31,11 @@ export default async function ShopPage() {
         </p>
       </div>
 
-      <ShoppingListView shoppingList={shoppingList} />
+      <ShoppingListView
+        shoppingList={shoppingList}
+        initialPantryItems={pantryItems}
+        initialCategoryOrder={categoryOrder}
+      />
     </div>
   );
 }

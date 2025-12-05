@@ -1,33 +1,27 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
+import { revalidatePath, revalidateTag } from "next/cache";
 import type { Recipe, RecipeFormData } from "@/types/recipe";
+import { randomUUID } from "crypto";
 
 // Get all recipes for the current user (own + shared household recipes)
 export async function getRecipes() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated", data: null };
   }
 
-  // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .single();
+  const supabase = await createClient();
 
   // Get recipes: user's own + shared household recipes
   const { data, error } = await supabase
     .from("recipes")
     .select("*")
     .or(
-      `user_id.eq.${user.id},and(household_id.eq.${membership?.household_id},is_shared_with_household.eq.true)`
+      `user_id.eq.${user.id},and(household_id.eq.${household?.household_id},is_shared_with_household.eq.true)`
     )
     .order("created_at", { ascending: false });
 
@@ -40,14 +34,13 @@ export async function getRecipes() {
 
 // Get a single recipe by ID
 export async function getRecipe(id: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated", data: null };
   }
+
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("recipes")
@@ -64,21 +57,13 @@ export async function getRecipe(id: string) {
 
 // Create a new recipe
 export async function createRecipe(formData: RecipeFormData) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated", data: null };
   }
 
-  // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .single();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("recipes")
@@ -98,7 +83,7 @@ export async function createRecipe(formData: RecipeFormData) {
       source_url: formData.source_url || null,
       image_url: formData.image_url || null,
       user_id: user.id,
-      household_id: membership?.household_id || null,
+      household_id: household?.household_id || null,
       is_shared_with_household: formData.is_shared_with_household ?? true,
     })
     .select()
@@ -109,19 +94,19 @@ export async function createRecipe(formData: RecipeFormData) {
   }
 
   revalidatePath("/app/recipes");
+  revalidateTag(`recipes-${user.id}`);
   return { error: null, data: data as Recipe };
 }
 
 // Update an existing recipe
 export async function updateRecipe(id: string, formData: Partial<RecipeFormData>) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated", data: null };
   }
+
+  const supabase = await createClient();
 
   // Build update object, only including fields that are provided
   const updateData: Record<string, unknown> = {};
@@ -158,19 +143,19 @@ export async function updateRecipe(id: string, formData: Partial<RecipeFormData>
 
   revalidatePath("/app/recipes");
   revalidatePath(`/app/recipes/${id}`);
+  revalidateTag(`recipes-${user.id}`);
   return { error: null, data: data as Recipe };
 }
 
 // Delete a recipe
 export async function deleteRecipe(id: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated" };
   }
+
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("recipes")
@@ -183,19 +168,19 @@ export async function deleteRecipe(id: string) {
   }
 
   revalidatePath("/app/recipes");
+  revalidateTag(`recipes-${user.id}`);
   return { error: null };
 }
 
 // Update recipe rating
 export async function updateRecipeRating(id: string, rating: number) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated" };
   }
+
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("recipes")
@@ -209,19 +194,19 @@ export async function updateRecipeRating(id: string, rating: number) {
 
   revalidatePath("/app/recipes");
   revalidatePath(`/app/recipes/${id}`);
+  revalidateTag(`recipes-${user.id}`);
   return { error: null };
 }
 
 // Toggle favorite status
 export async function toggleFavorite(recipeId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated", isFavorite: false };
   }
+
+  const supabase = await createClient();
 
   // Check if already favorited
   const { data: existing } = await supabase
@@ -263,14 +248,13 @@ export async function toggleFavorite(recipeId: string) {
 
 // Get user's favorite recipe IDs
 export async function getFavorites() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated", data: [] };
   }
+
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("favorites")
@@ -290,25 +274,17 @@ export async function markAsCooked(
   rating?: number,
   notes?: string
 ) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated" };
   }
 
-  // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .single();
+  const supabase = await createClient();
 
   const { error } = await supabase.from("cooking_history").insert({
     recipe_id: recipeId,
-    household_id: membership?.household_id || null,
+    household_id: household?.household_id || null,
     cooked_by: user.id,
     rating: rating || null,
     notes: notes || null,
@@ -320,27 +296,18 @@ export async function markAsCooked(
 
   revalidatePath("/app/recipes");
   revalidatePath(`/app/recipes/${recipeId}`);
-  revalidatePath("/app/stats");
   return { error: null };
 }
 
 // Get cooking history for a recipe
 export async function getRecipeHistory(recipeId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
 
-  if (!user) {
+  if (authError || !user) {
     return { error: "Not authenticated", data: [] };
   }
 
-  // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .single();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("cooking_history")
@@ -348,7 +315,7 @@ export async function getRecipeHistory(recipeId: string) {
       *,
       cooked_by_profile:profiles!cooking_history_cooked_by_fkey(name)
     `)
-    .eq("household_id", membership?.household_id)
+    .eq("household_id", household?.household_id)
     .eq("recipe_id", recipeId)
     .order("cooked_at", { ascending: false });
 
@@ -357,4 +324,104 @@ export async function getRecipeHistory(recipeId: string) {
   }
 
   return { error: null, data };
+}
+
+// Get cook counts for all recipes in the household
+export async function getRecipeCookCounts() {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user) {
+    return { error: "Not authenticated", data: {} };
+  }
+
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("cooking_history")
+    .select("recipe_id")
+    .eq("household_id", household?.household_id);
+
+  if (error) {
+    return { error: error.message, data: {} };
+  }
+
+  // Count occurrences of each recipe_id
+  const counts: Record<string, number> = {};
+  data.forEach((entry) => {
+    counts[entry.recipe_id] = (counts[entry.recipe_id] || 0) + 1;
+  });
+
+  return { error: null, data: counts };
+}
+
+// Upload recipe image to Supabase Storage
+export async function uploadRecipeImage(formData: FormData) {
+  const { user, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user) {
+    return { error: "Not authenticated", data: null };
+  }
+
+  const file = formData.get("file") as File;
+  if (!file) {
+    return { error: "No file provided", data: null };
+  }
+
+  // Validate file type
+  const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
+  if (!validTypes.includes(file.type)) {
+    return { error: "Invalid file type. Please upload a JPEG, PNG, WebP, or GIF image.", data: null };
+  }
+
+  // Validate file size (max 5MB)
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  if (file.size > maxSize) {
+    return { error: "File too large. Maximum size is 5MB.", data: null };
+  }
+
+  const supabase = await createClient();
+
+  // Generate unique filename
+  const fileExt = file.name.split(".").pop();
+  const fileName = `${user.id}/${randomUUID()}.${fileExt}`;
+
+  // Upload to Supabase Storage
+  const { data, error } = await supabase.storage
+    .from("recipe-images")
+    .upload(fileName, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (error) {
+    return { error: error.message, data: null };
+  }
+
+  // Get public URL
+  const { data: { publicUrl } } = supabase.storage
+    .from("recipe-images")
+    .getPublicUrl(fileName);
+
+  return { error: null, data: { path: data.path, url: publicUrl } };
+}
+
+// Delete recipe image from Supabase Storage
+export async function deleteRecipeImage(imagePath: string) {
+  const { user, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase.storage
+    .from("recipe-images")
+    .remove([imagePath]);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { error: null };
 }

@@ -14,11 +14,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, X, SlidersHorizontal, Plus } from "lucide-react";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Search, X, SlidersHorizontal, Plus, ArrowUpDown, ArrowDownUp } from "lucide-react";
 import type { RecipeWithFavorite, RecipeType } from "@/types/recipe";
 
 interface RecipeGridProps {
   recipes: RecipeWithFavorite[];
+  recipeCookCounts?: Record<string, number>; // recipe_id -> count
 }
 
 const recipeTypes: RecipeType[] = [
@@ -30,13 +32,16 @@ const recipeTypes: RecipeType[] = [
   "Side Dish",
 ];
 
-export function RecipeGrid({ recipes: initialRecipes }: RecipeGridProps) {
+type SortOption = "recent" | "most-cooked" | "highest-rated" | "alphabetical";
+
+export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {} }: RecipeGridProps) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<RecipeType | "all">("all");
   const [proteinFilter, setProteinFilter] = useState<string>("all");
   const [tagFilter, setTagFilter] = useState<string>("all");
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>("recent");
 
   // Extract unique proteins and tags from recipes
   const { proteins, tags } = useMemo(() => {
@@ -56,9 +61,9 @@ export function RecipeGrid({ recipes: initialRecipes }: RecipeGridProps) {
     };
   }, [initialRecipes]);
 
-  // Filter recipes based on search and filters
+  // Filter and sort recipes
   const filteredRecipes = useMemo(() => {
-    return initialRecipes.filter((recipe) => {
+    let filtered = initialRecipes.filter((recipe) => {
       // Search filter
       if (search) {
         const searchLower = search.toLowerCase();
@@ -93,7 +98,29 @@ export function RecipeGrid({ recipes: initialRecipes }: RecipeGridProps) {
 
       return true;
     });
-  }, [initialRecipes, search, typeFilter, proteinFilter, tagFilter, favoritesOnly]);
+
+    // Sort recipes
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case "recent":
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case "most-cooked":
+          const countA = recipeCookCounts[a.id] || 0;
+          const countB = recipeCookCounts[b.id] || 0;
+          return countB - countA;
+        case "highest-rated":
+          const ratingA = a.rating || 0;
+          const ratingB = b.rating || 0;
+          return ratingB - ratingA;
+        case "alphabetical":
+          return a.title.localeCompare(b.title);
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  }, [initialRecipes, search, typeFilter, proteinFilter, tagFilter, favoritesOnly, sortBy, recipeCookCounts]);
 
   const hasActiveFilters =
     typeFilter !== "all" ||
@@ -130,12 +157,18 @@ export function RecipeGrid({ recipes: initialRecipes }: RecipeGridProps) {
             </button>
           )}
         </div>
-        <Link href="/app/recipes/new">
-          <Button className="h-11 w-full sm:w-auto">
-            <Plus className="h-4 w-4 sm:mr-0 mr-2" />
-            <span className="sm:hidden">Add Recipe</span>
-          </Button>
-        </Link>
+        <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+          <SelectTrigger className="w-full sm:w-[180px] h-11">
+            <ArrowDownUp className="h-4 w-4 mr-2 shrink-0" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="recent">Recently Added</SelectItem>
+            <SelectItem value="most-cooked">Most Cooked</SelectItem>
+            <SelectItem value="highest-rated">Highest Rated</SelectItem>
+            <SelectItem value="alphabetical">Alphabetical</SelectItem>
+          </SelectContent>
+        </Select>
         <Button
           variant={showFilters ? "secondary" : "outline"}
           onClick={() => setShowFilters(!showFilters)}
@@ -147,6 +180,12 @@ export function RecipeGrid({ recipes: initialRecipes }: RecipeGridProps) {
             <span className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full" />
           )}
         </Button>
+        <Link href="/app/recipes/new">
+          <Button className="h-11 w-full sm:w-auto">
+            <Plus className="h-4 w-4 mr-2" />
+            <span>Add Recipe</span>
+          </Button>
+        </Link>
       </div>
 
       {/* Expanded Filters */}
@@ -296,11 +335,13 @@ export function RecipeGrid({ recipes: initialRecipes }: RecipeGridProps) {
             )}
           </div>
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredRecipes.map((recipe) => (
-              <RecipeCard key={recipe.id} recipe={recipe} />
-            ))}
-          </div>
+          <TooltipProvider>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredRecipes.map((recipe) => (
+                <RecipeCard key={recipe.id} recipe={recipe} />
+              ))}
+            </div>
+          </TooltipProvider>
         )}
       </div>
     </div>

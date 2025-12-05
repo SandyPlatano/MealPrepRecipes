@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTheme } from "next-themes";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -41,6 +41,7 @@ interface SettingsFormProps {
   settings: {
     dark_mode: boolean;
     cook_names: string[];
+    cook_colors?: Record<string, string>;
     email_notifications: boolean;
     google_connected_account?: string | null;
     calendar_event_time?: string | null;
@@ -74,6 +75,9 @@ export function SettingsForm({
   const [cookNames, setCookNames] = useState<string[]>(
     settings.cook_names || ["Me"]
   );
+  const [cookColors, setCookColors] = useState<Record<string, string>>(
+    settings.cook_colors || {}
+  );
   const [emailNotifications, setEmailNotifications] = useState(
     settings.email_notifications
   );
@@ -83,11 +87,50 @@ export function SettingsForm({
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Only render theme toggle after mounting to avoid hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Auto-save settings with debounce
+  const autoSaveSettings = useCallback(() => {
+    // Clear existing timeout
+    if (autoSaveTimeout) {
+      clearTimeout(autoSaveTimeout);
+    }
+
+    // Set new timeout to save after 1 second of inactivity
+    const timeout = setTimeout(async () => {
+      const isDarkMode = theme === "dark";
+      
+      // Update settings
+      const settingsResult = await updateSettings({
+        dark_mode: isDarkMode,
+        cook_names: cookNames.filter((n) => n.trim()),
+        cook_colors: cookColors,
+        email_notifications: emailNotifications,
+      });
+      
+      if (settingsResult.error) {
+        toast.error(settingsResult.error);
+      } else {
+        toast.success("Settings saved", { duration: 2000 });
+      }
+    }, 1000);
+
+    setAutoSaveTimeout(timeout);
+  }, [theme, cookNames, cookColors, emailNotifications, autoSaveTimeout]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeout) {
+        clearTimeout(autoSaveTimeout);
+      }
+    };
+  }, [autoSaveTimeout]);
 
   const handleGoogleConnectionChange = async () => {
     // Refetch settings to get updated Google Calendar connection
@@ -141,6 +184,7 @@ export function SettingsForm({
       const settingsResult = await updateSettings({
         dark_mode: isDarkMode,
         cook_names: cookNames.filter((n) => n.trim()),
+        cook_colors: cookColors,
         email_notifications: emailNotifications,
       });
       if (settingsResult.error) {
@@ -157,7 +201,7 @@ export function SettingsForm({
       ) {
         const householdResult = await updateHouseholdName(householdNameInput);
         if (householdResult.error) {
-          toast.error(householdResult.error);
+          toast.error(typeof householdResult.error === 'string' ? householdResult.error : householdResult.error.message || 'Failed to update household name');
           setIsSaving(false);
           return;
         }
@@ -173,19 +217,48 @@ export function SettingsForm({
 
   const addCook = () => {
     setCookNames([...cookNames, ""]);
+    autoSaveSettings();
   };
 
   const removeCook = (index: number) => {
     if (cookNames.length > 1) {
       setCookNames(cookNames.filter((_, i) => i !== index));
+      autoSaveSettings();
     }
   };
 
   const updateCook = (index: number, value: string) => {
     const newNames = [...cookNames];
+    const oldName = newNames[index];
     newNames[index] = value;
     setCookNames(newNames);
+    
+    // Update color mapping if name changed
+    if (oldName && oldName !== value && cookColors[oldName]) {
+      const newColors = { ...cookColors };
+      newColors[value] = newColors[oldName];
+      delete newColors[oldName];
+      setCookColors(newColors);
+    }
+    
+    autoSaveSettings();
   };
+
+  const updateCookColor = (cookName: string, color: string) => {
+    setCookColors({ ...cookColors, [cookName]: color });
+    autoSaveSettings();
+  };
+
+  // Default colors for cooks
+  const defaultColors = [
+    "#3b82f6", // blue
+    "#a855f7", // purple
+    "#10b981", // green
+    "#f59e0b", // amber
+    "#ec4899", // pink
+    "#14b8a6", // teal
+    "#f97316", // orange
+  ];
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
@@ -267,11 +340,32 @@ export function SettingsForm({
         </CardHeader>
         <CardContent className="space-y-3">
           {cookNames.map((cook, index) => (
-            <div key={index} className="flex gap-2">
+            <div key={index} className="flex gap-2 items-center">
+              <div className="relative overflow-hidden rounded-md shadow-sm ring-1 ring-gray-200 dark:ring-gray-800 hover:ring-gray-300 dark:hover:ring-gray-700 transition-all h-10 w-12">
+                <input
+                  type="color"
+                  value={cookColors[cook] || defaultColors[index % defaultColors.length]}
+                  onChange={(e) => updateCookColor(cook, e.target.value)}
+                  className="h-full w-full cursor-pointer"
+                  style={{
+                    border: 'none',
+                    outline: 'none',
+                    padding: 0,
+                    margin: 0,
+                    width: '100%',
+                    height: '100%',
+                    WebkitAppearance: 'none',
+                    MozAppearance: 'none',
+                    appearance: 'none',
+                  }}
+                  title="Choose color"
+                />
+              </div>
               <Input
                 value={cook}
                 onChange={(e) => updateCook(index, e.target.value)}
                 placeholder="Name"
+                className="flex-1"
               />
               {cookNames.length > 1 && (
                 <Button
@@ -384,7 +478,10 @@ export function SettingsForm({
             </div>
             <Switch
               checked={emailNotifications}
-              onCheckedChange={setEmailNotifications}
+              onCheckedChange={(checked) => {
+                setEmailNotifications(checked);
+                autoSaveSettings();
+              }}
             />
           </div>
         </CardContent>

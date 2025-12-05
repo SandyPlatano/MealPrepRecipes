@@ -5,7 +5,9 @@ export interface UserSettings {
   user_id: string;
   dark_mode: boolean;
   cook_names: string[];
+  cook_colors?: Record<string, string>;
   email_notifications: boolean;
+  category_order?: string[] | null;
   created_at: string;
   updated_at: string;
 }
@@ -13,7 +15,9 @@ export interface UserSettings {
 export interface UserSettingsFormData {
   dark_mode: boolean;
   cook_names: string[];
+  cook_colors?: Record<string, string>;
   email_notifications: boolean;
+  category_order?: string[] | null;
 }
 
 export interface UserProfile {

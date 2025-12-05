@@ -24,27 +24,6 @@ export interface CookingHistoryWithRecipe extends CookingHistoryEntry {
   } | null;
 }
 
-export interface RecipeStats {
-  totalMealsCooked: number;
-  mealsThisMonth: number;
-  averageRating: number | null;
-  topRecipe: {
-    id: string;
-    title: string;
-    count: number;
-  } | null;
-  favoriteProtein: {
-    type: string;
-    count: number;
-  } | null;
-  recipeTypeBreakdown: {
-    type: string;
-    count: number;
-    percentage: number;
-  }[];
-  recentHistory: CookingHistoryWithRecipe[];
-}
-
 export interface MarkAsCookedInput {
   recipe_id: string;
   cooked_at?: string;

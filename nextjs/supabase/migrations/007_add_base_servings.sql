@@ -1,6 +1,13 @@
 -- Add base_servings column for ingredient scaling
-ALTER TABLE recipes
-ADD COLUMN base_servings INTEGER;
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'recipes' AND column_name = 'base_servings'
+  ) THEN
+    ALTER TABLE recipes ADD COLUMN base_servings INTEGER;
+  END IF;
+END $$;
 
 -- Create index for filtering recipes with scalable servings
 CREATE INDEX IF NOT EXISTS idx_recipes_base_servings ON recipes(base_servings) WHERE base_servings IS NOT NULL;

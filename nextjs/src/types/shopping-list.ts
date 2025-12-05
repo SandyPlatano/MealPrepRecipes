@@ -11,13 +11,26 @@ export interface ShoppingListItem {
   recipe_id?: string | null;
   recipe_title?: string | null;
   created_at: string;
+  // Computed field for pantry check
+  is_in_pantry?: boolean;
+}
+
+// Pantry item for tracking what users already have
+export interface PantryItem {
+  id: string;
+  household_id: string;
+  ingredient: string;
+  normalized_ingredient: string;
+  category?: string | null;
+  last_restocked?: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ShoppingList {
   id: string;
   household_id: string;
   meal_plan_id?: string | null;
-  name: string;
   created_at: string;
   updated_at: string;
 }
@@ -73,9 +86,16 @@ export function groupItemsByCategory(
 }
 
 // Helper to sort categories in a logical order
-export function sortCategories(categories: string[]): string[] {
-  const order = INGREDIENT_CATEGORIES as readonly string[];
-  return categories.sort((a, b) => {
+// Accepts optional custom order from user settings
+export function sortCategories(
+  categories: string[],
+  customOrder?: string[] | null
+): string[] {
+  const order = customOrder && customOrder.length > 0
+    ? customOrder
+    : (INGREDIENT_CATEGORIES as readonly string[]);
+    
+  return [...categories].sort((a, b) => {
     const aIndex = order.indexOf(a);
     const bIndex = order.indexOf(b);
     if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);

@@ -8,9 +8,13 @@ import type {
   ShoppingListWithItems,
   NewShoppingListItem,
 } from "@/types/shopping-list";
+import {
+  mergeShoppingItems,
+  type MergeableItem,
+} from "@/lib/ingredient-scaler";
 
 // Get or create the current shopping list for the household
-export async function getOrCreateShoppingList(name?: string) {
+export async function getOrCreateShoppingList() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -31,15 +35,12 @@ export async function getOrCreateShoppingList(name?: string) {
     return { error: "No household found", data: null };
   }
 
-  const listName = name || "Shopping List";
-
-  // Try to get existing active shopping list
-  let { data: shoppingList } = await supabase
+  // Try to get existing shopping list for this household
+  let { data: shoppingList, error: fetchError } = await supabase
     .from("shopping_lists")
     .select("*")
     .eq("household_id", membership.household_id)
-    .eq("name", listName)
-    .single();
+    .maybeSingle();
 
   // Create if doesn't exist
   if (!shoppingList) {
@@ -47,7 +48,7 @@ export async function getOrCreateShoppingList(name?: string) {
       .from("shopping_lists")
       .insert({
         household_id: membership.household_id,
-        name: listName,
+        meal_plan_id: null,
       })
       .select()
       .single();
@@ -278,7 +279,7 @@ export async function generateFromMealPlan(weekStart: string) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "Not authenticated" };
+    return { error: "Not authenticated", count: 0 };
   }
 
   // Get user's household
@@ -289,7 +290,7 @@ export async function generateFromMealPlan(weekStart: string) {
     .single();
 
   if (!membership) {
-    return { error: "No household found" };
+    return { error: "No household found", count: 0 };
   }
 
   // Get meal plan for the week
@@ -301,7 +302,7 @@ export async function generateFromMealPlan(weekStart: string) {
     .single();
 
   if (!mealPlan) {
-    return { error: "No meal plan found for this week" };
+    return { error: "No meal plan found for this week", count: 0 };
   }
 
   // Get all assignments with recipe details
@@ -316,17 +317,17 @@ export async function generateFromMealPlan(weekStart: string) {
     .eq("meal_plan_id", mealPlan.id);
 
   if (!assignments || assignments.length === 0) {
-    return { error: "No meals planned for this week" };
+    return { error: "No meals planned for this week", count: 0 };
   }
 
   // Get or create shopping list
   const listResult = await getOrCreateShoppingList();
   if (listResult.error || !listResult.data) {
-    return { error: listResult.error || "Failed to get shopping list" };
+    return { error: listResult.error || "Failed to get shopping list", count: 0 };
   }
 
   // Collect all ingredients from all recipes
-  const ingredientsToAdd: NewShoppingListItem[] = [];
+  const ingredientsToAdd: MergeableItem[] = [];
 
   for (const assignment of assignments) {
     const recipe = assignment.recipe as unknown as {
@@ -348,16 +349,22 @@ export async function generateFromMealPlan(weekStart: string) {
     }
   }
 
-  // Add all ingredients to shopping list
-  if (ingredientsToAdd.length > 0) {
-    const itemsToInsert = ingredientsToAdd.map((item) => ({
+  // Merge duplicate ingredients with smart unit conversion
+  const mergedItems = mergeShoppingItems(ingredientsToAdd);
+
+  // Add merged ingredients to shopping list
+  if (mergedItems.length > 0) {
+    const itemsToInsert = mergedItems.map((item) => ({
       shopping_list_id: listResult.data!.id,
       ingredient: item.ingredient,
       quantity: item.quantity || null,
       unit: item.unit || null,
       category: item.category || "Other",
-      recipe_id: item.recipe_id || null,
-      recipe_title: item.recipe_title || null,
+      // Store the first recipe source; sources array is for future display
+      recipe_id: item.sources[0]?.recipe_id || null,
+      recipe_title: item.sources.length > 1
+        ? `${item.sources[0]?.recipe_title || "Recipe"} +${item.sources.length - 1} more`
+        : item.sources[0]?.recipe_title || null,
       is_checked: false,
     }));
 
@@ -366,12 +373,12 @@ export async function generateFromMealPlan(weekStart: string) {
       .insert(itemsToInsert);
 
     if (error) {
-      return { error: error.message };
+      return { error: error.message, count: 0 };
     }
   }
 
   revalidatePath("/app/shop");
-  return { error: null, count: ingredientsToAdd.length };
+  return { error: null, count: mergedItems.length };
 }
 
 // Simple ingredient parser

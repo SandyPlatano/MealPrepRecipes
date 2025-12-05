@@ -58,9 +58,15 @@ export function DayColumn({
       <CardContent className="p-3 pt-0 space-y-2">
         {/* Assignments */}
         {assignments.length === 0 ? (
-          <p className="text-xs text-muted-foreground text-center py-4">
-            No meals planned
-          </p>
+          <div className="text-xs text-muted-foreground text-center py-4">
+            {isPast ? (
+              <p>No meals</p>
+            ) : isToday ? (
+              <p className="font-medium">What&apos;s for dinner?</p>
+            ) : (
+              <p>Nothing planned</p>
+            )}
+          </div>
         ) : (
           assignments.map((assignment) => (
             <div

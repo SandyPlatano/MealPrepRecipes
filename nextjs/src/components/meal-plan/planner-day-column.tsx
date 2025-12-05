@@ -1,0 +1,204 @@
+"use client";
+
+import { useState } from "react";
+import { useDroppable } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Plus, Trash2 } from "lucide-react";
+import { MealCell } from "./meal-cell";
+import { InlineRecipePicker } from "./inline-recipe-picker";
+import { cn } from "@/lib/utils";
+import type { DayOfWeek, MealAssignmentWithRecipe } from "@/types/meal-plan";
+
+interface Recipe {
+  id: string;
+  title: string;
+  recipe_type: string;
+  prep_time?: string | null;
+  image_url?: string | null;
+}
+
+interface PlannerDayColumnProps {
+  day: DayOfWeek;
+  date: Date;
+  assignments: MealAssignmentWithRecipe[];
+  recipes: Recipe[];
+  favorites: string[];
+  recentRecipeIds: string[];
+  cookNames: string[];
+  onAddMeal: (recipeId: string, day: DayOfWeek) => Promise<void>;
+  onUpdateCook: (assignmentId: string, cook: string | null) => Promise<void>;
+  onRemoveMeal: (assignmentId: string) => Promise<void>;
+  onClearDay: (day: DayOfWeek) => Promise<void>;
+  isOver?: boolean;
+}
+
+export function PlannerDayColumn({
+  day,
+  date,
+  assignments,
+  recipes,
+  favorites,
+  recentRecipeIds,
+  cookNames,
+  onAddMeal,
+  onUpdateCook,
+  onRemoveMeal,
+  onClearDay,
+  isOver = false,
+}: PlannerDayColumnProps) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
+
+  const { setNodeRef } = useDroppable({
+    id: `day-${day}`,
+    data: {
+      type: "day",
+      day,
+    },
+  });
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const isToday = date.toDateString() === today.toDateString();
+  const isPast = date < today;
+
+  const dayNumber = date.getDate();
+  const dayAbbrev = day.slice(0, 3).toUpperCase();
+  const monthAbbrev = date.toLocaleDateString("en-US", { month: "short" });
+
+  const handleClearDay = async () => {
+    setIsClearing(true);
+    try {
+      await onClearDay(day);
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
+  const assignmentIds = assignments.map((a) => a.id);
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        "flex flex-col min-h-[300px] bg-card border rounded-lg overflow-hidden transition-all",
+        isToday && "ring-2 ring-primary",
+        isPast && "opacity-70",
+        isOver && "ring-2 ring-primary bg-primary/5"
+      )}
+    >
+      {/* Day Header */}
+      <div className="p-3 border-b bg-muted/30">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl font-bold font-mono">{dayNumber}</span>
+            <div className="flex flex-col leading-tight">
+              <span className="text-xs font-semibold">{dayAbbrev}</span>
+              <span className="text-[10px] text-muted-foreground">{monthAbbrev}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            {isToday && (
+              <Badge variant="default" className="text-[10px] px-1.5 py-0">
+                Today
+              </Badge>
+            )}
+            {assignments.length > 0 && (
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                {assignments.length}
+              </Badge>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Meals List */}
+      <div className="flex-1 p-2 space-y-2">
+        <SortableContext
+          items={assignmentIds}
+          strategy={verticalListSortingStrategy}
+        >
+          {assignments.map((assignment) => (
+            <MealCell
+              key={assignment.id}
+              assignment={assignment}
+              cookNames={cookNames}
+              onUpdateCook={onUpdateCook}
+              onRemove={onRemoveMeal}
+            />
+          ))}
+        </SortableContext>
+
+        {/* Empty State / Add Button */}
+        {assignments.length === 0 && !pickerOpen && (
+          <div className="flex-1 flex items-center justify-center py-8">
+            <p className="text-sm text-muted-foreground">
+              {isPast ? "No meals" : "Empty"}
+            </p>
+          </div>
+        )}
+
+        {/* Inline Add Button */}
+        {!isPast && (
+          <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "w-full h-9 border-2 border-dashed",
+                  "hover:border-primary hover:bg-primary/5",
+                  pickerOpen && "border-primary bg-primary/5"
+                )}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add Meal
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              side="bottom"
+              align="center"
+              className="w-auto p-0 border-0"
+            >
+              <InlineRecipePicker
+                recipes={recipes}
+                favorites={favorites}
+                recentRecipeIds={recentRecipeIds}
+                day={day}
+                onSelect={onAddMeal}
+                onClose={() => setPickerOpen(false)}
+              />
+            </PopoverContent>
+          </Popover>
+        )}
+      </div>
+
+      {/* Day Footer - Clear Button */}
+      {assignments.length > 0 && !isPast && (
+        <div className="p-2 border-t bg-muted/20">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full h-7 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            onClick={handleClearDay}
+            disabled={isClearing}
+          >
+            <Trash2 className="h-3 w-3 mr-1" />
+            {isClearing ? "Clearing..." : "Clear Day"}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+

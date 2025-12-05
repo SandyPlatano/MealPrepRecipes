@@ -1,6 +1,13 @@
 import { getWeekPlan, getRecipesForPlanning } from "@/app/actions/meal-plans";
 import { getSettings } from "@/app/actions/settings";
-import { WeeklyPlanView } from "@/components/meal-plan/weekly-plan-view";
+import { getFavorites } from "@/app/actions/recipes";
+import {
+  getRecentlyCooked,
+  getPreviousWeekMealCount,
+  getSmartSuggestions,
+} from "@/app/actions/meal-plan-suggestions";
+import { MealPlannerGrid } from "@/components/meal-plan/meal-planner-grid";
+import { PlanScrollRestorer } from "@/components/meal-plan/plan-scroll-restorer";
 import { getWeekStart } from "@/types/meal-plan";
 
 interface PlanPageProps {
@@ -17,10 +24,28 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
 
   const weekStartStr = weekStartDate.toISOString().split("T")[0];
 
-  const [planResult, recipesResult, settingsResult] = await Promise.all([
+  // Calculate previous week for copy feature
+  const previousWeekStart = new Date(weekStartDate);
+  previousWeekStart.setDate(previousWeekStart.getDate() - 7);
+  const previousWeekStr = previousWeekStart.toISOString().split("T")[0];
+
+  // Fetch all data in parallel
+  const [
+    planResult,
+    recipesResult,
+    settingsResult,
+    favoritesResult,
+    recentlyCooked,
+    prevWeekCount,
+    suggestions,
+  ] = await Promise.all([
     getWeekPlan(weekStartStr),
     getRecipesForPlanning(),
     getSettings(),
+    getFavorites(),
+    getRecentlyCooked(),
+    getPreviousWeekMealCount(previousWeekStr),
+    getSmartSuggestions(weekStartStr),
   ]);
 
   const weekPlan = planResult.data || {
@@ -38,21 +63,31 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
 
   const recipes = recipesResult.data || [];
   const cookNames = settingsResult.data?.cook_names || [];
+  const cookColors = settingsResult.data?.cook_colors || {};
+  const favorites = favoritesResult.data || [];
+  const recentRecipeIds = (recentlyCooked.data || []).map((r) => r.id);
+  const suggestedRecipeIds = (suggestions.data || []).map((r) => r.id);
 
   return (
     <div className="space-y-6">
+      <PlanScrollRestorer />
       <div>
         <h1 className="text-3xl font-mono font-bold">Meal Plan</h1>
         <p className="text-muted-foreground mt-1">
-          Plan your week. Less &quot;what&apos;s for dinner?&quot; more &quot;dinner&apos;s handled.&quot;
+          Plan your week. Assign cooks. Send the list. Done.
         </p>
       </div>
 
-      <WeeklyPlanView
+      <MealPlannerGrid
         weekStart={weekStartDate}
         weekPlan={weekPlan}
         recipes={recipes}
         cookNames={cookNames}
+        cookColors={cookColors}
+        favorites={favorites}
+        recentRecipeIds={recentRecipeIds}
+        suggestedRecipeIds={suggestedRecipeIds}
+        previousWeekMealCount={prevWeekCount.count}
       />
     </div>
   );

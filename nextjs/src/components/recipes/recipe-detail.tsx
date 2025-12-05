@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -26,12 +27,41 @@ import {
   History,
   Plus,
   Minus,
+  Play,
+  MoreVertical,
+  Download,
+  Trash2,
+  Edit,
 } from "lucide-react";
-import { toggleFavorite } from "@/app/actions/recipes";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
 import { MarkCookedDialog } from "@/components/recipes/mark-cooked-dialog";
 import type { Recipe, RecipeType } from "@/types/recipe";
 import { formatDistanceToNow } from "date-fns";
 import { scaleIngredients } from "@/lib/ingredient-scaler";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface CookingHistoryEntry {
   id: string;
@@ -60,6 +90,43 @@ function getRecipeIcon(recipeType: RecipeType) {
   }
 }
 
+// Export recipe as Markdown
+function exportRecipeAsMarkdown(recipe: Recipe): string {
+  return `# ${recipe.title}
+
+**Type:** ${recipe.recipe_type}
+**Category:** ${recipe.category || "N/A"}
+**Prep Time:** ${recipe.prep_time || "N/A"}
+**Cook Time:** ${recipe.cook_time || "N/A"}
+**Servings:** ${recipe.servings || recipe.base_servings || "N/A"}
+
+## Ingredients
+
+${recipe.ingredients.map((ing) => `- ${ing}`).join("\n")}
+
+## Instructions
+
+${recipe.instructions.map((inst, i) => `${i + 1}. ${inst}`).join("\n")}
+
+${recipe.notes ? `## Notes\n\n${recipe.notes}` : ""}
+
+${recipe.tags.length > 0 ? `**Tags:** ${recipe.tags.join(", ")}` : ""}
+`;
+}
+
+// Download text as file
+function downloadTextAsFile(content: string, filename: string, type: string) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 interface RecipeDetailProps {
   recipe: Recipe;
   isFavorite: boolean;
@@ -73,6 +140,9 @@ export function RecipeDetail({
 }: RecipeDetailProps) {
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [showCookedDialog, setShowCookedDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const router = useRouter();
   
   // Serving size scaling
   const [currentServings, setCurrentServings] = useState(
@@ -87,7 +157,78 @@ export function RecipeDetail({
     const result = await toggleFavorite(recipe.id);
     if (!result.error) {
       setIsFavorite(result.isFavorite);
+      toast.success(
+        result.isFavorite ? "Added to favorites ❤️" : "Removed from favorites"
+      );
     }
+  };
+
+  const handleExportMarkdown = () => {
+    const markdown = exportRecipeAsMarkdown(recipe);
+    downloadTextAsFile(
+      markdown,
+      `${recipe.title.replace(/[^a-z0-9]/gi, "_")}.md`,
+      "text/markdown"
+    );
+    toast.success("Exported as Markdown");
+  };
+
+  const handleExportPDF = () => {
+    // Open print dialog for PDF
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>${recipe.title}</title>
+            <style>
+              body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+              h1 { margin-bottom: 10px; }
+              .meta { color: #666; margin-bottom: 20px; }
+              h2 { border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 30px; }
+              ul, ol { line-height: 1.8; }
+              .notes { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-top: 20px; }
+              .tags { margin-top: 20px; }
+              .tag { display: inline-block; background: #e0e0e0; padding: 4px 8px; border-radius: 4px; margin-right: 5px; font-size: 12px; }
+            </style>
+          </head>
+          <body>
+            <h1>${recipe.title}</h1>
+            <p class="meta">
+              ${recipe.recipe_type} • ${recipe.category || ""} •
+              Prep: ${recipe.prep_time || "N/A"} • Cook: ${recipe.cook_time || "N/A"} •
+              Serves: ${recipe.servings || recipe.base_servings || "N/A"}
+            </p>
+            <h2>Ingredients</h2>
+            <ul>
+              ${recipe.ingredients.map((ing) => `<li>${ing}</li>`).join("")}
+            </ul>
+            <h2>Instructions</h2>
+            <ol>
+              ${recipe.instructions.map((inst) => `<li>${inst}</li>`).join("")}
+            </ol>
+            ${recipe.notes ? `<div class="notes"><strong>Notes:</strong> ${recipe.notes}</div>` : ""}
+            ${recipe.tags.length > 0 ? `<div class="tags">${recipe.tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>` : ""}
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+    toast.success("Opening PDF...");
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    const result = await deleteRecipe(recipe.id);
+    if (result.error) {
+      console.error("Failed to delete:", result.error);
+      setIsDeleting(false);
+    } else {
+      toast.success("Recipe deleted");
+      router.push("/app/recipes");
+    }
+    setDeleteDialogOpen(false);
   };
 
   const incrementServings = () => {
@@ -123,16 +264,56 @@ export function RecipeDetail({
                 </CardDescription>
               )}
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleToggleFavorite}
-              className={isFavorite ? "text-red-500" : ""}
-            >
-              <Heart
-                className={`h-6 w-6 ${isFavorite ? "fill-current" : ""}`}
-              />
-            </Button>
+            <TooltipProvider>
+              <div className="flex items-center gap-1">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleToggleFavorite}
+                      className={isFavorite ? "text-red-500" : ""}
+                    >
+                      <Heart
+                        className={`h-6 w-6 ${isFavorite ? "fill-current" : ""}`}
+                      />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {isFavorite ? "Remove from favorites" : "Add to favorites"}
+                  </TooltipContent>
+                </Tooltip>
+                <DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-6 w-6" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>More actions</TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => router.push(`/app/recipes/${recipe.id}/edit`)}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Recipe
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleExportPDF}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Export as PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => setDeleteDialogOpen(true)}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Recipe
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </TooltipProvider>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -183,9 +364,15 @@ export function RecipeDetail({
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button onClick={() => setShowCookedDialog(true)}>
               I Made This!
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href={`/app/recipes/${recipe.id}/cook`}>
+                <Play className="mr-2 h-4 w-4" />
+                Start Cooking Mode
+              </Link>
             </Button>
             {recipe.source_url && (
               <Button variant="outline" asChild>
@@ -351,6 +538,30 @@ export function RecipeDetail({
         open={showCookedDialog}
         onOpenChange={setShowCookedDialog}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete This Recipe?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You&apos;re about to delete &quot;{recipe.title}&quot; forever.
+              Gone from your collection, favorites, and any meal plans. No
+              take-backs.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep It</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

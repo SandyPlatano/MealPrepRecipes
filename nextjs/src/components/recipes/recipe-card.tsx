@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo } from "react";
 import Link from "next/link";
 import {
   Card,
@@ -29,6 +29,11 @@ import {
   IceCream,
   Salad,
   Users,
+  MoreVertical,
+  ChefHat,
+  Edit,
+  Plus,
+  Share2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -46,11 +51,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
+import { toggleFavorite, deleteRecipe, markAsCooked } from "@/app/actions/recipes";
 import type { RecipeWithFavorite, RecipeType } from "@/types/recipe";
 import { useCart } from "@/components/cart";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { useRouter } from "next/navigation";
+import { MarkCookedDialog } from "./mark-cooked-dialog";
+import Image from "next/image";
 
 // Get icon based on recipe type
 function getRecipeIcon(recipeType: RecipeType) {
@@ -68,6 +76,25 @@ function getRecipeIcon(recipeType: RecipeType) {
     case "Dinner":
     default:
       return <UtensilsCrossed className="h-4 w-4" />;
+  }
+}
+
+// Get gradient color based on recipe type
+function getRecipeGradient(recipeType: RecipeType): string {
+  switch (recipeType) {
+    case "Baking":
+      return "from-amber-400 to-orange-500";
+    case "Breakfast":
+      return "from-yellow-400 to-amber-500";
+    case "Dessert":
+      return "from-pink-400 to-rose-500";
+    case "Snack":
+      return "from-lime-400 to-green-500";
+    case "Side Dish":
+      return "from-emerald-400 to-teal-500";
+    case "Dinner":
+    default:
+      return "from-blue-400 to-purple-500";
   }
 }
 
@@ -113,16 +140,18 @@ interface RecipeCardProps {
   lastMadeDate?: string | null;
 }
 
-export function RecipeCard({ recipe, lastMadeDate }: RecipeCardProps) {
+export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate }: RecipeCardProps) {
   const [isFavorite, setIsFavorite] = useState(recipe.is_favorite);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [showCookedDialog, setShowCookedDialog] = useState(false);
   const [servingMultiplier, setServingMultiplier] = useState<number>(1);
   const [customInput, setCustomInput] = useState<string>("");
   const [showCustomInput, setShowCustomInput] = useState(false);
   const { addToCart, removeByRecipeId, isInCart } = useCart();
   const inCart = isInCart(recipe.id);
   const canScale = recipe.base_servings !== null && recipe.base_servings > 0;
+  const router = useRouter();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -213,6 +242,43 @@ export function RecipeCard({ recipe, lastMadeDate }: RecipeCardProps) {
     toast.success("Opening PDF...");
   };
 
+  const handleShare = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const recipeUrl = `${window.location.origin}/app/recipes/${recipe.id}`;
+    const shareText = `Check out this recipe: ${recipe.title}`;
+    const shareData = {
+      title: recipe.title,
+      text: shareText,
+      url: recipeUrl,
+    };
+
+    // Try Web Share API first (mobile and modern browsers)
+    if (navigator.share && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+        toast.success("Recipe shared!");
+        return;
+      } catch (error: any) {
+        // User cancelled or error occurred
+        if (error.name !== "AbortError") {
+          console.error("Error sharing:", error);
+        }
+        // Fall through to clipboard fallback
+      }
+    }
+
+    // Fallback: Copy link to clipboard
+    try {
+      await navigator.clipboard.writeText(recipeUrl);
+      toast.success("Recipe link copied to clipboard!");
+    } catch (error) {
+      console.error("Failed to copy:", error);
+      toast.error("Failed to share recipe");
+    }
+  };
+
   const handleDelete = async () => {
     setIsDeleting(true);
     // Remove from cart if it's in cart
@@ -248,7 +314,26 @@ export function RecipeCard({ recipe, lastMadeDate }: RecipeCardProps) {
   return (
     <>
       <Link href={`/app/recipes/${recipe.id}`}>
-        <Card className="hover:shadow-xl hover:scale-105 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col h-full cursor-pointer">
+        <Card className="hover:shadow-xl hover:scale-105 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col h-full cursor-pointer overflow-hidden">
+          {/* Recipe Image or Gradient Fallback */}
+          <div className="relative w-full h-48 overflow-hidden">
+            {recipe.image_url ? (
+              <Image
+                src={recipe.image_url}
+                alt={recipe.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            ) : (
+              <div className={`w-full h-full bg-gradient-to-br ${getRecipeGradient(recipe.recipe_type)} flex items-center justify-center`}>
+                <div className="text-white/80 text-6xl">
+                  {getRecipeIcon(recipe.recipe_type)}
+                </div>
+              </div>
+            )}
+          </div>
+          
           <CardHeader>
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
@@ -283,67 +368,83 @@ export function RecipeCard({ recipe, lastMadeDate }: RecipeCardProps) {
                   )}
                 </CardDescription>
               </div>
-              <TooltipProvider>
-                <div
-                  className="flex gap-1 ml-2 shrink-0"
-                  onClick={(e) => e.stopPropagation()}
-                >
+              <div
+                className="flex gap-1 ml-2 shrink-0"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleToggleFavorite}
+                      className={isFavorite ? "text-red-500" : ""}
+                    >
+                      <Heart
+                        className={`h-4 w-4 ${isFavorite ? "fill-current" : ""}`}
+                      />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {isFavorite ? "Remove from favorites" : "Add to favorites"}
+                  </TooltipContent>
+                </Tooltip>
+                <DropdownMenu>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleToggleFavorite}
-                        className={isFavorite ? "text-red-500" : ""}
-                      >
-                        <Heart
-                          className={`h-4 w-4 ${isFavorite ? "fill-current" : ""}`}
-                        />
-                      </Button>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
                     </TooltipTrigger>
-                    <TooltipContent>
-                      {isFavorite ? "Remove from favorites" : "Add to favorites"}
-                    </TooltipContent>
+                    <TooltipContent>More actions</TooltipContent>
                   </Tooltip>
-                  <DropdownMenu>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent>Export recipe</TooltipContent>
-                    </Tooltip>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={handleExportMarkdown}>
-                        Export as Markdown
+                  <DropdownMenuContent align="end">
+                    {!inCart && (
+                      <DropdownMenuItem onClick={handleAddToCart}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add to This Week
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleExportPDF}>
-                        Export as PDF
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="hover:bg-destructive/10"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setDeleteDialogOpen(true);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4 hover:text-red-500 transition-colors" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Delete recipe</TooltipContent>
-                  </Tooltip>
-                </div>
-              </TooltipProvider>
+                    )}
+                    <DropdownMenuItem onClick={handleShare}>
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share Recipe
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowCookedDialog(true);
+                    }}>
+                      <ChefHat className="h-4 w-4 mr-2" />
+                      Mark as Cooked
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      router.push(`/app/recipes/${recipe.id}/edit`);
+                    }}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Recipe
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleExportPDF}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Export as PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDeleteDialogOpen(true);
+                      }}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Recipe
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="flex flex-col flex-1">
@@ -355,104 +456,120 @@ export function RecipeCard({ recipe, lastMadeDate }: RecipeCardProps) {
               </p>
             </div>
             
-            {/* Serving Size Multiplier */}
-            {canScale && (
+            {/* Serving Size */}
+            {(recipe.base_servings !== null && recipe.base_servings > 0) || recipe.servings ? (
               <div className="mt-3 mb-2" onClick={(e) => e.preventDefault()}>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Users className="h-3 w-3" />
-                    <span>Serving size:</span>
+                {canScale ? (
+                  <>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Users className="h-3 w-3" />
+                        <span>Serving size:</span>
+                      </div>
+                      <span className="text-xs font-medium">
+                        {recipe.base_servings! * servingMultiplier}
+                      </span>
+                    </div>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4].map((mult) => (
+                        <Button
+                          key={mult}
+                          variant={servingMultiplier === mult ? "default" : "outline"}
+                          size="sm"
+                          className="flex-1 h-7 text-xs"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleMultiplierChange(mult);
+                          }}
+                        >
+                          {mult}x
+                        </Button>
+                      ))}
+                      {!showCustomInput ? (
+                        <Button
+                          variant={![1, 2, 3, 4].includes(servingMultiplier) ? "default" : "outline"}
+                          size="sm"
+                          className="flex-1 h-7 text-xs"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShowCustomInput(true);
+                          }}
+                        >
+                          {![1, 2, 3, 4].includes(servingMultiplier)
+                            ? `${servingMultiplier}x`
+                            : "Custom"}
+                        </Button>
+                      ) : (
+                        <Input
+                          type="number"
+                          min="0.5"
+                          step="0.5"
+                          placeholder="x"
+                          value={customInput}
+                          onChange={(e) => setCustomInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleCustomSubmit();
+                            } else if (e.key === "Escape") {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setShowCustomInput(false);
+                              setCustomInput("");
+                            }
+                          }}
+                          onBlur={handleCustomSubmit}
+                          onClick={(e) => e.stopPropagation()}
+                          autoFocus
+                          className="flex-1 h-7 text-xs px-2"
+                        />
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-1 text-xs">
+                    <Users className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-muted-foreground">Serving size:</span>
+                    <span className="font-medium">{recipe.servings || "N/A"}</span>
                   </div>
-                  <span className="text-xs font-medium">
-                    {recipe.base_servings! * servingMultiplier}
-                  </span>
-                </div>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4].map((mult) => (
-                    <Button
-                      key={mult}
-                      variant={servingMultiplier === mult ? "default" : "outline"}
-                      size="sm"
-                      className="flex-1 h-7 text-xs"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleMultiplierChange(mult);
-                      }}
-                    >
-                      {mult}x
-                    </Button>
-                  ))}
-                  {!showCustomInput ? (
-                    <Button
-                      variant={![1, 2, 3, 4].includes(servingMultiplier) ? "default" : "outline"}
-                      size="sm"
-                      className="flex-1 h-7 text-xs"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setShowCustomInput(true);
-                      }}
-                    >
-                      {![1, 2, 3, 4].includes(servingMultiplier)
-                        ? `${servingMultiplier}x`
-                        : "Custom"}
-                    </Button>
-                  ) : (
-                    <Input
-                      type="number"
-                      min="0.5"
-                      step="0.5"
-                      placeholder="x"
-                      value={customInput}
-                      onChange={(e) => setCustomInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleCustomSubmit();
-                        } else if (e.key === "Escape") {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setShowCustomInput(false);
-                          setCustomInput("");
-                        }
-                      }}
-                      onBlur={handleCustomSubmit}
-                      onClick={(e) => e.stopPropagation()}
-                      autoFocus
-                      className="flex-1 h-7 text-xs px-2"
-                    />
-                  )}
+                )}
+              </div>
+            ) : (
+              <div className="mt-3 mb-2">
+                <div className="flex items-center gap-1 text-xs">
+                  <Users className="h-3 w-3 text-muted-foreground" />
+                  <span className="text-muted-foreground">Serving size:</span>
+                  <span className="font-medium text-muted-foreground">N/A</span>
                 </div>
               </div>
             )}
             
-            <TooltipProvider>
-              {inCart ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="secondary"
-                      className="w-full mt-4 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-colors"
-                      onClick={handleRemoveFromCart}
-                    >
-                      Remove from Plan
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Remove this recipe from your meal plan</TooltipContent>
-                </Tooltip>
-              ) : (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="default" className="w-full mt-4 hover:scale-105 transition-transform" onClick={handleAddToCart}>
-                      Add to Plan
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Add this recipe to your weekly meal plan</TooltipContent>
-                </Tooltip>
-              )}
-            </TooltipProvider>
+            {inCart ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="secondary"
+                    className="w-full mt-4 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-colors"
+                    onClick={handleRemoveFromCart}
+                  >
+                    Remove from Plan
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Remove this recipe from your meal plan</TooltipContent>
+              </Tooltip>
+            ) : (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="default" className="w-full mt-4 hover:scale-105 transition-transform" onClick={handleAddToCart}>
+                    Add to Plan
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Add this recipe to your weekly meal plan</TooltipContent>
+              </Tooltip>
+            )}
           </CardContent>
         </Card>
       </Link>
@@ -479,6 +596,13 @@ export function RecipeCard({ recipe, lastMadeDate }: RecipeCardProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <MarkCookedDialog
+        recipeId={recipe.id}
+        recipeTitle={recipe.title}
+        open={showCookedDialog}
+        onOpenChange={setShowCookedDialog}
+      />
     </>
   );
-}
+});

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,9 +21,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Plus, X } from "lucide-react";
-import { createRecipe, updateRecipe } from "@/app/actions/recipes";
+import { Loader2, Plus, X, Upload, Image as ImageIcon, AlertCircle } from "lucide-react";
+import { createRecipe, updateRecipe, uploadRecipeImage, deleteRecipeImage } from "@/app/actions/recipes";
 import type { Recipe, RecipeType, RecipeFormData } from "@/types/recipe";
+import { toast } from "sonner";
+import Image from "next/image";
 
 interface RecipeFormProps {
   recipe?: Recipe;
@@ -42,12 +44,20 @@ const recipeTypes: RecipeType[] = [
 export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
   const router = useRouter();
   const isEditing = !!recipe;
+  const errorRef = useRef<HTMLDivElement>(null);
 
   // Use initialData (from parser) or recipe (for editing) or defaults
   const defaultData = initialData || recipe;
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Scroll to error when it appears
+  useEffect(() => {
+    if (error && errorRef.current) {
+      errorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [error]);
 
   // Form state
   const [title, setTitle] = useState(defaultData?.title || "");
@@ -79,6 +89,8 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
   const [isShared, setIsShared] = useState(
     defaultData?.is_shared_with_household ?? recipe?.is_shared_with_household ?? true
   );
+  const [imageUrl, setImageUrl] = useState(defaultData?.image_url || recipe?.image_url || "");
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Ingredient handlers
   const addIngredient = () => {
@@ -109,9 +121,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
   };
 
   const removeInstruction = (index: number) => {
-    if (instructions.length > 1) {
-      setInstructions(instructions.filter((_, i) => i !== index));
-    }
+    setInstructions(instructions.filter((_, i) => i !== index));
   };
 
   // Tag handlers
@@ -125,6 +135,33 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
 
   const removeTag = (tag: string) => {
     setTags(tags.filter((t) => t !== tag));
+  };
+
+  // Image upload handler
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const result = await uploadRecipeImage(formData);
+    
+    if (result.error) {
+      toast.error(result.error);
+    } else if (result.data) {
+      setImageUrl(result.data.url);
+      toast.success("Image uploaded!");
+    }
+
+    setUploadingImage(false);
+    e.target.value = ""; // Reset input
+  };
+
+  const handleRemoveImage = () => {
+    setImageUrl("");
+    toast.success("Image removed");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -148,12 +185,6 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
       return;
     }
 
-    if (filteredInstructions.length === 0) {
-      setError("At least one instruction is required");
-      setLoading(false);
-      return;
-    }
-
     const formData: RecipeFormData = {
       title: title.trim(),
       recipe_type: recipeType,
@@ -168,6 +199,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
       tags,
       notes: notes.trim() || undefined,
       source_url: sourceUrl.trim() || undefined,
+      image_url: imageUrl.trim() || undefined,
       is_shared_with_household: isShared,
     };
 
@@ -185,11 +217,6 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
-          {error}
-        </div>
-      )}
 
       {/* Basic Info */}
       <Card>
@@ -209,6 +236,55 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
               placeholder="e.g., Sheet Pan Lemon Herb Chicken"
               required
             />
+          </div>
+
+          {/* Image Upload */}
+          <div className="space-y-2">
+            <Label>Recipe Image</Label>
+            {imageUrl ? (
+              <div className="relative w-full h-48 rounded-lg overflow-hidden border">
+                <Image
+                  src={imageUrl}
+                  alt={title || "Recipe image"}
+                  fill
+                  className="object-cover"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2"
+                  onClick={handleRemoveImage}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center w-full h-48 border-2 border-dashed rounded-lg hover:border-primary/50 transition-colors">
+                <label htmlFor="image-upload" className="flex flex-col items-center justify-center cursor-pointer w-full h-full">
+                  {uploadingImage ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      <span className="text-sm text-muted-foreground">Uploading...</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <Upload className="h-8 w-8 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">Click to upload image</span>
+                      <span className="text-xs text-muted-foreground">PNG, JPG, WebP or GIF (max 5MB)</span>
+                    </div>
+                  )}
+                  <input
+                    id="image-upload"
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                    onChange={handleImageUpload}
+                    disabled={uploadingImage}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            )}
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -418,32 +494,37 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
         <CardHeader>
           <CardTitle>Instructions</CardTitle>
           <CardDescription>
-            Step by step. Make it foolproof.
+            Step by step. Make it foolproof. <span className="text-muted-foreground">(Optional)</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {instructions.map((instruction, index) => (
-            <div key={index} className="flex gap-2">
-              <span className="flex-shrink-0 w-6 h-10 flex items-center justify-center text-sm text-muted-foreground">
-                {index + 1}.
-              </span>
-              <Textarea
-                value={instruction}
-                onChange={(e) => updateInstruction(index, e.target.value)}
-                placeholder={`Step ${index + 1}`}
-                rows={2}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => removeInstruction(index)}
-                disabled={instructions.length === 1}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
+          {instructions.length === 0 ? (
+            <p className="text-sm text-muted-foreground italic">
+              No instructions added. Click "Add Step" below to add instructions, or leave empty if not needed.
+            </p>
+          ) : (
+            instructions.map((instruction, index) => (
+              <div key={index} className="flex gap-2">
+                <span className="flex-shrink-0 w-6 h-10 flex items-center justify-center text-sm text-muted-foreground">
+                  {index + 1}.
+                </span>
+                <Textarea
+                  value={instruction}
+                  onChange={(e) => updateInstruction(index, e.target.value)}
+                  placeholder={`Step ${index + 1}`}
+                  rows={2}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeInstruction(index)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))
+          )}
           <Button
             type="button"
             variant="outline"
@@ -536,27 +617,52 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
       </Card>
 
       {/* Submit */}
-      <div className="flex gap-4">
-        <Button type="submit" disabled={loading}>
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {isEditing ? "Saving..." : "Creating..."}
-            </>
-          ) : isEditing ? (
-            "Save Changes"
-          ) : (
-            "Create Recipe"
-          )}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.back()}
-          disabled={loading}
-        >
-          Cancel
-        </Button>
+      <div className="flex flex-col gap-4">
+        {error && (
+          <div
+            ref={errorRef}
+            className="p-4 text-sm bg-destructive/10 border border-destructive/20 rounded-lg shadow-lg animate-in slide-in-from-top-2"
+          >
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="font-medium text-destructive mb-1">Please fix the following:</p>
+                <p className="text-destructive/90">{error}</p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/20"
+                onClick={() => setError(null)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+        <div className="flex gap-4">
+          <Button type="submit" disabled={loading}>
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isEditing ? "Saving..." : "Creating..."}
+              </>
+            ) : isEditing ? (
+              "Save Changes"
+            ) : (
+              "Create Recipe"
+            )}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+        </div>
       </div>
     </form>
   );

@@ -2,9 +2,6 @@ import { Suspense } from "react";
 import { getRecipes, getFavorites } from "@/app/actions/recipes";
 import { RecipeGrid } from "@/components/recipes/recipe-grid";
 import { RecipeFilters } from "@/components/recipes/recipe-filters";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import Link from "next/link";
 
 export default async function RecipesPage() {
   const [recipesResult, favoritesResult] = await Promise.all([
@@ -23,19 +20,11 @@ export default async function RecipesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-mono font-bold">The Vault</h1>
-          <p className="text-muted-foreground mt-1">
-            Your collection of culinary wins. {recipes.length} recipes and counting.
-          </p>
-        </div>
-        <Link href="/app/recipes/new">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Recipe
-          </Button>
-        </Link>
+      <div>
+        <h1 className="text-3xl font-mono font-bold">The Vault</h1>
+        <p className="text-muted-foreground mt-1">
+          Your collection of culinary wins. {recipes.length} recipes and counting.
+        </p>
       </div>
 
       <Suspense fallback={<div>Loading filters...</div>}>
