@@ -1,0 +1,49 @@
+import { getProfile, getSettings, getHouseholdInfo } from "@/app/actions/settings";
+import { SettingsForm } from "@/components/settings/settings-form";
+
+export default async function SettingsPage() {
+  const [profileResult, settingsResult, householdResult] = await Promise.all([
+    getProfile(),
+    getSettings(),
+    getHouseholdInfo(),
+  ]);
+
+  const profile = profileResult.data || {
+    id: "",
+    name: null,
+    email: null,
+  };
+
+  const settings = settingsResult.data || {
+    dark_mode: false,
+    cook_names: ["Me"],
+    email_notifications: true,
+  };
+
+  const household = householdResult.data?.household as unknown as { id: string; name: string } | null;
+  const householdRole = householdResult.data?.role || "member";
+  const members = (householdResult.data?.members || []) as unknown as Array<{
+    user_id: string;
+    role: string;
+    profiles: { name: string | null; email: string | null } | null;
+  }>;
+
+  return (
+    <div className="space-y-8 max-w-3xl mx-auto">
+      <div className="text-center">
+        <h1 className="text-3xl font-mono font-bold">Settings</h1>
+        <p className="text-muted-foreground mt-2">
+          Set it up once, stop hearing &quot;you never plan anything.&quot;
+        </p>
+      </div>
+
+      <SettingsForm
+        profile={profile}
+        settings={settings}
+        household={household}
+        householdRole={householdRole}
+        members={members}
+      />
+    </div>
+  );
+}

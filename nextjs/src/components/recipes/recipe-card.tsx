@@ -1,0 +1,484 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Heart,
+  Download,
+  Trash2,
+  UtensilsCrossed,
+  Cookie,
+  Croissant,
+  Coffee,
+  IceCream,
+  Salad,
+  Users,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
+import type { RecipeWithFavorite, RecipeType } from "@/types/recipe";
+import { useCart } from "@/components/cart";
+import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
+
+// Get icon based on recipe type
+function getRecipeIcon(recipeType: RecipeType) {
+  switch (recipeType) {
+    case "Baking":
+      return <Cookie className="h-4 w-4" />;
+    case "Breakfast":
+      return <Coffee className="h-4 w-4" />;
+    case "Dessert":
+      return <IceCream className="h-4 w-4" />;
+    case "Snack":
+      return <Croissant className="h-4 w-4" />;
+    case "Side Dish":
+      return <Salad className="h-4 w-4" />;
+    case "Dinner":
+    default:
+      return <UtensilsCrossed className="h-4 w-4" />;
+  }
+}
+
+// Export recipe as Markdown
+function exportRecipeAsMarkdown(recipe: RecipeWithFavorite): string {
+  return `# ${recipe.title}
+
+**Type:** ${recipe.recipe_type}
+**Category:** ${recipe.category || "N/A"}
+**Prep Time:** ${recipe.prep_time || "N/A"}
+**Cook Time:** ${recipe.cook_time || "N/A"}
+**Servings:** ${recipe.servings || "N/A"}
+
+## Ingredients
+
+${recipe.ingredients.map((ing) => `- ${ing}`).join("\n")}
+
+## Instructions
+
+${recipe.instructions.map((inst, i) => `${i + 1}. ${inst}`).join("\n")}
+
+${recipe.notes ? `## Notes\n\n${recipe.notes}` : ""}
+
+${recipe.tags.length > 0 ? `**Tags:** ${recipe.tags.join(", ")}` : ""}
+`;
+}
+
+// Download text as file
+function downloadTextAsFile(content: string, filename: string, type: string) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+interface RecipeCardProps {
+  recipe: RecipeWithFavorite;
+  lastMadeDate?: string | null;
+}
+
+export function RecipeCard({ recipe, lastMadeDate }: RecipeCardProps) {
+  const [isFavorite, setIsFavorite] = useState(recipe.is_favorite);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [servingMultiplier, setServingMultiplier] = useState<number>(1);
+  const [customInput, setCustomInput] = useState<string>("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  const { addToCart, removeByRecipeId, isInCart } = useCart();
+  const inCart = isInCart(recipe.id);
+  const canScale = recipe.base_servings !== null && recipe.base_servings > 0;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const added = addToCart(recipe);
+    if (added) {
+      toast.success("Added to the plan");
+    } else {
+      toast.info("Already on there");
+    }
+  };
+
+  const handleRemoveFromCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    removeByRecipeId(recipe.id);
+    toast.success("Removed");
+  };
+
+  const handleToggleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const result = await toggleFavorite(recipe.id);
+    if (!result.error) {
+      setIsFavorite(result.isFavorite);
+      toast.success(
+        result.isFavorite ? "Added to favorites ❤️" : "Removed from favorites"
+      );
+    }
+  };
+
+  const handleExportMarkdown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const markdown = exportRecipeAsMarkdown(recipe);
+    downloadTextAsFile(
+      markdown,
+      `${recipe.title.replace(/[^a-z0-9]/gi, "_")}.md`,
+      "text/markdown"
+    );
+    toast.success("Exported as Markdown");
+  };
+
+  const handleExportPDF = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Open print dialog for PDF
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>${recipe.title}</title>
+            <style>
+              body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+              h1 { margin-bottom: 10px; }
+              .meta { color: #666; margin-bottom: 20px; }
+              h2 { border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 30px; }
+              ul, ol { line-height: 1.8; }
+              .notes { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-top: 20px; }
+              .tags { margin-top: 20px; }
+              .tag { display: inline-block; background: #e0e0e0; padding: 4px 8px; border-radius: 4px; margin-right: 5px; font-size: 12px; }
+            </style>
+          </head>
+          <body>
+            <h1>${recipe.title}</h1>
+            <p class="meta">
+              ${recipe.recipe_type} • ${recipe.category || ""} •
+              Prep: ${recipe.prep_time || "N/A"} • Cook: ${recipe.cook_time || "N/A"} •
+              Serves: ${recipe.servings || "N/A"}
+            </p>
+            <h2>Ingredients</h2>
+            <ul>
+              ${recipe.ingredients.map((ing) => `<li>${ing}</li>`).join("")}
+            </ul>
+            <h2>Instructions</h2>
+            <ol>
+              ${recipe.instructions.map((inst) => `<li>${inst}</li>`).join("")}
+            </ol>
+            ${recipe.notes ? `<div class="notes"><strong>Notes:</strong> ${recipe.notes}</div>` : ""}
+            ${recipe.tags.length > 0 ? `<div class="tags">${recipe.tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>` : ""}
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+    toast.success("Opening PDF...");
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    // Remove from cart if it's in cart
+    if (inCart) {
+      removeByRecipeId(recipe.id);
+    }
+    const result = await deleteRecipe(recipe.id);
+    if (result.error) {
+      console.error("Failed to delete:", result.error);
+      setIsDeleting(false);
+    } else {
+      toast.success("Recipe deleted");
+    }
+    setDeleteDialogOpen(false);
+  };
+
+  const handleMultiplierChange = (multiplier: number) => {
+    setServingMultiplier(multiplier);
+    setShowCustomInput(false);
+    setCustomInput("");
+  };
+
+  const handleCustomSubmit = () => {
+    const value = parseFloat(customInput);
+    if (value > 0) {
+      setServingMultiplier(value);
+      setShowCustomInput(false);
+    } else {
+      toast.error("Enter a valid number");
+    }
+  };
+
+  return (
+    <>
+      <Link href={`/app/recipes/${recipe.id}`}>
+        <Card className="hover:shadow-xl hover:scale-105 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col h-full cursor-pointer">
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-xl">{recipe.title}</CardTitle>
+                <CardDescription className="mt-1 flex items-center gap-1 flex-wrap">
+                  <span className="inline-flex items-center gap-1">
+                    {getRecipeIcon(recipe.recipe_type)}
+                    {recipe.recipe_type}
+                  </span>
+                  {recipe.category && (
+                    <>
+                      <span>•</span>
+                      <span>{recipe.category}</span>
+                    </>
+                  )}
+                  {recipe.prep_time && (
+                    <>
+                      <span>•</span>
+                      <span>{recipe.prep_time} prep</span>
+                    </>
+                  )}
+                  {lastMadeDate && (
+                    <>
+                      <span>•</span>
+                      <Badge variant="outline" className="text-xs">
+                        Made{" "}
+                        {formatDistanceToNow(new Date(lastMadeDate), {
+                          addSuffix: true,
+                        })}
+                      </Badge>
+                    </>
+                  )}
+                </CardDescription>
+              </div>
+              <TooltipProvider>
+                <div
+                  className="flex gap-1 ml-2 shrink-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleToggleFavorite}
+                        className={isFavorite ? "text-red-500" : ""}
+                      >
+                        <Heart
+                          className={`h-4 w-4 ${isFavorite ? "fill-current" : ""}`}
+                        />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {isFavorite ? "Remove from favorites" : "Add to favorites"}
+                    </TooltipContent>
+                  </Tooltip>
+                  <DropdownMenu>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent>Export recipe</TooltipContent>
+                    </Tooltip>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={handleExportMarkdown}>
+                        Export as Markdown
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleExportPDF}>
+                        Export as PDF
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="hover:bg-destructive/10"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setDeleteDialogOpen(true);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 hover:text-red-500 transition-colors" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Delete recipe</TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
+            </div>
+          </CardHeader>
+          <CardContent className="flex flex-col flex-1">
+            <div className="flex-1">
+              <p className="text-sm font-medium mb-1">Key Ingredients:</p>
+              <p className="text-sm text-muted-foreground">
+                {recipe.ingredients.slice(0, 5).join(", ")}
+                {recipe.ingredients.length > 5 && "..."}
+              </p>
+            </div>
+            
+            {/* Serving Size Multiplier */}
+            {canScale && (
+              <div className="mt-3 mb-2" onClick={(e) => e.preventDefault()}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Users className="h-3 w-3" />
+                    <span>Serving size:</span>
+                  </div>
+                  <span className="text-xs font-medium">
+                    {recipe.base_servings! * servingMultiplier}
+                  </span>
+                </div>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4].map((mult) => (
+                    <Button
+                      key={mult}
+                      variant={servingMultiplier === mult ? "default" : "outline"}
+                      size="sm"
+                      className="flex-1 h-7 text-xs"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleMultiplierChange(mult);
+                      }}
+                    >
+                      {mult}x
+                    </Button>
+                  ))}
+                  {!showCustomInput ? (
+                    <Button
+                      variant={![1, 2, 3, 4].includes(servingMultiplier) ? "default" : "outline"}
+                      size="sm"
+                      className="flex-1 h-7 text-xs"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setShowCustomInput(true);
+                      }}
+                    >
+                      {![1, 2, 3, 4].includes(servingMultiplier)
+                        ? `${servingMultiplier}x`
+                        : "Custom"}
+                    </Button>
+                  ) : (
+                    <Input
+                      type="number"
+                      min="0.5"
+                      step="0.5"
+                      placeholder="x"
+                      value={customInput}
+                      onChange={(e) => setCustomInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleCustomSubmit();
+                        } else if (e.key === "Escape") {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setShowCustomInput(false);
+                          setCustomInput("");
+                        }
+                      }}
+                      onBlur={handleCustomSubmit}
+                      onClick={(e) => e.stopPropagation()}
+                      autoFocus
+                      className="flex-1 h-7 text-xs px-2"
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+            
+            <TooltipProvider>
+              {inCart ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="secondary"
+                      className="w-full mt-4 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-colors"
+                      onClick={handleRemoveFromCart}
+                    >
+                      Remove from Plan
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Remove this recipe from your meal plan</TooltipContent>
+                </Tooltip>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="default" className="w-full mt-4 hover:scale-105 transition-transform" onClick={handleAddToCart}>
+                      Add to Plan
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Add this recipe to your weekly meal plan</TooltipContent>
+                </Tooltip>
+              )}
+            </TooltipProvider>
+          </CardContent>
+        </Card>
+      </Link>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete This Recipe?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You&apos;re about to delete &quot;{recipe.title}&quot; forever.
+              Gone from your collection, favorites, and any meal plans. No
+              take-backs.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep It</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}

@@ -1,263 +1,221 @@
-# Weekly Dinner Planner
+# Babe, What's for Dinner?
 
-Your personal dinner planning assistant! Plan your weekly dinners based on ingredients you have, discover new dinner recipes, and generate smart shopping lists for your Sunday grocery runs.
+Finally, an answer. A meal planning app for couples and families who are tired of the nightly "what do you want?" debate.
+
+![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green)
 
 ## Features
 
-- **Smart Ingredient Matching**: Input your available ingredients and discover dinners you can make tonight
-- **Weekly Dinner Planning**: Generate complete dinner plans for the week (7 days or customize)
-- **Intelligent Shopping Lists**: Automatically create organized shopping lists based on your dinner plans
-- **20 Diverse Dinner Recipes**: Collection spans comfort food, healthy options, quick meals, and meal-prep favorites
-- **Pantry Management**: Track your ingredients and find dinners that maximize what you already have
-- **Meal Prep Friendly**: Prioritizes recipes perfect for batch cooking and weekly prep
+### 🍳 Recipe Management
+- **AI-Powered Import**: Paste any recipe URL and AI extracts ingredients, instructions, and cook times automatically
+- **Unlimited Recipes**: Save as many recipes as you want, organized by type and category
+- **Smart Tagging**: Categorize by protein type, cuisine, meal type, and custom tags
+- **Favorites & Ratings**: Mark your go-to recipes and rate them after cooking
+
+### 📅 Weekly Meal Planning
+- **Drag-and-Drop Planning**: Easy visual interface to plan your week
+- **Cook Assignment**: Assign meals to different household members
+- **Google Calendar Integration**: Sync your meal plan to your calendar (Pro feature)
+- **Meal History**: Track what you've cooked and when
+
+### 🛒 Smart Shopping Lists
+- **Auto-Generated Lists**: Automatically created from your weekly meal plan
+- **Organized by Category**: Items grouped by grocery store sections
+- **Email Integration**: Send shopping lists directly to your email
+- **Ingredient Scaling**: Adjust serving sizes on the fly
+
+### 👥 Household Sharing
+- **Multi-User**: Share recipes and meal plans with your partner or family
+- **Collaborative Planning**: Everyone can see and contribute to the meal plan
+- **Individual Preferences**: Each user can have their own favorites
+
+## Tech Stack
+
+- **Framework**: [Next.js 14](https://nextjs.org/) with App Router
+- **Language**: TypeScript
+- **Database**: [Supabase](https://supabase.com/) (PostgreSQL with Row Level Security)
+- **Authentication**: Supabase Auth with email and Google OAuth
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
+- **AI**: [Anthropic Claude](https://www.anthropic.com/) for recipe parsing
+- **Email**: [Resend](https://resend.com/) for transactional emails
+- **Deployment**: [Vercel](https://vercel.com/)
 
 ## Getting Started
 
+### Prerequisites
+
+- Node.js 18+ and npm
+- Supabase account ([sign up free](https://supabase.com/))
+- Anthropic API key ([get one here](https://console.anthropic.com/))
+- Resend API key (optional, for email features)
+
 ### Installation
 
-1. Clone this repository:
+1. Clone the repository:
 ```bash
-git clone <your-repo-url>
-cd MealPrepRecipes
+git clone https://github.com/yourusername/MealPrepRecipes.git
+cd MealPrepRecipes/nextjs
 ```
 
 2. Install dependencies:
 ```bash
-pip install -r requirements.txt
+npm install
 ```
 
-### Quick Start
-
-Run the application:
+3. Set up environment variables:
 ```bash
-python meal_prep.py
+cp env.example .env.local
 ```
 
-Or if you made it executable:
+Edit `.env.local` with your actual values:
+- Supabase URL and anon key from your project settings
+- Anthropic API key for recipe parsing
+- (Optional) Resend API key and verified email for shopping lists
+- (Optional) Google OAuth credentials for calendar integration
+
+4. Set up the database:
+   - Go to your Supabase project SQL Editor
+   - Run the migrations in order from `supabase/migrations/`
+
+5. Run the development server:
 ```bash
-./meal_prep.py
+npm run dev
 ```
 
-## How to Use
+Open [http://localhost:3001](http://localhost:3001) in your browser.
 
-### 1. Set Up Your Pantry
+## Database Setup
 
-Start by adding ingredients you currently have:
-- Choose option `2` from the main menu
-- Enter ingredients separated by commas
-- Example: `chicken breast, rice, onion, garlic, olive oil, tomatoes, broccoli`
+The application uses Supabase with PostgreSQL. Run these migrations in order:
 
-### 2. Discover Dinners
-
-Find dinners you can make:
-- **Option 5**: See dinners you can make with current ingredients (100% match)
-- **Option 6**: See dinners where you're only missing a few ingredients
-- **Option 7**: Browse all 20 dinner recipes
-- **Option 8**: Search for specific recipes by name
-
-### 3. Generate Your Weekly Dinner Plan
-
-Create your week of dinners:
-- **Option 10**: Generate a dinner plan from all available recipes
-- **Option 11**: Generate a dinner plan based on your pantry ingredients (recommended!)
-
-The planner will:
-- Create varied dinners for each day of the week
-- Prioritize meal-prep-friendly recipes
-- Show you what ingredients you're missing
-- Ensure no repeated meals
-
-### 4. Create a Shopping List
-
-Once you have a dinner plan:
-- **Option 13**: Generate a shopping list from your dinner plan
-- The list automatically excludes ingredients you already have
-- Items are organized by category (Produce, Meat, Dairy, etc.)
-- Shows amounts needed and which recipes use each ingredient
-
-### 5. Your Sunday Routine
-
-Weekly workflow for dinner planning:
-1. **Saturday Evening**: Generate your weekly dinner plan (Option 11)
-2. **Saturday Evening**: Create shopping list from the plan (Option 13)
-3. **Sunday Morning**: Go shopping with your organized list
-4. **Sunday Afternoon**: Update your pantry with new ingredients (Option 2)
-5. **Sunday Afternoon**: Start meal prepping dinners for the week!
-
-## Dinner Recipe Collection
-
-The application includes 20 diverse dinner recipes:
-
-### Chicken Dinners
-- **Sheet Pan Lemon Herb Chicken** - One-pan, meal-prep-friendly
-- **Thai Basil Chicken Stir-Fry** - Quick Asian-inspired
-- **Chicken Fajita Bowls** - Mexican, healthy, meal-prep
-- **Greek Chicken Bowls** - Mediterranean, meal-prep-friendly
-- **Cajun Chicken Alfredo** - Comfort food, pasta
-- **Balsamic Glazed Chicken** - Healthy, quick
-- **One-Pot Chicken and Rice** - Easy cleanup, comfort food
-
-### Beef & Pork
-- **Slow Cooker Beef Stew** - Comfort food, meal-prep-friendly
-- **Beef and Broccoli Stir-Fry** - Asian, quick
-- **Mongolian Beef** - Asian, quick
-- **Honey Garlic Pork Chops** - Quick, meal-prep-friendly
-- **BBQ Pulled Pork** - Slow cooker, meal-prep-friendly
-- **Spicy Sausage and Peppers** - Quick, Italian, one-pan
-
-### Seafood
-- **Teriyaki Salmon with Broccoli** - Healthy, quick, high-protein
-- **Lemon Garlic Shrimp Pasta** - Quick, Italian
-- **Mediterranean Baked Cod** - Healthy, quick
-
-### Vegetarian
-- **Vegetarian Stuffed Bell Peppers** - Healthy, meal-prep-friendly
-- **Vegetarian Chickpea Curry** - Vegan, Indian, meal-prep-friendly
-
-### Italian & Pasta
-- **Baked Ziti with Italian Sausage** - Comfort food, meal-prep-friendly
-- **Turkey Meatballs in Marinara** - Healthy, meal-prep-friendly
-
-## Recipe Tags
-
-Recipes are tagged to help you find what you need:
-- **meal-prep-friendly**: Perfect for batch cooking
-- **quick**: 30 minutes or less total time
-- **healthy**: Nutritious, balanced meals
-- **comfort-food**: Hearty, satisfying dinners
-- **one-pan**: Minimal cleanup
-- **slow-cooker**: Set it and forget it
-- **asian**, **italian**, **mexican**, **mediterranean**: Cuisine styles
-
-## Adding Your Own Recipes
-
-Easily add your own dinner recipes:
-
-1. Open `/recipes/dinners.json`
-2. Add your recipe following this format:
-
-```json
-{
-  "id": "d021",
-  "name": "Your Dinner Recipe",
-  "prep_time": 15,
-  "cook_time": 30,
-  "servings": 4,
-  "difficulty": "easy",
-  "tags": ["meal-prep-friendly", "healthy"],
-  "ingredients": [
-    {"item": "chicken breast", "amount": "2 lbs"},
-    {"item": "vegetables", "amount": "2 cups"}
-  ],
-  "instructions": [
-    "Step 1 of your recipe",
-    "Step 2 of your recipe"
-  ]
-}
-```
+1. `000_drop_existing.sql` - Clean slate (only if resetting)
+2. `001_initial_schema.sql` - Core tables and triggers
+3. `002_rls_policies.sql` - Row Level Security policies
+4. `003_fix_signup_trigger.sql` - User signup automation
+5. `004_update_cooking_history.sql` - Cooking history improvements
+6. `005_fix_household_members_recursion.sql` - Performance fixes
+7. `007_add_base_servings.sql` - Ingredient scaling support
+8. `20251204154125_split_name_into_first_last.sql` - Name field updates
+9. `20251204160000_add_google_calendar_to_user_settings.sql` - Calendar integration
+10. `20251205_add_meal_plan_sent_at.sql` - Tracking sent meal plans
 
 ## Project Structure
 
 ```
-MealPrepRecipes/
-├── meal_prep.py              # Main application
-├── requirements.txt          # Python dependencies
-├── README.md                # This file
-├── data/                    # User data (gitignored)
-│   ├── pantry.json          # Your ingredient inventory
-│   └── preferences.json.example
-├── recipes/                 # Recipe database
-│   └── dinners.json         # 20 dinner recipes
-└── src/                     # Application modules
-    ├── recipe_manager.py    # Recipe loading and searching
-    ├── pantry.py           # Ingredient inventory
-    ├── ingredient_matcher.py # Recipe matching logic
-    ├── meal_planner.py     # Dinner plan generation
-    └── shopping_list.py    # Shopping list creation
+nextjs/
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── (app)/             # Authenticated app routes
+│   │   ├── (auth)/            # Authentication pages
+│   │   ├── (marketing)/       # Public pages (privacy, terms)
+│   │   ├── actions/           # Server actions
+│   │   └── api/               # API routes
+│   ├── components/            # React components
+│   │   ├── ui/               # shadcn/ui components
+│   │   ├── recipes/          # Recipe-related components
+│   │   ├── meal-plan/        # Meal planning components
+│   │   └── settings/         # Settings components
+│   ├── lib/                   # Utilities and helpers
+│   │   ├── supabase/         # Supabase clients
+│   │   ├── email/            # Email templates
+│   │   └── rate-limit.ts     # Rate limiting
+│   └── types/                 # TypeScript type definitions
+├── supabase/
+│   └── migrations/            # Database migrations
+└── public/                    # Static assets
 ```
 
-## Tips for Best Results
+## Deployment
 
-1. **Be Specific with Ingredients**: Add "chicken breast" rather than just "chicken"
-2. **Update Your Pantry Weekly**: Keep it current for accurate recipe matching
-3. **Use Meal-Prep Friendly Recipes**: These are designed for batch cooking
-4. **Plan Ahead**: Generate your dinner plan Saturday evening for Sunday shopping
-5. **Try New Things**: Mix familiar favorites with new recipes each week
-6. **Batch Cook on Sunday**: Many recipes can be made in larger quantities
+### Vercel (Recommended)
 
-## Advanced Features
+1. Push your code to GitHub
+2. Import project in [Vercel](https://vercel.com/)
+3. Add environment variables in Vercel project settings
+4. Deploy
 
-### Intelligent Ingredient Matching
-The system uses smart matching that:
-- Ignores common modifiers (fresh, frozen, chopped, diced, etc.)
-- Handles plural/singular variations
-- Performs partial matching (e.g., "cherry tomatoes" matches "tomatoes")
-- Automatically includes common staples (salt, pepper, olive oil, etc.)
+### Environment Variables for Production
 
-### Variety in Dinner Planning
-The planner ensures:
-- No repeated recipes in the same week
-- Balanced mix of proteins and cooking styles
-- Mix of quick and longer-cooking recipes
-- Priority to meal-prep-friendly options
+Make sure to set these in your Vercel project settings:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_APP_URL` (your production URL)
+- `ANTHROPIC_API_KEY`
+- `RESEND_API_KEY`
+- `RESEND_FROM_EMAIL`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
 
-### Organized Shopping Lists
-Shopping lists are:
-- Categorized by grocery store sections (Produce, Meat, Dairy, Grains, etc.)
-- Show total amounts needed for the week
-- Indicate which recipes need each ingredient
-- Automatically exclude items already in your pantry
+## Security Features
 
-## Example Workflow
+- ✅ Row Level Security (RLS) on all database tables
+- ✅ Rate limiting on API endpoints
+- ✅ SSRF protection on URL scraping
+- ✅ Authentication required for all sensitive operations
+- ✅ Security headers (CSP, HSTS, etc.)
+- ✅ GDPR-compliant cookie consent
+- ✅ Input validation and sanitization
 
-```
-Monday: Sheet Pan Lemon Herb Chicken (meal-prep 2 servings for Wed)
-Tuesday: Lemon Garlic Shrimp Pasta (quick weeknight meal)
-Wednesday: Leftover Lemon Herb Chicken
-Thursday: Slow Cooker Beef Stew (started in morning)
-Friday: Thai Basil Chicken Stir-Fry (quick)
-Saturday: Baked Ziti with Italian Sausage
-Sunday: BBQ Pulled Pork (slow cooker) + meal prep for next week
-```
+## API Endpoints
 
-## Why Dinner-Only Focus?
+### Public Endpoints
+- `POST /api/auth/*` - Authentication callbacks
 
-This planner is specifically designed for dinner planning because:
-- Dinners typically require more planning and preparation
-- Sunday meal prep is primarily for dinners
-- Shopping lists are mainly driven by dinner ingredients
-- Breakfast and lunch are often simpler or more repetitive
-- Dinner is usually the main family meal of the day
+### Protected Endpoints (require authentication)
+- `POST /api/parse-recipe` - AI recipe parsing (rate limited: 20/hour)
+- `POST /api/scrape-url` - Recipe URL scraping (rate limited: 30/hour)
+- `POST /api/send-shopping-list` - Email shopping lists (rate limited: 10/hour)
+- `POST /api/google-calendar/create-events` - Create calendar events
+- `POST /api/google-calendar/exchange-token` - OAuth token exchange
+- `POST /api/google-calendar/disconnect` - Disconnect calendar
 
 ## Contributing
 
-Want to add more dinner recipes? Feel free to:
-1. Add recipes to `recipes/dinners.json`
-2. Follow the existing recipe format
-3. Use descriptive tags to help with categorization
-4. Include accurate prep and cook times
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Future Enhancements
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-Potential features for future development:
-- Nutritional information and calorie tracking
-- Dietary restriction filters (gluten-free, dairy-free, keto, etc.)
-- Recipe rating and favorites system
-- Cost estimation for shopping lists
-- Leftover management and planning
-- Integration with online grocery delivery
-- Mobile app version
-- Recipe scaling for different serving sizes
-- Meal prep instructions and timing
+## Roadmap
+
+### Current Features (Free Tier)
+- ✅ Unlimited recipes with AI import
+- ✅ Weekly meal planning
+- ✅ Auto-generated shopping lists
+- ✅ Cooking history tracking
+- ✅ Recipe ratings and favorites
+
+### Planned Features (Pro Tier - $5/month)
+- 🔜 Household sharing
+- 🔜 Google Calendar sync
+- 🔜 Email shopping lists
+- 🔜 Recipe scaling
+- 🔜 AI meal suggestions
+- 🔜 Nutrition information
+- 🔜 Dietary restriction filters
+- 🔜 Mobile app
 
 ## License
 
-This project is open source and available for personal use.
+This project is proprietary software. All rights reserved.
 
-## Feedback
+## Support
 
-Found a bug or have a suggestion? Open an issue or submit a pull request!
+For support, email support@babewhatsfordinner.com or open an issue in this repository.
+
+## Acknowledgments
+
+- [Next.js](https://nextjs.org/) for the amazing framework
+- [Supabase](https://supabase.com/) for the backend infrastructure
+- [shadcn/ui](https://ui.shadcn.com/) for the beautiful component library
+- [Anthropic](https://www.anthropic.com/) for Claude AI
+- All the couples who are tired of the "what's for dinner?" debate
 
 ---
 
-Happy dinner planning! 🍽️
+Made with love (and mild guilt) 💕

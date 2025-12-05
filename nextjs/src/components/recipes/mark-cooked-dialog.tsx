@@ -1,0 +1,103 @@
+"use client";
+
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { StarRating } from "@/components/ui/star-rating";
+import { Loader2, ChefHat } from "lucide-react";
+import { markAsCooked } from "@/app/actions/recipes";
+
+interface MarkCookedDialogProps {
+  recipeId: string;
+  recipeTitle: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function MarkCookedDialog({
+  recipeId,
+  recipeTitle,
+  open,
+  onOpenChange,
+}: MarkCookedDialogProps) {
+  const [rating, setRating] = useState<number | null>(null);
+  const [notes, setNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    await markAsCooked(recipeId, rating || undefined, notes || undefined);
+    setIsSubmitting(false);
+    setRating(null);
+    setNotes("");
+    onOpenChange(false);
+  };
+
+  const handleClose = () => {
+    setRating(null);
+    setNotes("");
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <ChefHat className="h-5 w-5" />
+            Nice work, chef!
+          </DialogTitle>
+          <DialogDescription>
+            You made <span className="font-medium">{recipeTitle}</span>. How did
+            it go?
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label>Rate this cook (optional)</Label>
+            <div className="flex justify-center py-2">
+              <StarRating rating={rating} onChange={setRating} size="lg" />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="notes">Notes (optional)</Label>
+            <Textarea
+              id="notes"
+              placeholder="Made any tweaks? How did it taste?"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={3}
+            />
+          </div>
+        </div>
+
+        <DialogFooter className="flex gap-2 sm:gap-0">
+          <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
+            Skip
+          </Button>
+          <Button onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              "Save"
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

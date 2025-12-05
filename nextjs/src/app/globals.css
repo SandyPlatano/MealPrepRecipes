@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Background & Foreground - Warm whites */
+    --background: 30 25% 99%;
+    --foreground: 25 15% 10%;
+
+    /* Card - Slightly warm white */
+    --card: 30 20% 99%;
+    --card-foreground: 25 15% 10%;
+
+    /* Popover */
+    --popover: 30 25% 99%;
+    --popover-foreground: 25 15% 10%;
+
+    /* Primary - Warm Coral/Orange (#F97316) */
+    --primary: 25 95% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Soft warm gray */
+    --secondary: 30 10% 95%;
+    --secondary-foreground: 25 15% 15%;
+
+    /* Muted - Warm light gray */
+    --muted: 30 10% 95%;
+    --muted-foreground: 25 10% 45%;
+
+    /* Accent - Sage Green for freshness */
+    --accent: 142 30% 93%;
+    --accent-foreground: 142 40% 25%;
+
+    /* Destructive */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Border & Input - Warm grays */
+    --border: 30 15% 88%;
+    --input: 30 15% 88%;
+    --ring: 25 95% 53%;
+
+    /* Charts - Warm palette */
+    --chart-1: 25 95% 53%;
+    --chart-2: 142 40% 45%;
+    --chart-3: 35 85% 55%;
+    --chart-4: 15 80% 60%;
+    --chart-5: 45 90% 55%;
+
+    --radius: 0.5rem;
+
+    /* Brand colors */
+    --brand-coral: 25 95% 53%;
+    --brand-sage: 142 40% 45%;
+    --brand-cream: 40 30% 96%;
+    --brand-warm-gray: 25 10% 45%;
+  }
+
+  .dark {
+    /* Dark mode - True dark, neutral tones */
+    --background: 0 0% 7%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 9%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 95%;
+
+    /* Primary stays vibrant in dark mode */
+    --primary: 25 95% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+
+    /* Accent - Sage Green (darker) */
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 95%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 25 95% 55%;
+
+    --chart-1: 25 95% 55%;
+    --chart-2: 142 50% 50%;
+    --chart-3: 35 80% 50%;
+    --chart-4: 15 75% 55%;
+    --chart-5: 45 85% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+      "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+      "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Monospace font for headings and UI elements - Brand style */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-mono {
+    font-family: "JetBrains Mono", "Fira Code", "Consolas", "Monaco",
+      "Courier New", monospace;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Dialog overlay fix */
+[data-radix-dialog-overlay] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9998 !important;
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+[data-radix-dialog-content] {
+  z-index: 9999 !important;
+  opacity: 1 !important;
+}
+
+/* Enhanced button hover effects with glow */
+button:not(:disabled):hover {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}

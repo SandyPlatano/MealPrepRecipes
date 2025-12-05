@@ -86,3 +86,4 @@ console.log('Generating extension icons...');
 sizes.forEach(createIcon);
 console.log('Done! Icons created in icons/ directory.');
 
+
