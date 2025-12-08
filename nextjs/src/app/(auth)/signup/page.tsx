@@ -82,7 +82,7 @@ export default function SignupPage() {
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl">Create an account</CardTitle>
         <CardDescription>
-          Join the meal planning revolution. No more &quot;I dunno, what do you want?&quot;
+          We&apos;ll send you a magic link to get started. No password needed!
         </CardDescription>
       </CardHeader>
       <form action={handleSubmit}>
@@ -115,19 +115,6 @@ export default function SignupPage() {
               autoComplete="email"
             />
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="At least 6 characters"
-              required
-              minLength={6}
-              autoComplete="new-password"
-            />
-          </div>
         </CardContent>
 
         <CardFooter className="flex flex-col space-y-4">
@@ -135,10 +122,10 @@ export default function SignupPage() {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating account...
+                Sending magic link...
               </>
             ) : (
-              "Sign up"
+              "Send magic link"
             )}
           </Button>
 

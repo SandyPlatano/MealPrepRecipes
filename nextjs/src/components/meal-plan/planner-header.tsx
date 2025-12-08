@@ -25,6 +25,7 @@ import {
   Trash2,
   Mail,
   Loader2,
+  CheckCircle2,
 } from "lucide-react";
 import { formatWeekRange, getWeekStart } from "@/types/meal-plan";
 import { toast } from "sonner";
@@ -151,7 +152,7 @@ export function PlannerHeader({
         {/* Actions Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="min-w-[100px]">
               <MoreHorizontal className="h-4 w-4 mr-2" />
               Actions
             </Button>
@@ -176,23 +177,19 @@ export function PlannerHeader({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Send Plan Button */}
+        {/* Finalize Plan Button - Primary CTA */}
         <Button
-          onClick={onSendPlan}
-          disabled={!hasMeals || isSending}
-          className="gap-2"
+          onClick={() => {
+            const weekStr = weekStart.toISOString().split("T")[0];
+            router.push(`/app/finalize?week=${weekStr}`);
+          }}
+          disabled={!hasMeals}
+          size="sm"
+          className="gap-2 min-w-[120px]"
         >
-          {isSending ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Sending...
-            </>
-          ) : (
-            <>
-              <Mail className="h-4 w-4" />
-              Send the Plan
-            </>
-          )}
+          <CheckCircle2 className="h-4 w-4" />
+          <span className="hidden sm:inline">Finalize Plan</span>
+          <span className="sm:hidden">Finalize</span>
         </Button>
       </div>
     </div>

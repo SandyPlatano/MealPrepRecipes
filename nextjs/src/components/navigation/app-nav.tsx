@@ -9,15 +9,19 @@ import {
   Sparkles,
   History,
   Settings,
+  ShoppingCart,
+  Package,
   type LucideIcon,
 } from "lucide-react";
 
-type IconKey = "plan" | "recipes" | "discover" | "history" | "settings";
+type IconKey = "plan" | "recipes" | "discover" | "shop" | "pantry" | "history" | "settings";
 
 const iconMap: Record<IconKey, LucideIcon> = {
   plan: Calendar,
   recipes: BookOpen,
   discover: Sparkles,
+  shop: ShoppingCart,
+  pantry: Package,
   history: History,
   settings: Settings,
 };
@@ -43,8 +47,30 @@ export function AppNav({
 }: AppNavProps) {
   const pathname = usePathname();
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(`${href}/`);
+  // Get all hrefs to check for more specific routes
+  const allHrefs = includeSettings && settingsItem
+    ? [...items.map(item => item.href), settingsItem.href]
+    : items.map(item => item.href);
+
+  const isActive = (href: string) => {
+    // Exact match always wins
+    if (pathname === href) return true;
+    
+    // Check if pathname starts with this href (for nested routes)
+    if (!pathname.startsWith(`${href}/`)) return false;
+    
+    // If it's a parent route, check if there's a more specific route that should be active
+    // If a more specific route exists, this parent route should not be active
+    const isMoreSpecificRoute = allHrefs.some(otherHref => {
+      if (otherHref === href) return false;
+      // Check if otherHref is a child of href AND pathname matches otherHref
+      return otherHref.startsWith(`${href}/`) && 
+             (pathname === otherHref || pathname.startsWith(`${otherHref}/`));
+    });
+    
+    // Only active if no more specific route is active
+    return !isMoreSpecificRoute;
+  };
 
   if (variant === "mobile") {
     const mobileItems = includeSettings && settingsItem

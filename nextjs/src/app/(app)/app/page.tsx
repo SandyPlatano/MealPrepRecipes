@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { getRecipes, getFavorites, getRecipeCookCounts } from "@/app/actions/recipes";
 import { getSettings } from "@/app/actions/settings";
 import { RecipeGrid } from "@/components/recipes/recipe-grid";
-import { RecipeFilters } from "@/components/recipes/recipe-filters";
 import { OnboardingWrapper } from "@/components/onboarding/onboarding-wrapper";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";

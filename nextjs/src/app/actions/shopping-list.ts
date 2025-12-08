@@ -12,8 +12,10 @@ import {
   mergeShoppingItems,
   type MergeableItem,
 } from "@/lib/ingredient-scaler";
+import { getWeekStart } from "@/types/meal-plan";
 
 // Get or create the current shopping list for the household
+// Automatically links to the current week's meal plan
 export async function getOrCreateShoppingList() {
   const supabase = await createClient();
   const {
@@ -35,11 +37,40 @@ export async function getOrCreateShoppingList() {
     return { error: "No household found", data: null };
   }
 
-  // Try to get existing shopping list for this household
-  let { data: shoppingList, error: fetchError } = await supabase
-    .from("shopping_lists")
+  // Get the current week start
+  const weekStart = getWeekStart(new Date());
+  const weekStartStr = weekStart.toISOString().split("T")[0];
+
+  // Find or create the current week's meal plan
+  let { data: mealPlan } = await supabase
+    .from("meal_plans")
     .select("*")
     .eq("household_id", membership.household_id)
+    .eq("week_start", weekStartStr)
+    .single();
+
+  if (!mealPlan) {
+    // Create meal plan for this week
+    const { data: newPlan, error: planError } = await supabase
+      .from("meal_plans")
+      .insert({
+        household_id: membership.household_id,
+        week_start: weekStartStr,
+      })
+      .select()
+      .single();
+
+    if (planError) {
+      return { error: planError.message, data: null };
+    }
+    mealPlan = newPlan;
+  }
+
+  // Try to get existing shopping list linked to this meal plan
+  let { data: shoppingList } = await supabase
+    .from("shopping_lists")
+    .select("*")
+    .eq("meal_plan_id", mealPlan.id)
     .maybeSingle();
 
   // Create if doesn't exist
@@ -48,7 +79,7 @@ export async function getOrCreateShoppingList() {
       .from("shopping_lists")
       .insert({
         household_id: membership.household_id,
-        meal_plan_id: null,
+        meal_plan_id: mealPlan.id,
       })
       .select()
       .single();
@@ -272,7 +303,8 @@ export async function clearShoppingList() {
 }
 
 // Generate shopping list from meal plan
-export async function generateFromMealPlan(weekStart: string) {
+// Uses the current week's meal plan (automatically linked via getOrCreateShoppingList)
+export async function generateFromMealPlan(weekStart?: string) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -282,27 +314,17 @@ export async function generateFromMealPlan(weekStart: string) {
     return { error: "Not authenticated", count: 0 };
   }
 
-  // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership) {
-    return { error: "No household found", count: 0 };
+  // Get or create shopping list (automatically linked to current week's meal plan)
+  const listResult = await getOrCreateShoppingList();
+  if (listResult.error || !listResult.data) {
+    return { error: listResult.error || "Failed to get shopping list", count: 0 };
   }
 
-  // Get meal plan for the week
-  const { data: mealPlan } = await supabase
-    .from("meal_plans")
-    .select("id")
-    .eq("household_id", membership.household_id)
-    .eq("week_start", weekStart)
-    .single();
+  const shoppingList = listResult.data;
 
-  if (!mealPlan) {
-    return { error: "No meal plan found for this week", count: 0 };
+  // Get meal plan from the shopping list
+  if (!shoppingList.meal_plan_id) {
+    return { error: "No meal plan linked to shopping list", count: 0 };
   }
 
   // Get all assignments with recipe details
@@ -314,16 +336,10 @@ export async function generateFromMealPlan(weekStart: string) {
       recipe:recipes(id, title, ingredients)
     `
     )
-    .eq("meal_plan_id", mealPlan.id);
+    .eq("meal_plan_id", shoppingList.meal_plan_id);
 
   if (!assignments || assignments.length === 0) {
     return { error: "No meals planned for this week", count: 0 };
-  }
-
-  // Get or create shopping list
-  const listResult = await getOrCreateShoppingList();
-  if (listResult.error || !listResult.data) {
-    return { error: listResult.error || "Failed to get shopping list", count: 0 };
   }
 
   // Collect all ingredients from all recipes
@@ -352,10 +368,30 @@ export async function generateFromMealPlan(weekStart: string) {
   // Merge duplicate ingredients with smart unit conversion
   const mergedItems = mergeShoppingItems(ingredientsToAdd);
 
-  // Add merged ingredients to shopping list
-  if (mergedItems.length > 0) {
-    const itemsToInsert = mergedItems.map((item) => ({
-      shopping_list_id: listResult.data!.id,
+  // Get existing items in the shopping list to avoid duplicates
+  const { data: existingItems } = await supabase
+    .from("shopping_list_items")
+    .select("ingredient, recipe_id")
+    .eq("shopping_list_id", shoppingList.id);
+
+  // Create a set of existing recipe IDs for quick lookup
+  const existingRecipeIds = new Set(
+    (existingItems || [])
+      .filter(item => item.recipe_id)
+      .map(item => item.recipe_id)
+  );
+
+  // Filter out items that are already in the list (by recipe_id)
+  // This prevents duplicates when regenerating from the same meal plan
+  const newItems = mergedItems.filter(item => {
+    const recipeId = item.sources[0]?.recipe_id;
+    return recipeId ? !existingRecipeIds.has(recipeId) : true;
+  });
+
+  // Add only new merged ingredients to shopping list
+  if (newItems.length > 0) {
+    const itemsToInsert = newItems.map((item) => ({
+      shopping_list_id: shoppingList.id,
       ingredient: item.ingredient,
       quantity: item.quantity || null,
       unit: item.unit || null,
@@ -378,7 +414,7 @@ export async function generateFromMealPlan(weekStart: string) {
   }
 
   revalidatePath("/app/shop");
-  return { error: null, count: mergedItems.length };
+  return { error: null, count: newItems.length };
 }
 
 // Simple ingredient parser

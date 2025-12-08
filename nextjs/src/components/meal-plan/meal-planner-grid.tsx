@@ -60,6 +60,9 @@ interface MealPlannerGridProps {
   recipes: Recipe[];
   cookNames: string[];
   cookColors: Record<string, string>;
+  userAllergenAlerts?: string[];
+  calendarExcludedDays?: string[];
+  googleConnected?: boolean;
   favorites: string[];
   recentRecipeIds: string[];
   suggestedRecipeIds: string[];
@@ -72,6 +75,9 @@ export function MealPlannerGrid({
   recipes,
   cookNames,
   cookColors,
+  userAllergenAlerts = [],
+  calendarExcludedDays = [],
+  googleConnected = false,
   favorites,
   recentRecipeIds,
   suggestedRecipeIds,
@@ -438,6 +444,9 @@ export function MealPlannerGrid({
                   suggestedRecipeIds={suggestedRecipeIds}
                   cookNames={cookNames}
                   cookColors={cookColors}
+                  userAllergenAlerts={userAllergenAlerts}
+                  isCalendarExcluded={calendarExcludedDays.includes(day)}
+                  googleConnected={googleConnected}
                   onAddMeal={handleAddMeal}
                   onUpdateCook={handleUpdateCook}
                   onRemoveMeal={handleRemoveMeal}
@@ -464,6 +473,8 @@ export function MealPlannerGrid({
                     favorites={favorites}
                     recentRecipeIds={recentRecipeIds}
                     cookNames={cookNames}
+                    isCalendarExcluded={calendarExcludedDays.includes(day)}
+                    googleConnected={googleConnected}
                     onAddMeal={handleAddMeal}
                     onUpdateCook={handleUpdateCook}
                     onRemoveMeal={handleRemoveMeal}
@@ -477,9 +488,7 @@ export function MealPlannerGrid({
           {/* Summary Footer */}
           <PlannerSummary
             assignments={allAssignments}
-            onDownloadList={handleDownloadList}
-            onAddToCalendar={handleAddToCalendar}
-            isAddingToCalendar={isAddingToCalendar}
+            weekStartStr={weekStartStr}
           />
         </div>
 

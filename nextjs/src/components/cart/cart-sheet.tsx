@@ -26,7 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { X, Trash2, ShoppingCart, ChevronLeft, ChevronRight, Download, Mail, Loader2, Calendar as CalendarIcon } from "lucide-react";
+import { X, Trash2, ShoppingCart, ChevronLeft, ChevronRight, Download, Mail, Loader2, Calendar as CalendarIcon, ChefHat } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -371,6 +371,7 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
                                 }
                               >
                                 <SelectTrigger className="w-[120px]">
+                                  <ChefHat className="h-3 w-3 mr-1 flex-shrink-0" />
                                   <SelectValue placeholder="Select cook" />
                                 </SelectTrigger>
                                 <SelectContent>

@@ -25,6 +25,7 @@ export interface Recipe {
   source_url: string | null;
   image_url: string | null;
   rating: number | null;
+  allergen_tags: string[]; // Manual allergen tags
   user_id: string;
   household_id: string | null;
   is_shared_with_household: boolean;
@@ -48,6 +49,7 @@ export interface RecipeFormData {
   notes?: string;
   source_url?: string;
   image_url?: string;
+  allergen_tags?: string[]; // Manual allergen tags
   is_shared_with_household?: boolean;
 }
 

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getRecipe, getFavorites, getRecipeHistory } from "@/app/actions/recipes";
+import { getSettings } from "@/app/actions/settings";
 import { RecipeDetail } from "@/components/recipes/recipe-detail";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit } from "lucide-react";
@@ -17,10 +18,11 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
   const from = Array.isArray(fromParam) ? fromParam[0] : fromParam;
   const backHref = from === "plan" ? "/app/plan" : "/app/recipes";
   const backLabel = from === "plan" ? "Back to Plan" : "Back to The Vault";
-  const [recipeResult, favoritesResult, historyResult] = await Promise.all([
+  const [recipeResult, favoritesResult, historyResult, settingsResult] = await Promise.all([
     getRecipe(id),
     getFavorites(),
     getRecipeHistory(id),
+    getSettings(),
   ]);
 
   if (recipeResult.error || !recipeResult.data) {
@@ -31,6 +33,8 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
   const favoriteIds = new Set(favoritesResult.data || []);
   const isFavorite = favoriteIds.has(recipe.id);
   const history = historyResult.data || [];
+  const userAllergenAlerts = settingsResult.data?.allergen_alerts || [];
+  const customDietaryRestrictions = settingsResult.data?.custom_dietary_restrictions || [];
 
   return (
     <div className="space-y-6">
@@ -49,7 +53,7 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
         </Link>
       </div>
 
-      <RecipeDetail recipe={recipe} isFavorite={isFavorite} history={history} />
+      <RecipeDetail recipe={recipe} isFavorite={isFavorite} history={history} userAllergenAlerts={userAllergenAlerts} customDietaryRestrictions={customDietaryRestrictions} />
     </div>
   );
 }

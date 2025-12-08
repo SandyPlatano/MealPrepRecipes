@@ -26,6 +26,9 @@ import { createRecipe, updateRecipe, uploadRecipeImage, deleteRecipeImage } from
 import type { Recipe, RecipeType, RecipeFormData } from "@/types/recipe";
 import { toast } from "sonner";
 import Image from "next/image";
+import { ALLERGEN_TYPES, detectAllergens, mergeAllergens, getAllergenDisplayName, getAllergenBadgeColor } from "@/lib/allergen-detector";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface RecipeFormProps {
   recipe?: Recipe;
@@ -91,6 +94,23 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
   );
   const [imageUrl, setImageUrl] = useState(defaultData?.image_url || recipe?.image_url || "");
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [allergenTags, setAllergenTags] = useState<string[]>(
+    defaultData?.allergen_tags || recipe?.allergen_tags || []
+  );
+
+  // Auto-detect allergens when ingredients change
+  useEffect(() => {
+    if (ingredients.length > 0 && ingredients.some(ing => ing.trim())) {
+      const detected = detectAllergens(ingredients.filter(ing => ing.trim()));
+      const merged = mergeAllergens(detected, allergenTags);
+      // Only update if there are new detected allergens not already in manual tags
+      const detectedArray = Array.from(detected);
+      const newAllergens = detectedArray.filter(a => !allergenTags.includes(a));
+      if (newAllergens.length > 0) {
+        // Don't auto-add, just show them - user can manually add if they want
+      }
+    }
+  }, [ingredients]);
 
   // Ingredient handlers
   const addIngredient = () => {
@@ -135,6 +155,15 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
 
   const removeTag = (tag: string) => {
     setTags(tags.filter((t) => t !== tag));
+  };
+
+  // Allergen tag handlers
+  const toggleAllergenTag = (allergen: string) => {
+    if (allergenTags.includes(allergen)) {
+      setAllergenTags(allergenTags.filter((t) => t !== allergen));
+    } else {
+      setAllergenTags([...allergenTags, allergen]);
+    }
   };
 
   // Image upload handler
@@ -200,6 +229,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
       notes: notes.trim() || undefined,
       source_url: sourceUrl.trim() || undefined,
       image_url: imageUrl.trim() || undefined,
+      allergen_tags: allergenTags,
       is_shared_with_household: isShared,
     };
 
@@ -235,6 +265,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Sheet Pan Lemon Herb Chicken"
               required
+              maxLength={200}
             />
           </div>
 
@@ -314,6 +345,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 placeholder="e.g., Chicken, Pasta, Salad"
+                maxLength={100}
               />
             </div>
           </div>
@@ -325,6 +357,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
               value={proteinType}
               onChange={(e) => setProteinType(e.target.value)}
               placeholder="e.g., Chicken, Beef, Vegetarian"
+              maxLength={100}
             />
           </div>
 
@@ -357,6 +390,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
                 value={servings}
                 onChange={(e) => setServings(e.target.value)}
                 placeholder="e.g., Serves 4-6 or Makes 24 cookies"
+                maxLength={100}
               />
             </div>
           </div>
@@ -369,6 +403,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
                 value={prepTime}
                 onChange={(e) => setPrepTime(e.target.value)}
                 placeholder="e.g., 15 minutes"
+                maxLength={50}
               />
             </div>
 
@@ -379,6 +414,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
                 value={cookTime}
                 onChange={(e) => setCookTime(e.target.value)}
                 placeholder="e.g., 35 minutes"
+                maxLength={50}
               />
             </div>
           </div>
@@ -403,6 +439,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
               <Input
                 id="bulkIngredients"
                 placeholder="e.g., 2 cups flour, 1 tsp salt, 3 eggs"
+                maxLength={2000}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
@@ -464,6 +501,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
                   value={ingredient}
                   onChange={(e) => updateIngredient(index, e.target.value)}
                   placeholder={`Ingredient ${index + 1}`}
+                  maxLength={500}
                 />
                 <Button
                   type="button"
@@ -513,6 +551,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
                   onChange={(e) => updateInstruction(index, e.target.value)}
                   placeholder={`Step ${index + 1}`}
                   rows={2}
+                  maxLength={2000}
                 />
                 <Button
                   type="button"
@@ -551,6 +590,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               placeholder="Add a tag..."
+              maxLength={50}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
@@ -584,6 +624,48 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
         </CardContent>
       </Card>
 
+      {/* Allergen Tags */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Allergen Warnings</CardTitle>
+          <CardDescription>
+            Mark allergens present in this recipe. Auto-detected allergens are shown below.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex flex-wrap gap-2">
+            {ALLERGEN_TYPES.map((allergen) => {
+              const isSelected = allergenTags.includes(allergen);
+              const detected = detectAllergens(ingredients.filter(ing => ing.trim())).has(allergen);
+              return (
+                <div key={allergen} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`allergen-${allergen}`}
+                    checked={isSelected}
+                    onCheckedChange={() => toggleAllergenTag(allergen)}
+                  />
+                  <label
+                    htmlFor={`allergen-${allergen}`}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-2"
+                  >
+                    <Badge
+                      variant={isSelected ? "warning" : "secondary"}
+                    >
+                      {getAllergenDisplayName(allergen)}
+                    </Badge>
+                  </label>
+                </div>
+              );
+            })}
+          </div>
+          {allergenTags.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              Selected allergens: {allergenTags.map(getAllergenDisplayName).join(", ")}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Extra Details */}
       <Card>
         <CardHeader>
@@ -599,6 +681,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
               value={sourceUrl}
               onChange={(e) => setSourceUrl(e.target.value)}
               placeholder="https://..."
+              maxLength={500}
             />
           </div>
 
@@ -610,6 +693,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Tips, substitutions, or personal notes..."
               rows={3}
+              maxLength={2000}
             />
           </div>
 

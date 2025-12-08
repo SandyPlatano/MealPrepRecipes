@@ -31,20 +31,28 @@ export function MarkCookedDialog({
 }: MarkCookedDialogProps) {
   const [rating, setRating] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
+  const [modifications, setModifications] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    await markAsCooked(recipeId, rating || undefined, notes || undefined);
+    await markAsCooked(
+      recipeId,
+      rating || undefined,
+      notes || undefined,
+      modifications || undefined
+    );
     setIsSubmitting(false);
     setRating(null);
     setNotes("");
+    setModifications("");
     onOpenChange(false);
   };
 
   const handleClose = () => {
     setRating(null);
     setNotes("");
+    setModifications("");
     onOpenChange(false);
   };
 
@@ -71,13 +79,26 @@ export function MarkCookedDialog({
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="modifications">What did you change? (optional)</Label>
+            <Textarea
+              id="modifications"
+              placeholder="e.g., Added extra garlic, reduced salt, used coconut milk instead of cream..."
+              value={modifications}
+              onChange={(e) => setModifications(e.target.value)}
+              rows={2}
+              maxLength={2000}
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="notes">Notes (optional)</Label>
             <Textarea
               id="notes"
-              placeholder="Made any tweaks? How did it taste?"
+              placeholder="How did it taste? Any tips for next time?"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
+              maxLength={2000}
             />
           </div>
         </div>

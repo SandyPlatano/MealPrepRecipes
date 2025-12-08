@@ -21,6 +21,8 @@ import type { RecipeWithFavorite, RecipeType } from "@/types/recipe";
 interface RecipeGridProps {
   recipes: RecipeWithFavorite[];
   recipeCookCounts?: Record<string, number>; // recipe_id -> count
+  userAllergenAlerts?: string[];
+  customDietaryRestrictions?: string[];
 }
 
 const recipeTypes: RecipeType[] = [
@@ -34,7 +36,7 @@ const recipeTypes: RecipeType[] = [
 
 type SortOption = "recent" | "most-cooked" | "highest-rated" | "alphabetical";
 
-export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {} }: RecipeGridProps) {
+export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, userAllergenAlerts = [], customDietaryRestrictions = [] }: RecipeGridProps) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<RecipeType | "all">("all");
   const [proteinFilter, setProteinFilter] = useState<string>("all");
@@ -338,7 +340,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {} }: R
           <TooltipProvider>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {filteredRecipes.map((recipe) => (
-                <RecipeCard key={recipe.id} recipe={recipe} />
+                <RecipeCard key={recipe.id} recipe={recipe} userAllergenAlerts={userAllergenAlerts} customDietaryRestrictions={customDietaryRestrictions} />
               ))}
             </div>
           </TooltipProvider>

@@ -82,6 +82,7 @@ export async function createRecipe(formData: RecipeFormData) {
       notes: formData.notes || null,
       source_url: formData.source_url || null,
       image_url: formData.image_url || null,
+      allergen_tags: formData.allergen_tags || [],
       user_id: user.id,
       household_id: household?.household_id || null,
       is_shared_with_household: formData.is_shared_with_household ?? true,
@@ -125,6 +126,7 @@ export async function updateRecipe(id: string, formData: Partial<RecipeFormData>
   if (formData.notes !== undefined) updateData.notes = formData.notes || null;
   if (formData.source_url !== undefined) updateData.source_url = formData.source_url || null;
   if (formData.image_url !== undefined) updateData.image_url = formData.image_url || null;
+  if (formData.allergen_tags !== undefined) updateData.allergen_tags = formData.allergen_tags || [];
   if (formData.is_shared_with_household !== undefined) {
     updateData.is_shared_with_household = formData.is_shared_with_household;
   }
@@ -272,7 +274,8 @@ export async function getFavorites() {
 export async function markAsCooked(
   recipeId: string,
   rating?: number,
-  notes?: string
+  notes?: string,
+  modifications?: string
 ) {
   const { user, household, error: authError } = await getCachedUserWithHousehold();
 
@@ -288,6 +291,7 @@ export async function markAsCooked(
     cooked_by: user.id,
     rating: rating || null,
     notes: notes || null,
+    modifications: modifications || null,
   });
 
   if (error) {

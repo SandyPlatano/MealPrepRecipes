@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Eye, ChefHat, Pencil } from "lucide-react";
+import { Plus, Trash2, Eye, Pencil, ChefHat, CalendarOff } from "lucide-react";
 import { RecipePickerModal } from "./recipe-picker-modal";
 import { cn } from "@/lib/utils";
 import type { DayOfWeek, MealAssignmentWithRecipe } from "@/types/meal-plan";
@@ -41,6 +41,9 @@ interface PlannerDayRowProps {
   suggestedRecipeIds: string[];
   cookNames: string[];
   cookColors: Record<string, string>;
+  userAllergenAlerts?: string[];
+  isCalendarExcluded?: boolean;
+  googleConnected?: boolean;
   onAddMeal: (recipeId: string, day: DayOfWeek, cook?: string) => Promise<void>;
   onUpdateCook: (assignmentId: string, cook: string | null) => Promise<void>;
   onRemoveMeal: (assignmentId: string) => Promise<void>;
@@ -57,6 +60,9 @@ export function PlannerDayRow({
   suggestedRecipeIds,
   cookNames,
   cookColors,
+  userAllergenAlerts = [],
+  isCalendarExcluded = false,
+  googleConnected = false,
   onAddMeal,
   onUpdateCook,
   onRemoveMeal,
@@ -135,6 +141,11 @@ export function PlannerDayRow({
             Today
           </Badge>
         )}
+        {googleConnected && isCalendarExcluded && (
+          <div className="mt-1 flex items-center justify-center" title="Calendar sync disabled">
+            <CalendarOff className="h-3 w-3 text-muted-foreground" />
+          </div>
+        )}
       </div>
 
       {/* Card with Recipes */}
@@ -200,6 +211,8 @@ export function PlannerDayRow({
                 recentRecipeIds={recentRecipeIds}
                 suggestedRecipeIds={suggestedRecipeIds}
                 cookNames={cookNames}
+                cookColors={cookColors}
+                userAllergenAlerts={userAllergenAlerts}
                 onAdd={async (recipeIds, cook) => {
                   // Add each recipe with the cook assignment
                   for (const recipeId of recipeIds) {
@@ -268,7 +281,7 @@ function RecipeRow({
   const handleCookChange = async (value: string) => {
     setIsUpdating(true);
     try {
-      await onUpdateCook(assignment.id, value || null);
+      await onUpdateCook(assignment.id, value === "none" || value === "" ? null : value);
     } finally {
       setIsUpdating(false);
     }
@@ -339,33 +352,26 @@ function RecipeRow({
       </div>
 
       {/* Cook Selector */}
-      <div className="w-[130px] sm:w-[140px]">
+      <div className="w-[130px] sm:w-[140px] min-w-0">
         {(() => {
           const cookColor = getCookColor(assignment.cook);
           return (
             <Select
-              value={assignment.cook || ""}
+              value={assignment.cook || "none"}
               onValueChange={handleCookChange}
               disabled={isUpdating}
             >
               <SelectTrigger
-                className="h-7 text-xs"
+                className="h-7 text-xs min-w-0 [&>span]:min-w-0 [&>span]:truncate"
                 style={cookColor ? {
                   borderLeft: `3px solid ${cookColor}`,
                 } : undefined}
               >
-                {cookColor ? (
-                  <span
-                    className="h-2.5 w-2.5 rounded-full flex-shrink-0 mr-1.5"
-                    style={{ backgroundColor: cookColor }}
-                    aria-hidden="true"
-                  />
-                ) : (
-                  <ChefHat className="h-3 w-3 mr-1 text-muted-foreground" />
-                )}
+                <ChefHat className="h-3 w-3 mr-1 flex-shrink-0" />
                 <SelectValue placeholder="Assign cook" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="none">No cook assigned</SelectItem>
                 {cookNames.map((name) => {
                   const color = getCookColor(name);
                   return (

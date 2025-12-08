@@ -66,7 +66,7 @@ export default function Home() {
               Log in
             </Link>
             <Link href="/signup">
-              <Button>Start Planning</Button>
+              <Button>Sign Up Free</Button>
             </Link>
           </div>
         </div>

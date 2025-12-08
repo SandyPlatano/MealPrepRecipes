@@ -1,16 +1,19 @@
 import { Suspense } from "react";
 import { getRecipes, getFavorites } from "@/app/actions/recipes";
+import { getSettings } from "@/app/actions/settings";
 import { RecipeGrid } from "@/components/recipes/recipe-grid";
-import { RecipeFilters } from "@/components/recipes/recipe-filters";
 
 export default async function RecipesPage() {
-  const [recipesResult, favoritesResult] = await Promise.all([
+  const [recipesResult, favoritesResult, settingsResult] = await Promise.all([
     getRecipes(),
     getFavorites(),
+    getSettings(),
   ]);
 
   const recipes = recipesResult.data || [];
   const favoriteIds = new Set(favoritesResult.data || []);
+  const userAllergenAlerts = settingsResult.data?.allergen_alerts || [];
+  const customDietaryRestrictions = settingsResult.data?.custom_dietary_restrictions || [];
 
   // Add favorite status to recipes
   const recipesWithFavorites = recipes.map((recipe) => ({
@@ -27,12 +30,8 @@ export default async function RecipesPage() {
         </p>
       </div>
 
-      <Suspense fallback={<div>Loading filters...</div>}>
-        <RecipeFilters />
-      </Suspense>
-
       <Suspense fallback={<div>Loading recipes...</div>}>
-        <RecipeGrid recipes={recipesWithFavorites} />
+        <RecipeGrid recipes={recipesWithFavorites} userAllergenAlerts={userAllergenAlerts} customDietaryRestrictions={customDietaryRestrictions} />
       </Suspense>
     </div>
   );

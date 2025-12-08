@@ -16,58 +16,102 @@ function GoogleCallbackContent() {
   useEffect(() => {
     const code = searchParams.get("code");
     const error = searchParams.get("error");
+    const isPopup = !!window.opener;
+
+    console.log("[Google OAuth Callback] Loaded with:", { 
+      code: code?.substring(0, 20) + "...", 
+      error, 
+      isPopup 
+    });
 
     if (error) {
+      console.error("[Google OAuth Callback] OAuth error:", error);
       setStatus("error");
-      setMessage("Authentication failed. You can close this window.");
-
-      // Send error to parent window
-      if (window.opener) {
-        window.opener.postMessage(
-          { type: "GOOGLE_OAUTH_ERROR", error },
-          window.location.origin
-        );
-      }
+      setMessage("Authentication failed.");
       setCanClose(true);
+      
+      // Redirect to settings with error after delay
+      setTimeout(() => {
+        if (isPopup && window.opener) {
+          window.close();
+        } else {
+          router.push("/app/settings?oauth=error");
+        }
+      }, 2000);
       return;
     }
 
     if (code) {
-      setStatus("success");
-      setMessage("Success! This window will close automatically...");
+      console.log("[Google OAuth Callback] Authorization code received, exchanging for tokens...");
+      setMessage("Connecting to Google Calendar...");
 
-      // Send code to parent window
-      if (window.opener) {
-        window.opener.postMessage(
-          { type: "GOOGLE_OAUTH_SUCCESS", code },
-          window.location.origin
-        );
+      // Exchange the code for tokens directly from this page
+      const redirectUri = `${window.location.origin}/auth/google/callback`;
+      
+      fetch("/api/google-calendar/exchange-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, redirectUri }),
+      })
+        .then(async (response) => {
+          const result = await response.json();
+          console.log("[Google OAuth Callback] Token exchange response:", { 
+            ok: response.ok, 
+            status: response.status,
+            result 
+          });
 
-        // Try to close the popup after a short delay
-        setTimeout(() => {
-          try {
-            window.close();
-            // If window.close() doesn't work, show manual close button
-            setTimeout(() => {
-              setCanClose(true);
-              setMessage("Please close this window to return to settings.");
-            }, 500);
-          } catch {
-            setCanClose(true);
-            setMessage("Please close this window to return to settings.");
+          if (!response.ok) {
+            throw new Error(result.error || "Failed to connect");
           }
-        }, 1500);
-      } else {
-        // If there's no opener (not a popup), redirect to settings
-        setMessage("Success! Redirecting to settings...");
-        setTimeout(() => {
-          router.push("/app/settings");
-        }, 1500);
-      }
+
+          console.log("[Google OAuth Callback] Successfully connected!");
+          setStatus("success");
+          setMessage("Connected! Redirecting...");
+
+          // Redirect to settings with success
+          setTimeout(() => {
+            if (isPopup && window.opener) {
+              // Signal success to opener and close
+              try {
+                window.opener.postMessage({ type: "GOOGLE_OAUTH_COMPLETE" }, window.location.origin);
+              } catch (e) {
+                console.warn("[Google OAuth Callback] Could not message opener:", e);
+              }
+              window.close();
+            } else {
+              router.push("/app/settings?oauth=success");
+            }
+          }, 1000);
+        })
+        .catch((error) => {
+          console.error("[Google OAuth Callback] Token exchange failed:", error);
+          setStatus("error");
+          setMessage(error instanceof Error ? error.message : "Failed to connect");
+          setCanClose(true);
+
+          // Redirect to settings with error after delay
+          setTimeout(() => {
+            if (isPopup && window.opener) {
+              window.close();
+            } else {
+              router.push("/app/settings?oauth=error");
+            }
+          }, 3000);
+        });
     } else {
+      console.error("[Google OAuth Callback] No authorization code received");
       setStatus("error");
       setMessage("No authorization code received.");
       setCanClose(true);
+      
+      setTimeout(() => {
+        if (isPopup && window.opener) {
+          window.close();
+        } else {
+          router.push("/app/settings?oauth=error");
+        }
+      }, 2000);
     }
   }, [searchParams, router]);
 

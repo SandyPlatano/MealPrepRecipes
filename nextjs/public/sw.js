@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 
-const CACHE_NAME = "whats-for-dinner-v1";
+const CACHE_NAME = "whats-for-dinner-v2";
 const OFFLINE_URL = "/offline";
 
 // Assets to cache immediately on install

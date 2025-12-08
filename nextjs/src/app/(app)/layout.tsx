@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/actions/auth";
-import { History, Settings, Menu, Sparkles, BookOpen, Calendar } from "lucide-react";
+import { History, Settings, Menu, Sparkles, BookOpen, Calendar, ShoppingCart } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -14,9 +14,10 @@ import {
 import { BrandLogoCompact } from "@/components/brand/logo";
 import { AppNav } from "@/components/navigation/app-nav";
 
-// Navigation: Plan, Recipes, Discover, History
+// Navigation: Plan, List, Recipes, Discover, History
 const navItems = [
   { href: "/app/plan", iconKey: "plan" as const, label: "Plan" },
+  { href: "/app/shop", iconKey: "shop" as const, label: "List" },
   { href: "/app/recipes", iconKey: "recipes" as const, label: "Recipes" },
   { href: "/app/recipes/discover", iconKey: "discover" as const, label: "Discover" },
   { href: "/app/history", iconKey: "history" as const, label: "History" },
@@ -67,17 +68,24 @@ export default async function AppLayout({
                   <SheetTitle className="font-mono text-left">Menu</SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-2 mt-6">
-                  {navItems.map((item) => (
-                    <Link key={item.href} href={item.href}>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start text-base hover:bg-primary/5"
-                      >
-                        <item.icon className="mr-3 h-4 w-4" />
-                        {item.label}
-                      </Button>
-                    </Link>
-                  ))}
+                  {navItems.map((item) => {
+                    const Icon = item.iconKey === "plan" ? Calendar
+                      : item.iconKey === "recipes" ? BookOpen
+                      : item.iconKey === "discover" ? Sparkles
+                      : item.iconKey === "shop" ? ShoppingCart
+                      : History;
+                    return (
+                      <Link key={item.href} href={item.href}>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start text-base hover:bg-primary/5"
+                        >
+                          <Icon className="mr-3 h-4 w-4" />
+                          {item.label}
+                        </Button>
+                      </Link>
+                    );
+                  })}
                   <div className="border-t my-3" />
                   <Link href="/app/settings">
                     <Button

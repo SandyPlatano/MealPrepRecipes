@@ -130,6 +130,7 @@ export function OnboardingDialog({
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="Your first name"
                   autoFocus
+                  maxLength={50}
                 />
               </div>
               <div className="space-y-2">
@@ -139,6 +140,7 @@ export function OnboardingDialog({
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder="Your last name"
+                  maxLength={50}
                 />
               </div>
             </div>
@@ -175,6 +177,7 @@ export function OnboardingDialog({
                     value={cook}
                     onChange={(e) => updateCook(index, e.target.value)}
                     placeholder={index === 0 ? "Your name" : "Partner's name"}
+                    maxLength={50}
                   />
                   {cookNames.length > 1 && (
                     <Button

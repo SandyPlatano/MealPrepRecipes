@@ -34,6 +34,7 @@ import {
   Edit,
   Plus,
   Share2,
+  AlertTriangle,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -59,6 +60,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { MarkCookedDialog } from "./mark-cooked-dialog";
 import Image from "next/image";
+import { detectAllergens, mergeAllergens, getAllergenDisplayName, getAllergenBadgeColor, hasUserAllergens, hasCustomRestrictions, type AllergenType } from "@/lib/allergen-detector";
 
 // Get icon based on recipe type
 function getRecipeIcon(recipeType: RecipeType) {
@@ -138,9 +140,11 @@ function downloadTextAsFile(content: string, filename: string, type: string) {
 interface RecipeCardProps {
   recipe: RecipeWithFavorite;
   lastMadeDate?: string | null;
+  userAllergenAlerts?: string[];
+  customDietaryRestrictions?: string[];
 }
 
-export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate }: RecipeCardProps) {
+export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userAllergenAlerts = [], customDietaryRestrictions = [] }: RecipeCardProps) {
   const [isFavorite, setIsFavorite] = useState(recipe.is_favorite);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -152,6 +156,19 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate }: Rec
   const inCart = isInCart(recipe.id);
   const canScale = recipe.base_servings !== null && recipe.base_servings > 0;
   const router = useRouter();
+
+  // Detect allergens
+  const detectedAllergens = detectAllergens(recipe.ingredients);
+  const allergens = mergeAllergens(detectedAllergens, recipe.allergen_tags || []);
+  
+  // Check if recipe contains user's allergens
+  const hasUserAllergensFlag = hasUserAllergens(allergens, userAllergenAlerts);
+  const matchingAllergens = allergens.filter((allergen) => userAllergenAlerts.includes(allergen));
+  
+  // Check for custom dietary restrictions
+  const matchingCustomRestrictions = hasCustomRestrictions(recipe.ingredients, customDietaryRestrictions);
+  const hasAnyWarnings = hasUserAllergensFlag || matchingCustomRestrictions.length > 0;
+  const allWarnings = [...matchingAllergens.map(getAllergenDisplayName), ...matchingCustomRestrictions];
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -333,6 +350,21 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate }: Rec
               </div>
             )}
           </div>
+
+          {/* Allergen & Dietary Restriction Warning Banner */}
+          {hasAnyWarnings && (
+            <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 px-4 py-3 flex items-start gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                  Contains items you&apos;ve flagged
+                </p>
+                <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                  {allWarnings.join(", ")}
+                </p>
+              </div>
+            </div>
+          )}
           
           <CardHeader>
             <div className="flex items-start justify-between">
@@ -367,6 +399,25 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate }: Rec
                     </>
                   )}
                 </CardDescription>
+                {/* Allergen badges */}
+                {allergens.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {allergens.slice(0, 3).map((allergen) => (
+                      <Badge
+                        key={allergen}
+                        variant="warning"
+                        className="text-xs"
+                      >
+                        {getAllergenDisplayName(allergen)}
+                      </Badge>
+                    ))}
+                    {allergens.length > 3 && (
+                      <Badge className="text-xs bg-muted text-muted-foreground border-border">
+                        +{allergens.length - 3}
+                      </Badge>
+                    )}
+                  </div>
+                )}
               </div>
               <div
                 className="flex gap-1 ml-2 shrink-0"

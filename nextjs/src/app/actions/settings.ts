@@ -114,7 +114,12 @@ export async function updateSettings(settings: {
   cook_names?: string[];
   cook_colors?: Record<string, string>;
   email_notifications?: boolean;
+  allergen_alerts?: string[];
+  custom_dietary_restrictions?: string[];
   category_order?: string[] | null;
+  calendar_event_time?: string | null;
+  calendar_event_duration_minutes?: number | null;
+  calendar_excluded_days?: string[] | null;
 }) {
   const { user, error: authError } = await getCachedUserWithHousehold();
 

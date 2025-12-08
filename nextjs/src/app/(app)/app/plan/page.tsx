@@ -64,6 +64,9 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
   const recipes = recipesResult.data || [];
   const cookNames = settingsResult.data?.cook_names || [];
   const cookColors = settingsResult.data?.cook_colors || {};
+  const userAllergenAlerts = settingsResult.data?.allergen_alerts || [];
+  const calendarExcludedDays = settingsResult.data?.calendar_excluded_days || [];
+  const googleConnected = !!settingsResult.data?.google_connected_account;
   const favorites = favoritesResult.data || [];
   const recentRecipeIds = (recentlyCooked.data || []).map((r) => r.id);
   const suggestedRecipeIds = (suggestions.data || []).map((r) => r.id);
@@ -84,6 +87,9 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
         recipes={recipes}
         cookNames={cookNames}
         cookColors={cookColors}
+        userAllergenAlerts={userAllergenAlerts}
+        calendarExcludedDays={calendarExcludedDays}
+        googleConnected={googleConnected}
         favorites={favorites}
         recentRecipeIds={recentRecipeIds}
         suggestedRecipeIds={suggestedRecipeIds}

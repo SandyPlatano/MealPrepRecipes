@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     // Check if user has Google Calendar connected
     const { data: settings } = await supabase
       .from("user_settings")
-      .select("google_access_token, google_refresh_token, google_token_expires_at, google_connected_account, calendar_event_time, calendar_event_duration_minutes")
+      .select("google_access_token, google_refresh_token, google_token_expires_at, google_connected_account, calendar_event_time, calendar_event_duration_minutes, calendar_excluded_days")
       .eq("user_id", user.id)
       .single();
 
@@ -114,6 +114,17 @@ export async function POST(request: Request) {
     // Get calendar settings with defaults
     const eventTime = settings.calendar_event_time || "17:00:00"; // Default 5 PM
     const eventDuration = settings.calendar_event_duration_minutes || 60; // Default 60 minutes
+    const excludedDays = settings.calendar_excluded_days || [];
+
+    // Filter out items for excluded days
+    const filteredItems = items.filter((item: any) => !excludedDays.includes(item.day));
+
+    if (filteredItems.length === 0) {
+      return NextResponse.json(
+        { error: "All assigned days are excluded from calendar sync. Please adjust your calendar settings." },
+        { status: 400 }
+      );
+    }
 
     // Map items to calendar events with day offsets
     const dayMap: { [key: string]: number } = {
@@ -126,7 +137,7 @@ export async function POST(request: Request) {
       Sunday: 6,
     };
 
-    const calendarEvents = items.map((item: any) => {
+    const calendarEvents = filteredItems.map((item: any) => {
       const dayOffset = dayMap[item.day] || 0;
       const eventDate = new Date(mondayDate);
       eventDate.setDate(eventDate.getDate() + dayOffset);
@@ -173,6 +184,7 @@ export async function POST(request: Request) {
       eventsCreated: result.successful,
       eventsFailed: result.failed,
       totalEvents: result.total,
+      eventsSkipped: items.length - filteredItems.length,
       errors: result.errors,
     });
   } catch (error) {

@@ -18,8 +18,7 @@ import {
   Check,
   RefreshCw,
   Copy,
-  Package,
-  PackageCheck,
+  Cookie,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -63,13 +62,18 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ExternalLink, Share2 } from "lucide-react";
+import { ExternalLink, Share2, ChevronDown, ChevronUp, CalendarDays, Mail } from "lucide-react";
 import {
   SUPPORTED_STORES,
   openStoreWithItems,
@@ -90,12 +94,20 @@ interface ShoppingListViewProps {
   shoppingList: ShoppingListWithItems;
   initialPantryItems?: PantryItem[];
   initialCategoryOrder?: string[] | null;
+  weekPlan?: any | null;
+  weekStart?: string;
+  cookNames?: string[];
+  cookColors?: Record<string, string>;
 }
 
 export function ShoppingListView({
   shoppingList,
   initialPantryItems = [],
   initialCategoryOrder = null,
+  weekPlan = null,
+  weekStart,
+  cookNames = [],
+  cookColors = {},
 }: ShoppingListViewProps) {
   const [newItem, setNewItem] = useState("");
   const [newCategory, setNewCategory] = useState<string>("Other");
@@ -110,9 +122,85 @@ export function ShoppingListView({
   );
   const [isReorderMode, setIsReorderMode] = useState(false);
   const [draggedCategory, setDraggedCategory] = useState<string | null>(null);
+  const [isRecipesOpen, setIsRecipesOpen] = useState(false);
+  const [isSendingPlan, setIsSendingPlan] = useState(false);
 
   // Offline support
   const { isOffline, isServiceWorkerReady } = useOffline();
+
+  // Helper function to get cook badge color
+  const getCookBadgeColor = (cook: string) => {
+    if (cookColors[cook]) {
+      return cookColors[cook];
+    }
+    // Default colors if not customized
+    const defaultColors = [
+      "#3b82f6", // blue
+      "#a855f7", // purple
+      "#10b981", // green
+      "#f59e0b", // amber
+      "#ec4899", // pink
+      "#14b8a6", // teal
+      "#f97316", // orange
+    ];
+    const index = cookNames.indexOf(cook);
+    return index >= 0 ? defaultColors[index % defaultColors.length] : "#6b7280";
+  };
+
+  // Extract planned recipes from weekPlan
+  const plannedRecipes = weekPlan?.assignments
+    ? Object.entries(weekPlan.assignments).flatMap(([day, assignments]: [string, any[]]) =>
+        assignments.map((assignment) => ({
+          day,
+          recipeName: assignment.recipe?.name || "Unknown Recipe",
+          recipeId: assignment.recipe?.id,
+          cook: assignment.cook,
+          recipe: assignment.recipe,
+        }))
+      )
+    : [];
+
+  // Handler for sending meal plan
+  const handleSendPlan = async () => {
+    if (plannedRecipes.length === 0) {
+      toast.error("No planned meals to send");
+      return;
+    }
+
+    setIsSendingPlan(true);
+    try {
+      const response = await fetch("/api/send-shopping-list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          weekRange: `${new Date(weekStart!).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          })} - ${new Date(new Date(weekStart!).getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          })}`,
+          weekStart: weekStart,
+          items: plannedRecipes.map((item) => ({
+            recipe: item.recipe,
+            cook: item.cook,
+            day: item.day,
+          })),
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        toast.error(result.error || "Failed to send plan");
+      } else {
+        toast.success(result.message || "Plan sent!");
+      }
+    } catch (error) {
+      toast.error("Failed to send plan");
+    } finally {
+      setIsSendingPlan(false);
+    }
+  };
 
   // Refresh pantry lookup when initialPantryItems changes
   useEffect(() => {
@@ -341,6 +429,60 @@ export function ShoppingListView({
         </div>
       )}
 
+      {/* Planned Recipes Accordion */}
+      {plannedRecipes.length > 0 && (
+        <Collapsible open={isRecipesOpen} onOpenChange={setIsRecipesOpen}>
+          <Card>
+            <CollapsibleTrigger className="w-full hover:bg-muted/50 transition-colors">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <CalendarDays className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-lg">
+                      {plannedRecipes.length} Recipe{plannedRecipes.length !== 1 ? "s" : ""} This Week
+                    </CardTitle>
+                  </div>
+                  {isRecipesOpen ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground transition-transform" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform" />
+                  )}
+                </div>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="pt-0">
+                <div className="space-y-2">
+                  {plannedRecipes.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                    >
+                      <span className="font-medium text-primary min-w-[80px] text-sm">
+                        {item.day}
+                      </span>
+                      <span className="flex-1 text-sm font-medium">{item.recipeName}</span>
+                      {item.cook && (
+                        <span
+                          className="text-xs px-2 py-1 rounded-full font-medium"
+                          style={{
+                            backgroundColor: `${getCookBadgeColor(item.cook)}20`,
+                            color: getCookBadgeColor(item.cook),
+                            border: `1px solid ${getCookBadgeColor(item.cook)}40`,
+                          }}
+                        >
+                          {item.cook}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+      )}
+
       {/* Add Item Form */}
       <Card>
         <CardHeader className="pb-3">
@@ -374,60 +516,56 @@ export function ShoppingListView({
       </Card>
 
       {/* Actions */}
-      <div className="flex flex-wrap gap-2">
-        <Button
-          variant="outline"
-          onClick={handleGenerateFromPlan}
-          disabled={isGenerating}
-        >
-          <RefreshCw
-            className={`h-4 w-4 mr-2 ${isGenerating ? "animate-spin" : ""}`}
-          />
-          Generate from This Week&apos;s Plan
-        </Button>
-
-        {shoppingList.items.length > 0 && (
-          <>
-            <Button variant="outline" onClick={handleCopyToClipboard}>
-              <Copy className="h-4 w-4 mr-2" />
-              Copy List
-            </Button>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Send to Store
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                {SUPPORTED_STORES.map((store) => (
-                  <DropdownMenuItem
-                    key={store.id}
-                    onClick={() => handleStoreExport(store.id)}
-                  >
-                    <span className="mr-2">{store.icon}</span>
-                    {store.name}
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleShare}>
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share List...
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </>
-        )}
-
-        {checkedCount > 0 && (
-          <Button variant="outline" onClick={() => clearCheckedItems()}>
-            <Check className="h-4 w-4 mr-2" />
-            Clear Checked ({checkedCount})
+      {shoppingList.items.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={handleCopyToClipboard}>
+            <Copy className="h-4 w-4 mr-2" />
+            Copy List
           </Button>
-        )}
 
-        {shoppingList.items.length > 0 && (
+          {plannedRecipes.length > 0 && (
+            <Button
+              variant="outline"
+              onClick={handleSendPlan}
+              disabled={isSendingPlan}
+            >
+              <Mail className="h-4 w-4 mr-2" />
+              {isSendingPlan ? "Sending..." : "Send Plan"}
+            </Button>
+          )}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Send to Store
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {SUPPORTED_STORES.map((store) => (
+                <DropdownMenuItem
+                  key={store.id}
+                  onClick={() => handleStoreExport(store.id)}
+                >
+                  <span className="mr-2">{store.icon}</span>
+                  {store.name}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleShare}>
+                <Share2 className="h-4 w-4 mr-2" />
+                Share List...
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {checkedCount > 0 && (
+            <Button variant="outline" onClick={() => clearCheckedItems()}>
+              <Check className="h-4 w-4 mr-2" />
+              Clear Checked ({checkedCount})
+            </Button>
+          )}
+
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="outline" className="text-destructive">
@@ -451,51 +589,19 @@ export function ShoppingListView({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        )}
-      </div>
 
-      {/* Pantry Filter */}
-      {pantryCount > 0 && (
-        <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-          <PackageCheck className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm">
-            {pantryCount} item{pantryCount !== 1 ? "s" : ""} already in your
-            pantry
-          </span>
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowPantryItems(!showPantryItems)}
-            className="ml-auto"
+            onClick={handleGenerateFromPlan}
+            disabled={isGenerating}
+            className="text-muted-foreground"
           >
-            {showPantryItems ? "Hide" : "Show"}
+            <RefreshCw
+              className={`h-4 w-4 mr-1 ${isGenerating ? "animate-spin" : ""}`}
+            />
+            Refresh
           </Button>
-        </div>
-      )}
-
-      {/* Reorder Mode Toggle */}
-      {sortedCategories.length > 1 && (
-        <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-          <Settings2 className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm">
-            {isReorderMode
-              ? "Drag categories to match your shopping route"
-              : "Customize category order"}
-          </span>
-          <div className="ml-auto flex gap-2">
-            {isReorderMode && categoryOrder && (
-              <Button variant="ghost" size="sm" onClick={handleResetOrder}>
-                Reset
-              </Button>
-            )}
-            <Button
-              variant={isReorderMode ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setIsReorderMode(!isReorderMode)}
-            >
-              {isReorderMode ? "Done" : "Reorder"}
-            </Button>
-          </div>
         </div>
       )}
 
@@ -550,6 +656,56 @@ export function ShoppingListView({
               onDragEnd={handleDragEnd}
             />
           ))}
+        </div>
+      )}
+
+      {/* Secondary Actions - Relocated to Bottom */}
+      {totalCount > 0 && (
+        <div className="space-y-3 pt-4 border-t">
+          {/* Pantry Filter */}
+          {pantryCount > 0 && (
+            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+              <Cookie className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                {pantryCount} item{pantryCount !== 1 ? "s" : ""} already in your
+                pantry
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowPantryItems(!showPantryItems)}
+                className="ml-auto"
+              >
+                {showPantryItems ? "Hide" : "Show"}
+              </Button>
+            </div>
+          )}
+
+          {/* Reorder Mode Toggle */}
+          {sortedCategories.length > 1 && (
+            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+              <Settings2 className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                {isReorderMode
+                  ? "Drag categories to match your shopping route"
+                  : "Customize category order"}
+              </span>
+              <div className="ml-auto flex gap-2">
+                {isReorderMode && categoryOrder && (
+                  <Button variant="ghost" size="sm" onClick={handleResetOrder}>
+                    Reset
+                  </Button>
+                )}
+                <Button
+                  variant={isReorderMode ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setIsReorderMode(!isReorderMode)}
+                >
+                  {isReorderMode ? "Done" : "Reorder"}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -699,11 +855,7 @@ function ShoppingItemRow({ item, onPantryToggle }: ShoppingItemRowProps) {
               onClick={handlePantryToggle}
               disabled={isTogglingPantry}
             >
-              {item.is_in_pantry ? (
-                <PackageCheck className="h-3 w-3" />
-              ) : (
-                <Package className="h-3 w-3" />
-              )}
+              <Cookie className="h-3 w-3" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>

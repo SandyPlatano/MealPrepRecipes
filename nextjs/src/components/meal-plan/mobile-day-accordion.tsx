@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, ChefHat, Clock, X } from "lucide-react";
+import { Plus, Trash2, ChefHat, Clock, X, CalendarOff } from "lucide-react";
 import { InlineRecipePicker } from "./inline-recipe-picker";
 import { cn } from "@/lib/utils";
 import type { DayOfWeek, MealAssignmentWithRecipe } from "@/types/meal-plan";
@@ -42,6 +42,8 @@ interface MobileDayAccordionProps {
   favorites: string[];
   recentRecipeIds: string[];
   cookNames: string[];
+  isCalendarExcluded?: boolean;
+  googleConnected?: boolean;
   onAddMeal: (recipeId: string, day: DayOfWeek) => Promise<void>;
   onUpdateCook: (assignmentId: string, cook: string | null) => Promise<void>;
   onRemoveMeal: (assignmentId: string) => Promise<void>;
@@ -56,6 +58,8 @@ export function MobileDayAccordion({
   favorites,
   recentRecipeIds,
   cookNames,
+  isCalendarExcluded = false,
+  googleConnected = false,
   onAddMeal,
   onUpdateCook,
   onRemoveMeal,
@@ -146,6 +150,11 @@ export function MobileDayAccordion({
               <Badge variant="secondary" className="text-xs">
                 {assignments.length} meal{assignments.length !== 1 && "s"}
               </Badge>
+            )}
+            {googleConnected && isCalendarExcluded && (
+              <div title="Calendar sync disabled">
+                <CalendarOff className="h-4 w-4 text-muted-foreground" />
+              </div>
             )}
           </div>
         </div>

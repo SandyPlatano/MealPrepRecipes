@@ -63,9 +63,22 @@ export async function POST(request: Request) {
       );
     }
 
+    // Enhanced logging for testing
+    console.log("\n" + "=".repeat(60));
+    console.log("📧 EMAIL SENDING TEST");
+    console.log("=".repeat(60));
+    console.log("👤 Logged-in User ID:", user.id);
+    console.log("📨 Recipient Email:", recipientEmail);
+    console.log("📮 From Email:", process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev");
+    console.log("📅 Week Range:", weekRange);
+    console.log("🍽️  Number of Meals:", items.length);
+    console.log("=".repeat(60) + "\n");
+
     // Generate HTML and text versions
     const html = generateShoppingListHTML({ weekRange, items });
     const text = generateShoppingListText({ weekRange, items });
+
+    console.log("📤 Sending email to Resend API...");
 
     // Send email using Resend
     const { data: emailData, error: emailError } = await resend.emails.send({
@@ -77,12 +90,21 @@ export async function POST(request: Request) {
     });
 
     if (emailError) {
+      console.log("\n❌ RESEND API ERROR:");
       console.error("Failed to send email:", emailError);
+      console.log("=".repeat(60) + "\n");
       return NextResponse.json(
         { error: `Couldn't send email: ${emailError.message || 'Unknown error'}` },
         { status: 500 }
       );
     }
+
+    // Log success
+    console.log("\n✅ RESEND API SUCCESS!");
+    console.log("📧 Email ID:", emailData?.id);
+    console.log("📨 Sent To:", recipientEmail);
+    console.log("💡 Check Resend Dashboard: https://resend.com/logs");
+    console.log("=".repeat(60) + "\n");
 
     // Mark the meal plan as sent if weekStart is provided
     if (weekStart) {

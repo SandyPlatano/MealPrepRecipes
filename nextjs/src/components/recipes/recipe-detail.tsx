@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Card,
@@ -62,12 +62,23 @@ import { formatDistanceToNow } from "date-fns";
 import { scaleIngredients } from "@/lib/ingredient-scaler";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { detectAllergens, mergeAllergens, getAllergenDisplayName, getAllergenBadgeColor, hasUserAllergens, hasCustomRestrictions } from "@/lib/allergen-detector";
+// import { findSubstitutionsForIngredients } from "@/lib/substitutions"; // FIXME: Cannot import server function in client component
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { AlertTriangle, RefreshCw } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface CookingHistoryEntry {
   id: string;
   cooked_at: string;
   rating: number | null;
   notes: string | null;
+  modifications: string | null;
+  photo_url: string | null;
   cooked_by_profile?: { name: string | null } | null;
 }
 
@@ -131,12 +142,16 @@ interface RecipeDetailProps {
   recipe: Recipe;
   isFavorite: boolean;
   history: CookingHistoryEntry[];
+  userAllergenAlerts?: string[];
+  customDietaryRestrictions?: string[];
 }
 
 export function RecipeDetail({
   recipe,
   isFavorite: initialIsFavorite,
   history,
+  userAllergenAlerts = [],
+  customDietaryRestrictions = [],
 }: RecipeDetailProps) {
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [showCookedDialog, setShowCookedDialog] = useState(false);
@@ -152,6 +167,39 @@ export function RecipeDetail({
   const scaledIngredients = canScale
     ? scaleIngredients(recipe.ingredients, recipe.base_servings!, currentServings)
     : recipe.ingredients;
+
+  // Allergen detection
+  const detectedAllergens = detectAllergens(recipe.ingredients);
+  const allergens = mergeAllergens(detectedAllergens, recipe.allergen_tags || []);
+  
+  // Check if recipe contains user's allergens
+  const hasUserAllergensFlag = hasUserAllergens(allergens, userAllergenAlerts);
+  const matchingAllergens = allergens.filter((allergen) => userAllergenAlerts.includes(allergen));
+  
+  // Check for custom dietary restrictions
+  const matchingCustomRestrictions = hasCustomRestrictions(recipe.ingredients, customDietaryRestrictions);
+  const hasAnyWarnings = hasUserAllergensFlag || matchingCustomRestrictions.length > 0;
+
+  // Substitutions - TEMPORARILY DISABLED
+  // FIXME: findSubstitutionsForIngredients is a server function and cannot be called from client component
+  // This needs to be refactored to fetch substitutions server-side and pass as props
+  const [substitutions] = useState<Map<string, any[]>>(new Map());
+  const [loadingSubs] = useState(false);
+
+  // useEffect(() => {
+  //   async function loadSubstitutions() {
+  //     setLoadingSubs(true);
+  //     try {
+  //       const subs = await findSubstitutionsForIngredients(recipe.ingredients);
+  //       setSubstitutions(subs);
+  //     } catch (error) {
+  //       console.error("Error loading substitutions:", error);
+  //     } finally {
+  //       setLoadingSubs(false);
+  //     }
+  //   }
+  //   loadSubstitutions();
+  // }, [recipe.ingredients]);
 
   const handleToggleFavorite = async () => {
     const result = await toggleFavorite(recipe.id);
@@ -237,6 +285,12 @@ export function RecipeDetail({
 
   const decrementServings = () => {
     setCurrentServings((prev) => Math.max(1, prev - 1));
+  };
+
+  const setServingsPreset = (multiplier: number) => {
+    if (recipe.base_servings) {
+      setCurrentServings(recipe.base_servings * multiplier);
+    }
   };
 
   const lastCooked = history.length > 0 ? history[0].cooked_at : null;
@@ -352,6 +406,61 @@ export function RecipeDetail({
             )}
           </div>
 
+          {/* User Allergen & Dietary Restriction Warning - Prominent */}
+          {hasAnyWarnings && (
+            <Alert className="mb-4 bg-amber-50 dark:bg-amber-950 border-amber-500">
+              <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              <AlertDescription>
+                <div className="space-y-2">
+                  <p className="font-semibold text-amber-800 dark:text-amber-200">
+                    ⚠️ Contains items you&apos;ve flagged
+                  </p>
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <span className="text-sm text-amber-700 dark:text-amber-300">
+                      This recipe contains:
+                    </span>
+                    {matchingAllergens.map((allergen) => (
+                      <Badge
+                        key={allergen}
+                        className="bg-amber-600 dark:bg-amber-700 text-white"
+                      >
+                        {getAllergenDisplayName(allergen)}
+                      </Badge>
+                    ))}
+                    {matchingCustomRestrictions.map((restriction) => (
+                      <Badge
+                        key={restriction}
+                        className="bg-amber-600 dark:bg-amber-700 text-white"
+                      >
+                        {restriction}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Allergen warnings - All allergens */}
+          {allergens.length > 0 && (
+            <Alert className="mb-4">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <span className="text-sm font-medium">Contains:</span>
+                    {allergens.map((allergen) => (
+                      <Badge
+                        key={allergen}
+                        variant="warning"
+                      >
+                        {getAllergenDisplayName(allergen)}
+                      </Badge>
+                    ))}
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Tags */}
           {recipe.tags.length > 0 && (
             <div className="flex flex-wrap gap-2">
@@ -393,16 +502,55 @@ export function RecipeDetail({
           {/* Ingredients & Instructions */}
           <div className="grid gap-8 md:grid-cols-2">
             {/* Ingredients */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold">Ingredients</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {recipe.ingredients.length} items
-                  </p>
-                </div>
-                {canScale && (
-                  <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
+            <div className="space-y-4">
+              {/* Title Row */}
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-lg font-semibold">Ingredients</h3>
+                <Badge variant="secondary" className="text-xs">
+                  {recipe.ingredients.length} items
+                </Badge>
+              </div>
+
+              {/* Serving Controls Row */}
+              {canScale && (
+                <div className="space-y-3">
+                  {/* Quick presets */}
+                  <div className="flex gap-2 flex-wrap">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setServingsPreset(0.5)}
+                      className="text-xs"
+                    >
+                      Half
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setServingsPreset(1)}
+                      className="text-xs"
+                    >
+                      Original
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setServingsPreset(2)}
+                      className="text-xs"
+                    >
+                      Double
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setServingsPreset(4)}
+                      className="text-xs"
+                    >
+                      Family (4x)
+                    </Button>
+                  </div>
+                  {/* Manual adjuster */}
+                  <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2 w-fit">
                     <Button
                       variant="ghost"
                       size="icon"
@@ -412,9 +560,10 @@ export function RecipeDetail({
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
-                    <div className="flex items-center gap-1 min-w-[60px] justify-center">
+                    <div className="flex items-center gap-1 min-w-[80px] justify-center">
                       <Users className="h-4 w-4" />
                       <span className="font-semibold">{currentServings}</span>
+                      <span className="text-xs text-muted-foreground">servings</span>
                     </div>
                     <Button
                       variant="ghost"
@@ -425,21 +574,57 @@ export function RecipeDetail({
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+
               {canScale && currentServings !== recipe.base_servings && (
                 <p className="text-xs text-muted-foreground italic">
                   Scaled from {recipe.base_servings} serving
                   {recipe.base_servings !== 1 ? "s" : ""}
                 </p>
               )}
+
               <ul className="space-y-2">
-                {scaledIngredients.map((ingredient, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="text-muted-foreground">•</span>
-                    <span>{ingredient}</span>
-                  </li>
-                ))}
+                {scaledIngredients.map((ingredient, index) => {
+                  const ingredientSubs = substitutions.get(recipe.ingredients[index] || ingredient);
+                  return (
+                    <li key={index} className="flex items-start gap-2 group">
+                      <span className="text-muted-foreground">•</span>
+                      <div className="flex-1 flex items-center gap-2">
+                        <span>{ingredient}</span>
+                        {ingredientSubs && ingredientSubs.length > 0 && (
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <RefreshCw className="h-3 w-3 mr-1" />
+                                Swap
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80" align="start">
+                              <div className="space-y-2">
+                                <p className="text-sm font-medium">Substitutions for {recipe.ingredients[index]}:</p>
+                                <ul className="space-y-2">
+                                  {ingredientSubs.map((sub, subIndex) => (
+                                    <li key={subIndex} className="text-sm">
+                                      <div className="font-medium">{sub.substitute_ingredient}</div>
+                                      {sub.notes && (
+                                        <div className="text-xs text-muted-foreground">{sub.notes}</div>
+                                      )}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
 
@@ -513,6 +698,12 @@ export function RecipeDetail({
                             </span>
                           )}
                         </div>
+                        {entry.modifications && (
+                          <div className="text-xs">
+                            <span className="font-medium text-primary">Tweaks: </span>
+                            <span className="text-muted-foreground">{entry.modifications}</span>
+                          </div>
+                        )}
                         {entry.notes && (
                           <span className="text-muted-foreground text-xs">
                             {entry.notes}

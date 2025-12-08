@@ -41,6 +41,8 @@ interface RecipePickerModalProps {
   recentRecipeIds: string[];
   suggestedRecipeIds: string[];
   cookNames: string[];
+  cookColors?: Record<string, string>;
+  userAllergenAlerts?: string[];
   onAdd: (recipeIds: string[], cook: string | null, note?: string) => Promise<void>;
 }
 
@@ -53,6 +55,8 @@ export function RecipePickerModal({
   recentRecipeIds,
   suggestedRecipeIds,
   cookNames,
+  cookColors = {},
+  userAllergenAlerts = [],
   onAdd,
 }: RecipePickerModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -60,6 +64,33 @@ export function RecipePickerModal({
   const [selectedRecipeIds, setSelectedRecipeIds] = useState<Set<string>>(new Set());
   const [isAdding, setIsAdding] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "favorites" | "recent" | "suggestions">("all");
+
+  // Default colors for cooks (fallback)
+  const defaultColors = [
+    "#3b82f6", // blue
+    "#a855f7", // purple
+    "#10b981", // green
+    "#f59e0b", // amber
+    "#ec4899", // pink
+  ];
+
+  // Get cook color for styling
+  const getCookColor = (cook: string | null): string | null => {
+    if (!cook) return null;
+    
+    // Use saved color if available
+    if (cookColors[cook]) {
+      return cookColors[cook];
+    }
+    
+    // Fall back to default color
+    const index = cookNames.indexOf(cook);
+    if (index >= 0) {
+      return defaultColors[index % defaultColors.length];
+    }
+    
+    return null;
+  };
 
   // Filter recipes based on active tab
   const tabRecipes = useMemo(() => {
@@ -149,18 +180,38 @@ export function RecipePickerModal({
                 className="pl-9"
               />
             </div>
-            <Select value={selectedCook} onValueChange={setSelectedCook}>
-              <SelectTrigger className="w-[200px]">
-                <ChefHat className="h-4 w-4 mr-2" />
+            <Select 
+              value={selectedCook} 
+              onValueChange={(value) => setSelectedCook(value)}
+            >
+              <SelectTrigger 
+                className="w-[200px] min-w-0 [&>span]:min-w-0 [&>span]:truncate"
+                style={selectedCook && selectedCook !== "none" && getCookColor(selectedCook) ? {
+                  borderLeft: `3px solid ${getCookColor(selectedCook)}`,
+                } : undefined}
+              >
+                <ChefHat className="h-4 w-4 mr-2 flex-shrink-0" />
                 <SelectValue placeholder="Assign cook" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[10000]">
                 <SelectItem value="none">No cook assigned</SelectItem>
-                {cookNames.map((name) => (
-                  <SelectItem key={name} value={name}>
-                    {name}
-                  </SelectItem>
-                ))}
+                {cookNames.map((name) => {
+                  const color = getCookColor(name);
+                  return (
+                    <SelectItem key={name} value={name}>
+                      <span className="flex items-center gap-2">
+                        {color && (
+                          <span
+                            className="h-2.5 w-2.5 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: color }}
+                            aria-hidden="true"
+                          />
+                        )}
+                        {name}
+                      </span>
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>

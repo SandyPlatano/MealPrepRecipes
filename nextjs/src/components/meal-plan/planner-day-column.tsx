@@ -13,7 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, CalendarOff } from "lucide-react";
 import { MealCell } from "./meal-cell";
 import { InlineRecipePicker } from "./inline-recipe-picker";
 import { cn } from "@/lib/utils";
@@ -35,6 +35,8 @@ interface PlannerDayColumnProps {
   favorites: string[];
   recentRecipeIds: string[];
   cookNames: string[];
+  isCalendarExcluded?: boolean;
+  googleConnected?: boolean;
   onAddMeal: (recipeId: string, day: DayOfWeek) => Promise<void>;
   onUpdateCook: (assignmentId: string, cook: string | null) => Promise<void>;
   onRemoveMeal: (assignmentId: string) => Promise<void>;
@@ -50,6 +52,8 @@ export function PlannerDayColumn({
   favorites,
   recentRecipeIds,
   cookNames,
+  isCalendarExcluded = false,
+  googleConnected = false,
   onAddMeal,
   onUpdateCook,
   onRemoveMeal,
@@ -117,6 +121,11 @@ export function PlannerDayColumn({
               <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
                 {assignments.length}
               </Badge>
+            )}
+            {googleConnected && isCalendarExcluded && (
+              <div title="Calendar sync disabled">
+                <CalendarOff className="h-3 w-3 text-muted-foreground" />
+              </div>
             )}
           </div>
         </div>

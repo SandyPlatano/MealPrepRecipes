@@ -33,12 +33,10 @@ export async function signup(formData: FormData) {
   const supabase = await createClient();
 
   const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
   const name = formData.get("name") as string;
 
-  const { error } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signInWithOtp({
     email,
-    password,
     options: {
       data: {
         name: name || email.split("@")[0],
@@ -48,11 +46,8 @@ export async function signup(formData: FormData) {
   });
 
   if (error) {
-    if (error.message.includes("already registered")) {
+    if (error.message.includes("already registered") || error.message.includes("already been registered")) {
       return { error: "Looks like you already have an account. Try logging in?" };
-    }
-    if (error.message.includes("password")) {
-      return { error: "Password needs to be at least 6 characters. We're not that trusting." };
     }
     return { error: error.message };
   }
