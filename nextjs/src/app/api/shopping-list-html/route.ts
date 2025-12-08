@@ -116,25 +116,59 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
       --black: #0a0a0a;
       --success: #22C55E;
       --success-light: #F0FDF4;
+      
+      /* Light mode colors */
+      --bg-primary: #FFFFFF;
+      --bg-secondary: #FAFAFA;
+      --bg-tertiary: #F5F5F5;
+      --text-primary: #0a0a0a;
+      --text-secondary: #737373;
+      --border-primary: #E5E5E5;
+      --border-secondary: #0a0a0a;
+    }
+    
+    [data-theme="dark"] {
+      --gray-50: #171717;
+      --gray-100: #262626;
+      --gray-200: #404040;
+      --gray-300: #525252;
+      --gray-400: #A3A3A3;
+      --gray-500: #D4D4D4;
+      --gray-700: #E5E5E5;
+      --gray-900: #FAFAFA;
+      --black: #FFFFFF;
+      --success: #22C55E;
+      --success-light: #1a3a24;
+      
+      /* Dark mode colors */
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #171717;
+      --bg-tertiary: #262626;
+      --text-primary: #FAFAFA;
+      --text-secondary: #A3A3A3;
+      --border-primary: #404040;
+      --border-secondary: #FAFAFA;
     }
     
     html, body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: var(--gray-50);
-      color: var(--gray-900);
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
       line-height: 1.5;
       min-height: 100vh;
       min-height: 100dvh;
       -webkit-font-smoothing: antialiased;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
     
     .container {
       max-width: 500px;
       margin: 0 auto;
-      background: white;
+      background: var(--bg-primary);
       min-height: 100vh;
       min-height: 100dvh;
       position: relative;
+      transition: background-color 0.3s ease;
     }
     
     /* Header */
@@ -142,10 +176,11 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: white;
-      border-bottom: 1px solid var(--gray-200);
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-primary);
       padding: 16px 20px;
       padding-top: max(16px, env(safe-area-inset-top));
+      transition: background-color 0.3s ease, border-color 0.3s ease;
     }
     
     .header-top {
@@ -159,24 +194,50 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
       font-family: 'JetBrains Mono', monospace;
       font-size: 15px;
       font-weight: 700;
-      color: var(--gray-900);
+      color: var(--text-primary);
       letter-spacing: -0.02em;
     }
     
     .brand-tagline {
       font-size: 11px;
-      color: var(--gray-500);
+      color: var(--text-secondary);
       margin-top: 2px;
       font-style: italic;
     }
     
+    /* Theme Toggle */
+    .theme-toggle {
+      width: 40px;
+      height: 40px;
+      border: 2px solid var(--border-primary);
+      border-radius: 8px;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    
+    .theme-toggle:active {
+      transform: scale(0.95);
+    }
+    
+    .theme-toggle svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text-primary);
+    }
+    
     .week-badge {
-      background: var(--gray-100);
+      background: var(--bg-tertiary);
       padding: 4px 10px;
       border-radius: 100px;
       font-size: 12px;
       font-weight: 500;
-      color: var(--gray-500);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-primary);
     }
     
     /* Progress Bar */
@@ -194,26 +255,27 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
     .progress-title {
       font-size: 13px;
       font-weight: 600;
-      color: var(--gray-700);
+      color: var(--text-primary);
     }
     
     .progress-count {
       font-family: 'JetBrains Mono', monospace;
       font-size: 13px;
       font-weight: 600;
-      color: var(--gray-900);
+      color: var(--text-primary);
     }
     
     .progress-bar {
       height: 8px;
-      background: var(--gray-100);
+      background: var(--bg-tertiary);
       border-radius: 100px;
       overflow: hidden;
+      border: 1px solid var(--border-primary);
     }
     
     .progress-fill {
       height: 100%;
-      background: var(--gray-900);
+      background: var(--text-primary);
       border-radius: 100px;
       transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       width: 0%;
@@ -273,14 +335,14 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
       align-items: center;
       margin-bottom: 12px;
       padding-bottom: 8px;
-      border-bottom: 2px solid var(--black);
+      border-bottom: 2px solid var(--border-secondary);
     }
     
     .category-name {
       font-family: 'JetBrains Mono', monospace;
       font-size: 14px;
       font-weight: 700;
-      color: var(--black);
+      color: var(--text-primary);
       letter-spacing: -0.02em;
       text-transform: uppercase;
     }
@@ -289,7 +351,7 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
       font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
       font-weight: 600;
-      color: var(--gray-400);
+      color: var(--text-secondary);
     }
     
     .category-items {
@@ -303,7 +365,7 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
       display: none;
       margin-top: 32px;
       padding-top: 24px;
-      border-top: 2px solid var(--gray-200);
+      border-top: 2px solid var(--border-primary);
     }
     
     .checked-section.show {
@@ -316,14 +378,14 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
       align-items: center;
       margin-bottom: 12px;
       padding-bottom: 8px;
-      border-bottom: 2px solid var(--black);
+      border-bottom: 2px solid var(--border-secondary);
     }
     
     .checked-section-title {
       font-family: 'JetBrains Mono', monospace;
       font-size: 14px;
       font-weight: 700;
-      color: var(--black);
+      color: var(--text-primary);
       letter-spacing: -0.02em;
       text-transform: uppercase;
     }
@@ -332,7 +394,7 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
       font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
       font-weight: 600;
-      color: var(--gray-400);
+      color: var(--text-secondary);
     }
     
     .checked-items-list {
@@ -347,30 +409,31 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
       align-items: center;
       gap: 12px;
       padding: 14px 16px;
-      background: var(--gray-50);
+      background: var(--bg-tertiary);
       border-radius: 10px;
       cursor: pointer;
       transition: all 0.2s ease;
       user-select: none;
       -webkit-user-select: none;
+      border: 1px solid var(--border-primary);
     }
     
     .item:active {
       transform: scale(0.98);
-      background: var(--gray-100);
+      background: var(--bg-secondary);
     }
     
     .item-check {
       width: 28px;
       height: 28px;
-      border: 3px solid var(--gray-900);
+      border: 3px solid var(--border-secondary);
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
       transition: all 0.25s ease;
-      background: white;
+      background: var(--bg-primary);
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
     
@@ -380,24 +443,25 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
       opacity: 0;
       transform: scale(0.5);
       transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-      color: white;
+      color: var(--bg-primary);
     }
     
     .item-text {
       font-size: 15px;
       font-weight: 500;
-      color: var(--gray-900);
+      color: var(--text-primary);
       transition: all 0.2s ease;
     }
     
     /* Checked State */
     .item.checked {
-      background: var(--gray-100);
+      background: var(--bg-secondary);
+      opacity: 0.7;
     }
     
     .item.checked .item-check {
-      background: var(--gray-900);
-      border-color: var(--gray-900);
+      background: var(--text-primary);
+      border-color: var(--text-primary);
     }
     
     .item.checked .check-icon {
@@ -406,7 +470,7 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
     }
     
     .item.checked .item-text {
-      color: var(--gray-400);
+      color: var(--text-secondary);
       text-decoration: line-through;
     }
     
@@ -418,7 +482,7 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
       right: 0;
       padding: 16px 20px;
       padding-bottom: max(16px, env(safe-area-inset-bottom));
-      background: linear-gradient(to top, white 80%, transparent);
+      background: linear-gradient(to top, var(--bg-primary) 80%, transparent);
       z-index: 50;
     }
     
@@ -430,19 +494,19 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
     .reset-btn {
       width: 100%;
       padding: 14px 20px;
-      background: var(--gray-100);
-      border: 1px solid var(--gray-200);
+      background: var(--bg-tertiary);
+      border: 2px solid var(--border-primary);
       border-radius: 12px;
       font-family: 'Inter', sans-serif;
       font-size: 14px;
       font-weight: 600;
-      color: var(--gray-500);
+      color: var(--text-secondary);
       cursor: pointer;
       transition: all 0.2s ease;
     }
     
     .reset-btn:active {
-      background: var(--gray-200);
+      background: var(--bg-secondary);
       transform: scale(0.98);
     }
     
@@ -489,7 +553,25 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
           <div class="brand">Babe, What's for Dinner?</div>
           <div class="brand-tagline">Finally, an answer.</div>
         </div>
-        <span class="week-badge">${data.weekRange}</span>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+            <svg class="sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="moon-icon" style="display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+          <span class="week-badge">${data.weekRange}</span>
+        </div>
       </div>
       <div class="progress-section">
         <div class="progress-header">
@@ -541,6 +623,38 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
     
     // Total items count
     const totalItems = ${totalItems};
+    
+    // Theme management
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+    
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(newTheme);
+      
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate(10);
+      }
+    }
+    
+    function updateThemeIcon(theme) {
+      const sunIcon = document.querySelector('.sun-icon');
+      const moonIcon = document.querySelector('.moon-icon');
+      if (theme === 'dark') {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
+      } else {
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+      }
+    }
     
     // Load saved state
     function loadState() {
@@ -710,7 +824,10 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
     }
     
     // Initialize
-    document.addEventListener('DOMContentLoaded', loadState);
+    document.addEventListener('DOMContentLoaded', function() {
+      initTheme();
+      loadState();
+    });
   </script>
 </body>
 </html>`;
