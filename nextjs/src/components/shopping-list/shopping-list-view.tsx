@@ -519,91 +519,101 @@ export function ShoppingListView({
 
       {/* Actions */}
       {shoppingList.items.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={handleCopyToClipboard}>
-            <Copy className="h-4 w-4 mr-2" />
-            Copy List
-          </Button>
-
-          {plannedRecipes.length > 0 && (
-            <Button
-              variant="outline"
-              onClick={handleSendPlan}
-              disabled={isSendingPlan}
-            >
-              <Mail className="h-4 w-4 mr-2" />
-              {isSendingPlan ? "Sending..." : "Send Plan"}
+        <div className="flex flex-col sm:flex-row gap-2">
+          {/* Primary actions - always visible */}
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" onClick={handleCopyToClipboard} className="flex-1 sm:flex-none">
+              <Copy className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Copy List</span>
+              <span className="sm:hidden">Copy</span>
             </Button>
-          )}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Send to Store
+            {plannedRecipes.length > 0 && (
+              <Button
+                variant="outline"
+                onClick={handleSendPlan}
+                disabled={isSendingPlan}
+                className="flex-1 sm:flex-none"
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                {isSendingPlan ? "Sending..." : <><span className="hidden sm:inline">Send Plan</span><span className="sm:hidden">Send</span></>}
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              {SUPPORTED_STORES.map((store) => (
-                <DropdownMenuItem
-                  key={store.id}
-                  onClick={() => handleStoreExport(store.id)}
-                >
-                  <span className="mr-2">{store.icon}</span>
-                  {store.name}
+            )}
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="flex-1 sm:flex-none">
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Send to Store</span>
+                  <span className="sm:hidden">Store</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                {SUPPORTED_STORES.map((store) => (
+                  <DropdownMenuItem
+                    key={store.id}
+                    onClick={() => handleStoreExport(store.id)}
+                  >
+                    <span className="mr-2">{store.icon}</span>
+                    {store.name}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleShare}>
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share List...
                 </DropdownMenuItem>
-              ))}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleShare}>
-                <Share2 className="h-4 w-4 mr-2" />
-                Share List...
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
-          {checkedCount > 0 && (
-            <Button variant="outline" onClick={() => clearCheckedItems()}>
-              <Check className="h-4 w-4 mr-2" />
-              Clear Checked ({checkedCount})
-            </Button>
-          )}
-
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline" className="text-destructive">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Clear All
+          {/* Secondary actions - dropdown on mobile */}
+          <div className="flex gap-2">
+            {checkedCount > 0 && (
+              <Button variant="outline" onClick={() => clearCheckedItems()} className="flex-1 sm:flex-none">
+                <Check className="h-4 w-4 mr-2" />
+                Clear Checked ({checkedCount})
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Clear shopping list?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will remove all {shoppingList.items.length} items from
-                  your shopping list. This cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => clearShoppingList()}>
-                  Clear All
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+            )}
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleGenerateFromPlan}
-            disabled={isGenerating}
-            className="text-muted-foreground"
-          >
-            <RefreshCw
-              className={`h-4 w-4 mr-1 ${isGenerating ? "animate-spin" : ""}`}
-            />
-            Refresh
-          </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" className="text-destructive flex-1 sm:flex-none">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Clear All</span>
+                  <span className="sm:hidden">Clear</span>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Clear shopping list?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will remove all {shoppingList.items.length} items from
+                    your shopping list. This cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => clearShoppingList()}>
+                    Clear All
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleGenerateFromPlan}
+              disabled={isGenerating}
+              className="text-muted-foreground"
+            >
+              <RefreshCw
+                className={`h-4 w-4 mr-1 ${isGenerating ? "animate-spin" : ""}`}
+              />
+              <span className="hidden sm:inline">Refresh</span>
+            </Button>
+          </div>
         </div>
       )}
 
@@ -819,7 +829,7 @@ function ShoppingItemRow({ item, onPantryToggle }: ShoppingItemRowProps) {
   return (
     <TooltipProvider>
       <li
-        className={`flex items-center gap-3 group ${
+        className={`flex items-center gap-2 sm:gap-3 group ${
           item.is_in_pantry ? "opacity-50" : ""
         }`}
       >
@@ -827,6 +837,7 @@ function ShoppingItemRow({ item, onPantryToggle }: ShoppingItemRowProps) {
           id={item.id}
           checked={item.is_checked}
           onCheckedChange={handleToggle}
+          className="h-5 w-5 sm:h-4 sm:w-4"
         />
         <label
           htmlFor={item.id}
@@ -849,31 +860,31 @@ function ShoppingItemRow({ item, onPantryToggle }: ShoppingItemRowProps) {
             <Button
               variant="ghost"
               size="icon"
-              className={`h-6 w-6 transition-opacity ${
+              className={`h-9 w-9 sm:h-6 sm:w-6 flex-shrink-0 transition-opacity ${
                 item.is_in_pantry
                   ? "opacity-100 text-green-600"
-                  : "opacity-0 group-hover:opacity-100"
+                  : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
               }`}
               onClick={handlePantryToggle}
               disabled={isTogglingPantry}
             >
-              <Cookie className="h-3 w-3" />
+              <Cookie className="h-4 w-4 sm:h-3 sm:w-3" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
             {item.is_in_pantry
               ? "Remove from pantry"
-              : "Mark as pantry staple (I always have this)"}
+              : "Mark as pantry staple"}
           </TooltipContent>
         </Tooltip>
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="h-9 w-9 sm:h-6 sm:w-6 flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
           onClick={handleRemove}
           disabled={isRemoving}
         >
-          <Trash2 className="h-3 w-3" />
+          <Trash2 className="h-4 w-4 sm:h-3 sm:w-3" />
         </Button>
       </li>
     </TooltipProvider>

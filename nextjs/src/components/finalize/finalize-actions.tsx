@@ -211,13 +211,13 @@ export function FinalizeActions({
 
   return (
     <Card className="border-t-2 border-primary/20 sticky bottom-0 md:bottom-4 z-10 shadow-lg">
-      <CardContent className="p-4">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+      <CardContent className="p-3 md:p-4 pb-safe">
+        {/* Desktop Layout */}
+        <div className="hidden md:flex items-center gap-3">
           {/* Back button */}
           <Button
             variant="ghost"
             onClick={handleBackToEdit}
-            className="w-full sm:w-auto"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Edit Plan
@@ -226,12 +226,11 @@ export function FinalizeActions({
           <div className="flex-1" />
 
           {/* Action buttons */}
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex gap-2">
             <Button
               variant="outline"
               onClick={handleDownload}
               disabled={isDownloading}
-              className="w-full sm:w-auto"
             >
               {isDownloading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -245,7 +244,6 @@ export function FinalizeActions({
               variant="outline"
               onClick={handleAddToCalendar}
               disabled={isAddingToCalendar}
-              className="w-full sm:w-auto"
             >
               {isAddingToCalendar ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -258,7 +256,6 @@ export function FinalizeActions({
             <Button
               variant="outline"
               onClick={handleEditShoppingList}
-              className="w-full sm:w-auto"
             >
               <ShoppingCart className="h-4 w-4 mr-2" />
               Edit Shopping List
@@ -267,7 +264,6 @@ export function FinalizeActions({
             <Button
               onClick={handleSendEmail}
               disabled={isSending}
-              className="w-full sm:w-auto"
             >
               {isSending ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -277,6 +273,73 @@ export function FinalizeActions({
               Send Plan
             </Button>
           </div>
+        </div>
+
+        {/* Mobile Layout */}
+        <div className="md:hidden flex items-center gap-2">
+          {/* Back button - icon only on mobile */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleBackToEdit}
+            className="h-11 w-11 flex-shrink-0"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+
+          <div className="flex-1" />
+
+          {/* Secondary actions - icon only */}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="h-11 w-11 flex-shrink-0"
+          >
+            {isDownloading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Download className="h-5 w-5" />
+            )}
+          </Button>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleAddToCalendar}
+            disabled={isAddingToCalendar}
+            className="h-11 w-11 flex-shrink-0"
+          >
+            {isAddingToCalendar ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Calendar className="h-5 w-5" />
+            )}
+          </Button>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleEditShoppingList}
+            className="h-11 w-11 flex-shrink-0"
+          >
+            <ShoppingCart className="h-5 w-5" />
+          </Button>
+
+          {/* Primary action - prominent */}
+          <Button
+            onClick={handleSendEmail}
+            disabled={isSending}
+            className="h-11 px-4 flex-shrink-0"
+          >
+            {isSending ? (
+              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+            ) : (
+              <Mail className="h-5 w-5 mr-2" />
+            )}
+            <span className="font-medium">Send</span>
+          </Button>
         </div>
       </CardContent>
     </Card>

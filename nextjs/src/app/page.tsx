@@ -6,12 +6,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
   ArrowRight,
   Check,
   Sparkles,
+  Menu,
 } from "lucide-react";
 import { FAQ } from "@/components/landing/faq";
 import { BrandLogo, BrandLogoCompact } from "@/components/brand/logo";
@@ -46,7 +55,9 @@ export default function Home() {
           <Link href="/">
             <BrandLogoCompact />
           </Link>
-          <div className="flex items-center gap-4">
+          
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-4">
             <Link
               href="/about"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
@@ -68,6 +79,65 @@ export default function Home() {
             <Link href="/signup">
               <Button>Sign Up Free</Button>
             </Link>
+          </div>
+
+          {/* Mobile Navigation */}
+          <div className="md:hidden flex items-center gap-2">
+            <Link href="/signup">
+              <Button size="sm">Sign Up</Button>
+            </Link>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px]">
+                <SheetHeader>
+                  <SheetTitle className="font-mono text-left">Menu</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col gap-2 mt-6">
+                  <SheetClose asChild>
+                    <Link href="/about">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-base hover:bg-primary/5"
+                      >
+                        About
+                      </Button>
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link href="/pricing">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-base hover:bg-primary/5"
+                      >
+                        Pricing
+                      </Button>
+                    </Link>
+                  </SheetClose>
+                  <div className="border-t my-3" />
+                  <SheetClose asChild>
+                    <Link href="/login">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-base hover:bg-primary/5"
+                      >
+                        Log in
+                      </Button>
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link href="/signup">
+                      <Button className="w-full">
+                        Sign Up Free
+                      </Button>
+                    </Link>
+                  </SheetClose>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </nav>

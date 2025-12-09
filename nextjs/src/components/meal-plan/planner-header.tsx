@@ -102,26 +102,26 @@ export function PlannerHeader({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b">
-      {/* Week Navigation */}
+    <div className="flex flex-col gap-3 pb-4 border-b">
+      {/* Week Navigation - Full width on mobile */}
       <div className="flex items-center gap-2">
         <Button
           variant="outline"
           size="icon"
           onClick={() => navigateWeek("prev")}
-          className="h-9 w-9"
+          className="h-10 w-10 flex-shrink-0"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-5 w-5" />
         </Button>
 
         <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="min-w-[160px] justify-center font-mono font-semibold"
+              className="flex-1 sm:min-w-[180px] sm:flex-none justify-center font-mono font-semibold h-10"
             >
               <CalendarIcon className="h-4 w-4 mr-2" />
-              {formatWeekRange(weekStart)}
+              <span className="truncate">{formatWeekRange(weekStart)}</span>
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="center">
@@ -138,24 +138,24 @@ export function PlannerHeader({
           variant="outline"
           size="icon"
           onClick={() => navigateWeek("next")}
-          className="h-9 w-9"
+          className="h-10 w-10 flex-shrink-0"
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-5 w-5" />
         </Button>
 
         {!isCurrentWeek && (
-          <Button variant="ghost" size="sm" onClick={goToCurrentWeek}>
+          <Button variant="ghost" size="sm" onClick={goToCurrentWeek} className="hidden sm:inline-flex">
             This Week
           </Button>
         )}
       </div>
 
-      {/* Actions */}
+      {/* Actions - Full width on mobile */}
       <div className="flex items-center gap-2">
         {/* Actions Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="min-w-[100px]">
+            <Button variant="outline" size="sm" className="flex-1 sm:flex-none sm:min-w-[100px] h-10">
               <MoreHorizontal className="h-4 w-4 mr-2" />
               Actions
             </Button>
@@ -202,12 +202,18 @@ export function PlannerHeader({
           }}
           disabled={!hasMeals}
           size="sm"
-          className="gap-2 min-w-[120px]"
+          className="flex-1 sm:flex-none gap-2 sm:min-w-[120px] h-10"
         >
           <CheckCircle2 className="h-4 w-4" />
           <span className="hidden sm:inline">Finalize Plan</span>
           <span className="sm:hidden">Finalize</span>
         </Button>
+
+        {!isCurrentWeek && (
+          <Button variant="ghost" size="sm" onClick={goToCurrentWeek} className="sm:hidden h-10">
+            Today
+          </Button>
+        )}
       </div>
 
       {/* Template Dialogs */}

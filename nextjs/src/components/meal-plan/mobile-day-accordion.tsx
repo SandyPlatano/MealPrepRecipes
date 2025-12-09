@@ -189,11 +189,11 @@ export function MobileDayAccordion({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    className="h-10 w-10 text-muted-foreground hover:text-destructive flex-shrink-0"
                     onClick={() => handleRemoveMeal(assignment.id)}
                     disabled={removingMeal === assignment.id}
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-5 w-5" />
                   </Button>
                 </div>
 
@@ -206,9 +206,9 @@ export function MobileDayAccordion({
                   disabled={updatingCook === assignment.id}
                 >
                   <SelectTrigger
-                    className={cn("h-8 text-xs", getCookColor(assignment.cook))}
+                    className={cn("h-10 text-sm", getCookColor(assignment.cook))}
                   >
-                    <ChefHat className="h-3 w-3 mr-1" />
+                    <ChefHat className="h-4 w-4 mr-2" />
                     <SelectValue placeholder="Assign cook" />
                   </SelectTrigger>
                   <SelectContent>

@@ -6,6 +6,7 @@ import { logout } from "@/app/actions/auth";
 import { History, Settings, Menu, Sparkles, BookOpen, Calendar, ShoppingCart } from "lucide-react";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -75,27 +76,31 @@ export default async function AppLayout({
                       : item.iconKey === "shop" ? ShoppingCart
                       : History;
                     return (
-                      <Link key={item.href} href={item.href}>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start text-base hover:bg-primary/5"
-                        >
-                          <Icon className="mr-3 h-4 w-4" />
-                          {item.label}
-                        </Button>
-                      </Link>
+                      <SheetClose asChild key={item.href}>
+                        <Link href={item.href}>
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start text-base hover:bg-primary/5"
+                          >
+                            <Icon className="mr-3 h-4 w-4" />
+                            {item.label}
+                          </Button>
+                        </Link>
+                      </SheetClose>
                     );
                   })}
                   <div className="border-t my-3" />
-                  <Link href="/app/settings">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-base hover:bg-primary/5"
-                    >
-                      <Settings className="mr-3 h-4 w-4" />
-                      Settings
-                    </Button>
-                  </Link>
+                  <SheetClose asChild>
+                    <Link href="/app/settings">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-base hover:bg-primary/5"
+                      >
+                        <Settings className="mr-3 h-4 w-4" />
+                        Settings
+                      </Button>
+                    </Link>
+                  </SheetClose>
                   <form action={logout} className="mt-2">
                     <Button variant="outline" className="w-full justify-center">
                       Sign out
@@ -122,7 +127,7 @@ export default async function AppLayout({
       />
 
       {/* Spacer for mobile bottom nav */}
-      <div className="md:hidden h-16" />
+      <div className="md:hidden h-16 pb-safe" />
     </div>
   );
 }
