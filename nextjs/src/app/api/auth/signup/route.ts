@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
           data: {
             name: name || email.split("@")[0],
           },
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/app`,
         },
       });
 
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
           data: {
             name: name || email.split("@")[0],
           },
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/app`,
         },
       });
 

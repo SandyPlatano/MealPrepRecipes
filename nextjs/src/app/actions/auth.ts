@@ -47,7 +47,7 @@ export async function signup(formData: FormData) {
       data: {
         name: name || email.split("@")[0],
       },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/app`,
     },
   });
 
@@ -90,7 +90,7 @@ export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/app`,
       queryParams: {
         access_type: "offline",
         prompt: "consent",
