@@ -63,6 +63,7 @@ import { scaleIngredients } from "@/lib/ingredient-scaler";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { detectAllergens, mergeAllergens, getAllergenDisplayName, hasUserAllergens, hasCustomRestrictions } from "@/lib/allergen-detector";
+import { Substitution } from "@/lib/substitutions";
 // import { findSubstitutionsForIngredients } from "@/lib/substitutions"; // FIXME: Cannot import server function in client component
 import {
   Popover,
@@ -146,7 +147,7 @@ export function RecipeDetail({
   // Substitutions - TEMPORARILY DISABLED
   // FIXME: findSubstitutionsForIngredients is a server function and cannot be called from client component
   // This needs to be refactored to fetch substitutions server-side and pass as props
-  const [substitutions] = useState<Map<string, unknown[]>>(new Map());
+  const [substitutions] = useState<Map<string, Substitution[]>>(new Map());
 
   // useEffect(() => {
   //   async function loadSubstitutions() {
