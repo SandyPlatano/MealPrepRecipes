@@ -24,7 +24,7 @@ wheels/
 *.egg
 
 # Don't ignore src/lib (needed for React app)
-!src/lib/
+!**/src/lib/
 
 # IDE
 .vscode/
