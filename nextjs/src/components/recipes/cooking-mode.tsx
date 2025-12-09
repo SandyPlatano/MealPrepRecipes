@@ -41,7 +41,10 @@ export function CookingMode({ recipe }: CookingModeProps) {
     const requestWakeLock = async () => {
       try {
         if ("wakeLock" in navigator) {
-          wakeLock = await (navigator as Record<string, unknown>).wakeLock.request("screen");
+          const nav = navigator as { wakeLock?: { request: (type: string) => Promise<unknown> } };
+          if (nav.wakeLock) {
+            wakeLock = await nav.wakeLock.request("screen");
+          }
         }
       } catch {
         // Wake lock not supported or failed
