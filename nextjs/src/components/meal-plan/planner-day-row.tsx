@@ -67,7 +67,7 @@ export function PlannerDayRow({
   onRemoveMeal,
   isOver = false,
 }: PlannerDayRowProps) {
-  const [, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
   const [modalOpen, setModalOpen] = useState(false);
 
 
