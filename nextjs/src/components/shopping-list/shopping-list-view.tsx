@@ -149,13 +149,16 @@ export function ShoppingListView({
   // Extract planned recipes from weekPlan
   const plannedRecipes = weekPlan?.assignments
     ? Object.entries(weekPlan.assignments).flatMap(([day, assignments]: [string, Record<string, unknown>[]]) =>
-        assignments.map((assignment) => ({
-          day,
-          recipeName: assignment.recipe?.name || "Unknown Recipe",
-          recipeId: assignment.recipe?.id,
-          cook: assignment.cook,
-          recipe: assignment.recipe,
-        }))
+        assignments.map((assignment) => {
+          const recipe = assignment.recipe as { name?: string; id?: string } | undefined;
+          return {
+            day,
+            recipeName: recipe?.name || "Unknown Recipe",
+            recipeId: recipe?.id,
+            cook: assignment.cook as string | undefined,
+            recipe: assignment.recipe,
+          };
+        })
       )
     : [];
 
