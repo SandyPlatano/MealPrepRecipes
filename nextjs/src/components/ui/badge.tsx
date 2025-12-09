@@ -32,7 +32,7 @@ export interface BadgeProps
 function Badge({ className, variant, ...props }: BadgeProps) {
   // Check if className contains important modifiers (like !bg-, !text-, etc.)
   // If so, skip applying variant styles to allow custom styling to take precedence
-  const classNameStr = typeof className === "string" ? className : Array.isArray(className) ? className.join(" ") : "";
+  const classNameStr = className || "";
   const hasImportantModifiers = classNameStr.includes("!bg-") || classNameStr.includes("!text-");
   
   // Base classes without variant styles - ensure border is included

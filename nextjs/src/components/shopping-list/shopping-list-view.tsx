@@ -42,7 +42,6 @@ import {
   sortCategories,
 } from "@/types/shopping-list";
 import { normalizeIngredientName } from "@/lib/ingredient-scaler";
-import { getWeekStart } from "@/types/meal-plan";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -270,9 +269,7 @@ export function ShoppingListView({
   const handleGenerateFromPlan = async () => {
     setIsGenerating(true);
     try {
-      const weekStart = getWeekStart(new Date());
-      const weekStartStr = weekStart.toISOString().split("T")[0];
-      const result = await generateFromMealPlan(weekStartStr);
+      const result = await generateFromMealPlan();
       
       if (result.error) {
         toast.error(result.error);
