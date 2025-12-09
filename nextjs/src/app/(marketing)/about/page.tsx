@@ -15,11 +15,11 @@ export default function AboutPage() {
     <div className="space-y-16">
       {/* Hero Section with Photo */}
       <section className="text-center space-y-8">
-        <div className="relative w-72 h-72 mx-auto">
+        <div className="relative w-96 h-96 mx-auto">
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 blur-2xl" />
           <div className="relative w-full h-full rounded-2xl border-4 border-primary/20 overflow-hidden bg-muted shadow-2xl">
             <Image
-              src="/images/founders.jpg"
+              src="/images/BabeWFDAboutPic.jpg"
               alt="Me and Morgan"
               fill
               className="object-cover"
