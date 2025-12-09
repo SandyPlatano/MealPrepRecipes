@@ -100,7 +100,7 @@ export function OnboardingDialog({
         <DialogHeader>
           <DialogTitle className="text-2xl font-mono">Welcome! 👋</DialogTitle>
           <DialogDescription>
-            Let's get you set up. This'll only take a minute.
+            Let&apos;s get you set up. This&apos;ll only take a minute.
           </DialogDescription>
         </DialogHeader>
 
@@ -114,9 +114,9 @@ export function OnboardingDialog({
                 <ChefHat className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold">What's your name?</h3>
+                <h3 className="font-semibold">What&apos;s your name?</h3>
                 <p className="text-sm text-muted-foreground">
-                  We'll use this to personalize your experience.
+                  We&apos;ll use this to personalize your experience.
                 </p>
               </div>
             </div>
@@ -163,7 +163,7 @@ export function OnboardingDialog({
                 <Users className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold">Who's cooking?</h3>
+                <h3 className="font-semibold">Who&apos;s cooking?</h3>
                 <p className="text-sm text-muted-foreground">
                   Add everyone who helps with meals.
                 </p>
@@ -226,7 +226,7 @@ export function OnboardingDialog({
                 <Check className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <h3 className="font-semibold">You're all set!</h3>
+                <h3 className="font-semibold">You&apos;re all set!</h3>
                 <p className="text-sm text-muted-foreground">
                   Time to add your first recipe.
                 </p>

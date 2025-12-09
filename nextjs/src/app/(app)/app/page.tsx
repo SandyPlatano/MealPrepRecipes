@@ -4,9 +4,6 @@ import { getRecipes, getFavorites, getRecipeCookCounts } from "@/app/actions/rec
 import { getSettings } from "@/app/actions/settings";
 import { RecipeGrid } from "@/components/recipes/recipe-grid";
 import { OnboardingWrapper } from "@/components/onboarding/onboarding-wrapper";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 
 export default async function DashboardPage() {
   const supabase = await createClient();

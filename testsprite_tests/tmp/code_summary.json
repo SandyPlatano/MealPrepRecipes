@@ -1,0 +1,157 @@
+{
+  "project_name": "Babe, What's for Dinner?",
+  "project_description": "A meal planning application for couples and families that helps plan meals, manage recipes, generate shopping lists, and eliminate the daily 'what's for dinner?' debate.",
+  "tech_stack": {
+    "frontend": {
+      "framework": "Next.js 14",
+      "router": "App Router",
+      "language": "TypeScript 5",
+      "ui_library": "shadcn/ui (Radix UI components)",
+      "styling": "Tailwind CSS",
+      "state_management": "React Context API",
+      "drag_and_drop": "@dnd-kit/core, @dnd-kit/sortable",
+      "date_handling": "date-fns, react-day-picker",
+      "icons": "lucide-react",
+      "theming": "next-themes",
+      "notifications": "sonner"
+    },
+    "backend": {
+      "database": "Supabase (PostgreSQL)",
+      "authentication": "Supabase Auth (Email + Google OAuth)",
+      "api": "Next.js API Routes + Server Actions",
+      "row_level_security": "Supabase RLS policies",
+      "rate_limiting": "Custom rate limiting implementation"
+    },
+    "integrations": {
+      "ai": "Anthropic Claude API (recipe parsing)",
+      "email": "Resend API (transactional emails)",
+      "calendar": "Google Calendar API (OAuth integration)",
+      "storage": "Supabase Storage (recipe images)"
+    },
+    "deployment": {
+      "platform": "Vercel",
+      "pwa": "Service Worker (offline support)"
+    }
+  },
+  "features": {
+    "recipe_management": {
+      "ai_powered_import": "Paste recipe URLs and AI extracts ingredients, instructions, and cook times",
+      "unlimited_recipes": "Save unlimited recipes with organization",
+      "smart_tagging": "Categorize by protein type, cuisine, meal type, and custom tags",
+      "favorites_ratings": "Mark favorite recipes and rate them after cooking",
+      "recipe_scaling": "Adjust serving sizes dynamically",
+      "recipe_images": "Upload and store recipe images in Supabase Storage",
+      "cooking_history": "Track what you've cooked and when",
+      "recipe_discovery": "Browse and discover recipes"
+    },
+    "meal_planning": {
+      "weekly_planning": "Plan meals for the entire week",
+      "drag_and_drop": "Visual drag-and-drop interface for meal planning",
+      "cook_assignment": "Assign meals to different household members",
+      "google_calendar_sync": "Sync meal plans to Google Calendar (Pro feature)",
+      "meal_history": "Track cooking history",
+      "meal_plan_finalization": "Finalize meal plans and generate shopping lists",
+      "week_stats": "View statistics about planned meals"
+    },
+    "shopping_lists": {
+      "auto_generation": "Automatically generated from weekly meal plan",
+      "category_organization": "Items grouped by grocery store sections",
+      "email_integration": "Send shopping lists via email",
+      "ingredient_scaling": "Adjust serving sizes on the fly",
+      "shopping_list_view": "Dedicated shopping list interface"
+    },
+    "household_sharing": {
+      "multi_user": "Share recipes and meal plans with partner/family",
+      "collaborative_planning": "Everyone can see and contribute to meal plan",
+      "individual_preferences": "Each user has their own favorites",
+      "household_members": "Manage household members"
+    },
+    "user_management": {
+      "authentication": "Email/password and Google OAuth",
+      "user_settings": "Customizable user settings",
+      "dietary_restrictions": "Custom dietary restrictions",
+      "pantry_management": "Track pantry items",
+      "onboarding": "User onboarding flow"
+    },
+    "additional_features": {
+      "pwa_support": "Progressive Web App with offline support",
+      "dark_mode": "Theme switching (light/dark)",
+      "responsive_design": "Mobile and desktop optimized",
+      "cookie_consent": "GDPR-compliant cookie consent",
+      "rate_limiting": "API rate limiting for protection",
+      "meal_plan_suggestions": "AI-powered meal suggestions"
+    }
+  },
+  "architecture": {
+    "routing": {
+      "app_routes": "/app/* (authenticated routes: plan, recipes, shop, settings, pantry, history, finalize)",
+      "auth_routes": "/login, /signup, /forgot-password",
+      "marketing_routes": "/, /about, /privacy, /terms, /pricing",
+      "api_routes": "/api/parse-recipe, /api/scrape-url, /api/send-shopping-list, /api/google-calendar/*"
+    },
+    "data_flow": {
+      "server_actions": "Next.js Server Actions for data mutations",
+      "api_routes": "API routes for external integrations",
+      "supabase_client": "Server and client-side Supabase clients",
+      "real_time": "Supabase real-time subscriptions (if applicable)"
+    },
+    "security": {
+      "row_level_security": "RLS policies on all database tables",
+      "rate_limiting": "Custom rate limiting on API endpoints",
+      "ssrf_protection": "SSRF protection on URL scraping",
+      "authentication": "Authentication required for sensitive operations",
+      "security_headers": "CSP, HSTS, and other security headers"
+    }
+  },
+  "database_schema": {
+    "core_tables": [
+      "users (profiles)",
+      "recipes",
+      "ingredients",
+      "meal_plans",
+      "meal_plan_items",
+      "shopping_lists",
+      "shopping_list_items",
+      "cooking_history",
+      "household_members",
+      "user_settings",
+      "pantry_items",
+      "recipe_images"
+    ],
+    "key_relationships": [
+      "Users belong to households",
+      "Recipes belong to users",
+      "Meal plans belong to households",
+      "Shopping lists generated from meal plans",
+      "Cooking history tracks recipe usage"
+    ]
+  },
+  "testing_considerations": {
+    "frontend_testing": {
+      "components": "React components with shadcn/ui",
+      "interactions": "Drag-and-drop, form submissions, modal interactions",
+      "routing": "Next.js App Router navigation",
+      "state_management": "Context providers and state updates"
+    },
+    "backend_testing": {
+      "api_endpoints": "Rate-limited API routes",
+      "server_actions": "Data mutations and queries",
+      "authentication": "Protected routes and user permissions",
+      "database_operations": "CRUD operations with RLS"
+    },
+    "integration_testing": {
+      "external_apis": "Anthropic API, Resend API, Google Calendar API",
+      "authentication_flows": "Email/password and OAuth flows",
+      "email_functionality": "Shopping list email sending"
+    },
+    "user_flows": {
+      "onboarding": "New user signup and onboarding",
+      "recipe_import": "AI-powered recipe import from URL",
+      "meal_planning": "Creating and editing weekly meal plans",
+      "shopping_list": "Generating and finalizing shopping lists",
+      "cooking": "Marking recipes as cooked and rating them",
+      "settings": "Updating user settings and preferences"
+    }
+  }
+}
+

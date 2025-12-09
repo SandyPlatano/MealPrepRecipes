@@ -36,14 +36,14 @@ export function CookingMode({ recipe }: CookingModeProps) {
 
   // Keep screen awake (best effort with wake lock API)
   useEffect(() => {
-    let wakeLock: any = null;
+    let wakeLock: unknown = null;
 
     const requestWakeLock = async () => {
       try {
         if ("wakeLock" in navigator) {
-          wakeLock = await (navigator as any).wakeLock.request("screen");
+          wakeLock = await (navigator as Record<string, unknown>).wakeLock.request("screen");
         }
-      } catch (err) {
+      } catch {
         // Wake lock not supported or failed
       }
     };

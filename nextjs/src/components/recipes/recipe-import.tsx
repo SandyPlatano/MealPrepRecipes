@@ -9,6 +9,7 @@ import { Loader2, Link as LinkIcon, FileText, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { RecipeForm } from "./recipe-form";
 import type { RecipeFormData } from "@/types/recipe";
+import { isNetworkError, getNetworkErrorMessage } from "@/lib/utils";
 
 type ImportMode = "manual" | "paste" | "url";
 
@@ -49,7 +50,13 @@ export function RecipeImport() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
+        // Handle network errors
+        if (!response.body) {
+          throw new Error("Network error. Please check your connection.");
+        }
+        const error = await response.json().catch(() => ({
+          error: "Failed to parse recipe",
+        }));
         throw new Error(error.error || "Failed to parse recipe");
       }
 
@@ -72,9 +79,7 @@ export function RecipeImport() {
       toast.success("Got it! Review and save when ready.");
     } catch (error) {
       console.error("Parse error:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Couldn't parse that recipe"
-      );
+      toast.error(getNetworkErrorMessage(error));
     } finally {
       setIsParsing(false);
     }
@@ -104,7 +109,13 @@ export function RecipeImport() {
       });
 
       if (!scrapeResponse.ok) {
-        const error = await scrapeResponse.json();
+        // Handle network errors
+        if (!scrapeResponse.body) {
+          throw new Error("Network error. Please check your connection.");
+        }
+        const error = await scrapeResponse.json().catch(() => ({
+          error: "Failed to fetch recipe page",
+        }));
         throw new Error(error.error || "Failed to fetch recipe page");
       }
 
@@ -118,7 +129,13 @@ export function RecipeImport() {
       });
 
       if (!parseResponse.ok) {
-        const error = await parseResponse.json();
+        // Handle network errors
+        if (!parseResponse.body) {
+          throw new Error("Network error. Please check your connection.");
+        }
+        const error = await parseResponse.json().catch(() => ({
+          error: "Failed to parse recipe",
+        }));
         throw new Error(error.error || "Failed to parse recipe");
       }
 
@@ -141,11 +158,12 @@ export function RecipeImport() {
       toast.success("Look at you go! Review and save.");
     } catch (error) {
       console.error("URL import error:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Couldn't fetch that recipe. Try pasting the text instead."
-      );
+      const errorMessage = isNetworkError(error)
+        ? "Network error. Please check your internet connection and try again. You can also try pasting the recipe text instead."
+        : error instanceof Error
+        ? error.message
+        : "Couldn't fetch that recipe. Try pasting the text instead.";
+      toast.error(errorMessage);
     } finally {
       setIsParsing(false);
     }

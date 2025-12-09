@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
@@ -75,8 +74,7 @@ export function MobileDayAccordion({
   const isToday = date.toDateString() === today.toDateString();
   const isPast = date < today;
 
-  const dayNumber = date.getDate();
-  const monthDay = date.toLocaleDateString("en-US", {
+  const _monthDay = date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
   });

@@ -26,7 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { X, Trash2, ShoppingCart, ChevronLeft, ChevronRight, Download, Mail, Loader2, Calendar as CalendarIcon, ChefHat } from "lucide-react";
+import { X, Trash2, ShoppingCart, Download, Mail, Loader2, Calendar as CalendarIcon, ChefHat } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -44,7 +44,7 @@ import { DAYS_OF_WEEK, type DayOfWeek, formatWeekRange, getWeekStart } from "@/t
 import { getAssignedItems } from "@/types/cart";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { generateShoppingListHTML, generateShoppingListText} from "@/lib/email/shopping-list-template";
+import { generateShoppingListText} from "@/lib/email/shopping-list-template";
 
 interface CartSheetProps {
   open: boolean;
@@ -530,7 +530,7 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
                         Start Over
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>Clear all meals from this week's plan</TooltipContent>
+                    <TooltipContent>Clear all meals from this week&apos;s plan</TooltipContent>
                   </Tooltip>
                 </div>
               </TooltipProvider>

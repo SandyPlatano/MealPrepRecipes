@@ -280,7 +280,10 @@ export function ShoppingListView({
         toast.success(`Added ${result.count} item${result.count !== 1 ? "s" : ""} to your list!`);
       }
     } catch (error) {
-      toast.error("Failed to generate shopping list");
+      const errorMessage = error instanceof Error && error.message.includes("fetch")
+        ? "Network error. Please check your connection and try again."
+        : "Failed to generate shopping list";
+      toast.error(errorMessage);
       console.error("Generate error:", error);
     } finally {
       setIsGenerating(false);

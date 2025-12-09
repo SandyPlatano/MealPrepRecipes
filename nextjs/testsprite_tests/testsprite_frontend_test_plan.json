@@ -1,0 +1,522 @@
+[
+  {
+    "id": "TC001",
+    "title": "User Authentication with Email/Password",
+    "description": "Verify that users can successfully sign up, log in, log out, and recover password using email and password.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to signup page and enter valid email and password"
+      },
+      {
+        "type": "action",
+        "description": "Submit signup form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify new account is created and user is redirected to onboarding dialogs"
+      },
+      {
+        "type": "action",
+        "description": "Log out from the application"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to login page and input the registered email and password"
+      },
+      {
+        "type": "action",
+        "description": "Submit login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user is authenticated and navigated to main app"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to forgot password page and request password reset with registered email"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify password reset email is sent"
+      },
+      {
+        "type": "action",
+        "description": "Attempt login with invalid password"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify login failure message is displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "User Authentication with Google OAuth",
+    "description": "Verify user can sign up and log in using Google OAuth authentication flow including onboarding dialogs.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Click on Google OAuth login button"
+      },
+      {
+        "type": "action",
+        "description": "Complete OAuth authentication via Google consent screen"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user is redirected back and authenticated with onboarding dialogs shown"
+      },
+      {
+        "type": "action",
+        "description": "Log out from the application"
+      },
+      {
+        "type": "action",
+        "description": "Repeat Google OAuth login"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify login is successful without duplicate user creation"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "AI-Powered Recipe Import from URL",
+    "description": "Verify that inputting a valid recipe URL triggers AI parsing which extracts accurate ingredients, instructions, and cook times, then allows user review and saving.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to recipe import page"
+      },
+      {
+        "type": "action",
+        "description": "Input a valid recipe URL"
+      },
+      {
+        "type": "action",
+        "description": "Submit import request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify AI parsing returns recipe ingredients, instructions, and cook times displayed for user review"
+      },
+      {
+        "type": "action",
+        "description": "Modify any recipe details as desired"
+      },
+      {
+        "type": "action",
+        "description": "Save the recipe to user’s collection"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recipe appears in user’s recipes list with correct details"
+      },
+      {
+        "type": "action",
+        "description": "Input invalid URL or non-recipe URL"
+      },
+      {
+        "type": "action",
+        "description": "Submit import request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify appropriate error message is shown and no recipe saved"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Recipe CRUD Operations",
+    "description": "Test creation, reading, updating, and deletion of recipes including offline support.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to new recipe creation page"
+      },
+      {
+        "type": "action",
+        "description": "Enter all required fields for a recipe including title, ingredients, instructions, cooking time"
+      },
+      {
+        "type": "action",
+        "description": "Save the recipe"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the recipe appears in the recipes list"
+      },
+      {
+        "type": "action",
+        "description": "Open a saved recipe detail view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all recipe details are correctly displayed"
+      },
+      {
+        "type": "action",
+        "description": "Edit recipe details and save changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify changes are persisted and displayed correctly"
+      },
+      {
+        "type": "action",
+        "description": "Delete a recipe from the recipes list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recipe is removed from the list and database"
+      },
+      {
+        "type": "action",
+        "description": "Attempt CRUD operations offline using PWA support"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify offline operations queue and synchronize correctly when online"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Collaborative Weekly Meal Planning and Drag-and-Drop Interface",
+    "description": "Verify that users can collaboratively add recipes to weekly plan, assign cooks, adjust servings, drag and drop recipes between meal slots with real-time updates.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "User A navigates to meal planning page"
+      },
+      {
+        "type": "action",
+        "description": "User A drags a recipe card into a meal slot"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recipe appears in meal slot"
+      },
+      {
+        "type": "action",
+        "description": "User B (in same household) sees the update in real-time"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify User B’s view updates to reflect User A’s changes"
+      },
+      {
+        "type": "action",
+        "description": "Assign cook to the meal slot and adjust number of servings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify cook assignment and serving adjustments are saved and visible to all collaborators"
+      },
+      {
+        "type": "action",
+        "description": "Drag recipe from one day/meal slot to another"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify drag-and-drop seamlessly moves recipe with correct updates"
+      },
+      {
+        "type": "action",
+        "description": "Attempt drag-and-drop on mobile device"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify drag-and-drop functionality works responsively on mobile UI"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Automatic Shopping List Generation and Email Sending",
+    "description": "Validate correct auto-generation of shopping lists from finalized meal plans with grocery categories and ability to email shopping lists.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Finalize a weekly meal plan with multiple recipes"
+      },
+      {
+        "type": "action",
+        "description": "Generate shopping list from the meal plan"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify shopping list accurately consolidates ingredients grouped by grocery categories"
+      },
+      {
+        "type": "action",
+        "description": "Check off items and adjust quantities in the shopping list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify adjustments persist and totals update accordingly"
+      },
+      {
+        "type": "action",
+        "description": "Send shopping list to user email"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify shopping list email is received and formatted correctly"
+      },
+      {
+        "type": "action",
+        "description": "Attempt sending shopping list email with invalid email address"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify error handling prevents email send and shows message"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Cooking History Tracking and Recipe Ratings",
+    "description": "Verify logging of cooking events and accurate user rating submissions that update recipe statistics.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Start cooking a recipe from the recipe detail page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify cooking event is logged in cooking history"
+      },
+      {
+        "type": "action",
+        "description": "After cooking, submit a rating for the recipe"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recipe rating statistics are updated accordingly"
+      },
+      {
+        "type": "action",
+        "description": "View cooking history page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify cooking events and ratings are displayed with correct timestamps"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Google Calendar Integration for Meal Plan Syncing",
+    "description": "Ensure reliable syncing of meal plans to Google Calendar including OAuth token handling, successful event creation, and disconnection flow.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to settings and connect Google Calendar via OAuth"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify OAuth flow completes successfully and token is stored securely"
+      },
+      {
+        "type": "action",
+        "description": "Perform meal plan finalization with option to sync to Google Calendar"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify meal plan events are created in the user’s Google Calendar"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to sync when OAuth token is expired or revoked"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify app prompts re-authentication or error handling"
+      },
+      {
+        "type": "action",
+        "description": "Disconnect Google Calendar integration from settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify token and connection are removed and syncing disabled"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "PWA Offline Support for Core Features",
+    "description": "Validate the app’s offline capabilities including recipe viewing, meal planning, and shopping list management with synchronization upon reconnect.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Load the app in online mode and cache necessary assets"
+      },
+      {
+        "type": "action",
+        "description": "Go offline (disable network)"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to previously loaded recipe detail page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recipe details load correctly from cache"
+      },
+      {
+        "type": "action",
+        "description": "Add a recipe to a meal plan while offline"
+      },
+      {
+        "type": "action",
+        "description": "Mark items in shopping list while offline"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify offline changes are queued and visible in the UI"
+      },
+      {
+        "type": "action",
+        "description": "Return online"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify offline changes synchronize successfully with server and reflected for all collaborators"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "API Rate Limiting and Security Enforcement",
+    "description": "Verify that API endpoints enforce rate limiting, row-level security, and proper authorization restrictions are applied.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send rapid consecutive API requests to key endpoints (e.g., recipe import, meal plan updates) exceeding rate limits"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that excessive requests are throttled with appropriate error responses"
+      },
+      {
+        "type": "action",
+        "description": "Attempt data modification on recipes or meal plans owned by another user"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API rejects unauthorized operations with access denied errors"
+      },
+      {
+        "type": "action",
+        "description": "Verify authorized user can only access and modify their own data or shared household data"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify row level security policies are correctly enforced"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "GDPR Cookie Consent and Accessibility",
+    "description": "Test GDPR-compliant cookie consent banner display, user acceptance process, and accessibility compliance across UI components.",
+    "category": "security",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Load the application for the first time in a new browser session"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify GDPR cookie consent banner is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to interact with site before accepting consent"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify site options are limited per GDPR compliance"
+      },
+      {
+        "type": "action",
+        "description": "Accept cookie consent"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify consent is stored and banner no longer shown on subsequent visits"
+      },
+      {
+        "type": "action",
+        "description": "Navigate all major UI components using keyboard navigation and screen readers"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI is fully accessible, with meaningful ARIA attributes and focus management"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Theme Management with Dark Mode Toggling",
+    "description": "Verify that users can toggle between light and dark themes and theme preference persists across sessions.",
+    "category": "ui",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the main application"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify default theme is applied based on system or previous preference"
+      },
+      {
+        "type": "action",
+        "description": "Toggle dark mode switch to enable dark theme"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI theme changes to dark mode instantly"
+      },
+      {
+        "type": "action",
+        "description": "Reload the app"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dark mode setting persists after reload"
+      },
+      {
+        "type": "action",
+        "description": "Toggle back to light mode and verify changes"
+      }
+    ]
+  }
+]

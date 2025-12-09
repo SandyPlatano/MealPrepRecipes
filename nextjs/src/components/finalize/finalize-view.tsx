@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { formatWeekRange, type DayOfWeek } from "@/types/meal-plan";
 import { WeekSchedule } from "./week-schedule";
@@ -29,7 +28,7 @@ interface Assignment {
 }
 
 interface WeekPlan {
-  meal_plan: any;
+  meal_plan: Record<string, unknown>;
   assignments: Record<DayOfWeek, Assignment[]>;
 }
 
@@ -44,7 +43,6 @@ interface FinalizeViewProps {
 export function FinalizeView({
   weekStart,
   weekPlan,
-  cookNames,
   cookColors,
   pantryItems,
 }: FinalizeViewProps) {

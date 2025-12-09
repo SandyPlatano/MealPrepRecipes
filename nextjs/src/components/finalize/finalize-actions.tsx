@@ -73,7 +73,7 @@ export function FinalizeActions({
         // Refresh to update sent status
         router.refresh();
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to send plan");
     } finally {
       setIsSending(false);
@@ -111,7 +111,7 @@ export function FinalizeActions({
           "No events created. Check Google Calendar connection in Settings."
         );
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to add to calendar");
     } finally {
       setIsAddingToCalendar(false);
@@ -195,7 +195,7 @@ export function FinalizeActions({
       URL.revokeObjectURL(url);
 
       toast.success("Meal plan downloaded!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to download");
     } finally {
       setIsDownloading(false);

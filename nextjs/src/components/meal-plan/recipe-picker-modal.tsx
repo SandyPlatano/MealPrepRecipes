@@ -56,7 +56,6 @@ export function RecipePickerModal({
   suggestedRecipeIds,
   cookNames,
   cookColors = {},
-  userAllergenAlerts = [],
   onAdd,
 }: RecipePickerModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -218,7 +217,7 @@ export function RecipePickerModal({
         </div>
 
         {/* Tabs & Recipe Grid */}
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 flex flex-col min-h-0">
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "all" | "favorites" | "recent" | "suggestions")} className="flex-1 flex flex-col min-h-0">
           <TabsList className="mx-6 w-auto">
             <TabsTrigger value="all">All ({recipes.length})</TabsTrigger>
             <TabsTrigger value="favorites">Favorites ({favorites.length})</TabsTrigger>

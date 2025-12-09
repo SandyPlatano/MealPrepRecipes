@@ -16,13 +16,19 @@ export async function login(formData: FormData) {
 
   if (error) {
     // Return error message with brand voice
-    if (error.message.includes("Invalid login")) {
+    if (error.message.includes("Invalid login") || error.message.includes("Invalid login credentials")) {
       return { error: "Hmm, that doesn't look right. Check your email and password?" };
     }
     if (error.message.includes("Email not confirmed")) {
       return { error: "Check your inbox! You need to verify your email first." };
     }
-    return { error: error.message };
+    if (error.message.includes("User not found")) {
+      return { error: "We couldn't find an account with that email. Want to sign up instead?" };
+    }
+    if (error.message.includes("Too many requests")) {
+      return { error: "Too many login attempts. Please wait a moment and try again." };
+    }
+    return { error: error.message || "Something went wrong. Please try again." };
   }
 
   revalidatePath("/", "layout");

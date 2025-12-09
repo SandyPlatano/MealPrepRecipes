@@ -64,7 +64,7 @@ export async function getFavoriteRecipes(): Promise<{
   error: string | null;
   data: RecipeSuggestion[];
 }> {
-  const { user, household, error: authError } = await getCachedUserWithHousehold();
+  const { user, error: authError } = await getCachedUserWithHousehold();
 
   if (authError || !user) {
     return { error: authError?.message || "Not authenticated", data: [] };
@@ -337,7 +337,7 @@ export async function getSmartSuggestions(weekStart: string): Promise<{
   const plannedTypes = new Set<string>();
   if (currentPlan?.meal_assignments) {
     for (const assignment of currentPlan.meal_assignments) {
-      const recipeData = (assignment as any).recipe;
+      const recipeData = (assignment as Record<string, unknown>).recipe;
       const recipe = Array.isArray(recipeData) ? recipeData[0] : recipeData;
       if (recipe?.recipe_type) {
         plannedTypes.add(recipe.recipe_type);

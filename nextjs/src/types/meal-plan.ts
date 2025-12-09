@@ -60,6 +60,21 @@ export interface WeekPlanData {
   assignments: Record<DayOfWeek, MealAssignmentWithRecipe[]>;
 }
 
+// Meal plan template types
+export interface MealPlanTemplate {
+  id: string;
+  household_id: string;
+  name: string;
+  assignments: TemplateAssignment[];
+  created_at: string;
+}
+
+export interface TemplateAssignment {
+  recipe_id: string;
+  day_of_week: DayOfWeek;
+  cook: string | null;
+}
+
 // Helper to get the Monday of a given week
 export function getWeekStart(date: Date = new Date()): Date {
   const d = new Date(date);

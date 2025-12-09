@@ -72,7 +72,7 @@ export function PlannerDayRow({
   const [modalOpen, setModalOpen] = useState(false);
 
   // Default colors for cooks (fallback)
-  const defaultColors = [
+  const _defaultColors = [
     "#3b82f6", // blue
     "#a855f7", // purple
     "#10b981", // green
@@ -100,7 +100,7 @@ export function PlannerDayRow({
   const assignmentIds = assignments.map((a) => a.id);
 
   // Get cook color - use saved color or default
-  const getCookColor = (cook: string | null) => {
+  const _getCookColor = (cook: string | null) => {
     if (!cook) return "bg-muted";
     
     // Use saved color if available

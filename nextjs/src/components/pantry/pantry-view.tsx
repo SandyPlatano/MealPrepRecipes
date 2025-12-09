@@ -21,7 +21,6 @@ import {
 import {
   type PantryItem,
   INGREDIENT_CATEGORIES,
-  groupItemsByCategory,
   sortCategories,
 } from "@/types/shopping-list";
 import {

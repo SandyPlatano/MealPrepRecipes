@@ -23,12 +23,13 @@ import {
   MoreHorizontal,
   Copy,
   Trash2,
-  Mail,
-  Loader2,
   CheckCircle2,
+  Save,
+  FolderOpen,
 } from "lucide-react";
 import { formatWeekRange, getWeekStart } from "@/types/meal-plan";
-import { toast } from "sonner";
+import { SaveTemplateDialog } from "./save-template-dialog";
+import { TemplateManagerDialog } from "./template-manager-dialog";
 
 interface PlannerHeaderProps {
   weekStart: Date;
@@ -38,16 +39,15 @@ interface PlannerHeaderProps {
   hasMeals: boolean;
   previousWeekMealCount: number;
   isSending?: boolean;
+  currentWeekMealCount: number;
 }
 
 export function PlannerHeader({
   weekStart,
   onCopyLastWeek,
   onClearAll,
-  onSendPlan,
   hasMeals,
   previousWeekMealCount,
-  isSending = false,
 }: PlannerHeaderProps) {
   const router = useRouter();
   const [calendarOpen, setCalendarOpen] = useState(false);

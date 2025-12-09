@@ -8,6 +8,8 @@ import type {
   MealAssignmentWithRecipe,
   DayOfWeek,
   WeekPlanData,
+  MealPlanTemplate,
+  TemplateAssignment,
 } from "@/types/meal-plan";
 import {
   mergeShoppingItems,
@@ -625,7 +627,7 @@ export async function getWeekPlanWithFullRecipes(weekStart: string) {
     .single();
 
   // Initialize empty assignments for each day
-  const assignments: Record<DayOfWeek, any[]> = {
+  const assignments: Record<DayOfWeek, Record<string, unknown>[]> = {
     Monday: [],
     Tuesday: [],
     Wednesday: [],
@@ -664,4 +666,260 @@ export async function getWeekPlanWithFullRecipes(weekStart: string) {
       assignments,
     },
   };
+}
+
+// ============================================
+// MEAL PLAN TEMPLATE FUNCTIONS
+// ============================================
+
+// Get all templates for the household
+export async function getMealPlanTemplates() {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found", data: [] };
+  }
+
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("meal_plan_templates")
+    .select("*")
+    .eq("household_id", household.household_id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    return { error: error.message, data: [] };
+  }
+
+  return { error: null, data: data as MealPlanTemplate[] };
+}
+
+// Create a template from the current week's meal plan
+export async function createMealPlanTemplate(
+  name: string,
+  weekStart: string
+) {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found" };
+  }
+
+  const supabase = await createClient();
+
+  // Get the meal plan for this week
+  const { data: mealPlan } = await supabase
+    .from("meal_plans")
+    .select("id")
+    .eq("household_id", household.household_id)
+    .eq("week_start", weekStart)
+    .single();
+
+  if (!mealPlan) {
+    return { error: "No meal plan found for this week" };
+  }
+
+  // Get all assignments for this meal plan
+  const { data: assignments, error: assignmentsError } = await supabase
+    .from("meal_assignments")
+    .select("recipe_id, day_of_week, cook")
+    .eq("meal_plan_id", mealPlan.id);
+
+  if (assignmentsError) {
+    return { error: assignmentsError.message };
+  }
+
+  // Convert assignments to template format
+  const templateAssignments: TemplateAssignment[] = (assignments || []).map(
+    (a) => ({
+      recipe_id: a.recipe_id,
+      day_of_week: a.day_of_week as DayOfWeek,
+      cook: a.cook,
+    })
+  );
+
+  // Create the template
+  const { data: template, error: templateError } = await supabase
+    .from("meal_plan_templates")
+    .insert({
+      household_id: household.household_id,
+      name: name.trim(),
+      assignments: templateAssignments,
+    })
+    .select()
+    .single();
+
+  if (templateError) {
+    return { error: templateError.message };
+  }
+
+  revalidateTag(`meal-plan-${household.household_id}`);
+  return { error: null, data: template as MealPlanTemplate };
+}
+
+// Update a template
+export async function updateMealPlanTemplate(
+  templateId: string,
+  updates: { name?: string; assignments?: TemplateAssignment[] }
+) {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found" };
+  }
+
+  const supabase = await createClient();
+
+  const updateData: Partial<MealPlanTemplate> = {};
+  if (updates.name !== undefined) {
+    updateData.name = updates.name.trim();
+  }
+  if (updates.assignments !== undefined) {
+    updateData.assignments = updates.assignments;
+  }
+
+  const { data: template, error } = await supabase
+    .from("meal_plan_templates")
+    .update(updateData)
+    .eq("id", templateId)
+    .eq("household_id", household.household_id)
+    .select()
+    .single();
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidateTag(`meal-plan-${household.household_id}`);
+  return { error: null, data: template as MealPlanTemplate };
+}
+
+// Delete a template
+export async function deleteMealPlanTemplate(templateId: string) {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found" };
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("meal_plan_templates")
+    .delete()
+    .eq("id", templateId)
+    .eq("household_id", household.household_id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidateTag(`meal-plan-${household.household_id}`);
+  return { error: null };
+}
+
+// Apply a template to a specific week
+export async function applyMealPlanTemplate(
+  templateId: string,
+  weekStart: string
+) {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found" };
+  }
+
+  const supabase = await createClient();
+
+  // Get the template
+  const { data: template, error: templateError } = await supabase
+    .from("meal_plan_templates")
+    .select("*")
+    .eq("id", templateId)
+    .eq("household_id", household.household_id)
+    .single();
+
+  if (templateError || !template) {
+    return { error: templateError?.message || "Template not found" };
+  }
+
+  // Get or create meal plan for the week
+  const planResult = await getOrCreateMealPlan(weekStart);
+  if (planResult.error || !planResult.data) {
+    return { error: planResult.error || "Failed to get meal plan" };
+  }
+
+  // Clear existing assignments for this week
+  const { error: clearError } = await supabase
+    .from("meal_assignments")
+    .delete()
+    .eq("meal_plan_id", planResult.data.id);
+
+  if (clearError) {
+    return { error: clearError.message };
+  }
+
+  // Apply template assignments
+  const assignments = template.assignments as TemplateAssignment[];
+  if (assignments.length > 0) {
+    // Verify all recipes still exist and are accessible
+    const recipeIds = [...new Set(assignments.map((a) => a.recipe_id))];
+    const { data: recipes } = await supabase
+      .from("recipes")
+      .select("id")
+      .in("id", recipeIds)
+      .or(
+        `user_id.eq.${user.id},and(household_id.eq.${household.household_id},is_shared_with_household.eq.true)`
+      );
+
+    const validRecipeIds = new Set((recipes || []).map((r) => r.id));
+
+    // Filter out assignments with invalid recipes
+    const validAssignments = assignments.filter((a) =>
+      validRecipeIds.has(a.recipe_id)
+    );
+
+    if (validAssignments.length > 0) {
+      const assignmentsToInsert = validAssignments.map((a) => ({
+        meal_plan_id: planResult.data.id,
+        recipe_id: a.recipe_id,
+        day_of_week: a.day_of_week,
+        cook: a.cook,
+      }));
+
+      const { error: insertError } = await supabase
+        .from("meal_assignments")
+        .insert(assignmentsToInsert);
+
+      if (insertError) {
+        return { error: insertError.message };
+      }
+
+      // Add ingredients to shopping list for all recipes
+      for (const assignment of validAssignments) {
+        const { data: recipe } = await supabase
+          .from("recipes")
+          .select("title, ingredients")
+          .eq("id", assignment.recipe_id)
+          .single();
+
+        if (recipe && recipe.ingredients && recipe.ingredients.length > 0) {
+          await addRecipeToShoppingList(
+            supabase,
+            household.household_id,
+            planResult.data.id,
+            assignment.recipe_id,
+            recipe.title,
+            recipe.ingredients
+          );
+        }
+      }
+    }
+  }
+
+  revalidateTag(`meal-plan-${household.household_id}`);
+  revalidatePath("/app/plan");
+  revalidatePath("/app/shop");
+  return { error: null };
 }

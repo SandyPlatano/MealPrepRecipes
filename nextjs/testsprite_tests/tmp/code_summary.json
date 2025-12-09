@@ -1,0 +1,530 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "Next.js 14 (App Router)",
+    "Supabase (PostgreSQL with RLS)",
+    "Anthropic Claude API",
+    "Resend (Email)",
+    "Google Calendar API"
+  ],
+  "features": [
+    {
+      "name": "Test Authentication API",
+      "description": "Endpoint for automated testing that allows tests to authenticate and receive valid session cookies. Supports POST to sign in and GET to check auth status. Only available in development/test environments.",
+      "files": ["src/app/api/test-auth/route.ts"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "info": {
+          "title": "Test Authentication API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/api/test-auth": {
+            "post": {
+              "summary": "Authenticate for testing",
+              "description": "Sign in with email/password to receive authentication cookies for subsequent API calls",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "required": ["email", "password"],
+                      "properties": {
+                        "email": { "type": "string", "format": "email" },
+                        "password": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "Authentication successful",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "success": { "type": "boolean" },
+                          "message": { "type": "string" },
+                          "user": {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "string" },
+                              "email": { "type": "string" }
+                            }
+                          },
+                          "session": {
+                            "type": "object",
+                            "properties": {
+                              "access_token": { "type": "string" },
+                              "expires_at": { "type": "number" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "401": { "description": "Authentication failed" },
+                "403": { "description": "Test auth not available in production" }
+              }
+            },
+            "get": {
+              "summary": "Check authentication status",
+              "responses": {
+                "200": {
+                  "description": "Auth status returned",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "authenticated": { "type": "boolean" },
+                          "user": {
+                            "type": "object",
+                            "nullable": true,
+                            "properties": {
+                              "id": { "type": "string" },
+                              "email": { "type": "string" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Parse Recipe API",
+      "description": "AI-powered recipe parsing endpoint that extracts structured recipe data (title, ingredients, instructions, cook times, tags, servings) from text or HTML content using Anthropic Claude API. Requires authentication. Rate limited to 20 requests per hour per user.",
+      "files": ["src/app/api/parse-recipe/route.ts"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "info": {
+          "title": "Parse Recipe API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/api/parse-recipe": {
+            "post": {
+              "summary": "Parse recipe from text or HTML using AI",
+              "description": "Send recipe text or HTML content to be parsed by Claude AI into structured recipe data",
+              "security": [{ "cookieAuth": [] }],
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "text": { "type": "string", "description": "Plain text recipe content" },
+                        "htmlContent": { "type": "string", "description": "HTML recipe content (alternative to text)" },
+                        "sourceUrl": { "type": "string", "description": "Source URL of the recipe" }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "Successfully parsed recipe",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "title": { "type": "string" },
+                          "recipe_type": { "type": "string", "enum": ["Dinner", "Baking", "Breakfast", "Dessert", "Snack", "Side Dish"] },
+                          "category": { "type": "string" },
+                          "prep_time": { "type": "string" },
+                          "cook_time": { "type": "string" },
+                          "servings": { "type": "string" },
+                          "base_servings": { "type": "number" },
+                          "ingredients": { "type": "array", "items": { "type": "string" } },
+                          "instructions": { "type": "array", "items": { "type": "string" } },
+                          "tags": { "type": "array", "items": { "type": "string" } },
+                          "notes": { "type": "string" },
+                          "source_url": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "400": { "description": "Recipe text or HTML content is required" },
+                "401": { "description": "Authentication required" },
+                "429": { "description": "Rate limit exceeded (20/hour)" },
+                "500": { "description": "Server error or Anthropic API error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Scrape URL API",
+      "description": "Safely scrapes recipe URLs with SSRF protection, extracts HTML and text content. Blocks localhost, private IPs, and non-HTTP protocols. Requires authentication. Rate limited to 30 requests per hour per user.",
+      "files": ["src/app/api/scrape-url/route.ts"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "info": {
+          "title": "Scrape URL API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/api/scrape-url": {
+            "post": {
+              "summary": "Scrape recipe content from URL",
+              "description": "Fetch and extract recipe content from a URL with SSRF protection",
+              "security": [{ "cookieAuth": [] }],
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "required": ["url"],
+                      "properties": {
+                        "url": { "type": "string", "format": "uri", "description": "Recipe URL to scrape" }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "Successfully scraped URL",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "html": { "type": "string", "description": "Extracted HTML (max 15000 chars)" },
+                          "text": { "type": "string", "description": "Extracted text (max 10000 chars)" },
+                          "url": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "400": { "description": "URL is required or invalid" },
+                "401": { "description": "Authentication required" },
+                "403": { "description": "Access to URL not permitted (SSRF protection)" },
+                "429": { "description": "Rate limit exceeded (30/hour)" },
+                "500": { "description": "Server error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Send Shopping List API",
+      "description": "Sends shopping list via email using Resend API to the authenticated user's email address. Requires authentication. Rate limited to 10 requests per hour per user.",
+      "files": ["src/app/api/send-shopping-list/route.ts"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "info": {
+          "title": "Send Shopping List API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/api/send-shopping-list": {
+            "post": {
+              "summary": "Send shopping list via email",
+              "description": "Email the shopping list to the authenticated user",
+              "security": [{ "cookieAuth": [] }],
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "required": ["items"],
+                      "properties": {
+                        "weekRange": { "type": "string", "description": "Week range string (e.g., 'Dec 2 - Dec 8')" },
+                        "items": {
+                          "type": "array",
+                          "description": "Shopping list items with recipe info",
+                          "items": { "type": "object" },
+                          "minItems": 1
+                        },
+                        "weekStart": { "type": "string", "description": "Week start date for tracking" }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "Email sent successfully",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "success": { "type": "boolean" },
+                          "message": { "type": "string" },
+                          "emailId": { "type": "string" },
+                          "sentTo": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "400": { "description": "No items provided" },
+                "401": { "description": "Authentication required" },
+                "429": { "description": "Rate limit exceeded (10/hour)" },
+                "500": { "description": "Server error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Shopping List HTML API",
+      "description": "Generates a standalone interactive HTML shopping list page with theme toggle, progress tracking, and item checking functionality. This is a PUBLIC endpoint that does not require authentication.",
+      "files": ["src/app/api/shopping-list-html/route.ts"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "info": {
+          "title": "Shopping List HTML API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/api/shopping-list-html": {
+            "get": {
+              "summary": "Get interactive shopping list HTML page",
+              "description": "Returns a standalone HTML page with interactive shopping list. No authentication required.",
+              "parameters": [
+                {
+                  "name": "data",
+                  "in": "query",
+                  "description": "Base64-encoded JSON shopping list data",
+                  "required": false,
+                  "schema": { "type": "string" }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "HTML page generated successfully",
+                  "content": {
+                    "text/html": {
+                      "schema": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Google Calendar Status API",
+      "description": "Returns Google Calendar connection status and connected account email. Requires authentication.",
+      "files": ["src/app/api/google-calendar/status/route.ts"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "info": {
+          "title": "Google Calendar Status API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/api/google-calendar/status": {
+            "get": {
+              "summary": "Get Google Calendar connection status",
+              "security": [{ "cookieAuth": [] }],
+              "responses": {
+                "200": {
+                  "description": "Status retrieved",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "isConnected": { "type": "boolean" },
+                          "connectedAccount": { "type": "string", "nullable": true }
+                        }
+                      }
+                    }
+                  }
+                },
+                "401": { "description": "Authentication required" },
+                "500": { "description": "Server error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Google Calendar Exchange Token API",
+      "description": "Exchanges OAuth authorization code for access and refresh tokens, validates redirect URI, retrieves Google user info, and saves tokens to database. Requires authentication.",
+      "files": ["src/app/api/google-calendar/exchange-token/route.ts"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "info": {
+          "title": "Google Calendar Exchange Token API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/api/google-calendar/exchange-token": {
+            "post": {
+              "summary": "Exchange OAuth code for tokens",
+              "security": [{ "cookieAuth": [] }],
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "required": ["code", "redirectUri"],
+                      "properties": {
+                        "code": { "type": "string", "description": "OAuth authorization code" },
+                        "redirectUri": { "type": "string", "format": "uri", "description": "OAuth redirect URI" }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "Token exchange successful",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "success": { "type": "boolean" },
+                          "connectedAccount": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "400": { "description": "Missing code or invalid redirect URI" },
+                "401": { "description": "Authentication required" },
+                "500": { "description": "Server error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Google Calendar Create Events API",
+      "description": "Creates meal plan events in Google Calendar. Handles OAuth token refresh, filters excluded days, and maps meals to calendar events. Requires authentication. Rate limited to 20 requests per hour.",
+      "files": ["src/app/api/google-calendar/create-events/route.ts"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "info": {
+          "title": "Google Calendar Create Events API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/api/google-calendar/create-events": {
+            "post": {
+              "summary": "Create calendar events from meal plan",
+              "security": [{ "cookieAuth": [] }],
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "required": ["items"],
+                      "properties": {
+                        "weekRange": { "type": "string", "description": "Week range (e.g., 'Dec 2 - Dec 8')" },
+                        "items": {
+                          "type": "array",
+                          "description": "Meal plan items",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "day": { "type": "string" },
+                              "cook": { "type": "string" },
+                              "recipe": { "type": "object" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "Events created",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "success": { "type": "boolean" },
+                          "eventsCreated": { "type": "number" },
+                          "eventsFailed": { "type": "number" },
+                          "totalEvents": { "type": "number" },
+                          "eventsSkipped": { "type": "number" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "400": { "description": "No meals assigned or Google Calendar not connected" },
+                "401": { "description": "Authentication required or token refresh failed" },
+                "429": { "description": "Rate limit exceeded (20/hour)" },
+                "500": { "description": "Server error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Google Calendar Disconnect API",
+      "description": "Disconnects Google Calendar by clearing all OAuth tokens from user settings. Requires authentication.",
+      "files": ["src/app/api/google-calendar/disconnect/route.ts"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "info": {
+          "title": "Google Calendar Disconnect API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/api/google-calendar/disconnect": {
+            "post": {
+              "summary": "Disconnect Google Calendar",
+              "security": [{ "cookieAuth": [] }],
+              "responses": {
+                "200": {
+                  "description": "Successfully disconnected",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "success": { "type": "boolean" },
+                          "message": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "401": { "description": "Authentication required" },
+                "500": { "description": "Server error" }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

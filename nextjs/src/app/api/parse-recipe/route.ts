@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { rateLimit, getIpAddress } from "@/lib/rate-limit";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +46,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { text, htmlContent, sourceUrl } = await request.json();
+    const body = await request.json();
+    let { text, htmlContent, sourceUrl, url } = body;
 
     // Get API key from environment
     const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
@@ -58,9 +59,51 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // If URL is provided, fetch content from it first
+    if (url && !text && !htmlContent) {
+      try {
+        // Validate URL
+        const parsedUrl = new URL(url);
+        if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+          return NextResponse.json(
+            { error: "Invalid URL protocol" },
+            { status: 400 }
+          );
+        }
+
+        // Fetch the URL content
+        const fetchResponse = await fetch(url, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (compatible; RecipeParser/1.0)",
+          },
+        });
+
+        if (!fetchResponse.ok) {
+          return NextResponse.json(
+            { error: `Failed to fetch URL: ${fetchResponse.status}` },
+            { status: 400 }
+          );
+        }
+
+        htmlContent = await fetchResponse.text();
+        sourceUrl = url;
+      } catch (urlError) {
+        if (urlError instanceof TypeError && urlError.message.includes("Invalid URL")) {
+          return NextResponse.json(
+            { error: "Invalid URL format" },
+            { status: 400 }
+          );
+        }
+        return NextResponse.json(
+          { error: "Failed to fetch URL content" },
+          { status: 400 }
+        );
+      }
+    }
+
     if (!text && !htmlContent) {
       return NextResponse.json(
-        { error: "Recipe text or HTML content is required" },
+        { error: "Recipe text, HTML content, or URL is required" },
         { status: 400 }
       );
     }

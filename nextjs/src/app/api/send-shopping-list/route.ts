@@ -63,6 +63,56 @@ export async function POST(request: Request) {
       );
     }
 
+    // Normalize items to expected format
+    // Expected format: { recipe: { title: string, ingredients: string[] }, cook: string, day: string }
+    const normalizedItems = items.map((item: unknown) => {
+      // Handle object items
+      if (typeof item === 'object' && item !== null) {
+        const obj = item as Record<string, unknown>;
+        
+        // Already in correct format
+        if (obj.recipe && typeof obj.recipe === 'object') {
+          const recipe = obj.recipe as Record<string, unknown>;
+          return {
+            recipe: {
+              title: String(recipe.title || 'Untitled Recipe'),
+              ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients.map(String) : [],
+            },
+            cook: obj.cook ? String(obj.cook) : null,
+            day: obj.day ? String(obj.day) : null,
+          };
+        }
+        
+        // Simple format with just name/title
+        if (obj.name || obj.title) {
+          return {
+            recipe: {
+              title: String(obj.name || obj.title || 'Untitled Recipe'),
+              ingredients: Array.isArray(obj.ingredients) ? obj.ingredients.map(String) : [],
+            },
+            cook: obj.cook ? String(obj.cook) : null,
+            day: obj.day ? String(obj.day) : null,
+          };
+        }
+      }
+      
+      // Fallback for string items
+      if (typeof item === 'string') {
+        return {
+          recipe: { title: item, ingredients: [] },
+          cook: null,
+          day: null,
+        };
+      }
+      
+      // Default fallback
+      return {
+        recipe: { title: 'Unknown Item', ingredients: [] },
+        cook: null,
+        day: null,
+      };
+    });
+
     // Enhanced logging for testing
     console.log("\n" + "=".repeat(60));
     console.log("📧 EMAIL SENDING TEST");
@@ -71,12 +121,12 @@ export async function POST(request: Request) {
     console.log("📨 Recipient Email:", recipientEmail);
     console.log("📮 From Email:", process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev");
     console.log("📅 Week Range:", weekRange);
-    console.log("🍽️  Number of Meals:", items.length);
+    console.log("🍽️  Number of Meals:", normalizedItems.length);
     console.log("=".repeat(60) + "\n");
 
     // Generate HTML and text versions
-    const html = generateShoppingListHTML({ weekRange, items });
-    const text = generateShoppingListText({ weekRange, items });
+    const html = generateShoppingListHTML({ weekRange: weekRange || "This Week", items: normalizedItems });
+    const text = generateShoppingListText({ weekRange: weekRange || "This Week", items: normalizedItems });
 
     console.log("📤 Sending email to Resend API...");
 

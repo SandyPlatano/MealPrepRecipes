@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TC001",
+    "title": "test_authentication_endpoint",
+    "description": "Test the /api/test-auth endpoint: POST to authenticate with email/password and GET to check authentication status. Verify that authentication returns user info and session tokens."
+  },
+  {
+    "id": "TC002",
+    "title": "test_parse_recipe_api_with_authentication",
+    "description": "Test POST /api/parse-recipe: First authenticate via /api/test-auth, then send recipe text to the parse endpoint with body: {\"text\": \"Chicken Stir Fry\\n\\nIngredients:\\n- 1 lb chicken breast\\n- 2 cups rice\\n\\nInstructions:\\n1. Cook chicken\\n2. Serve with rice\"}. Verify it returns structured recipe data (title, ingredients, instructions, tags). Also test that unauthenticated requests return 401."
+  },
+  {
+    "id": "TC003",
+    "title": "test_scrape_url_api_with_valid_url",
+    "description": "Test POST /api/scrape-url: Authenticate first, then send body: {\"url\": \"https://www.allrecipes.com/recipe/228285/teriyaki-salmon/\"}. Verify it returns html and text content with status 200. Also test that unauthenticated requests return 401."
+  },
+  {
+    "id": "TC004",
+    "title": "test_scrape_url_api_ssrf_protection",
+    "description": "Test SSRF protection on POST /api/scrape-url: After authenticating, try to scrape blocked URLs: {\"url\": \"http://localhost:3001\"} and {\"url\": \"http://127.0.0.1\"} and {\"url\": \"http://192.168.1.1\"}. Verify these return 403 forbidden with error 'Access to this URL is not permitted'."
+  },
+  {
+    "id": "TC005",
+    "title": "test_shopping_list_html_public_endpoint",
+    "description": "Test GET /api/shopping-list-html: This is a PUBLIC endpoint that works without authentication. Test 1: GET /api/shopping-list-html (no params) should return HTML with default demo data. Test 2: Verify response contains 'Shopping' and HTML tags. Content-Type should be text/html."
+  },
+  {
+    "id": "TC006",
+    "title": "test_send_shopping_list_api",
+    "description": "Test POST /api/send-shopping-list: Authenticate first, then send body: {\"weekRange\": \"Dec 9 - Dec 15\", \"items\": [{\"recipe\": {\"title\": \"Test Recipe\", \"ingredients\": [\"2 cups flour\", \"1 egg\"]}, \"cook\": \"Test User\", \"day\": \"Monday\"}]}. Verify it returns success with 200. Also test empty items returns 400, unauthenticated returns 401."
+  },
+  {
+    "id": "TC007",
+    "title": "test_google_calendar_status_api",
+    "description": "Test GET /api/google-calendar/status: Authenticate first, then check calendar connection status. Verify it returns JSON with {isConnected: boolean, connectedAccount: string|null}. Test that unauthenticated requests return 401."
+  },
+  {
+    "id": "TC008",
+    "title": "test_google_calendar_disconnect_api",
+    "description": "Test POST /api/google-calendar/disconnect: Authenticate first, then call disconnect endpoint. Verify it returns {success: true, message: string}. Test that unauthenticated requests return 401."
+  },
+  {
+    "id": "TC009",
+    "title": "test_parse_recipe_validation",
+    "description": "Test input validation on POST /api/parse-recipe: Authenticate, then test: 1) Empty body returns 400. 2) Body with neither text nor htmlContent returns 400. 3) Valid body with {\"text\": \"Simple recipe\"} returns 200."
+  },
+  {
+    "id": "TC010",
+    "title": "test_scrape_url_validation",
+    "description": "Test input validation on POST /api/scrape-url: Authenticate, then test: 1) Empty body returns 400 with 'URL is required'. 2) Invalid URL {\"url\": \"not-a-url\"} returns 400 with 'Invalid URL'. 3) Valid URL returns 200."
+  }
+]

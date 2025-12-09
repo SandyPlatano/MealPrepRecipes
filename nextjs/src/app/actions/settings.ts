@@ -240,7 +240,7 @@ export async function deleteAccount() {
     }
 
     return { error: null };
-  } catch (error) {
+  } catch {
     return { error: "Failed to delete account. Please try again." };
   }
 }

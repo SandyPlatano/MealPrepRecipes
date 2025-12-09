@@ -26,9 +26,39 @@ export async function GET(request: NextRequest) {
   if (dataParam) {
     try {
       const decoded = Buffer.from(dataParam, "base64").toString("utf-8");
-      shoppingData = JSON.parse(decoded);
+      const parsed = JSON.parse(decoded);
+      
+      // Handle different input formats gracefully
+      if (parsed.categories && typeof parsed.categories === 'object') {
+        // Expected format with categories object
+        shoppingData = {
+          weekRange: parsed.weekRange || "This Week",
+          categories: parsed.categories,
+          recipes: Array.isArray(parsed.recipes) ? parsed.recipes : [],
+        };
+      } else if (Array.isArray(parsed.items)) {
+        // Alternative format with items array - convert to categories
+        const categorizedItems: { [category: string]: string[] } = {};
+        parsed.items.forEach((item: { name?: string; category?: string; quantity?: number }) => {
+          const category = item.category || "Other";
+          if (!categorizedItems[category]) {
+            categorizedItems[category] = [];
+          }
+          const itemText = item.quantity 
+            ? `${item.name} (${item.quantity})`
+            : item.name || "Unknown item";
+          categorizedItems[category].push(itemText);
+        });
+        shoppingData = {
+          weekRange: parsed.weekRange || "This Week",
+          categories: Object.keys(categorizedItems).length > 0 ? categorizedItems : shoppingData.categories,
+          recipes: Array.isArray(parsed.recipes) ? parsed.recipes : [],
+        };
+      }
+      // If neither format matches, keep default data
     } catch (e) {
       console.error("Failed to parse shopping data:", e);
+      // Keep default data on parse error
     }
   }
 

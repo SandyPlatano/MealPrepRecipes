@@ -1,0 +1,23 @@
+{
+  "status": "commited",
+  "type": "backend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3001",
+  "backendAuthType": "cookie",
+  "authEndpoint": "/api/test-auth",
+  "authMethod": "POST",
+  "authBody": {
+    "email": "test@testsprite.dev",
+    "password": "TestSprite123!"
+  },
+  "executionArgs": {
+    "projectName": "nextjs",
+    "projectPath": "/Users/ferm/Documents/GitHub/MealPrepRecipes/nextjs",
+    "testIds": [],
+    "additionalInstruction": "CRITICAL TESTING INSTRUCTIONS:\n\n1. AUTHENTICATION - Use requests.Session() to maintain cookies:\n```python\nimport requests\nsession = requests.Session()\nauth_response = session.post(base_url + \"/api/test-auth\", json={\"email\": \"test@testsprite.dev\", \"password\": \"TestSprite123!\"})\n# The response includes: success, email, user, session, token, access_token\n# Now use same session for all authenticated requests\n```\n\n2. PUBLIC ENDPOINT (no auth needed):\n   - GET /api/shopping-list-html - returns HTML page\n\n3. AUTHENTICATED ENDPOINTS (use session after auth):\n   - POST /api/parse-recipe - body: {\"text\": \"Recipe text...\"} OR {\"htmlContent\": \"...\", \"sourceUrl\": \"...\"}\n   - POST /api/scrape-url - body: {\"url\": \"https://example.com/recipe\"}\n   - POST /api/send-shopping-list - body: {\"weekRange\": \"Dec 9-15\", \"items\": [{\"recipe\": {\"title\": \"Test\", \"ingredients\": [\"flour\", \"eggs\"]}, \"cook\": \"User\", \"day\": \"Monday\"}]}\n   - GET /api/google-calendar/status\n   - POST /api/google-calendar/disconnect\n\n4. SSRF TESTING for /api/scrape-url - these should return 403:\n   - {\"url\": \"http://localhost:3001\"}\n   - {\"url\": \"http://127.0.0.1\"}\n   - {\"url\": \"http://192.168.1.1\"}\n\n5. For rate limiting tests, use valid request body: {\"text\": \"Simple recipe text\"}",
+    "envs": {
+      "API_KEY": "sk-user-9wnh16f0VKnI4ED7bWrTQecEA7q2qG-tK75JGmlS8bmD0hLhsUpR7LcL6R9M7QZkfP5-gDOP1YfqMYAhHuTRJV3CoI_IGcLvKkXj8OxhaI8c3-9xcBz46PmqWWEyqA_BfLI"
+    }
+  },
+  "proxy": "http://e9ae77e5-208f-45b2-93bd-6aa0acf3be8f:DUQbqiMSbWV2ZEmqlTTbsVMceb6oebLu@tun.testsprite.com:8080"
+}

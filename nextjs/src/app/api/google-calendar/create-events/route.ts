@@ -117,7 +117,7 @@ export async function POST(request: Request) {
     const excludedDays = settings.calendar_excluded_days || [];
 
     // Filter out items for excluded days
-    const filteredItems = items.filter((item: any) => !excludedDays.includes(item.day));
+    const filteredItems = items.filter((item: Record<string, unknown>) => !excludedDays.includes(item.day as string));
 
     if (filteredItems.length === 0) {
       return NextResponse.json(
@@ -137,8 +137,8 @@ export async function POST(request: Request) {
       Sunday: 6,
     };
 
-    const calendarEvents = filteredItems.map((item: any) => {
-      const dayOffset = dayMap[item.day] || 0;
+    const calendarEvents = filteredItems.map((item: Record<string, unknown>) => {
+      const dayOffset = dayMap[item.day as string] || 0;
       const eventDate = new Date(mondayDate);
       eventDate.setDate(eventDate.getDate() + dayOffset);
 

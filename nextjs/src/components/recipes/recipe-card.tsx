@@ -15,7 +15,6 @@ import { Input } from "@/components/ui/input";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
@@ -52,7 +51,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { toggleFavorite, deleteRecipe, markAsCooked } from "@/app/actions/recipes";
+import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
 import type { RecipeWithFavorite, RecipeType } from "@/types/recipe";
 import { useCart } from "@/components/cart";
 import { toast } from "sonner";
@@ -60,7 +59,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { MarkCookedDialog } from "./mark-cooked-dialog";
 import Image from "next/image";
-import { detectAllergens, mergeAllergens, getAllergenDisplayName, getAllergenBadgeColor, hasUserAllergens, hasCustomRestrictions, type AllergenType } from "@/lib/allergen-detector";
+import { detectAllergens, mergeAllergens, getAllergenDisplayName, hasUserAllergens, hasCustomRestrictions } from "@/lib/allergen-detector";
 
 // Get icon based on recipe type
 function getRecipeIcon(recipeType: RecipeType) {
@@ -200,7 +199,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
     }
   };
 
-  const handleExportMarkdown = (e: React.MouseEvent) => {
+  const _handleExportMarkdown = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const markdown = exportRecipeAsMarkdown(recipe);
@@ -277,9 +276,9 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
         await navigator.share(shareData);
         toast.success("Recipe shared!");
         return;
-      } catch (error: any) {
+      } catch (error: unknown) {
         // User cancelled or error occurred
-        if (error.name !== "AbortError") {
+        if ((error as {name?: string}).name !== "AbortError") {
           console.error("Error sharing:", error);
         }
         // Fall through to clipboard fallback

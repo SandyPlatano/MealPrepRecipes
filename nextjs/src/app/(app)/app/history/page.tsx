@@ -6,7 +6,7 @@ import { StarRating } from "@/components/ui/star-rating";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDistanceToNow, format } from "date-fns";
 import Link from "next/link";
-import { History, Calendar, Heart } from "lucide-react";
+import { Calendar, Heart } from "lucide-react";
 
 export default async function HistoryPage() {
   const [historyResult, plansResult] = await Promise.all([
@@ -22,7 +22,7 @@ export default async function HistoryPage() {
       <div>
         <h1 className="text-3xl font-mono font-bold">The Vault</h1>
         <p className="text-muted-foreground mt-1">
-          Your favorites and everything you've actually made
+          Your favorites and everything you&apos;ve actually made
         </p>
       </div>
 
@@ -106,7 +106,7 @@ export default async function HistoryPage() {
                     </div>
                     {entry.notes && (
                       <p className="text-sm text-muted-foreground mt-3 italic">
-                        "{entry.notes}"
+                        &quot;{entry.notes}&quot;
                       </p>
                     )}
                   </CardContent>
@@ -129,7 +129,7 @@ export default async function HistoryPage() {
             </Card>
           ) : (
             <div className="space-y-4">
-              {weeklyPlans.map((plan: any) => {
+              {weeklyPlans.map((plan: Record<string, unknown>) => {
                 const weekEnd = new Date(plan.week_start);
                 weekEnd.setDate(weekEnd.getDate() + 6);
                 
@@ -149,7 +149,7 @@ export default async function HistoryPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        {plan.meal_assignments?.map((assignment: any) => (
+                        {plan.meal_assignments?.map((assignment: Record<string, unknown>) => (
                           <div 
                             key={assignment.id} 
                             className="flex items-center justify-between text-sm border-b pb-2 last:border-b-0"

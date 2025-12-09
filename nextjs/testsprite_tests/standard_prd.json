@@ -1,0 +1,323 @@
+{
+  "meta": {
+    "project": "Babe, What's for Dinner?",
+    "date": "2025-12-05",
+    "prepared_by": "Software Development Manager"
+  },
+  "product_overview": "Babe, What's for Dinner? is a comprehensive meal planning application designed for couples, families, and individuals to simplify meal organization by managing recipes, planning weekly meals, generating shopping lists, and tracking cooking history with AI-assisted features and collaborative household support.",
+  "core_goals": [
+    "Simplify meal planning through AI-powered recipe import and smart management",
+    "Enable collaborative meal planning and shared household management",
+    "Automate shopping list generation based on meal plans",
+    "Track cooking history and recipe ratings to enhance user experience",
+    "Integrate with Google Calendar for meal plan syncing (Pro feature)",
+    "Support responsive, accessible design with offline PWA capabilities"
+  ],
+  "key_features": [
+    "AI-Powered Recipe Import from URLs using Anthropic Claude API",
+    "Full CRUD operations for recipes including creation, editing, discovery, and scaling",
+    "Collaborative weekly meal planning with drag-and-drop interface and cook assignments",
+    "Automatic shopping list generation organized by grocery categories with email sending capability",
+    "User authentication via email/password and Google OAuth, including onboarding and user settings",
+    "Pantry management for inventory tracking",
+    "Cooking history tracking and recipe rating system",
+    "Google Calendar integration for syncing meal plans",
+    "Dark mode and theme toggling",
+    "Progressive Web App (PWA) support for offline use",
+    "GDPR-compliant cookie consent and API rate limiting for security"
+  ],
+  "user_flow_summary": [
+    "User onboarding including account creation with email or Google OAuth, followed by onboarding dialogs and redirection to main app",
+    "Recipe import workflow where users input a URL, AI parses recipe ingredients, instructions, and cook times, then users review and save recipes",
+    "Weekly meal planning where users drag recipes onto meal slots, assign cooks, adjust servings, finalize plans, and generate shopping lists",
+    "Shopping list management allowing users to view, check off items, adjust quantities, and email their shopping list",
+    "Cooking process flow where users start cooking from recipe pages, the system logs cooking events, and users rate the recipes post-cooking",
+    "Settings management enabling profile updates, dietary restriction configuration, Google Calendar integration, pantry tracking, and household member management"
+  ],
+  "validation_criteria": [
+    "Successful user authentication via both email/password and Google OAuth",
+    "Accurate AI parsing and importing of recipe data from URLs",
+    "Seamless CRUD operations on recipes and meal plans with real-time updates",
+    "Responsive drag-and-drop UI for meal planning functional on desktop and mobile devices",
+    "Correct automatic generation and email sending of shopping lists",
+    "Reliable tracking of cooking history and accurate update of recipe ratings",
+    "Secure Google Calendar sync with OAuth token handling",
+    "PWA offline functionality with service worker support",
+    "Enforced API rate limiting and secure Row Level Security policies on database operations",
+    "Compliance with GDPR via cookie consent and accessible UI design"
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "TypeScript",
+      "Next.js 14",
+      "React 18",
+      "Supabase (PostgreSQL)",
+      "Tailwind CSS",
+      "shadcn/ui",
+      "Anthropic Claude API",
+      "Resend (Email)",
+      "Google OAuth"
+    ],
+    "features": [
+      {
+        "name": "Authentication",
+        "description": "User authentication with email/password and Google OAuth, including login, signup, forgot password flows",
+        "files": [
+          "src/app/(auth)/login/page.tsx",
+          "src/app/(auth)/signup/page.tsx",
+          "src/app/(auth)/forgot-password/page.tsx",
+          "src/app/auth/google/callback/page.tsx",
+          "src/app/auth/callback/route.ts",
+          "src/app/actions/auth.ts"
+        ]
+      },
+      {
+        "name": "Recipe Management",
+        "description": "Full CRUD operations for recipes including creation, editing, viewing, discovery, and AI-powered import from URLs",
+        "files": [
+          "src/app/(app)/app/recipes/page.tsx",
+          "src/app/(app)/app/recipes/[id]/page.tsx",
+          "src/app/(app)/app/recipes/[id]/edit/page.tsx",
+          "src/app/(app)/app/recipes/new/page.tsx",
+          "src/app/(app)/app/recipes/discover/page.tsx",
+          "src/app/(app)/app/recipes/[id]/cook/page.tsx",
+          "src/components/recipes/recipe-card.tsx",
+          "src/components/recipes/recipe-detail.tsx",
+          "src/components/recipes/recipe-form.tsx",
+          "src/components/recipes/recipe-grid.tsx",
+          "src/components/recipes/recipe-discovery.tsx",
+          "src/components/recipes/recipe-import.tsx",
+          "src/components/recipes/cooking-mode.tsx",
+          "src/components/recipes/mark-cooked-dialog.tsx",
+          "src/app/actions/recipes.ts"
+        ]
+      },
+      {
+        "name": "AI Recipe Import",
+        "description": "AI-powered recipe parsing from URLs using Anthropic Claude API to extract ingredients, instructions, and cook times",
+        "files": [
+          "src/app/api/parse-recipe/route.ts",
+          "src/app/api/scrape-url/route.ts",
+          "src/components/recipes/recipe-import.tsx"
+        ]
+      },
+      {
+        "name": "Meal Planning",
+        "description": "Weekly meal planning with drag-and-drop interface, cook assignments, and meal plan management",
+        "files": [
+          "src/app/(app)/app/plan/page.tsx",
+          "src/app/(app)/app/finalize/page.tsx",
+          "src/components/meal-plan/meal-planner-grid.tsx",
+          "src/components/meal-plan/planner-day-column.tsx",
+          "src/components/meal-plan/planner-day-row.tsx",
+          "src/components/meal-plan/planner-header.tsx",
+          "src/components/meal-plan/planner-summary.tsx",
+          "src/components/meal-plan/meal-cell.tsx",
+          "src/components/meal-plan/recipe-picker-modal.tsx",
+          "src/components/meal-plan/recipe-picker-card.tsx",
+          "src/components/meal-plan/inline-recipe-picker.tsx",
+          "src/components/meal-plan/mobile-day-accordion.tsx",
+          "src/components/meal-plan/plan-scroll-restorer.tsx",
+          "src/components/finalize/finalize-view.tsx",
+          "src/components/finalize/finalize-actions.tsx",
+          "src/components/finalize/week-schedule.tsx",
+          "src/components/finalize/week-stats.tsx",
+          "src/components/finalize/checkout-shopping-list.tsx",
+          "src/app/actions/meal-plans.ts",
+          "src/app/actions/meal-plan-suggestions.ts"
+        ]
+      },
+      {
+        "name": "Shopping List",
+        "description": "Auto-generated shopping lists from meal plans, organized by category, with email sending capability",
+        "files": [
+          "src/app/(app)/app/shop/page.tsx",
+          "src/components/shopping-list/shopping-list-view.tsx",
+          "src/app/actions/shopping-list.ts",
+          "src/app/api/send-shopping-list/route.ts",
+          "src/app/api/shopping-list-html/route.ts",
+          "src/lib/email/shopping-list-template.ts"
+        ]
+      },
+      {
+        "name": "Pantry Management",
+        "description": "Track pantry items and manage inventory",
+        "files": [
+          "src/app/(app)/app/pantry/page.tsx",
+          "src/components/pantry/pantry-view.tsx",
+          "src/app/actions/pantry.ts"
+        ]
+      },
+      {
+        "name": "Cooking History",
+        "description": "Track cooking history and meal statistics",
+        "files": [
+          "src/app/(app)/app/history/page.tsx",
+          "src/app/actions/cooking-history.ts"
+        ]
+      },
+      {
+        "name": "Settings",
+        "description": "User settings management including Google Calendar integration and dietary preferences",
+        "files": [
+          "src/app/(app)/app/settings/page.tsx",
+          "src/components/settings/settings-form.tsx",
+          "src/components/settings/google-calendar-button.tsx",
+          "src/app/actions/settings.ts"
+        ]
+      },
+      {
+        "name": "Google Calendar Integration",
+        "description": "Sync meal plans to Google Calendar with OAuth authentication",
+        "files": [
+          "src/app/api/google-calendar/create-events/route.ts",
+          "src/app/api/google-calendar/exchange-token/route.ts",
+          "src/app/api/google-calendar/disconnect/route.ts",
+          "src/app/api/google-calendar/status/route.ts",
+          "src/lib/google-calendar.ts",
+          "src/components/settings/google-calendar-button.tsx"
+        ]
+      },
+      {
+        "name": "Landing Page",
+        "description": "Marketing landing page with feature demos, FAQ, and pricing information",
+        "files": [
+          "src/app/page.tsx",
+          "src/app/pricing/page.tsx",
+          "src/components/landing/animated-demo.tsx",
+          "src/components/landing/faq.tsx",
+          "src/components/brand/logo.tsx"
+        ]
+      },
+      {
+        "name": "Marketing Pages",
+        "description": "About, privacy policy, and terms of service pages",
+        "files": [
+          "src/app/(marketing)/about/page.tsx",
+          "src/app/(marketing)/privacy/page.tsx",
+          "src/app/(marketing)/terms/page.tsx"
+        ]
+      },
+      {
+        "name": "Navigation",
+        "description": "App navigation and routing",
+        "files": [
+          "src/components/navigation/app-nav.tsx",
+          "src/app/(app)/layout.tsx"
+        ]
+      },
+      {
+        "name": "Cart System",
+        "description": "Shopping cart functionality for meal plan items",
+        "files": [
+          "src/components/cart/cart-button.tsx",
+          "src/components/cart/cart-context.tsx",
+          "src/components/cart/cart-sheet.tsx"
+        ]
+      },
+      {
+        "name": "Onboarding",
+        "description": "User onboarding flow and dialogs",
+        "files": [
+          "src/components/onboarding/onboarding-dialog.tsx",
+          "src/components/onboarding/onboarding-wrapper.tsx"
+        ]
+      },
+      {
+        "name": "Theme Management",
+        "description": "Dark/light theme toggle and theme provider",
+        "files": [
+          "src/components/theme-provider.tsx",
+          "src/components/theme-toggle.tsx"
+        ]
+      },
+      {
+        "name": "Cookie Consent",
+        "description": "GDPR-compliant cookie consent banner",
+        "files": [
+          "src/components/cookie-consent.tsx"
+        ]
+      },
+      {
+        "name": "Ingredient Scaling",
+        "description": "Scale recipe ingredients based on serving sizes",
+        "files": [
+          "src/lib/ingredient-scaler.ts"
+        ]
+      },
+      {
+        "name": "Substitutions",
+        "description": "Ingredient substitution suggestions and management",
+        "files": [
+          "src/lib/substitutions.ts",
+          "src/app/actions/substitutions.ts"
+        ]
+      },
+      {
+        "name": "Allergen Detection",
+        "description": "Detect allergens in recipes and ingredients",
+        "files": [
+          "src/lib/allergen-detector.ts"
+        ]
+      },
+      {
+        "name": "Rate Limiting",
+        "description": "API rate limiting for protected endpoints",
+        "files": [
+          "src/lib/rate-limit.ts"
+        ]
+      },
+      {
+        "name": "Offline Support",
+        "description": "Offline functionality and service worker support",
+        "files": [
+          "src/lib/use-offline.ts",
+          "src/app/offline/page.tsx",
+          "public/sw.js"
+        ]
+      },
+      {
+        "name": "UI Components",
+        "description": "Reusable UI components from shadcn/ui library",
+        "files": [
+          "src/components/ui/button.tsx",
+          "src/components/ui/card.tsx",
+          "src/components/ui/dialog.tsx",
+          "src/components/ui/input.tsx",
+          "src/components/ui/label.tsx",
+          "src/components/ui/select.tsx",
+          "src/components/ui/textarea.tsx",
+          "src/components/ui/switch.tsx",
+          "src/components/ui/checkbox.tsx",
+          "src/components/ui/calendar.tsx",
+          "src/components/ui/tabs.tsx",
+          "src/components/ui/accordion.tsx",
+          "src/components/ui/alert.tsx",
+          "src/components/ui/alert-dialog.tsx",
+          "src/components/ui/badge.tsx",
+          "src/components/ui/collapsible.tsx",
+          "src/components/ui/dropdown-menu.tsx",
+          "src/components/ui/popover.tsx",
+          "src/components/ui/progress.tsx",
+          "src/components/ui/scroll-area.tsx",
+          "src/components/ui/separator.tsx",
+          "src/components/ui/sheet.tsx",
+          "src/components/ui/sonner.tsx",
+          "src/components/ui/star-rating.tsx",
+          "src/components/ui/table.tsx",
+          "src/components/ui/tooltip.tsx"
+        ]
+      },
+      {
+        "name": "Supabase Integration",
+        "description": "Supabase client setup and database queries with caching",
+        "files": [
+          "src/lib/supabase/client.ts",
+          "src/lib/supabase/server.ts",
+          "src/lib/supabase/middleware.ts",
+          "src/lib/supabase/cached-queries.ts"
+        ]
+      }
+    ]
+  }
+}

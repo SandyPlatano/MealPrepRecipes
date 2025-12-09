@@ -20,7 +20,6 @@ import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PlannerHeader } from "./planner-header";
-import { PlannerDayColumn } from "./planner-day-column";
 import { PlannerDayRow } from "./planner-day-row";
 import { PlannerSummary } from "./planner-summary";
 import { MealCellOverlay } from "./meal-cell";
@@ -33,7 +32,6 @@ import {
 } from "@/app/actions/meal-plans";
 import { copyPreviousWeek } from "@/app/actions/meal-plan-suggestions";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import {
   type WeekPlanData,
   type DayOfWeek,
@@ -87,7 +85,6 @@ export function MealPlannerGrid({
   const [activeAssignment, setActiveAssignment] = useState<MealAssignmentWithRecipe | null>(null);
   const [overDay, setOverDay] = useState<DayOfWeek | null>(null);
   const [isSending, setIsSending] = useState(false);
-  const [isAddingToCalendar, setIsAddingToCalendar] = useState(false);
   const [showStickyNav, setShowStickyNav] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
 
@@ -249,7 +246,7 @@ export function MealPlannerGrid({
       } else {
         toast.success(result.message || "Plan sent!");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to send plan");
     } finally {
       setIsSending(false);
@@ -257,7 +254,7 @@ export function MealPlannerGrid({
   }, [allAssignments, weekStart, weekStartStr]);
 
   // Handler for downloading shopping list
-  const handleDownloadList = useCallback(() => {
+  const _handleDownloadList = useCallback(() => {
     if (allAssignments.length === 0) {
       toast.error("No meals to download");
       return;
@@ -297,7 +294,7 @@ export function MealPlannerGrid({
   }, [allAssignments, weekStart, weekPlan.assignments]);
 
   // Handler for adding to calendar
-  const handleAddToCalendar = useCallback(async () => {
+  const _handleAddToCalendar = useCallback(async () => {
     if (allAssignments.length === 0) {
       toast.error("No meals to add to calendar");
       return;
@@ -326,10 +323,8 @@ export function MealPlannerGrid({
       } else {
         toast.info("No events created. Check Google Calendar connection in Settings.");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to add to calendar");
-    } finally {
-      setIsAddingToCalendar(false);
     }
   }, [allAssignments, weekStart]);
 
