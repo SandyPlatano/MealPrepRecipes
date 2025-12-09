@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Mail, Calendar, Download, ArrowLeft, Loader2, ShoppingCart } from "lucide-react";
@@ -39,7 +39,6 @@ export function FinalizeActions({
   weekStartStr,
 }: FinalizeActionsProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
   const [isSending, setIsSending] = useState(false);
   const [isAddingToCalendar, setIsAddingToCalendar] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);

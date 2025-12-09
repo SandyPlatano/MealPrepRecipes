@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -68,8 +67,7 @@ export function PlannerDayRow({
   onRemoveMeal,
   isOver = false,
 }: PlannerDayRowProps) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [modalOpen, setModalOpen] = useState(false);
 
 

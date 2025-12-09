@@ -23,7 +23,6 @@ import {
 } from "@/app/actions/meal-plans";
 import type { MealPlanTemplate } from "@/types/meal-plan";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 interface TemplateManagerDialogProps {
   open: boolean;
@@ -40,8 +39,7 @@ export function TemplateManagerDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [isApplying, setIsApplying] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     if (open) {
