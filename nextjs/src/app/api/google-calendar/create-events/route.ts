@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { weekRange, items } = body;
+    const { weekRange, items, userTimeZone } = body;
 
     if (!items || items.length === 0) {
       return NextResponse.json(
@@ -142,16 +142,29 @@ export async function POST(request: Request) {
       const eventDate = new Date(mondayDate);
       eventDate.setDate(eventDate.getDate() + dayOffset);
 
-      // Parse event time (HH:MM:SS format)
-      const [hours, minutes] = eventTime.split(":").map(Number);
-      eventDate.setHours(hours, minutes, 0, 0);
+      // Format date as YYYY-MM-DD
+      const year = eventDate.getFullYear();
+      const month = String(eventDate.getMonth() + 1).padStart(2, '0');
+      const day = String(eventDate.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
 
-      const startDateTime = eventDate.toISOString();
+      // Combine date and time (time is already in HH:MM:SS format)
+      const startDateTime = `${dateStr}T${eventTime}`;
 
-      // Calculate end time
+      // Calculate end time by parsing the time and adding duration
+      const [hours, minutes, seconds] = eventTime.split(":").map(Number);
       const endDate = new Date(eventDate);
-      endDate.setMinutes(endDate.getMinutes() + eventDuration);
-      const endDateTime = endDate.toISOString();
+      endDate.setHours(hours, minutes + eventDuration, seconds || 0, 0);
+      
+      // Format end time (handle day overflow if event crosses midnight)
+      const endYear = endDate.getFullYear();
+      const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+      const endDay = String(endDate.getDate()).padStart(2, '0');
+      const endDateStr = `${endYear}-${endMonth}-${endDay}`;
+      const endHours = String(endDate.getHours()).padStart(2, '0');
+      const endMinutes = String(endDate.getMinutes()).padStart(2, '0');
+      const endSeconds = String(endDate.getSeconds()).padStart(2, '0');
+      const endDateTime = `${endDateStr}T${endHours}:${endMinutes}:${endSeconds}`;
 
       const recipe = item.recipe as Record<string, unknown>;
       return {
@@ -174,6 +187,7 @@ export async function POST(request: Request) {
       accessToken,
       events: calendarEvents,
       attendeeEmails: [user.email],
+      timeZone: userTimeZone,
     });
 
     if (result.failed > 0) {

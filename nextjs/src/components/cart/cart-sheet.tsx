@@ -223,6 +223,7 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
             cook: item.cook,
             day: item.day,
           })),
+          userTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         }),
       });
 

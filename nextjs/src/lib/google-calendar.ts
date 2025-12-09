@@ -155,6 +155,7 @@ export async function createCalendarEvent({
   startDateTime,
   endDateTime,
   attendeeEmails,
+  timeZone,
 }: {
   accessToken: string;
   summary: string;
@@ -162,17 +163,21 @@ export async function createCalendarEvent({
   startDateTime: string;
   endDateTime: string;
   attendeeEmails?: string[];
+  timeZone?: string;
 }): Promise<Record<string, unknown>> {
+  // Use provided timezone or fall back to server timezone
+  const eventTimeZone = timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+  
   const event: Record<string, unknown> = {
     summary,
     description,
     start: {
       dateTime: startDateTime,
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      timeZone: eventTimeZone,
     },
     end: {
       dateTime: endDateTime,
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      timeZone: eventTimeZone,
     },
   };
 
@@ -207,10 +212,12 @@ export async function createMealPlanEvents({
   accessToken,
   events,
   attendeeEmails,
+  timeZone,
 }: {
   accessToken: string;
   events: CalendarEvent[];
   attendeeEmails?: string[];
+  timeZone?: string;
 }): Promise<{
   successful: number;
   failed: number;
@@ -226,6 +233,7 @@ export async function createMealPlanEvents({
         startDateTime: event.startDateTime,
         endDateTime: event.endDateTime,
         attendeeEmails,
+        timeZone,
       })
     )
   );

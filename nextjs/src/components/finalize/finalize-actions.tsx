@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Mail, Calendar, Download, ArrowLeft, Loader2, ShoppingCart } from "lucide-react";
@@ -39,6 +39,7 @@ export function FinalizeActions({
   weekStartStr,
 }: FinalizeActionsProps) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [isSending, setIsSending] = useState(false);
   const [isAddingToCalendar, setIsAddingToCalendar] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -70,8 +71,6 @@ export function FinalizeActions({
         toast.error(result.error || "Failed to send plan");
       } else {
         toast.success(result.message || "Plan sent!");
-        // Refresh to update sent status
-        router.refresh();
       }
     } catch {
       toast.error("Failed to send plan");
@@ -98,6 +97,7 @@ export function FinalizeActions({
             cook: a.cook,
             day: a.day_of_week,
           })),
+          userTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         }),
       });
 

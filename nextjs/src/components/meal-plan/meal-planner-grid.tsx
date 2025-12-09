@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   DndContext,
@@ -18,7 +18,7 @@ import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { PlannerHeader } from "./planner-header";
 import { PlannerDayRow } from "./planner-day-row";
 import { PlannerSummary } from "./planner-summary";
@@ -82,6 +82,7 @@ export function MealPlannerGrid({
   previousWeekMealCount,
 }: MealPlannerGridProps) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [activeAssignment, setActiveAssignment] = useState<MealAssignmentWithRecipe | null>(null);
   const [overDay, setOverDay] = useState<DayOfWeek | null>(null);
   const [isSending, setIsSending] = useState(false);
@@ -138,58 +139,61 @@ export function MealPlannerGrid({
   // Handler for adding a meal
   const handleAddMeal = useCallback(
     async (recipeId: string, day: DayOfWeek, cook?: string) => {
-      const result = await addMealAssignment(weekStartStr, recipeId, day, cook);
-      if (result.error) {
-        toast.error(result.error);
-      } else {
-        const recipe = recipes.find((r) => r.id === recipeId);
-        toast.success(`Added "${recipe?.title}" to ${day}`);
-        router.refresh();
-      }
+      const recipe = recipes.find((r) => r.id === recipeId);
+      startTransition(async () => {
+        const result = await addMealAssignment(weekStartStr, recipeId, day, cook);
+        if (result.error) {
+          toast.error(result.error);
+        } else {
+          toast.success(`Added "${recipe?.title}" to ${day}`);
+        }
+      });
     },
-    [weekStartStr, recipes, router]
+    [weekStartStr, recipes]
   );
 
   // Handler for updating a cook
   const handleUpdateCook = useCallback(
     async (assignmentId: string, cook: string | null) => {
-      const result = await updateMealAssignment(assignmentId, { cook: cook || undefined });
-      if (result.error) {
-        toast.error(result.error);
-      } else {
-        router.refresh();
-      }
+      startTransition(async () => {
+        const result = await updateMealAssignment(assignmentId, { cook: cook || undefined });
+        if (result.error) {
+          toast.error(result.error);
+        }
+      });
     },
-    [router]
+    []
   );
 
   // Handler for removing a meal
   const handleRemoveMeal = useCallback(
     async (assignmentId: string) => {
       const assignment = allAssignments.find((a) => a.id === assignmentId);
-      const result = await removeMealAssignment(assignmentId);
-      if (result.error) {
-        toast.error(result.error);
-      } else {
-        toast.success(`Removed "${assignment?.recipe.title}"`);
-        router.refresh();
-      }
+      startTransition(async () => {
+        const result = await removeMealAssignment(assignmentId);
+        if (result.error) {
+          toast.error(result.error);
+        } else {
+          toast.success(`Removed "${assignment?.recipe.title}"`);
+        }
+      });
     },
-    [allAssignments, router]
+    [allAssignments]
   );
 
   // Handler for clearing a day
   const handleClearDay = useCallback(
     async (day: DayOfWeek) => {
-      const result = await clearDayAssignments(weekStartStr, day);
-      if (result.error) {
-        toast.error(result.error);
-      } else {
-        toast.success(`Cleared ${day}`);
-        router.refresh();
-      }
+      startTransition(async () => {
+        const result = await clearDayAssignments(weekStartStr, day);
+        if (result.error) {
+          toast.error(result.error);
+        } else {
+          toast.success(`Cleared ${day}`);
+        }
+      });
     },
-    [weekStartStr, router]
+    [weekStartStr]
   );
 
   // Handler for copying last week
@@ -198,24 +202,26 @@ export function MealPlannerGrid({
     previousWeekStart.setDate(previousWeekStart.getDate() - 7);
     const prevWeekStr = previousWeekStart.toISOString().split("T")[0];
 
-    const result = await copyPreviousWeek(prevWeekStr, weekStartStr);
-    if (result.error) {
-      toast.error(result.error);
-    } else {
-      toast.success(`Copied ${result.copiedCount} meals from last week`);
-      router.refresh();
-    }
-  }, [weekStart, weekStartStr, router]);
+    startTransition(async () => {
+      const result = await copyPreviousWeek(prevWeekStr, weekStartStr);
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success(`Copied ${result.copiedCount} meals from last week`);
+      }
+    });
+  }, [weekStart, weekStartStr]);
 
   // Handler for clearing all meals
   const handleClearAll = useCallback(async () => {
-    // Clear each day
-    for (const day of DAYS_OF_WEEK) {
-      await clearDayAssignments(weekStartStr, day);
-    }
-    toast.success("Cleared all meals");
-    router.refresh();
-  }, [weekStartStr, router]);
+    startTransition(async () => {
+      // Clear each day
+      for (const day of DAYS_OF_WEEK) {
+        await clearDayAssignments(weekStartStr, day);
+      }
+      toast.success("Cleared all meals");
+    });
+  }, [weekStartStr]);
 
   // Handler for sending the plan
   const handleSendPlan = useCallback(async () => {
@@ -285,15 +291,16 @@ export function MealPlannerGrid({
       const assignment = allAssignments.find((a) => a.id === active.id);
 
       if (assignment && assignment.day_of_week !== newDay) {
-        const result = await updateMealAssignment(assignment.id, {
-          day_of_week: newDay,
+        startTransition(async () => {
+          const result = await updateMealAssignment(assignment.id, {
+            day_of_week: newDay,
+          });
+          if (result.error) {
+            toast.error(result.error);
+          } else {
+            toast.success(`Moved to ${newDay}`);
+          }
         });
-        if (result.error) {
-          toast.error(result.error);
-        } else {
-          toast.success(`Moved to ${newDay}`);
-          router.refresh();
-        }
       }
     }
   };
@@ -309,9 +316,17 @@ export function MealPlannerGrid({
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
+        {/* Loading Indicator */}
+        {isPending && (
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span className="text-sm font-medium">Updating...</span>
+          </div>
+        )}
+        
         <div className="space-y-4">
           {/* Header */}
-          <div ref={headerRef}>
+          <div ref={headerRef} className={isPending ? "opacity-75 pointer-events-none" : ""}>
             <PlannerHeader
               weekStart={weekStart}
               onCopyLastWeek={handleCopyLastWeek}
@@ -349,7 +364,7 @@ export function MealPlannerGrid({
           )}
 
           {/* Desktop Horizontal Rows */}
-          <div className="hidden md:flex md:flex-col gap-3">
+          <div className={`hidden md:flex md:flex-col gap-3 transition-opacity ${isPending ? "opacity-60" : ""}`}>
             {DAYS_OF_WEEK.map((day, index) => {
               const dayDate = new Date(weekStart);
               dayDate.setDate(dayDate.getDate() + index);
@@ -379,7 +394,7 @@ export function MealPlannerGrid({
           </div>
 
           {/* Mobile Accordion */}
-          <div className="md:hidden">
+          <div className={`md:hidden transition-opacity ${isPending ? "opacity-60" : ""}`}>
             <Accordion type="multiple" className="space-y-0">
               {DAYS_OF_WEEK.map((day, index) => {
                 const dayDate = new Date(weekStart);

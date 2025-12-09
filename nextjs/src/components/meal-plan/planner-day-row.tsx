@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useDroppable } from "@dnd-kit/core";
 import {
@@ -69,6 +69,7 @@ export function PlannerDayRow({
   isOver = false,
 }: PlannerDayRowProps) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [modalOpen, setModalOpen] = useState(false);
 
 
@@ -92,7 +93,7 @@ export function PlannerDayRow({
   const assignmentIds = assignments.map((a) => a.id);
 
   return (
-    <div className="flex items-start gap-2 sm:gap-3">
+    <div className={`flex items-start gap-2 sm:gap-3 transition-opacity ${isPending ? "opacity-60" : ""}`}>
       {/* Day Badge - Floats on the left */}
       <div
         className={cn(
@@ -183,13 +184,12 @@ export function PlannerDayRow({
                 cookColors={cookColors}
                 userAllergenAlerts={userAllergenAlerts}
                 onAdd={async (recipeIds, cook) => {
-                  // Add each recipe with the cook assignment
-                  for (const recipeId of recipeIds) {
-                    await onAddMeal(recipeId, day, cook || undefined);
-                  }
-                  
-                  // Refresh the page to show new recipes
-                  router.refresh();
+                  startTransition(async () => {
+                    // Add each recipe with the cook assignment
+                    for (const recipeId of recipeIds) {
+                      await onAddMeal(recipeId, day, cook || undefined);
+                    }
+                  });
                 }}
               />
             </>

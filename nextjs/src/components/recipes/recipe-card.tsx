@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, memo } from "react";
+import { useState, memo, useTransition } from "react";
 import Link from "next/link";
 import {
   Card,
@@ -114,6 +114,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
   const [servingMultiplier, setServingMultiplier] = useState<number>(1);
   const [customInput, setCustomInput] = useState<string>("");
   const [showCustomInput, setShowCustomInput] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const { addToCart, removeByRecipeId, isInCart } = useCart();
   const inCart = isInCart(recipe.id);
   const canScale = recipe.base_servings !== null && recipe.base_servings > 0;
@@ -153,13 +154,24 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const result = await toggleFavorite(recipe.id);
-    if (!result.error) {
-      setIsFavorite(result.isFavorite);
-      toast.success(
-        result.isFavorite ? "Added to favorites ❤️" : "Removed from favorites"
-      );
-    }
+    
+    // Optimistic update for instant UI feedback
+    const optimisticState = !isFavorite;
+    setIsFavorite(optimisticState);
+    
+    startTransition(async () => {
+      const result = await toggleFavorite(recipe.id);
+      if (!result.error) {
+        setIsFavorite(result.isFavorite);
+        toast.success(
+          result.isFavorite ? "Added to favorites ❤️" : "Removed from favorites"
+        );
+      } else {
+        // Revert on error
+        setIsFavorite(!optimisticState);
+        toast.error("Failed to update favorite");
+      }
+    });
   };
 
   const handleExportPDF = (e: React.MouseEvent) => {
@@ -252,14 +264,18 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
     if (inCart) {
       removeByRecipeId(recipe.id);
     }
-    const result = await deleteRecipe(recipe.id);
-    if (result.error) {
-      console.error("Failed to delete:", result.error);
-      setIsDeleting(false);
-    } else {
-      toast.success("Recipe deleted");
-    }
-    setDeleteDialogOpen(false);
+    
+    startTransition(async () => {
+      const result = await deleteRecipe(recipe.id);
+      if (result.error) {
+        console.error("Failed to delete:", result.error);
+        toast.error("Failed to delete recipe");
+        setIsDeleting(false);
+      } else {
+        toast.success("Recipe deleted");
+      }
+      setDeleteDialogOpen(false);
+    });
   };
 
   const handleMultiplierChange = (multiplier: number) => {
@@ -380,9 +396,10 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                       size="icon"
                       onClick={handleToggleFavorite}
                       className={isFavorite ? "text-red-500" : ""}
+                      disabled={isPending}
                     >
                       <Heart
-                        className={`h-4 w-4 ${isFavorite ? "fill-current" : ""}`}
+                        className={`h-4 w-4 ${isFavorite ? "fill-current" : ""} ${isPending ? "opacity-50" : ""}`}
                       />
                     </Button>
                   </TooltipTrigger>

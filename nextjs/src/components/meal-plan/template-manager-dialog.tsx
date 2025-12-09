@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -40,6 +40,7 @@ export function TemplateManagerDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [isApplying, setIsApplying] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   useEffect(() => {
@@ -70,26 +71,27 @@ export function TemplateManagerDialog({
 
   const handleApply = async (templateId: string) => {
     setIsApplying(templateId);
-    try {
-      const result = await applyMealPlanTemplate(templateId, weekStart);
-      if (result.error) {
-        toast.error("Failed to apply template", {
-          description: result.error,
+    startTransition(async () => {
+      try {
+        const result = await applyMealPlanTemplate(templateId, weekStart);
+        if (result.error) {
+          toast.error("Failed to apply template", {
+            description: result.error,
+          });
+        } else {
+          toast.success("Template applied", {
+            description: "Your meal plan has been updated.",
+          });
+          onOpenChange(false);
+        }
+      } catch {
+        toast.error("Error", {
+          description: "An unexpected error occurred.",
         });
-      } else {
-        toast.success("Template applied", {
-          description: "Your meal plan has been updated.",
-        });
-        onOpenChange(false);
-        router.refresh();
+      } finally {
+        setIsApplying(null);
       }
-    } catch {
-      toast.error("Error", {
-        description: "An unexpected error occurred.",
-      });
-    } finally {
-      setIsApplying(null);
-    }
+    });
   };
 
   const handleDelete = async (templateId: string, templateName: string) => {
