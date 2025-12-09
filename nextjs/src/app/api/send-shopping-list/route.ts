@@ -7,7 +7,14 @@ import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend lazily to avoid errors during build
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY environment variable is not set");
+  }
+  return new Resend(apiKey);
+}
 
 export async function POST(request: Request) {
   try {
@@ -131,6 +138,7 @@ export async function POST(request: Request) {
     console.log("📤 Sending email to Resend API...");
 
     // Send email using Resend
+    const resend = getResendClient();
     const { data: emailData, error: emailError } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
       to: recipientEmail,
