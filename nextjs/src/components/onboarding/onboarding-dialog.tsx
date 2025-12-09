@@ -96,7 +96,7 @@ export function OnboardingDialog({
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-[500px]" hideClose>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-mono">Welcome! 👋</DialogTitle>
           <DialogDescription>

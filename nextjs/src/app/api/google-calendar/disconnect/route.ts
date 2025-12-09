@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(_request: Request) {
+export async function POST() {
   try {
     const supabase = await createClient();
 

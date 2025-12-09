@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
         });
         shoppingData = {
           weekRange: parsed.weekRange || "This Week",
-          categories: Object.keys(categorizedItems).length > 0 ? categorizedItems : shoppingData.categories,
+          categories: Object.keys(categorizedItems).length > 0 ? categorizedItems as typeof shoppingData.categories : shoppingData.categories,
           recipes: Array.isArray(parsed.recipes) ? parsed.recipes : [],
         };
       }

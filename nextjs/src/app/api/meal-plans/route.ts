@@ -69,7 +69,6 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const weekStartDate = body.weekStartDate || body.week_start_date || body.week_start;
-    const title = body.title || `Meal Plan - ${weekStartDate}`;
 
     if (!weekStartDate) {
       return NextResponse.json(
@@ -120,7 +119,7 @@ export async function POST(request: NextRequest) {
 
     // If meals are provided, create assignments
     if (body.meals && Array.isArray(body.meals)) {
-      const assignments = body.meals.map((meal: any) => ({
+      const assignments = body.meals.map((meal: Record<string, unknown>) => ({
         meal_plan_id: mealPlan.id,
         recipe_id: meal.recipe_id || meal.recipeId,
         day_of_week: meal.day,

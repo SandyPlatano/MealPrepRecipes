@@ -162,8 +162,8 @@ export async function createCalendarEvent({
   startDateTime: string;
   endDateTime: string;
   attendeeEmails?: string[];
-}): Promise<any> {
-  const event: any = {
+}): Promise<Record<string, unknown>> {
+  const event: Record<string, unknown> = {
     summary,
     description,
     start: {
@@ -237,7 +237,7 @@ export async function createMealPlanEvents({
     successful: successful.length,
     failed: failed.length,
     total: events.length,
-    errors: failed.map((f: any) => f.reason?.message || "Unknown error"),
+    errors: failed.map((f: { reason?: { message?: string } }) => f.reason?.message || "Unknown error"),
   };
 }
 

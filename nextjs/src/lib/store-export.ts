@@ -2,8 +2,6 @@
  * Store export utilities for sending shopping lists to external stores
  */
 
-import type { ShoppingListItem } from "@/types/shopping-list";
-
 export interface ExportableItem {
   ingredient: string;
   quantity?: string | null;

@@ -20,13 +20,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Loader2, Plus, X, Upload, Image as ImageIcon, AlertCircle } from "lucide-react";
-import { createRecipe, updateRecipe, uploadRecipeImage, deleteRecipeImage } from "@/app/actions/recipes";
+import { Loader2, Plus, X, Upload, AlertCircle } from "lucide-react";
+import { createRecipe, updateRecipe, uploadRecipeImage } from "@/app/actions/recipes";
 import type { Recipe, RecipeType, RecipeFormData } from "@/types/recipe";
 import { toast } from "sonner";
 import Image from "next/image";
-import { ALLERGEN_TYPES, detectAllergens, mergeAllergens, getAllergenDisplayName, getAllergenBadgeColor } from "@/lib/allergen-detector";
+import { ALLERGEN_TYPES, detectAllergens, mergeAllergens, getAllergenDisplayName } from "@/lib/allergen-detector";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -89,7 +88,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
   const [sourceUrl, setSourceUrl] = useState(
     defaultData?.source_url || recipe?.source_url || ""
   );
-  const [isShared, setIsShared] = useState(
+  const [isShared] = useState(
     defaultData?.is_shared_with_household ?? recipe?.is_shared_with_household ?? true
   );
   const [imageUrl, setImageUrl] = useState(defaultData?.image_url || recipe?.image_url || "");
@@ -102,15 +101,10 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
   useEffect(() => {
     if (ingredients.length > 0 && ingredients.some(ing => ing.trim())) {
       const detected = detectAllergens(ingredients.filter(ing => ing.trim()));
-      const merged = mergeAllergens(detected, allergenTags);
-      // Only update if there are new detected allergens not already in manual tags
-      const detectedArray = Array.from(detected);
-      const newAllergens = detectedArray.filter(a => !allergenTags.includes(a));
-      if (newAllergens.length > 0) {
-        // Don't auto-add, just show them - user can manually add if they want
-      }
+      // Merge but don't auto-update - just for reference
+      mergeAllergens(detected, allergenTags);
     }
-  }, [ingredients]);
+  }, [ingredients, allergenTags]);
 
   // Ingredient handlers
   const addIngredient = () => {
@@ -463,7 +457,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={(e) => {
+                onClick={() => {
                   const input = document.getElementById("bulkIngredients") as HTMLInputElement;
                   const value = input?.value.trim();
                   if (value) {
@@ -538,7 +532,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
         <CardContent className="space-y-3">
           {instructions.length === 0 ? (
             <p className="text-sm text-muted-foreground italic">
-              No instructions added. Click "Add Step" below to add instructions, or leave empty if not needed.
+              No instructions added. Click &quot;Add Step&quot; below to add instructions, or leave empty if not needed.
             </p>
           ) : (
             instructions.map((instruction, index) => (
@@ -636,7 +630,6 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
           <div className="flex flex-wrap gap-2">
             {ALLERGEN_TYPES.map((allergen) => {
               const isSelected = allergenTags.includes(allergen);
-              const detected = detectAllergens(ingredients.filter(ing => ing.trim())).has(allergen);
               return (
                 <div key={allergen} className="flex items-center space-x-2">
                   <Checkbox

@@ -304,7 +304,7 @@ export async function clearShoppingList() {
 
 // Generate shopping list from meal plan
 // Uses the current week's meal plan (automatically linked via getOrCreateShoppingList)
-export async function generateFromMealPlan(_weekStart?: string) {
+export async function generateFromMealPlan() {
   const supabase = await createClient();
   const {
     data: { user },

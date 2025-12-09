@@ -69,7 +69,7 @@ export async function PUT(
     const body = await request.json();
     
     // Map incoming fields to database schema
-    const updateData: Record<string, any> = {};
+    const updateData: Record<string, unknown> = {};
     
     if (body.title !== undefined) updateData.title = body.title;
     if (body.description !== undefined) updateData.description = body.description;
@@ -92,7 +92,7 @@ export async function PUT(
     }
     if (body.ingredients !== undefined) {
       updateData.ingredients = Array.isArray(body.ingredients) 
-        ? body.ingredients.map((i: any) => typeof i === "string" ? i : `${i.quantity || ""} ${i.unit || ""} ${i.name}`.trim())
+        ? body.ingredients.map((i: unknown) => typeof i === "string" ? i : `${(i as Record<string, string>).quantity || ""} ${(i as Record<string, string>).unit || ""} ${(i as Record<string, string>).name}`.trim())
         : [];
     }
     if (body.instructions !== undefined) {

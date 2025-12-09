@@ -60,7 +60,7 @@ export default async function FinalizePage({ searchParams }: FinalizePageProps) 
 
       <FinalizeView
         weekStart={weekStartDate}
-        weekPlan={weekPlan}
+        weekPlan={weekPlan as unknown as Parameters<typeof FinalizeView>[0]["weekPlan"]}
         cookNames={settings?.cook_names || []}
         cookColors={settings?.cook_colors || {}}
         pantryItems={pantryItems}

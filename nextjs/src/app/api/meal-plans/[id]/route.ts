@@ -46,7 +46,7 @@ export async function GET(
     }
 
     // Transform to expected format
-    const mealSlots = (mealPlan.meal_plan_assignments || []).map((assignment: any) => ({
+    const mealSlots = (mealPlan.meal_plan_assignments || []).map((assignment: Record<string, unknown>) => ({
       id: assignment.id,
       recipeId: assignment.recipe_id,
       recipe: assignment.recipe,

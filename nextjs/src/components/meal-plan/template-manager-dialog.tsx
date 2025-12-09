@@ -59,7 +59,7 @@ export function TemplateManagerDialog({
       } else {
         setTemplates(result.data || []);
       }
-    } catch (error) {
+    } catch {
       toast.error("Error", {
         description: "Failed to load templates.",
       });
@@ -83,7 +83,7 @@ export function TemplateManagerDialog({
         onOpenChange(false);
         router.refresh();
       }
-    } catch (error) {
+    } catch {
       toast.error("Error", {
         description: "An unexpected error occurred.",
       });
@@ -108,7 +108,7 @@ export function TemplateManagerDialog({
         toast.success("Template deleted");
         await loadTemplates();
       }
-    } catch (error) {
+    } catch {
       toast.error("Error", {
         description: "An unexpected error occurred.",
       });

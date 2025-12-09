@@ -166,24 +166,6 @@ export async function findSubstitutionsForIngredients(
 }
 
 /**
- * Extract base ingredient name from ingredient string
- * Similar to allergen detector but focused on substitution matching
- */
-function extractIngredientForSubstitution(ingredient: string): string {
-  const normalized = normalizeIngredientName(ingredient);
-
-  // Remove quantity and unit patterns
-  const withoutQuantity = normalized.replace(
-    /^[\d\s\/\.-]+\s+(cup|cups|tbsp|tablespoon|tablespoons|tsp|teaspoon|teaspoons|oz|ounce|ounces|lb|lbs|pound|pounds|g|gram|grams|kg|kilogram|kilograms|ml|milliliter|milliliters|l|liter|liters|can|cans|package|packages|pkg|bunch|bunches|head|heads|large|medium|small|slice|slices|piece|pieces|clove|cloves)\s+/i,
-    ""
-  );
-
-  // Get the first meaningful word (usually the ingredient name)
-  const words = withoutQuantity.split(/[\s,]+/);
-  return words.find((w) => w.length > 2) || words[0] || normalized;
-}
-
-/**
  * Check if an ingredient has substitutions available
  */
 export async function hasSubstitutions(ingredient: string): Promise<boolean> {

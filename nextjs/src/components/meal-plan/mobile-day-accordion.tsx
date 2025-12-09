@@ -73,11 +73,7 @@ export function MobileDayAccordion({
   today.setHours(0, 0, 0, 0);
   const isToday = date.toDateString() === today.toDateString();
   const isPast = date < today;
-
-  const _monthDay = date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+  const dayNumber = date.getDate();
 
   const handleClearDay = async () => {
     setIsClearing(true);

@@ -1,5 +1,3 @@
-import { INGREDIENT_CATEGORIES } from "@/types/shopping-list";
-
 interface ShoppingListEmailData {
   weekRange: string;
   items: Array<{

@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Search, X, SlidersHorizontal, Plus, ArrowUpDown, ArrowDownUp } from "lucide-react";
+import { Search, X, SlidersHorizontal, Plus, ArrowDownUp } from "lucide-react";
 import type { RecipeWithFavorite, RecipeType } from "@/types/recipe";
 
 interface RecipeGridProps {
@@ -65,7 +65,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
 
   // Filter and sort recipes
   const filteredRecipes = useMemo(() => {
-    let filtered = initialRecipes.filter((recipe) => {
+    const filtered = initialRecipes.filter((recipe) => {
       // Search filter
       if (search) {
         const searchLower = search.toLowerCase();

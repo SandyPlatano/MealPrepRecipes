@@ -47,7 +47,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    let { text, htmlContent, sourceUrl, url } = body;
+    const { text, url } = body;
+    let { htmlContent, sourceUrl } = body;
 
     // Get API key from environment
     const anthropicApiKey = process.env.ANTHROPIC_API_KEY;

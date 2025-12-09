@@ -258,7 +258,7 @@ export function getAllergenDisplayName(allergen: AllergenType): string {
  * Returns className with important modifiers to override Badge defaults
  * For a cleaner approach, consider using variant="warning" on Badge component instead
  */
-export function getAllergenBadgeColor(allergen: AllergenType): string {
+export function getAllergenBadgeColor(): string {
   // Unified warning style - light red/rose with good contrast
   // Using !important to override Badge component's default variant styles
   // Using solid lighter red colors that work reliably
@@ -274,7 +274,6 @@ export function mergeAllergens(
   detected: Set<AllergenType>,
   manualTags: string[]
 ): AllergenType[] {
-  const manualSet = new Set(manualTags as AllergenType[]);
   const merged = new Set<AllergenType>();
 
   // Add all detected allergens

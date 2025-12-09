@@ -31,7 +31,7 @@ export default async function DiscoverPage() {
     .select("recipe_id")
     .gte("cooked_at", thirtyDaysAgo.toISOString());
 
-  const recentlyCookedIds = [...new Set(recentHistory?.map((h) => h.recipe_id) || [])];
+  const recentlyCookedIds = Array.from(new Set(recentHistory?.map((h) => h.recipe_id) || []));
 
   return (
     <div className="space-y-8">

@@ -48,11 +48,14 @@ export function PlannerHeader({
   onClearAll,
   hasMeals,
   previousWeekMealCount,
+  currentWeekMealCount,
 }: PlannerHeaderProps) {
   const router = useRouter();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [isCopying, setIsCopying] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
+  const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
+  const [templateManagerOpen, setTemplateManagerOpen] = useState(false);
 
   const isCurrentWeek =
     weekStart.toISOString().split("T")[0] ===
@@ -157,7 +160,21 @@ export function PlannerHeader({
               Actions
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem
+              onClick={() => setTemplateManagerOpen(true)}
+            >
+              <FolderOpen className="h-4 w-4 mr-2" />
+              Templates
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setSaveTemplateOpen(true)}
+              disabled={!hasMeals}
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Save as Template
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={handleCopyLastWeek}
               disabled={previousWeekMealCount === 0 || isCopying}
@@ -192,6 +209,19 @@ export function PlannerHeader({
           <span className="sm:hidden">Finalize</span>
         </Button>
       </div>
+
+      {/* Template Dialogs */}
+      <SaveTemplateDialog
+        open={saveTemplateOpen}
+        onOpenChange={setSaveTemplateOpen}
+        weekStart={weekStart.toISOString().split("T")[0]}
+        mealCount={currentWeekMealCount}
+      />
+      <TemplateManagerDialog
+        open={templateManagerOpen}
+        onOpenChange={setTemplateManagerOpen}
+        weekStart={weekStart.toISOString().split("T")[0]}
+      />
     </div>
   );
 }

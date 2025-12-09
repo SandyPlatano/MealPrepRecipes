@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Convert to array format
-    const items = Array.from(ingredientMap.entries()).map(([key, item], index) => ({
+    const items = Array.from(ingredientMap.values()).map((item, index) => ({
       id: `${mealPlanId}-${index}`,
       name: item.name,
       quantity: Math.round(item.quantity * 100) / 100,

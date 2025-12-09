@@ -153,15 +153,16 @@ export async function POST(request: Request) {
       endDate.setMinutes(endDate.getMinutes() + eventDuration);
       const endDateTime = endDate.toISOString();
 
+      const recipe = item.recipe as Record<string, unknown>;
       return {
         cook: item.cook,
-        recipe: item.recipe.title,
+        recipe: recipe.title,
         recipeData: {
-          prepTime: item.recipe.prep_time,
-          cookTime: item.recipe.cook_time,
-          servings: item.recipe.servings,
-          ingredients: item.recipe.ingredients,
-          instructions: item.recipe.instructions,
+          prepTime: recipe.prep_time,
+          cookTime: recipe.cook_time,
+          servings: recipe.servings,
+          ingredients: recipe.ingredients,
+          instructions: recipe.instructions,
         },
         startDateTime,
         endDateTime,

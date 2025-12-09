@@ -627,7 +627,7 @@ export async function getWeekPlanWithFullRecipes(weekStart: string) {
     .single();
 
   // Initialize empty assignments for each day
-  const assignments: Record<DayOfWeek, Record<string, unknown>[]> = {
+  const assignments: Record<DayOfWeek, MealAssignmentWithRecipe[]> = {
     Monday: [],
     Tuesday: [],
     Wednesday: [],
@@ -864,7 +864,7 @@ export async function applyMealPlanTemplate(
   const assignments = template.assignments as TemplateAssignment[];
   if (assignments.length > 0) {
     // Verify all recipes still exist and are accessible
-    const recipeIds = [...new Set(assignments.map((a) => a.recipe_id))];
+    const recipeIds = Array.from(new Set(assignments.map((a) => a.recipe_id)));
     const { data: recipes } = await supabase
       .from("recipes")
       .select("id")

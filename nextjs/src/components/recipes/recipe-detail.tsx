@@ -101,43 +101,6 @@ function getRecipeIcon(recipeType: RecipeType) {
   }
 }
 
-// Export recipe as Markdown
-function exportRecipeAsMarkdown(recipe: Recipe): string {
-  return `# ${recipe.title}
-
-**Type:** ${recipe.recipe_type}
-**Category:** ${recipe.category || "N/A"}
-**Prep Time:** ${recipe.prep_time || "N/A"}
-**Cook Time:** ${recipe.cook_time || "N/A"}
-**Servings:** ${recipe.servings || recipe.base_servings || "N/A"}
-
-## Ingredients
-
-${recipe.ingredients.map((ing) => `- ${ing}`).join("\n")}
-
-## Instructions
-
-${recipe.instructions.map((inst, i) => `${i + 1}. ${inst}`).join("\n")}
-
-${recipe.notes ? `## Notes\n\n${recipe.notes}` : ""}
-
-${recipe.tags.length > 0 ? `**Tags:** ${recipe.tags.join(", ")}` : ""}
-`;
-}
-
-// Download text as file
-function downloadTextAsFile(content: string, filename: string, type: string) {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
 interface RecipeDetailProps {
   recipe: Recipe;
   isFavorite: boolean;
@@ -208,16 +171,6 @@ export function RecipeDetail({
         result.isFavorite ? "Added to favorites ❤️" : "Removed from favorites"
       );
     }
-  };
-
-  const handleExportMarkdown = () => {
-    const markdown = exportRecipeAsMarkdown(recipe);
-    downloadTextAsFile(
-      markdown,
-      `${recipe.title.replace(/[^a-z0-9]/gi, "_")}.md`,
-      "text/markdown"
-    );
-    toast.success("Exported as Markdown");
   };
 
   const handleExportPDF = () => {

@@ -32,7 +32,6 @@ import {
 import {
   addToPantry,
   removeFromPantry,
-  getPantryItems,
 } from "@/app/actions/pantry";
 import {
   type ShoppingListWithItems,
@@ -81,7 +80,7 @@ import {
   shareList,
   type ExportableItem,
 } from "@/lib/store-export";
-import { GripVertical, Settings2, WifiOff, Wifi } from "lucide-react";
+import { GripVertical, Settings2, WifiOff } from "lucide-react";
 import { updateSettings } from "@/app/actions/settings";
 import {
   useOffline,
@@ -94,7 +93,7 @@ interface ShoppingListViewProps {
   shoppingList: ShoppingListWithItems;
   initialPantryItems?: PantryItem[];
   initialCategoryOrder?: string[] | null;
-  weekPlan?: any | null;
+  weekPlan?: Record<string, unknown> | null;
   weekStart?: string;
   cookNames?: string[];
   cookColors?: Record<string, string>;
@@ -126,7 +125,7 @@ export function ShoppingListView({
   const [isSendingPlan, setIsSendingPlan] = useState(false);
 
   // Offline support
-  const { isOffline, isServiceWorkerReady } = useOffline();
+  const { isOffline } = useOffline();
 
   // Helper function to get cook badge color
   const getCookBadgeColor = (cook: string) => {
@@ -149,7 +148,7 @@ export function ShoppingListView({
 
   // Extract planned recipes from weekPlan
   const plannedRecipes = weekPlan?.assignments
-    ? Object.entries(weekPlan.assignments).flatMap(([day, assignments]: [string, any[]]) =>
+    ? Object.entries(weekPlan.assignments).flatMap(([day, assignments]: [string, Record<string, unknown>[]]) =>
         assignments.map((assignment) => ({
           day,
           recipeName: assignment.recipe?.name || "Unknown Recipe",
@@ -195,7 +194,7 @@ export function ShoppingListView({
       } else {
         toast.success(result.message || "Plan sent!");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to send plan");
     } finally {
       setIsSendingPlan(false);

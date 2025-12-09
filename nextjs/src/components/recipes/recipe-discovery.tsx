@@ -18,7 +18,7 @@ interface RecipeDiscoveryProps {
 
 type DiscoveryMode = "surprise" | "not-recent" | "highly-rated" | "quick" | "ingredient";
 
-export function RecipeDiscovery({ recipes, recipeCookCounts, recentlyCookedIds }: RecipeDiscoveryProps) {
+export function RecipeDiscovery({ recipes, recentlyCookedIds }: RecipeDiscoveryProps) {
   const [mode, setMode] = useState<DiscoveryMode | null>(null);
   const [ingredientSearch, setIngredientSearch] = useState("");
   const [discovered, setDiscovered] = useState<RecipeWithFavorite[]>([]);
@@ -179,7 +179,7 @@ export function RecipeDiscovery({ recipes, recipeCookCounts, recentlyCookedIds }
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Feeling adventurous? We'll pick a random recipe from your collection.
+              Feeling adventurous? We&apos;ll pick a random recipe from your collection.
             </p>
           </CardContent>
         </Card>
@@ -203,7 +203,7 @@ export function RecipeDiscovery({ recipes, recipeCookCounts, recentlyCookedIds }
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Recipes you haven't cooked in the last 30 days.
+                Recipes you haven&apos;t cooked in the last 30 days.
               </p>
             </CardContent>
           </Card>
@@ -253,7 +253,7 @@ export function RecipeDiscovery({ recipes, recipeCookCounts, recentlyCookedIds }
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Fast meals when you're short on time.
+                Fast meals when you&apos;re short on time.
               </p>
             </CardContent>
           </Card>

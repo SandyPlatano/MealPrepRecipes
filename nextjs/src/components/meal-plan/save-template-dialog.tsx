@@ -55,7 +55,7 @@ export function SaveTemplateDialog({
         setTemplateName("");
         onOpenChange(false);
       }
-    } catch (error) {
+    } catch {
       toast.error("Error", {
         description: "An unexpected error occurred.",
       });

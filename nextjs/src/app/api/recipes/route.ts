@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 // GET /api/recipes - List all recipes for the authenticated user
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       servings: body.servings?.toString() || "4",
       base_servings: typeof body.servings === "number" ? body.servings : parseInt(body.servings) || 4,
       ingredients: Array.isArray(body.ingredients) 
-        ? body.ingredients.map((i: any) => typeof i === "string" ? i : `${i.quantity || ""} ${i.unit || ""} ${i.name}`.trim())
+        ? body.ingredients.map((i: unknown) => typeof i === "string" ? i : `${(i as Record<string, string>).quantity || ""} ${(i as Record<string, string>).unit || ""} ${(i as Record<string, string>).name}`.trim())
         : [],
       instructions: Array.isArray(body.instructions) ? body.instructions : [],
       tags: body.tags || [],

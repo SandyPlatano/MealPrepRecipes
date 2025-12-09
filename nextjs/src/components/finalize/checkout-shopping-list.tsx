@@ -41,14 +41,12 @@ function parseIngredient(ingredient: string): MergeableItem {
       unit: quantityMatch[2]?.trim() || undefined,
       ingredient: quantityMatch[3]?.trim() || ingredient,
       category: guessCategory(ingredient),
-      sources: [],
     };
   }
 
   return {
     ingredient: ingredient.trim(),
     category: guessCategory(ingredient),
-    sources: [],
   };
 }
 
@@ -134,12 +132,8 @@ export function CheckoutShoppingList({
           const parsed = parseIngredient(ingredient);
           ingredientsToAdd.push({
             ...parsed,
-            sources: [
-              {
-                recipe_id: assignment.recipe.id,
-                recipe_title: assignment.recipe.title,
-              },
-            ],
+            recipe_id: assignment.recipe.id,
+            recipe_title: assignment.recipe.title,
           });
         }
       }

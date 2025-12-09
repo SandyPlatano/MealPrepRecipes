@@ -71,14 +71,6 @@ export function PlannerDayRow({
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Default colors for cooks (fallback)
-  const _defaultColors = [
-    "#3b82f6", // blue
-    "#a855f7", // purple
-    "#10b981", // green
-    "#f59e0b", // amber
-    "#ec4899", // pink
-  ];
 
   const { setNodeRef } = useDroppable({
     id: `day-${day}`,
@@ -98,29 +90,6 @@ export function PlannerDayRow({
   const monthAbbrev = date.toLocaleDateString("en-US", { month: "short" });
 
   const assignmentIds = assignments.map((a) => a.id);
-
-  // Get cook color - use saved color or default
-  const _getCookColor = (cook: string | null) => {
-    if (!cook) return "bg-muted";
-    
-    // Use saved color if available
-    if (cookColors[cook]) {
-      const color = cookColors[cook];
-      // Convert hex to Tailwind-safe inline style
-      return `bg-[${color}]/20 text-[${color}]`;
-    }
-    
-    // Fall back to default Tailwind colors
-    const colors = [
-      "bg-blue-500/20 text-blue-700 dark:text-blue-300",
-      "bg-purple-500/20 text-purple-700 dark:text-purple-300",
-      "bg-green-500/20 text-green-700 dark:text-green-300",
-      "bg-orange-500/20 text-orange-700 dark:text-orange-300",
-      "bg-pink-500/20 text-pink-700 dark:text-pink-300",
-    ];
-    const index = cookNames.indexOf(cook) % colors.length;
-    return colors[index >= 0 ? index : 0];
-  };
 
   return (
     <div className="flex items-start gap-2 sm:gap-3">
