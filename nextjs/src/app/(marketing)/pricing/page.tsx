@@ -9,39 +9,10 @@ import {
 import Link from "next/link";
 import { ArrowRight, Check, X } from "lucide-react";
 import { FAQ } from "@/components/landing/faq";
-import { BrandLogoCompact } from "@/components/brand/logo";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function PricingPage() {
   return (
-    <main className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/">
-            <BrandLogoCompact />
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/pricing"
-              className="text-sm font-medium text-foreground"
-            >
-              Pricing
-            </Link>
-            <Link
-              href="/login"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Log in
-            </Link>
-            <ThemeToggle />
-            <Link href="/signup">
-              <Button>Start Planning</Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
-
+    <div className="space-y-0">
       {/* Hero */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -327,32 +298,7 @@ export default function PricingPage() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="border-t py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <BrandLogoCompact />
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <Link
-                href="/privacy"
-                className="hover:text-foreground transition-colors"
-              >
-                Privacy
-              </Link>
-              <Link
-                href="/terms"
-                className="hover:text-foreground transition-colors"
-              >
-                Terms
-              </Link>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Made with love (and mild guilt)
-            </p>
-          </div>
-        </div>
-      </footer>
-    </main>
+    </div>
   );
 }
+

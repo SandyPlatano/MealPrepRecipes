@@ -15,11 +15,26 @@ export default function MarketingLayout({
             Babe, What&apos;s for Dinner?
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/login">
-              <Button variant="ghost">Sign in</Button>
+            <Link
+              href="/about"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              About
+            </Link>
+            <Link
+              href="/pricing"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/login"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Log in
             </Link>
             <Link href="/signup">
-              <Button>Get Started</Button>
+              <Button>Sign Up Free</Button>
             </Link>
           </div>
         </div>
