@@ -653,7 +653,7 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
           </div>
           {allergenTags.length > 0 && (
             <p className="text-xs text-muted-foreground">
-              Selected allergens: {allergenTags.map(getAllergenDisplayName).join(", ")}
+              Selected allergens: {allergenTags.map((tag) => getAllergenDisplayName(tag as import("@/lib/allergen-detector").AllergenType)).join(", ")}
             </p>
           )}
         </CardContent>
