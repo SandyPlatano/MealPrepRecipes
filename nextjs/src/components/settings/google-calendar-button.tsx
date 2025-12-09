@@ -42,7 +42,6 @@ export function GoogleCalendarButton({
       if (event.origin !== window.location.origin) return;
       
       if (event.data.type === "GOOGLE_OAUTH_COMPLETE") {
-        console.log("[Google OAuth] Received completion message from popup");
         toast.success("Google Calendar connected!");
         onConnectionChange();
         setLoading(false);
@@ -58,9 +57,6 @@ export function GoogleCalendarButton({
 
     const redirectUri = `${window.location.origin}/auth/google/callback`;
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||  "915222848680-59ru45o52e5auq4gbl9cm1vub6c5ch7a.apps.googleusercontent.com";
-
-    console.log("[Google OAuth] Starting OAuth flow with redirect URI:", redirectUri);
-
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,
@@ -86,18 +82,13 @@ export function GoogleCalendarButton({
 
     // If popup was blocked or failed, use redirect instead
     if (!popup || popup.closed || typeof popup.closed === "undefined") {
-      console.log("[Google OAuth] Popup blocked or failed, using redirect instead");
       window.location.href = authUrl;
       return;
     }
-
-    console.log("[Google OAuth] Popup opened successfully");
-
     // Monitor popup closure
     const checkClosed = setInterval(() => {
       if (popup.closed) {
         clearInterval(checkClosed);
-        console.log("[Google OAuth] Popup closed");
         // The callback page will have handled everything
         // Check if we need to reload settings after a delay
         setTimeout(() => {

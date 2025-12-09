@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimit } from "@/lib/rate-limit-redis";
 
 export const dynamic = "force-dynamic";
 
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Rate limiting: 30 requests per hour per user
-    const rateLimitResult = rateLimit({
+    const rateLimitResult = await rateLimit({
       identifier: `scrape-url-${user.id}`,
       limit: 30,
       windowMs: 60 * 60 * 1000, // 1 hour
@@ -159,7 +159,6 @@ export async function POST(request: NextRequest) {
       url,
     });
   } catch (error) {
-    console.error("Error scraping URL:", error);
     return NextResponse.json(
       {
         error:

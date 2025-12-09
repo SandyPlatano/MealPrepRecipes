@@ -18,14 +18,7 @@ function GoogleCallbackContent() {
     const error = searchParams.get("error");
     const isPopup = !!window.opener;
 
-    console.log("[Google OAuth Callback] Loaded with:", { 
-      code: code?.substring(0, 20) + "...", 
-      error, 
-      isPopup 
-    });
-
     if (error) {
-      console.error("[Google OAuth Callback] OAuth error:", error);
       setStatus("error");
       setMessage("Authentication failed.");
       setCanClose(true);
@@ -42,7 +35,6 @@ function GoogleCallbackContent() {
     }
 
     if (code) {
-      console.log("[Google OAuth Callback] Authorization code received, exchanging for tokens...");
       setMessage("Connecting to Google Calendar...");
 
       // Exchange the code for tokens directly from this page
@@ -55,17 +47,11 @@ function GoogleCallbackContent() {
       })
         .then(async (response) => {
           const result = await response.json();
-          console.log("[Google OAuth Callback] Token exchange response:", { 
-            ok: response.ok, 
-            status: response.status,
-            result 
-          });
 
           if (!response.ok) {
             throw new Error(result.error || "Failed to connect");
           }
 
-          console.log("[Google OAuth Callback] Successfully connected!");
           setStatus("success");
           setMessage("Connected! Redirecting...");
 
@@ -75,8 +61,8 @@ function GoogleCallbackContent() {
               // Signal success to opener and close
               try {
                 window.opener.postMessage({ type: "GOOGLE_OAUTH_COMPLETE" }, window.location.origin);
-              } catch (e) {
-                console.warn("[Google OAuth Callback] Could not message opener:", e);
+              } catch {
+                // Opener window not available or closed
               }
               window.close();
             } else {
@@ -85,7 +71,6 @@ function GoogleCallbackContent() {
           }, 1000);
         })
         .catch((error) => {
-          console.error("[Google OAuth Callback] Token exchange failed:", error);
           setStatus("error");
           setMessage(error instanceof Error ? error.message : "Failed to connect");
           setCanClose(true);
@@ -100,7 +85,6 @@ function GoogleCallbackContent() {
           }, 3000);
         });
     } else {
-      console.error("[Google OAuth Callback] No authorization code received");
       setStatus("error");
       setMessage("No authorization code received.");
       setCanClose(true);

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimit } from "@/lib/rate-limit-redis";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Rate limiting: 20 requests per hour per user
-    const rateLimitResult = rateLimit({
+    const rateLimitResult = await rateLimit({
       identifier: `parse-recipe-${user.id}`,
       limit: 20,
       windowMs: 60 * 60 * 1000, // 1 hour
@@ -291,7 +291,6 @@ Return ONLY valid JSON, no markdown formatting, no explanation.`;
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error("Error parsing recipe:", error);
     return NextResponse.json(
       {
         error:

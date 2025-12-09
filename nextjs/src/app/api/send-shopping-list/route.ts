@@ -3,7 +3,7 @@ import { Resend } from "resend";
 import { createClient } from "@/lib/supabase/server";
 import { generateShoppingListHTML, generateShoppingListText } from "@/lib/email/shopping-list-template";
 import { markMealPlanAsSent } from "@/app/actions/meal-plans";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimit } from "@/lib/rate-limit-redis";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     }
 
     // Rate limiting: 10 emails per hour per user (prevent email spam)
-    const rateLimitResult = rateLimit({
+    const rateLimitResult = await rateLimit({
       identifier: `send-email-${user.id}`,
       limit: 10,
       windowMs: 60 * 60 * 1000, // 1 hour
@@ -120,22 +120,9 @@ export async function POST(request: Request) {
       };
     });
 
-    // Enhanced logging for testing
-    console.log("\n" + "=".repeat(60));
-    console.log("📧 EMAIL SENDING TEST");
-    console.log("=".repeat(60));
-    console.log("👤 Logged-in User ID:", user.id);
-    console.log("📨 Recipient Email:", recipientEmail);
-    console.log("📮 From Email:", process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev");
-    console.log("📅 Week Range:", weekRange);
-    console.log("🍽️  Number of Meals:", normalizedItems.length);
-    console.log("=".repeat(60) + "\n");
-
     // Generate HTML and text versions
     const html = generateShoppingListHTML({ weekRange: weekRange || "This Week", items: normalizedItems });
     const text = generateShoppingListText({ weekRange: weekRange || "This Week", items: normalizedItems });
-
-    console.log("📤 Sending email to Resend API...");
 
     // Send email using Resend
     const resend = getResendClient();
@@ -148,21 +135,11 @@ export async function POST(request: Request) {
     });
 
     if (emailError) {
-      console.log("\n❌ RESEND API ERROR:");
-      console.error("Failed to send email:", emailError);
-      console.log("=".repeat(60) + "\n");
       return NextResponse.json(
         { error: `Couldn't send email: ${emailError.message || 'Unknown error'}` },
         { status: 500 }
       );
     }
-
-    // Log success
-    console.log("\n✅ RESEND API SUCCESS!");
-    console.log("📧 Email ID:", emailData?.id);
-    console.log("📨 Sent To:", recipientEmail);
-    console.log("💡 Check Resend Dashboard: https://resend.com/logs");
-    console.log("=".repeat(60) + "\n");
 
     // Mark the meal plan as sent if weekStart is provided
     if (weekStart) {
@@ -176,7 +153,6 @@ export async function POST(request: Request) {
       sentTo: recipientEmail,
     });
   } catch (error) {
-    console.error("Error sending shopping list email:", error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
       { error: `Something went wrong: ${errorMessage}` },

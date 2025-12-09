@@ -29,7 +29,9 @@ export function useOffline() {
       navigator.serviceWorker
         .register("/sw.js")
         .then((registration) => {
-          console.log("[App] Service worker registered:", registration.scope);
+          if (process.env.NODE_ENV === 'development') {
+            console.log("[App] Service worker registered:", registration.scope);
+          }
           setIsServiceWorkerReady(true);
 
           // Check for updates
@@ -42,14 +44,18 @@ export function useOffline() {
                   navigator.serviceWorker.controller
                 ) {
                   // New service worker available
-                  console.log("[App] New service worker available");
+                  if (process.env.NODE_ENV === 'development') {
+                    console.log("[App] New service worker available");
+                  }
                 }
               });
             }
           });
         })
         .catch((error) => {
-          console.error("[App] Service worker registration failed:", error);
+          if (process.env.NODE_ENV === 'development') {
+            console.error("[App] Service worker registration failed:", error);
+          }
         });
     }
   }, []);
@@ -93,7 +99,9 @@ export function getCachedShoppingList(): CachedShoppingList | null {
       return JSON.parse(cached);
     }
   } catch (error) {
-    console.error("[Offline] Failed to read cache:", error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error("[Offline] Failed to read cache:", error);
+    }
   }
   return null;
 }
@@ -104,7 +112,9 @@ export function setCachedShoppingList(data: CachedShoppingList): void {
   try {
     localStorage.setItem(SHOPPING_LIST_CACHE_KEY, JSON.stringify(data));
   } catch (error) {
-    console.error("[Offline] Failed to write cache:", error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error("[Offline] Failed to write cache:", error);
+    }
   }
 }
 
@@ -132,11 +142,13 @@ export function useSyncOnReconnect(
   const syncNow = useCallback(async () => {
     const cached = getCachedShoppingList();
     if (cached && cached.pendingChanges.length > 0) {
-      console.log(
-        "[Offline] Syncing",
-        cached.pendingChanges.length,
-        "pending changes"
-      );
+      if (process.env.NODE_ENV === 'development') {
+        console.log(
+          "[Offline] Syncing",
+          cached.pendingChanges.length,
+          "pending changes"
+        );
+      }
       await onSync();
       clearPendingChanges();
     }
