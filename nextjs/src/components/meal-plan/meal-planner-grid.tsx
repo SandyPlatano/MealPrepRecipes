@@ -219,21 +219,6 @@ export function MealPlannerGrid({
     [allAssignments]
   );
 
-  // Handler for clearing a day
-  const handleClearDay = useCallback(
-    async (day: DayOfWeek) => {
-      startTransition(async () => {
-        const result = await clearDayAssignments(weekStartStr, day);
-        if (result.error) {
-          toast.error(result.error);
-        } else {
-          toast.success(`Cleared ${day}`);
-        }
-      });
-    },
-    [weekStartStr]
-  );
-
   // Handler for copying last week
   const handleCopyLastWeek = useCallback(async () => {
     const previousWeekStart = new Date(weekStart);
