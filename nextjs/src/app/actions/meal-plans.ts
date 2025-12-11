@@ -525,7 +525,7 @@ export async function clearDayAssignments(weekStart: string, dayOfWeek: DayOfWee
 
   // Remove ingredients for recipes that are no longer in the plan (batched check)
   if (assignmentsToRemove && assignmentsToRemove.length > 0) {
-    const removedRecipeIds = [...new Set(assignmentsToRemove.map(a => a.recipe_id))];
+    const removedRecipeIds = Array.from(new Set(assignmentsToRemove.map(a => a.recipe_id)));
 
     // Batch query: get all recipes that are still assigned in this meal plan
     const { data: remainingAssignments } = await supabase
@@ -951,7 +951,7 @@ export async function applyMealPlanTemplate(
       }
 
       // Add ingredients to shopping list for all recipes (batched query)
-      const assignmentRecipeIds = [...new Set(validAssignments.map(a => a.recipe_id))];
+      const assignmentRecipeIds = Array.from(new Set(validAssignments.map(a => a.recipe_id)));
       const { data: recipesWithIngredients } = await supabase
         .from("recipes")
         .select("id, title, ingredients")

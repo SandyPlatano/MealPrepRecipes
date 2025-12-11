@@ -26,7 +26,7 @@ export function MealPlannerSkeleton() {
       {/* Mobile Accordion */}
       <div className="md:hidden space-y-2">
         {DAYS.map((day, index) => (
-          <MobileDaySkeleton key={day} day={day} delay={index * 100} />
+          <MobileDaySkeleton key={day} delay={index * 100} />
         ))}
       </div>
     </div>
@@ -65,7 +65,7 @@ function DayRowSkeleton({ delay }: { delay: number }) {
   );
 }
 
-function MobileDaySkeleton({ day, delay }: { day: string; delay: number }) {
+function MobileDaySkeleton({ delay }: { delay: number }) {
   return (
     <div
       className="animate-slide-up-fade"

@@ -81,24 +81,6 @@ function getRecipeIcon(recipeType: RecipeType) {
   }
 }
 
-// Get gradient color based on recipe type
-function getRecipeGradient(recipeType: RecipeType): string {
-  switch (recipeType) {
-    case "Baking":
-      return "from-amber-400 to-orange-500";
-    case "Breakfast":
-      return "from-yellow-400 to-amber-500";
-    case "Dessert":
-      return "from-pink-400 to-rose-500";
-    case "Snack":
-      return "from-lime-400 to-green-500";
-    case "Side Dish":
-      return "from-emerald-400 to-teal-500";
-    case "Dinner":
-    default:
-      return "from-blue-400 to-purple-500";
-  }
-}
 
 interface RecipeCardProps {
   recipe: RecipeWithFavorite;

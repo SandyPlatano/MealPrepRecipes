@@ -47,7 +47,7 @@ export async function updateSession(request: NextRequest) {
       setTimeout(() => reject(new Error("Auth timeout")), 5000)
     );
     
-    const result = await Promise.race([getUserPromise, timeoutPromise]) as { data: { user: any } };
+    const result = await Promise.race([getUserPromise, timeoutPromise]) as { data: { user: unknown } };
     user = result.data?.user ?? null;
   } catch (error) {
     // If auth check fails or times out, continue without user
