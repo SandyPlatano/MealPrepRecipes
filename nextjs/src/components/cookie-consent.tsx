@@ -31,8 +31,10 @@ function setCookie(name: string, value: string, days: number = 365) {
 
 export function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Check both cookie and localStorage for consent
     // This handles cases where cookies are cleared but localStorage persists
     const cookieConsent = getCookie(CONSENT_COOKIE_NAME);
@@ -67,7 +69,8 @@ export function CookieConsent() {
     setShowBanner(false);
   };
 
-  if (!showBanner) {
+  // Don't render until mounted to avoid hydration mismatch
+  if (!mounted || !showBanner) {
     return null;
   }
 
