@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 
-const CACHE_NAME = "whats-for-dinner-v3";
+const CACHE_NAME = "whats-for-dinner-v4";
 const OFFLINE_URL = "/offline";
 
 // Assets to cache immediately on install
@@ -99,15 +99,24 @@ self.addEventListener("fetch", (event) => {
         if (cachedResponse) {
           return cachedResponse;
         }
-        return fetch(request).then((response) => {
-          if (response.ok) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
+        return fetch(request)
+          .then((response) => {
+            if (response.ok) {
+              const responseClone = response.clone();
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(request, responseClone);
+              });
+            }
+            return response;
+          })
+          .catch(() => {
+            // Network failed and no cache available
+            // Return an empty response for non-critical assets
+            return new Response("", {
+              status: 503,
+              statusText: "Service Unavailable",
             });
-          }
-          return response;
-        });
+          });
       })
     );
     return;
