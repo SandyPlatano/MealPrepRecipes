@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, notFound } from "next/navigation";
 import { getRecipe } from "@/app/actions/recipes";
 import { Clock, Users } from "lucide-react";
@@ -13,6 +13,12 @@ export default function PrintPage() {
   const id = params.id as string;
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Compute date string once on client to avoid hydration mismatch
+  const printDate = useMemo(() => {
+    if (typeof window === "undefined") return "";
+    return new Date().toLocaleDateString("en-US", { timeZone: "UTC" });
+  }, []);
 
   useEffect(() => {
     async function fetchRecipe() {
@@ -156,7 +162,7 @@ export default function PrintPage() {
 
         {/* Footer */}
         <footer className="mt-12 pt-6 border-t border-gray-300 text-center text-xs text-gray-500">
-          <p>Printed from Babe, What&apos;s for Dinner? • {new Date().toLocaleDateString()}</p>
+          <p>Printed from Babe, What&apos;s for Dinner?{printDate && ` • ${printDate}`}</p>
         </footer>
       </div>
 

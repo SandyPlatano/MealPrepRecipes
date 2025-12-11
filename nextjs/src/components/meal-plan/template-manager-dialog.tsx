@@ -159,7 +159,7 @@ export function TemplateManagerDialog({
                       <h3 className="font-medium truncate">{template.name}</h3>
                       <p className="text-sm text-muted-foreground mt-1">
                         {mealCount} meal{mealCount !== 1 ? "s" : ""} • Created{" "}
-                        {new Date(template.created_at).toLocaleDateString()}
+                        {new Date(template.created_at).toLocaleDateString("en-US", { timeZone: "UTC" })}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 ml-4">

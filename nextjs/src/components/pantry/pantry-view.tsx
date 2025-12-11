@@ -264,7 +264,7 @@ function PantryItemRow({ item, onRemove }: PantryItemRowProps) {
       <span className="flex-1 text-sm">{item.ingredient}</span>
       {item.last_restocked && (
         <span className="text-xs text-muted-foreground">
-          Added {new Date(item.last_restocked).toLocaleDateString()}
+          Added {new Date(item.last_restocked).toLocaleDateString("en-US", { timeZone: "UTC" })}
         </span>
       )}
       <Button

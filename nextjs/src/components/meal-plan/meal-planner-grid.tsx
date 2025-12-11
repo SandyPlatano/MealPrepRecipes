@@ -156,7 +156,16 @@ export function MealPlannerGrid({
     router.push(`/app/plan?week=${weekStr}`);
   }, [router]);
 
-  const isCurrentWeek = weekStartStr === getWeekStart(new Date()).toISOString().split("T")[0];
+  // Track mounted state to avoid hydration mismatch with date calculations
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Defer isCurrentWeek calculation to avoid hydration mismatch
+  const isCurrentWeek = isMounted
+    ? weekStartStr === getWeekStart(new Date()).toISOString().split("T")[0]
+    : false;
 
   // Handler for adding a meal
   const handleAddMeal = useCallback(

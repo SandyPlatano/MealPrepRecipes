@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,10 +56,17 @@ export function PlannerHeader({
   const [isClearing, setIsClearing] = useState(false);
   const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
   const [templateManagerOpen, setTemplateManagerOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  const isCurrentWeek =
-    weekStart.toISOString().split("T")[0] ===
-    getWeekStart(new Date()).toISOString().split("T")[0];
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Defer isCurrentWeek calculation to avoid hydration mismatch
+  const isCurrentWeek = isMounted
+    ? weekStart.toISOString().split("T")[0] ===
+      getWeekStart(new Date()).toISOString().split("T")[0]
+    : false;
 
   const navigateWeek = (direction: "prev" | "next") => {
     const newDate = new Date(weekStart);
