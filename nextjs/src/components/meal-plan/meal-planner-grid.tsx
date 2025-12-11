@@ -24,6 +24,7 @@ import { PlannerDayRow } from "./planner-day-row";
 import { PlannerSummary } from "./planner-summary";
 import { MealCellOverlay } from "./meal-cell";
 import { MobileDayAccordion } from "./mobile-day-accordion";
+import { MealPlanCalendar } from "./meal-plan-calendar";
 import {
   addMealAssignment,
   removeMealAssignment,

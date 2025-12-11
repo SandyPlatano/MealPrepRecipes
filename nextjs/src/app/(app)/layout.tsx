@@ -122,8 +122,8 @@ export default async function AppLayout({
         </div>
       </header>
 
-      {/* Main content */}
-      <main className="container mx-auto px-4 py-8">
+      {/* Main content with page transition */}
+      <main className="container mx-auto px-4 py-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
         {children}
       </main>
 
