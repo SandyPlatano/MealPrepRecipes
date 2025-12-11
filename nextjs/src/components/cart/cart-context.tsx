@@ -34,7 +34,8 @@ const CART_STORAGE_KEY = "meal-plan-cart";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [weekStart, setWeekStart] = useState<Date>(() => getWeekStart(new Date()));
+  // Initialize with null to avoid hydration mismatch, will be set in useEffect
+  const [weekStart, setWeekStart] = useState<Date | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -47,17 +48,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setItems(parsed.items || []);
         if (parsed.weekStart) {
           setWeekStart(new Date(parsed.weekStart));
+        } else {
+          setWeekStart(getWeekStart(new Date()));
         }
       } catch (e) {
         console.error("Failed to parse cart from localStorage", e);
+        setWeekStart(getWeekStart(new Date()));
       }
+    } else {
+      setWeekStart(getWeekStart(new Date()));
     }
     setIsLoaded(true);
   }, []);
 
   // Save cart to localStorage when it changes
   useEffect(() => {
-    if (isLoaded) {
+    if (isLoaded && weekStart) {
       localStorage.setItem(
         CART_STORAGE_KEY,
         JSON.stringify({
@@ -111,11 +117,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return items.length;
   }, [items]);
 
+  // Provide a default weekStart if not loaded yet to avoid null errors
+  const effectiveWeekStart = weekStart || getWeekStart(new Date());
+
   return (
     <CartContext.Provider
       value={{
         items,
-        weekStart,
+        weekStart: effectiveWeekStart,
         isOpen,
         setIsOpen,
         addToCart,
