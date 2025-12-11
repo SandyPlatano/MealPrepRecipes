@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useCallback, ComponentType } from "react";
-import { Calendar, momentLocalizer, Views, type CalendarProps, type Event } from "react-big-calendar";
+import { Calendar, momentLocalizer, Views, type CalendarProps, type Event, type View, type ToolbarProps, type NavigateAction } from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import type { EventInteractionArgs } from "react-big-calendar/lib/addons/dragAndDrop";
 import moment from "moment";
@@ -84,22 +84,17 @@ function CustomToolbar({
   onNavigate,
   onView,
   view
-}: {
-  label: string;
-  onNavigate: (action: "PREV" | "NEXT" | "TODAY") => void;
-  onView: (view: string) => void;
-  view: string;
-}) {
+}: ToolbarProps<MealEvent, object>) {
   return (
     <div className="rbc-toolbar">
       <div className="rbc-btn-group">
-        <button type="button" onClick={() => onNavigate("TODAY")}>
+        <button type="button" onClick={() => onNavigate("TODAY" as NavigateAction)}>
           Today
         </button>
-        <button type="button" onClick={() => onNavigate("PREV")}>
+        <button type="button" onClick={() => onNavigate("PREV" as NavigateAction)}>
           Back
         </button>
-        <button type="button" onClick={() => onNavigate("NEXT")}>
+        <button type="button" onClick={() => onNavigate("NEXT" as NavigateAction)}>
           Next
         </button>
       </div>
@@ -107,21 +102,21 @@ function CustomToolbar({
       <div className="rbc-btn-group">
         <button
           type="button"
-          onClick={() => onView(Views.MONTH)}
+          onClick={() => onView(Views.MONTH as View)}
           className={view === Views.MONTH ? "rbc-active" : ""}
         >
           Month
         </button>
         <button
           type="button"
-          onClick={() => onView(Views.WEEK)}
+          onClick={() => onView(Views.WEEK as View)}
           className={view === Views.WEEK ? "rbc-active" : ""}
         >
           Week
         </button>
         <button
           type="button"
-          onClick={() => onView(Views.AGENDA)}
+          onClick={() => onView(Views.AGENDA as View)}
           className={view === Views.AGENDA ? "rbc-active" : ""}
         >
           Agenda

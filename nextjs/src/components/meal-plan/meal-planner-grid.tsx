@@ -20,7 +20,6 @@ import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { PlannerHeader } from "./planner-header";
-import { PlannerDayRow } from "./planner-day-row";
 import { PlannerSummary } from "./planner-summary";
 import { MealCellOverlay } from "./meal-cell";
 import { MobileDayAccordion } from "./mobile-day-accordion";
@@ -74,18 +73,20 @@ export function MealPlannerGrid({
   recipes,
   cookNames,
   cookColors,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   userAllergenAlerts = [],
   calendarExcludedDays = [],
   googleConnected = false,
   favorites,
   recentRecipeIds,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   suggestedRecipeIds,
   previousWeekMealCount,
 }: MealPlannerGridProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [activeAssignment, setActiveAssignment] = useState<MealAssignmentWithRecipe | null>(null);
-  const [overDay, setOverDay] = useState<DayOfWeek | null>(null);
+  const [, setOverDay] = useState<DayOfWeek | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [showStickyNav, setShowStickyNav] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -337,6 +338,26 @@ export function MealPlannerGrid({
 
   const hasMeals = allAssignments.length > 0;
 
+  // Handler for moving assignment via calendar drag-and-drop
+  const handleCalendarMoveAssignment = useCallback(
+    async (assignmentId: string, newDay: DayOfWeek) => {
+      const assignment = allAssignments.find((a) => a.id === assignmentId);
+      if (assignment && assignment.day_of_week !== newDay) {
+        startTransition(async () => {
+          const result = await updateMealAssignment(assignmentId, {
+            day_of_week: newDay,
+          });
+          if (result.error) {
+            toast.error(result.error);
+          } else {
+            toast.success(`Moved to ${newDay}`);
+          }
+        });
+      }
+    },
+    [allAssignments]
+  );
+
   return (
     <TooltipProvider>
       <DndContext
@@ -393,34 +414,18 @@ export function MealPlannerGrid({
             </div>
           )}
 
-          {/* Desktop Horizontal Rows */}
-          <div className={`hidden md:flex md:flex-col gap-3 transition-opacity ${isPending ? "opacity-60" : ""}`}>
-            {DAYS_OF_WEEK.map((day, index) => {
-              const dayDate = new Date(weekStart);
-              dayDate.setDate(dayDate.getDate() + index);
-
-              return (
-                <PlannerDayRow
-                  key={day}
-                  day={day}
-                  date={dayDate}
-                  assignments={assignmentsWithOptimisticCooks[day]}
-                  recipes={recipes}
-                  favorites={favorites}
-                  recentRecipeIds={recentRecipeIds}
-                  suggestedRecipeIds={suggestedRecipeIds}
-                  cookNames={cookNames}
-                  cookColors={cookColors}
-                  userAllergenAlerts={userAllergenAlerts}
-                  isCalendarExcluded={calendarExcludedDays.includes(day)}
-                  googleConnected={googleConnected}
-                  onAddMeal={handleAddMeal}
-                  onUpdateCook={handleUpdateCook}
-                  onRemoveMeal={handleRemoveMeal}
-                  isOver={overDay === day}
-                />
-              );
-            })}
+          {/* Desktop Calendar View */}
+          <div className="hidden md:block">
+            <MealPlanCalendar
+              weekStart={weekStart}
+              weekPlan={{ ...weekPlan, assignments: assignmentsWithOptimisticCooks }}
+              recipes={recipes}
+              cookNames={cookNames}
+              cookColors={cookColors}
+              calendarExcludedDays={calendarExcludedDays}
+              onMoveAssignment={handleCalendarMoveAssignment}
+              isPending={isPending}
+            />
           </div>
 
           {/* Mobile Accordion */}

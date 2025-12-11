@@ -7,6 +7,17 @@ import Link from "next/link";
 import type { MealAssignmentWithRecipe, DayOfWeek } from "@/types/meal-plan";
 import { DAYS_OF_WEEK } from "@/types/meal-plan";
 
+// Day letter abbreviations
+const DAY_LETTERS: Record<DayOfWeek, string> = {
+  Monday: "M",
+  Tuesday: "T",
+  Wednesday: "W",
+  Thursday: "T",
+  Friday: "F",
+  Saturday: "S",
+  Sunday: "S",
+};
+
 interface PlannerSummaryProps {
   assignments: MealAssignmentWithRecipe[];
   weekStartStr: string;
@@ -42,7 +53,6 @@ export function PlannerSummary({
   }, [assignments]);
 
   const totalMeals = assignments.length;
-  const daysPlanned = daysWithMeals.size;
   const hasCooksAssigned = Object.keys(cookBreakdown.breakdown).length > 0;
 
   // Don't show if no meals planned
@@ -51,68 +61,64 @@ export function PlannerSummary({
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 py-8">
-      {/* Days Progress */}
-      <div className="flex items-center gap-3">
-        <div className="flex gap-1.5">
-          {DAYS_OF_WEEK.map((day) => (
-            <div
-              key={day}
-              className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                daysWithMeals.has(day)
-                  ? "bg-primary"
-                  : "bg-muted-foreground/20"
-              }`}
-            />
-          ))}
-        </div>
-        <span className="text-sm text-muted-foreground">
-          {daysPlanned} of 7 days planned
-          {daysPlanned === 7 && (
-            <span className="ml-1 text-primary">✓</span>
-          )}
-        </span>
+    <div className="flex items-center justify-center gap-6 py-6 flex-wrap">
+      {/* Day Letters Progress */}
+      <div className="flex items-center gap-1">
+        {DAYS_OF_WEEK.map((day) => (
+          <div
+            key={day}
+            className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors ${
+              daysWithMeals.has(day)
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground"
+            }`}
+          >
+            {DAY_LETTERS[day]}
+          </div>
+        ))}
       </div>
+
+      {/* Separator */}
+      <div className="h-6 w-px bg-border" />
 
       {/* Cook Breakdown */}
       <div className="text-sm text-muted-foreground">
         {hasCooksAssigned ? (
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
-            {Object.entries(cookBreakdown.breakdown).map(([cook, count], index) => (
+          <div className="flex items-center gap-3">
+            {Object.entries(cookBreakdown.breakdown).map(([cook, count]) => (
               <span key={cook} className="flex items-center gap-1.5">
-                {index > 0 && <span className="text-muted-foreground/40">·</span>}
                 {cookColors[cook] && (
                   <span
-                    className="w-2 h-2 rounded-full"
+                    className="w-2.5 h-2.5 rounded-full"
                     style={{ backgroundColor: cookColors[cook] }}
                   />
                 )}
                 <span>
-                  {cook}: {count} {count === 1 ? "meal" : "meals"}
+                  {cook}: {count}
                 </span>
               </span>
             ))}
             {cookBreakdown.unassigned > 0 && (
-              <span className="flex items-center gap-1.5">
-                <span className="text-muted-foreground/40">·</span>
-                <span className="text-muted-foreground/60">
-                  {cookBreakdown.unassigned} unassigned
-                </span>
+              <span className="text-muted-foreground/60">
+                +{cookBreakdown.unassigned} unassigned
               </span>
             )}
           </div>
         ) : (
           <span className="text-muted-foreground/60">
-            No cooks assigned yet
+            No cooks assigned
           </span>
         )}
       </div>
 
+      {/* Separator */}
+      <div className="h-6 w-px bg-border" />
+
       {/* Finalize Button */}
-      <Button asChild size="lg" className="mt-2">
+      <Button asChild>
         <Link href={`/app/finalize?week=${weekStartStr}`}>
-          <span>Finalize Your Plan</span>
-          <ArrowRight className="h-4 w-4 ml-2" />
+          <span>Finalize</span>
+          <ArrowRight className="h-4 w-4 ml-1.5" />
         </Link>
       </Button>
     </div>
