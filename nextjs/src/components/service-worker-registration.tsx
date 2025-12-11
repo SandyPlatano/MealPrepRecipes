@@ -5,18 +5,26 @@ import { useEffect } from "react";
 export function ServiceWorkerRegistration() {
   useEffect(() => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      // Register service worker
+      // Skip service worker in development - it interferes with HMR
+      if (process.env.NODE_ENV === "development") {
+        // Unregister any existing service workers in development
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const registration of registrations) {
+            registration.unregister();
+            console.log("Service Worker unregistered for development");
+          }
+        });
+        return;
+      }
+
+      // Register service worker in production only
       navigator.serviceWorker
         .register("/sw.js")
         .then((registration) => {
-          if (process.env.NODE_ENV === 'development') {
-            console.log("Service Worker registered with scope:", registration.scope);
-          }
+          console.log("Service Worker registered with scope:", registration.scope);
         })
         .catch((error) => {
-          if (process.env.NODE_ENV === 'development') {
-            console.log("Service Worker registration failed:", error);
-          }
+          console.log("Service Worker registration failed:", error);
         });
     }
   }, []);

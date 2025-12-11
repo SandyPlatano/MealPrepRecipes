@@ -16,14 +16,12 @@ import {
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { PlannerHeader } from "./planner-header";
 import { PlannerSummary } from "./planner-summary";
 import { MealCellOverlay } from "./meal-cell";
-import { MobileDayAccordion } from "./mobile-day-accordion";
-import { PlannerDayColumn } from "./planner-day-column";
+import { PlannerDayRow } from "./planner-day-row";
 import {
   addMealAssignment,
   removeMealAssignment,
@@ -403,14 +401,14 @@ export function MealPlannerGrid({
             </div>
           )}
 
-          {/* Desktop Grid View */}
-          <div className={`hidden md:grid md:grid-cols-7 gap-2 transition-opacity ${isPending ? "opacity-60" : ""}`}>
+          {/* Vertical Stacked Cards */}
+          <div className={`space-y-2 transition-opacity ${isPending ? "opacity-60" : ""}`}>
             {DAYS_OF_WEEK.map((day, index) => {
               const dayDate = new Date(weekStart);
               dayDate.setDate(dayDate.getDate() + index);
 
               return (
-                <PlannerDayColumn
+                <PlannerDayRow
                   key={day}
                   day={day}
                   date={dayDate}
@@ -418,45 +416,18 @@ export function MealPlannerGrid({
                   recipes={recipes}
                   favorites={favorites}
                   recentRecipeIds={recentRecipeIds}
+                  suggestedRecipeIds={suggestedRecipeIds}
                   cookNames={cookNames}
+                  cookColors={cookColors}
+                  userAllergenAlerts={userAllergenAlerts}
                   isCalendarExcluded={calendarExcludedDays.includes(day)}
                   googleConnected={googleConnected}
                   onAddMeal={handleAddMeal}
                   onUpdateCook={handleUpdateCook}
                   onRemoveMeal={handleRemoveMeal}
-                  onClearDay={handleClearDay}
                 />
               );
             })}
-          </div>
-
-          {/* Mobile Accordion */}
-          <div className={`md:hidden transition-opacity ${isPending ? "opacity-60" : ""}`}>
-            <Accordion type="multiple" className="space-y-0">
-              {DAYS_OF_WEEK.map((day, index) => {
-                const dayDate = new Date(weekStart);
-                dayDate.setDate(dayDate.getDate() + index);
-
-                return (
-                  <MobileDayAccordion
-                    key={day}
-                    day={day}
-                    date={dayDate}
-                    assignments={assignmentsWithOptimisticCooks[day]}
-                    recipes={recipes}
-                    favorites={favorites}
-                    recentRecipeIds={recentRecipeIds}
-                    cookNames={cookNames}
-                    isCalendarExcluded={calendarExcludedDays.includes(day)}
-                    googleConnected={googleConnected}
-                    onAddMeal={handleAddMeal}
-                    onUpdateCook={handleUpdateCook}
-                    onRemoveMeal={handleRemoveMeal}
-                    onClearDay={handleClearDay}
-                  />
-                );
-              })}
-            </Accordion>
           </div>
 
           {/* Summary Footer */}
