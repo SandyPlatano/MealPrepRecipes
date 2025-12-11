@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, memo } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -49,7 +49,7 @@ interface PlannerDayRowProps {
   isOver?: boolean;
 }
 
-export function PlannerDayRow({
+export const PlannerDayRow = memo(function PlannerDayRow({
   day,
   date,
   assignments,
@@ -196,7 +196,7 @@ export function PlannerDayRow({
       </Card>
     </div>
   );
-}
+});
 
 interface RecipeRowProps {
   assignment: MealAssignmentWithRecipe;

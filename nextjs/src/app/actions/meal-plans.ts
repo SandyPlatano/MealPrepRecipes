@@ -523,23 +523,23 @@ export async function clearDayAssignments(weekStart: string, dayOfWeek: DayOfWee
     return { error: error.message };
   }
 
-  // Remove ingredients for recipes that are no longer in the plan
+  // Remove ingredients for recipes that are no longer in the plan (batched check)
   if (assignmentsToRemove && assignmentsToRemove.length > 0) {
-    for (const assignment of assignmentsToRemove) {
-      // Check if this recipe is still assigned on other days
-      const { data: remainingAssignments } = await supabase
-        .from("meal_assignments")
-        .select("id")
-        .eq("meal_plan_id", mealPlan.id)
-        .eq("recipe_id", assignment.recipe_id);
+    const removedRecipeIds = [...new Set(assignmentsToRemove.map(a => a.recipe_id))];
 
-      // Only remove from shopping list if no other assignments for this recipe
-      if (!remainingAssignments || remainingAssignments.length === 0) {
-        await removeRecipeFromShoppingList(
-          supabase,
-          mealPlan.id,
-          assignment.recipe_id
-        );
+    // Batch query: get all recipes that are still assigned in this meal plan
+    const { data: remainingAssignments } = await supabase
+      .from("meal_assignments")
+      .select("recipe_id")
+      .eq("meal_plan_id", mealPlan.id)
+      .in("recipe_id", removedRecipeIds);
+
+    const stillAssignedRecipeIds = new Set(remainingAssignments?.map(a => a.recipe_id) || []);
+
+    // Remove from shopping list only recipes that are no longer assigned anywhere
+    for (const recipeId of removedRecipeIds) {
+      if (!stillAssignedRecipeIds.has(recipeId)) {
+        await removeRecipeFromShoppingList(supabase, mealPlan.id, recipeId);
       }
     }
   }
@@ -950,23 +950,28 @@ export async function applyMealPlanTemplate(
         return { error: insertError.message };
       }
 
-      // Add ingredients to shopping list for all recipes
-      for (const assignment of validAssignments) {
-        const { data: recipe } = await supabase
-          .from("recipes")
-          .select("title, ingredients")
-          .eq("id", assignment.recipe_id)
-          .single();
+      // Add ingredients to shopping list for all recipes (batched query)
+      const assignmentRecipeIds = [...new Set(validAssignments.map(a => a.recipe_id))];
+      const { data: recipesWithIngredients } = await supabase
+        .from("recipes")
+        .select("id, title, ingredients")
+        .in("id", assignmentRecipeIds);
 
-        if (recipe && recipe.ingredients && recipe.ingredients.length > 0) {
-          await addRecipeToShoppingList(
-            supabase,
-            household.household_id,
-            planResult.data.id,
-            assignment.recipe_id,
-            recipe.title,
-            recipe.ingredients
-          );
+      if (recipesWithIngredients) {
+        const recipeMap = new Map(recipesWithIngredients.map(r => [r.id, r]));
+
+        for (const assignment of validAssignments) {
+          const recipe = recipeMap.get(assignment.recipe_id);
+          if (recipe && recipe.ingredients && recipe.ingredients.length > 0) {
+            await addRecipeToShoppingList(
+              supabase,
+              household.household_id,
+              planResult.data.id,
+              assignment.recipe_id,
+              recipe.title,
+              recipe.ingredients
+            );
+          }
         }
       }
     }

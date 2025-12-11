@@ -455,6 +455,7 @@ export function MealPlannerGrid({
           <PlannerSummary
             assignments={allAssignments}
             weekStartStr={weekStartStr}
+            cookColors={cookColors}
           />
         </div>
 

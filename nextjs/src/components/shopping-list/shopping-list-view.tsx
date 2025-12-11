@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -736,7 +736,7 @@ interface SortableCategorySectionProps {
   onPantryToggle: (ingredient: string, isInPantry: boolean) => void;
 }
 
-function SortableCategorySection({
+const SortableCategorySection = memo(function SortableCategorySection({
   category,
   items,
   onPantryToggle,
@@ -798,7 +798,7 @@ function SortableCategorySection({
       </CardContent>
     </Card>
   );
-}
+});
 
 function CategoryCardOverlay({
   category,
@@ -831,7 +831,7 @@ interface ShoppingItemRowProps {
   onPantryToggle: (ingredient: string, isInPantry: boolean) => void;
 }
 
-function ShoppingItemRow({ item, onPantryToggle }: ShoppingItemRowProps) {
+const ShoppingItemRow = memo(function ShoppingItemRow({ item, onPantryToggle }: ShoppingItemRowProps) {
   const [isRemoving, setIsRemoving] = useState(false);
   const [isTogglingPantry, setIsTogglingPantry] = useState(false);
 
@@ -929,4 +929,4 @@ function ShoppingItemRow({ item, onPantryToggle }: ShoppingItemRowProps) {
       </li>
     </TooltipProvider>
   );
-}
+});

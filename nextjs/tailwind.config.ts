@@ -104,11 +104,45 @@ const config: Config = {
   				to: {
   					height: '0'
   				}
+  			},
+  			'shimmer': {
+  				'0%': {
+  					backgroundPosition: '200% 0'
+  				},
+  				'100%': {
+  					backgroundPosition: '-200% 0'
+  				}
+  			},
+  			'checkmark': {
+  				'0%': {
+  					transform: 'scale(0)',
+  					opacity: '0'
+  				},
+  				'50%': {
+  					transform: 'scale(1.2)'
+  				},
+  				'100%': {
+  					transform: 'scale(1)',
+  					opacity: '1'
+  				}
+  			},
+  			'slide-up-fade': {
+  				'0%': {
+  					opacity: '0',
+  					transform: 'translateY(10px)'
+  				},
+  				'100%': {
+  					opacity: '1',
+  					transform: 'translateY(0)'
+  				}
   			}
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+  			'shimmer': 'shimmer 1.5s ease-in-out infinite',
+  			'checkmark': 'checkmark 0.3s ease-out forwards',
+  			'slide-up-fade': 'slide-up-fade 0.3s ease-out forwards'
   		},
   		spacing: {
   			'safe': 'env(safe-area-inset-bottom)',
