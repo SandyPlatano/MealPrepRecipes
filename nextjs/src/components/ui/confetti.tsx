@@ -36,10 +36,19 @@ export function Confetti({
 }: ConfettiProps) {
   const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([]);
   const [isVisible, setIsVisible] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Track when component is mounted (client-side only)
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
+    // Only generate random values on the client after mount
+    if (!isMounted) return;
+
     if (active) {
-      // Generate confetti pieces
+      // Generate confetti pieces (safe to use Math.random() after mount)
       const newPieces: ConfettiPiece[] = Array.from({ length: pieces }, (_, i) => ({
         id: i,
         x: Math.random() * 100, // Random horizontal position (%)
@@ -59,7 +68,7 @@ export function Confetti({
 
       return () => clearTimeout(timer);
     }
-  }, [active, duration, pieces]);
+  }, [active, duration, pieces, isMounted]);
 
   if (confettiPieces.length === 0) return null;
 

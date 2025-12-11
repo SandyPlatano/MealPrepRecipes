@@ -169,13 +169,14 @@ export function ShoppingListView({
   };
 
   // Helper function to get date for a day of the week
+  // Using UTC timezone for consistent server/client rendering
   const getDateForDay = (day: string): string => {
     const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     const dayIndex = daysOfWeek.indexOf(day);
     if (dayIndex === -1 || !weekStart) return "";
     const date = new Date(weekStart);
     date.setDate(date.getDate() + dayIndex);
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
   };
 
   // Extract planned recipes from weekPlan
@@ -239,9 +240,11 @@ export function ShoppingListView({
           weekRange: `${new Date(weekStart!).toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",
+            timeZone: "UTC",
           })} - ${new Date(new Date(weekStart!).getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",
+            timeZone: "UTC",
           })}`,
           weekStart: weekStart,
           items: plannedRecipes.map((item) => ({

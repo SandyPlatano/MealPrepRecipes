@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   AccordionContent,
   AccordionItem,
@@ -63,11 +63,18 @@ export function MobileDayAccordion({
   const [isClearing, setIsClearing] = useState(false);
   const [updatingCook, setUpdatingCook] = useState<string | null>(null);
   const [removingMeal, setRemovingMeal] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
-  const today = new Date();
+  // Track when component is mounted (client-side only) to avoid hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Only compute "today" on client to avoid server/client mismatch
+  const today = isMounted ? new Date() : new Date(date);
   today.setHours(0, 0, 0, 0);
-  const isToday = date.toDateString() === today.toDateString();
-  const isPast = date < today;
+  const isToday = isMounted && date.toDateString() === today.toDateString();
+  const isPast = isMounted && date < today;
   const dayNumber = date.getDate();
 
   const handleClearDay = async () => {

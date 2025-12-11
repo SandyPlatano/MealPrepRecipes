@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, memo } from "react";
+import { useState, useTransition, memo, useEffect } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -69,7 +69,12 @@ export const PlannerDayRow = memo(function PlannerDayRow({
 }: PlannerDayRowProps) {
   const [isPending, startTransition] = useTransition();
   const [modalOpen, setModalOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
+  // Track when component is mounted (client-side only) to avoid hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const { setNodeRef } = useDroppable({
     id: `day-${day}`,
@@ -79,14 +84,16 @@ export const PlannerDayRow = memo(function PlannerDayRow({
     },
   });
 
-  const today = new Date();
+  // Only compute "today" on client to avoid server/client mismatch
+  const today = isMounted ? new Date() : new Date(date);
   today.setHours(0, 0, 0, 0);
-  const isToday = date.toDateString() === today.toDateString();
-  const isPast = date < today;
+  const isToday = isMounted && date.toDateString() === today.toDateString();
+  const isPast = isMounted && date < today;
 
   const dayNumber = date.getDate();
   const dayAbbrev = day.slice(0, 3).toUpperCase();
-  const monthAbbrev = date.toLocaleDateString("en-US", { month: "short" });
+  // Use a consistent format that doesn't depend on locale
+  const monthAbbrev = date.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
 
   const assignmentIds = assignments.map((a) => a.id);
 

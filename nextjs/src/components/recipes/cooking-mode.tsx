@@ -18,6 +18,9 @@ import {
 } from "lucide-react";
 import type { Recipe } from "@/types/recipe";
 import { toast } from "sonner";
+import { detectTimers } from "@/lib/timer-detector";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface CookingModeProps {
   recipe: Recipe;
@@ -164,12 +167,38 @@ export function CookingMode({ recipe }: CookingModeProps) {
                   </Badge>
                 )}
               </div>
-              <p className="text-2xl leading-relaxed">
-                {recipe.instructions[currentStep]}
-              </p>
+              <div className="prose prose-lg dark:prose-invert max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {recipe.instructions[currentStep]}
+                </ReactMarkdown>
+              </div>
+
+              {/* Auto-detected Timers */}
+              {(() => {
+                const detectedTimers = detectTimers(recipe.instructions[currentStep]);
+                return detectedTimers.length > 0 ? (
+                  <div className="flex flex-wrap gap-2 mt-6 pt-6 border-t">
+                    <span className="text-sm text-muted-foreground mr-2">
+                      Detected timers:
+                    </span>
+                    {detectedTimers.map((timer, idx) => (
+                      <Button
+                        key={idx}
+                        variant="default"
+                        size="sm"
+                        onClick={() => startTimer(timer.minutes)}
+                        className="gap-1"
+                      >
+                        <Timer className="h-3 w-3" />
+                        {timer.displayText}
+                      </Button>
+                    ))}
+                  </div>
+                ) : null;
+              })()}
 
               {/* Quick Timer Buttons */}
-              <div className="flex flex-wrap gap-2 mt-6 pt-6 border-t">
+              <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
                 <span className="text-sm text-muted-foreground mr-2">Quick timers:</span>
                 {[5, 10, 15, 20, 30].map((mins) => (
                   <Button

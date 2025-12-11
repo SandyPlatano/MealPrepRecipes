@@ -72,6 +72,8 @@ import {
 } from "@/components/ui/popover";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface CookingHistoryEntry {
   id: string;
@@ -175,48 +177,9 @@ export function RecipeDetail({
   };
 
   const handleExportPDF = () => {
-    // Open print dialog for PDF
-    const printWindow = window.open("", "_blank");
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>${recipe.title}</title>
-            <style>
-              body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-              h1 { margin-bottom: 10px; }
-              .meta { color: #666; margin-bottom: 20px; }
-              h2 { border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 30px; }
-              ul, ol { line-height: 1.8; }
-              .notes { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-top: 20px; }
-              .tags { margin-top: 20px; }
-              .tag { display: inline-block; background: #e0e0e0; padding: 4px 8px; border-radius: 4px; margin-right: 5px; font-size: 12px; }
-            </style>
-          </head>
-          <body>
-            <h1>${recipe.title}</h1>
-            <p class="meta">
-              ${recipe.recipe_type} • ${recipe.category || ""} •
-              Prep: ${recipe.prep_time || "N/A"} • Cook: ${recipe.cook_time || "N/A"} •
-              Serves: ${recipe.servings || recipe.base_servings || "N/A"}
-            </p>
-            <h2>Ingredients</h2>
-            <ul>
-              ${recipe.ingredients.map((ing) => `<li>${ing}</li>`).join("")}
-            </ul>
-            <h2>Instructions</h2>
-            <ol>
-              ${recipe.instructions.map((inst) => `<li>${inst}</li>`).join("")}
-            </ol>
-            ${recipe.notes ? `<div class="notes"><strong>Notes:</strong> ${recipe.notes}</div>` : ""}
-            ${recipe.tags.length > 0 ? `<div class="tags">${recipe.tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>` : ""}
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    }
-    toast.success("Opening PDF...");
+    // Open dedicated print page
+    window.open(`/app/recipes/${recipe.id}/print`, "_blank");
+    toast.success("Opening print view...");
   };
 
   const handleDelete = async () => {
@@ -595,7 +558,11 @@ export function RecipeDetail({
                     <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm flex items-center justify-center font-medium">
                       {index + 1}
                     </span>
-                    <span>{instruction}</span>
+                    <div className="prose prose-sm dark:prose-invert max-w-none flex-1">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {instruction}
+                      </ReactMarkdown>
+                    </div>
                   </li>
                 ))}
               </ol>
@@ -608,9 +575,11 @@ export function RecipeDetail({
               <div className="border-t" />
               <div className="space-y-2">
                 <h3 className="text-lg font-semibold">Notes</h3>
-                <p className="whitespace-pre-wrap text-muted-foreground">
-                  {recipe.notes}
-                </p>
+                <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {recipe.notes}
+                  </ReactMarkdown>
+                </div>
               </div>
             </>
           )}

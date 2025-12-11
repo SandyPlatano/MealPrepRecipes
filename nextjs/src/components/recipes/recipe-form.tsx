@@ -28,6 +28,7 @@ import Image from "next/image";
 import { ALLERGEN_TYPES, detectAllergens, mergeAllergens, getAllergenDisplayName } from "@/lib/allergen-detector";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { MarkdownEditor } from "@/components/ui/markdown-editor";
 
 interface RecipeFormProps {
   recipe?: Recipe;
@@ -540,18 +541,21 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
                 <span className="flex-shrink-0 w-6 h-10 flex items-center justify-center text-sm text-muted-foreground">
                   {index + 1}.
                 </span>
-                <Textarea
-                  value={instruction}
-                  onChange={(e) => updateInstruction(index, e.target.value)}
-                  placeholder={`Step ${index + 1}`}
-                  rows={2}
-                  maxLength={2000}
-                />
+                <div className="flex-1">
+                  <MarkdownEditor
+                    value={instruction}
+                    onChange={(value) => updateInstruction(index, value)}
+                    placeholder={`Step ${index + 1} - Use **bold** for emphasis, ## for sections`}
+                    rows={3}
+                    maxLength={2000}
+                  />
+                </div>
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
                   onClick={() => removeInstruction(index)}
+                  className="mt-1"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -680,12 +684,11 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="notes">Notes</Label>
-            <Textarea
-              id="notes"
+            <MarkdownEditor
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Tips, substitutions, or personal notes..."
-              rows={3}
+              onChange={setNotes}
+              placeholder="Tips, substitutions, or personal notes... Use **bold** for emphasis"
+              rows={4}
               maxLength={2000}
             />
           </div>
