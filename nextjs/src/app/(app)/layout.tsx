@@ -3,17 +3,10 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/actions/auth";
-import { History, Settings, Menu, Sparkles, BookOpen, Calendar, ShoppingCart } from "lucide-react";
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Settings } from "lucide-react";
 import { BrandLogoCompact } from "@/components/brand/logo";
 import { AppNav } from "@/components/navigation/app-nav";
+import { MobileMenu } from "@/components/navigation/mobile-menu";
 
 // Navigation: Plan, List, Recipes, Discover, History
 const navItems = [
@@ -67,57 +60,11 @@ export default async function AppLayout({
             </div>
 
             {/* Mobile Menu */}
-            <Sheet>
-              <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[300px]">
-                <SheetHeader>
-                  <SheetTitle className="font-mono text-left">Menu</SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col gap-2 mt-6">
-                  {navItems.map((item) => {
-                    const Icon = item.iconKey === "plan" ? Calendar
-                      : item.iconKey === "recipes" ? BookOpen
-                      : item.iconKey === "discover" ? Sparkles
-                      : item.iconKey === "shop" ? ShoppingCart
-                      : History;
-                    return (
-                      <SheetClose asChild key={item.href}>
-                        <Link href={item.href}>
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start text-base hover:bg-primary/5"
-                          >
-                            <Icon className="mr-3 h-4 w-4" />
-                            {item.label}
-                          </Button>
-                        </Link>
-                      </SheetClose>
-                    );
-                  })}
-                  <div className="border-t my-3" />
-                  <SheetClose asChild>
-                    <Link href="/app/settings">
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start text-base hover:bg-primary/5"
-                      >
-                        <Settings className="mr-3 h-4 w-4" />
-                        Settings
-                      </Button>
-                    </Link>
-                  </SheetClose>
-                  <form action={logout} className="mt-2">
-                    <Button variant="outline" className="w-full justify-center">
-                      Sign out
-                    </Button>
-                  </form>
-                </div>
-              </SheetContent>
-            </Sheet>
+            <MobileMenu
+              navItems={navItems}
+              settingsItem={settingsItem}
+              logoutAction={logout}
+            />
           </div>
         </div>
       </header>
