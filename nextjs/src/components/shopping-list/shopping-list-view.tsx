@@ -51,7 +51,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   Tooltip,
@@ -79,7 +78,7 @@ import {
   shareList,
   type ExportableItem,
 } from "@/lib/store-export";
-import { GripVertical, Settings2, WifiOff } from "lucide-react";
+import { GripVertical, Settings2, WifiOff, MoreVertical } from "lucide-react";
 import { updateSettings } from "@/app/actions/settings";
 import {
   useOffline,
@@ -122,6 +121,7 @@ export function ShoppingListView({
   const [draggedCategory, setDraggedCategory] = useState<string | null>(null);
   const [isRecipesOpen, setIsRecipesOpen] = useState(false);
   const [isSendingPlan, setIsSendingPlan] = useState(false);
+  const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
 
   // Offline support
   const { isOffline } = useOffline();
@@ -519,103 +519,109 @@ export function ShoppingListView({
 
       {/* Actions */}
       {shoppingList.items.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-2">
-          {/* Primary actions - always visible */}
-          <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" onClick={handleCopyToClipboard} className="flex-1 sm:flex-none">
-              <Copy className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Copy List</span>
-              <span className="sm:hidden">Copy</span>
-            </Button>
+        <div className="flex gap-2">
+          {/* Copy List - Primary */}
+          <Button variant="outline" onClick={handleCopyToClipboard}>
+            <Copy className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Copy List</span>
+            <span className="sm:hidden">Copy</span>
+          </Button>
 
-            {plannedRecipes.length > 0 && (
-              <Button
-                variant="outline"
-                onClick={handleSendPlan}
-                disabled={isSendingPlan}
-                className="flex-1 sm:flex-none"
-              >
-                <Mail className="h-4 w-4 mr-2" />
-                {isSendingPlan ? "Sending..." : <><span className="hidden sm:inline">Send Plan</span><span className="sm:hidden">Send</span></>}
+          {/* Send to Store - Primary */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <ExternalLink className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Send to Store</span>
+                <span className="sm:hidden">Store</span>
               </Button>
-            )}
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex-1 sm:flex-none">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">Send to Store</span>
-                  <span className="sm:hidden">Store</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                {SUPPORTED_STORES.map((store) => (
-                  <DropdownMenuItem
-                    key={store.id}
-                    onClick={() => handleStoreExport(store.id)}
-                  >
-                    <span className="mr-2">{store.icon}</span>
-                    {store.name}
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleShare}>
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share List...
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {SUPPORTED_STORES.map((store) => (
+                <DropdownMenuItem
+                  key={store.id}
+                  onClick={() => handleStoreExport(store.id)}
+                >
+                  <span className="mr-2">{store.icon}</span>
+                  {store.name}
                 </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleShare}>
+                <Share2 className="h-4 w-4 mr-2" />
+                Share List...
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-          {/* Secondary actions - dropdown on mobile */}
-          <div className="flex gap-2">
-            {checkedCount > 0 && (
-              <Button variant="outline" onClick={() => clearCheckedItems()} className="flex-1 sm:flex-none">
-                <Check className="h-4 w-4 mr-2" />
-                Clear Checked ({checkedCount})
+          {/* Three-Dot Menu - Secondary Actions */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <MoreVertical className="h-4 w-4" />
               </Button>
-            )}
-
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="outline" className="text-destructive flex-1 sm:flex-none">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">Clear All</span>
-                  <span className="sm:hidden">Clear</span>
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Clear shopping list?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will remove all {shoppingList.items.length} items from
-                    your shopping list. This cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => clearShoppingList()}>
-                    Clear All
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleGenerateFromPlan}
-              disabled={isGenerating}
-              className="text-muted-foreground"
-            >
-              <RefreshCw
-                className={`h-4 w-4 mr-1 ${isGenerating ? "animate-spin" : ""}`}
-              />
-              <span className="hidden sm:inline">Refresh</span>
-            </Button>
-          </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {plannedRecipes.length > 0 && (
+                <DropdownMenuItem onClick={handleSendPlan} disabled={isSendingPlan}>
+                  <Mail className="h-4 w-4 mr-2" />
+                  {isSendingPlan ? "Sending..." : "Send Meal Plan"}
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={handleGenerateFromPlan} disabled={isGenerating}>
+                <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? "animate-spin" : ""}`} />
+                Refresh from Meal Plan
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              {pantryCount > 0 && (
+                <DropdownMenuItem onClick={() => setShowPantryItems(!showPantryItems)}>
+                  <Cookie className="h-4 w-4 mr-2" />
+                  {showPantryItems ? "Hide" : "Show"} Pantry Items ({pantryCount})
+                </DropdownMenuItem>
+              )}
+              {sortedCategories.length > 1 && (
+                <DropdownMenuItem onClick={() => setIsReorderMode(!isReorderMode)}>
+                  <Settings2 className="h-4 w-4 mr-2" />
+                  {isReorderMode ? "Done Reordering" : "Reorder Categories"}
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              {checkedCount > 0 && (
+                <DropdownMenuItem onClick={() => clearCheckedItems()}>
+                  <Check className="h-4 w-4 mr-2" />
+                  Clear Checked ({checkedCount})
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => setClearAllDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Clear All Items
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       )}
+
+      {/* Clear All Confirmation Dialog */}
+      <AlertDialog open={clearAllDialogOpen} onOpenChange={setClearAllDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear shopping list?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove all {shoppingList.items.length} items from
+              your shopping list. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => clearShoppingList()}>
+              Clear All
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Progress */}
       {totalCount > 0 && (
@@ -671,53 +677,27 @@ export function ShoppingListView({
         </div>
       )}
 
-      {/* Secondary Actions - Relocated to Bottom */}
-      {totalCount > 0 && (
-        <div className="space-y-3 pt-4 border-t">
-          {/* Pantry Filter */}
-          {pantryCount > 0 && (
-            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-              <Cookie className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                {pantryCount} item{pantryCount !== 1 ? "s" : ""} already in your
-                pantry
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowPantryItems(!showPantryItems)}
-                className="ml-auto"
-              >
-                {showPantryItems ? "Hide" : "Show"}
+      {/* Reorder Mode Instructions - Only shown when active */}
+      {isReorderMode && (
+        <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border-t pt-4">
+          <Settings2 className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">
+            Drag categories to match your shopping route
+          </span>
+          <div className="ml-auto flex gap-2">
+            {categoryOrder && (
+              <Button variant="ghost" size="sm" onClick={handleResetOrder}>
+                Reset
               </Button>
-            </div>
-          )}
-
-          {/* Reorder Mode Toggle */}
-          {sortedCategories.length > 1 && (
-            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-              <Settings2 className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                {isReorderMode
-                  ? "Drag categories to match your shopping route"
-                  : "Customize category order"}
-              </span>
-              <div className="ml-auto flex gap-2">
-                {isReorderMode && categoryOrder && (
-                  <Button variant="ghost" size="sm" onClick={handleResetOrder}>
-                    Reset
-                  </Button>
-                )}
-                <Button
-                  variant={isReorderMode ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setIsReorderMode(!isReorderMode)}
-                >
-                  {isReorderMode ? "Done" : "Reorder"}
-                </Button>
-              </div>
-            </div>
-          )}
+            )}
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setIsReorderMode(false)}
+            >
+              Done
+            </Button>
+          </div>
         </div>
       )}
     </div>
