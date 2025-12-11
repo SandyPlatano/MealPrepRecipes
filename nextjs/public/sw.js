@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 
-const CACHE_NAME = "whats-for-dinner-v4";
+const CACHE_NAME = "whats-for-dinner-v5";
 const OFFLINE_URL = "/offline";
 
 // Assets to cache immediately on install
@@ -63,26 +63,26 @@ self.addEventListener("fetch", (event) => {
   // For all app routes, try network first, fall back to cache
   if (url.pathname.startsWith("/app/")) {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
+      (async () => {
+        try {
+          const response = await fetch(request);
           // Cache successful responses
           if (response.ok) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
-            });
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, response.clone());
           }
           return response;
-        })
-        .catch(async () => {
+        } catch {
           // Network failed, try cache
           const cachedResponse = await caches.match(request);
           if (cachedResponse) {
             return cachedResponse;
           }
           // No cache, return offline page
-          return caches.match(OFFLINE_URL);
-        })
+          const offlinePage = await caches.match(OFFLINE_URL);
+          return offlinePage || new Response("Offline", { status: 503 });
+        }
+      })()
     );
     return;
   }
@@ -95,29 +95,29 @@ self.addEventListener("fetch", (event) => {
     url.pathname.endsWith(".js")
   ) {
     event.respondWith(
-      caches.match(request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        return fetch(request)
-          .then((response) => {
-            if (response.ok) {
-              const responseClone = response.clone();
-              caches.open(CACHE_NAME).then((cache) => {
-                cache.put(request, responseClone);
-              });
-            }
-            return response;
-          })
-          .catch(() => {
-            // Network failed and no cache available
-            // Return an empty response for non-critical assets
-            return new Response("", {
-              status: 503,
-              statusText: "Service Unavailable",
-            });
+      (async () => {
+        try {
+          // Try cache first
+          const cachedResponse = await caches.match(request);
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          // Not in cache, try network
+          const response = await fetch(request);
+          if (response.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, response.clone());
+          }
+          return response;
+        } catch {
+          // Network failed and no cache available
+          // Return an empty response for non-critical assets
+          return new Response("", {
+            status: 503,
+            statusText: "Service Unavailable",
           });
-      })
+        }
+      })()
     );
     return;
   }
