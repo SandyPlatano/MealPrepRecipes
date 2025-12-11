@@ -3,7 +3,6 @@ import { Inter, JetBrains_Mono, Caveat } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import { CookieConsent } from "@/components/cookie-consent";
-import { LayoutDebug } from "@/components/layout-debug";
 import "./globals.css";
 
 const inter = Inter({
@@ -74,7 +73,6 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Providers>
-          <LayoutDebug />
           {children}
           <Toaster />
           <CookieConsent />

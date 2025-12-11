@@ -27,50 +27,22 @@ import { BrandLogo, BrandLogoCompact } from "@/components/brand/logo";
 
 // Lazy load animated demos for better initial page load
 const RecipeCardDemo = dynamic(
-  () => import("@/components/landing/animated-demo").then((mod) => {
-    // #region agent log
-    if (typeof window !== "undefined") {
-      fetch('http://127.0.0.1:7242/ingest/e7393dc2-767c-4b48-9410-102b5c37a0a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'page.tsx:30',message:'RecipeCardDemo dynamic import loaded',data:{component:'RecipeCardDemo'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    }
-    // #endregion
-    return { default: mod.RecipeCardDemo };
-  }),
+  () => import("@/components/landing/animated-demo").then((mod) => ({ default: mod.RecipeCardDemo })),
   { ssr: false, loading: () => <div className="h-96 bg-muted/30 rounded-xl animate-pulse" /> }
 );
 
 const MealPlanDemo = dynamic(
-  () => import("@/components/landing/animated-demo").then((mod) => {
-    // #region agent log
-    if (typeof window !== "undefined") {
-      fetch('http://127.0.0.1:7242/ingest/e7393dc2-767c-4b48-9410-102b5c37a0a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'page.tsx:35',message:'MealPlanDemo dynamic import loaded',data:{component:'MealPlanDemo'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    }
-    // #endregion
-    return { default: mod.MealPlanDemo };
-  }),
+  () => import("@/components/landing/animated-demo").then((mod) => ({ default: mod.MealPlanDemo })),
   { ssr: false, loading: () => <div className="h-96 bg-muted/30 rounded-xl animate-pulse" /> }
 );
 
 const ShoppingListDemo = dynamic(
-  () => import("@/components/landing/animated-demo").then((mod) => {
-    // #region agent log
-    if (typeof window !== "undefined") {
-      fetch('http://127.0.0.1:7242/ingest/e7393dc2-767c-4b48-9410-102b5c37a0a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'page.tsx:40',message:'ShoppingListDemo dynamic import loaded',data:{component:'ShoppingListDemo'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    }
-    // #endregion
-    return { default: mod.ShoppingListDemo };
-  }),
+  () => import("@/components/landing/animated-demo").then((mod) => ({ default: mod.ShoppingListDemo })),
   { ssr: false, loading: () => <div className="h-96 bg-muted/30 rounded-xl animate-pulse" /> }
 );
 
 const RecipeImportDemo = dynamic(
-  () => import("@/components/landing/animated-demo").then((mod) => {
-    // #region agent log
-    if (typeof window !== "undefined") {
-      fetch('http://127.0.0.1:7242/ingest/e7393dc2-767c-4b48-9410-102b5c37a0a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'page.tsx:45',message:'RecipeImportDemo dynamic import loaded',data:{component:'RecipeImportDemo'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    }
-    // #endregion
-    return { default: mod.RecipeImportDemo };
-  }),
+  () => import("@/components/landing/animated-demo").then((mod) => ({ default: mod.RecipeImportDemo })),
   { ssr: false, loading: () => <div className="h-96 bg-muted/30 rounded-xl animate-pulse" /> }
 );
 

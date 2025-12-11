@@ -32,22 +32,11 @@ function setCookie(name: string, value: string, days: number = 365) {
 export function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
 
-  // #region agent log
-  useEffect(() => {
-    const isSSR = typeof window === "undefined";
-    fetch('http://127.0.0.1:7242/ingest/e7393dc2-767c-4b48-9410-102b5c37a0a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cookie-consent.tsx:35',message:'CookieConsent initial render',data:{isSSR,showBanner,hasWindow:typeof window !== 'undefined',hasDocument:typeof document !== 'undefined'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-  }, []);
-  // #endregion
-
   useEffect(() => {
     // Check both cookie and localStorage for consent
     // This handles cases where cookies are cleared but localStorage persists
     const cookieConsent = getCookie(CONSENT_COOKIE_NAME);
     const storageConsent = localStorage.getItem(CONSENT_COOKIE_NAME);
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/e7393dc2-767c-4b48-9410-102b5c37a0a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cookie-consent.tsx:42',message:'CookieConsent useEffect - checking consent',data:{cookieConsent,storageConsent,willShowBanner:!cookieConsent && !storageConsent},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
     
     // Show banner if no consent found in either location
     if (!cookieConsent && !storageConsent) {
@@ -77,14 +66,6 @@ export function CookieConsent() {
     localStorage.setItem(CONSENT_COOKIE_NAME, value);
     setShowBanner(false);
   };
-
-  // #region agent log
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      fetch('http://127.0.0.1:7242/ingest/e7393dc2-767c-4b48-9410-102b5c37a0a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cookie-consent.tsx:70',message:'CookieConsent render decision',data:{showBanner,willRender:showBanner},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    }
-  }, [showBanner]);
-  // #endregion
 
   if (!showBanner) {
     return null;

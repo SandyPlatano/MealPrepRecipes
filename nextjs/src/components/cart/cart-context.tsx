@@ -34,8 +34,10 @@ const CART_STORAGE_KEY = "meal-plan-cart";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  // Initialize with null to avoid hydration mismatch, will be set in useEffect
-  const [weekStart, setWeekStart] = useState<Date | null>(null);
+  // Initialize with a consistent default to avoid hydration mismatch
+  // This will be updated from localStorage in useEffect if a stored value exists
+  // Using a fixed date ensures server and client render the same initial value
+  const [weekStart, setWeekStart] = useState<Date>(() => getWeekStart(new Date("2024-01-01")));
   const [isOpen, setIsOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -49,13 +51,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (parsed.weekStart) {
           setWeekStart(new Date(parsed.weekStart));
         } else {
+          // Update to current week if no stored weekStart
           setWeekStart(getWeekStart(new Date()));
         }
       } catch (e) {
         console.error("Failed to parse cart from localStorage", e);
+        // Update to current week on parse error
         setWeekStart(getWeekStart(new Date()));
       }
     } else {
+      // Update to current week if no stored cart
       setWeekStart(getWeekStart(new Date()));
     }
     setIsLoaded(true);
@@ -63,7 +68,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Save cart to localStorage when it changes
   useEffect(() => {
-    if (isLoaded && weekStart) {
+    if (isLoaded) {
       localStorage.setItem(
         CART_STORAGE_KEY,
         JSON.stringify({
@@ -117,14 +122,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return items.length;
   }, [items]);
 
-  // Provide a default weekStart if not loaded yet to avoid null errors
-  const effectiveWeekStart = weekStart || getWeekStart(new Date());
-
   return (
     <CartContext.Provider
       value={{
         items,
-        weekStart: effectiveWeekStart,
+        weekStart,
         isOpen,
         setIsOpen,
         addToCart,
