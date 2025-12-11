@@ -28,7 +28,7 @@ export function detectTimers(instruction: string): DetectedTimer[] {
   const hourMinutePattern = /(\d+)\s*(?:hours?|hrs?)\s*(?:and\s+)?(\d+)\s*(?:minutes?|mins?)\b/gi;
 
   // Check for hour+minute combinations first
-  let match;
+  let match: RegExpExecArray | null;
   while ((match = hourMinutePattern.exec(instruction)) !== null) {
     const hours = parseInt(match[1]);
     const mins = parseInt(match[2]);

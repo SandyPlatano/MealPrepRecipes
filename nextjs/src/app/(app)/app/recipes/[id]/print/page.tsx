@@ -42,18 +42,6 @@ export default function PrintPage() {
 
   return (
     <>
-      {/* Auto-trigger print dialog */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            if (typeof window !== 'undefined') {
-              window.onload = function() {
-                window.print();
-              };
-            }
-          `,
-        }}
-      />
 
       <div className="print-container max-w-4xl mx-auto p-8">
         {/* Header */}
