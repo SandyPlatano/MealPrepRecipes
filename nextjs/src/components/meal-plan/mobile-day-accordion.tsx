@@ -9,11 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -21,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Trash2, ChefHat, Clock, X, CalendarOff } from "lucide-react";
-import { InlineRecipePicker } from "./inline-recipe-picker";
+import { MobileRecipePickerSheet } from "./mobile-recipe-picker-sheet";
 import { cn } from "@/lib/utils";
 import type { DayOfWeek, MealAssignmentWithRecipe } from "@/types/meal-plan";
 
@@ -226,32 +221,26 @@ export function MobileDayAccordion({
 
           {/* Add Button */}
           {!isPast && (
-            <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full border-dashed"
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add Meal
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                side="top"
-                align="center"
-                className="w-auto p-0 border-0"
+            <>
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full border-dashed h-12 text-base"
+                onClick={() => setPickerOpen(true)}
               >
-                <InlineRecipePicker
-                  recipes={recipes}
-                  favorites={favorites}
-                  recentRecipeIds={recentRecipeIds}
-                  day={day}
-                  onSelect={onAddMeal}
-                  onClose={() => setPickerOpen(false)}
-                />
-              </PopoverContent>
-            </Popover>
+                <Plus className="h-5 w-5 mr-2" />
+                Add Meal
+              </Button>
+              <MobileRecipePickerSheet
+                recipes={recipes}
+                favorites={favorites}
+                recentRecipeIds={recentRecipeIds}
+                day={day}
+                isOpen={pickerOpen}
+                onSelect={onAddMeal}
+                onClose={() => setPickerOpen(false)}
+              />
+            </>
           )}
 
           {/* Clear Day Button */}

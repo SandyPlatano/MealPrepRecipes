@@ -1,11 +1,10 @@
 /// <reference lib="webworker" />
 
-const CACHE_NAME = "whats-for-dinner-v2";
+const CACHE_NAME = "whats-for-dinner-v3";
 const OFFLINE_URL = "/offline";
 
 // Assets to cache immediately on install
 const PRECACHE_ASSETS = [
-  "/app/shop",
   "/offline",
 ];
 
@@ -61,30 +60,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // For the shop page, use stale-while-revalidate strategy
-  if (url.pathname === "/app/shop") {
-    event.respondWith(
-      caches.open(CACHE_NAME).then(async (cache) => {
-        const cachedResponse = await cache.match(request);
-        
-        const fetchPromise = fetch(request).then((networkResponse) => {
-          if (networkResponse.ok) {
-            cache.put(request, networkResponse.clone());
-          }
-          return networkResponse;
-        }).catch(() => {
-          // Network failed, return cached or offline page
-          return cachedResponse || caches.match(OFFLINE_URL);
-        });
-
-        // Return cached response immediately, update cache in background
-        return cachedResponse || fetchPromise;
-      })
-    );
-    return;
-  }
-
-  // For other app routes, try network first, fall back to cache
+  // For all app routes, try network first, fall back to cache
   if (url.pathname.startsWith("/app/")) {
     event.respondWith(
       fetch(request)
