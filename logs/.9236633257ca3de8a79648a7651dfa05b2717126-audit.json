@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/ferm/Documents/GitHub/MealPrepRecipes/logs/.9236633257ca3de8a79648a7651dfa05b2717126-audit.json",
+    "files": [
+        {
+            "date": 1765465442978,
+            "name": "/Users/ferm/Documents/GitHub/MealPrepRecipes/logs/mcp-puppeteer-2025-12-11.log",
+            "hash": "76244d52b79fd9ed1235aabd167ee544ffe3372b39f5880420e6e33ff10f6fe7"
+        }
+    ],
+    "hashType": "sha256"
+}

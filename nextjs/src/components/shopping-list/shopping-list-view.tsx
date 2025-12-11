@@ -149,10 +149,10 @@ export function ShoppingListView({
   const plannedRecipes = weekPlan?.assignments
     ? Object.entries(weekPlan.assignments).flatMap(([day, assignments]: [string, Record<string, unknown>[]]) =>
         assignments.map((assignment) => {
-          const recipe = assignment.recipe as { name?: string; id?: string } | undefined;
+          const recipe = assignment.recipe as { title?: string; id?: string } | undefined;
           return {
             day,
-            recipeName: recipe?.name || "Unknown Recipe",
+            recipeName: recipe?.title || "Unknown Recipe",
             recipeId: recipe?.id,
             cook: assignment.cook as string | undefined,
             recipe: assignment.recipe,
