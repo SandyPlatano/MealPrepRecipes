@@ -1,7 +1,7 @@
 import { getShoppingListWithItems } from "@/app/actions/shopping-list";
 import { getPantryItems } from "@/app/actions/pantry";
 import { getSettings } from "@/app/actions/settings";
-import { getWeekPlanWithFullRecipes } from "@/app/actions/meal-plans";
+import { getWeekPlanForShoppingList } from "@/app/actions/meal-plans";
 import { ShoppingListView } from "@/components/shopping-list/shopping-list-view";
 import Link from "next/link";
 import { Cookie } from "lucide-react";
@@ -9,12 +9,13 @@ import { getWeekStart } from "@/types/meal-plan";
 
 export default async function ShopPage() {
   const currentWeekStart = getWeekStart(new Date()).toISOString().split("T")[0];
-  
+
+  // Use lightweight query for shopping list (fetches only id, title, cook - not full recipe)
   const [listResult, pantryResult, settingsResult, weekPlanResult] = await Promise.all([
     getShoppingListWithItems(),
     getPantryItems(),
     getSettings(),
-    getWeekPlanWithFullRecipes(currentWeekStart),
+    getWeekPlanForShoppingList(currentWeekStart),
   ]);
 
   const shoppingList = listResult.data || {

@@ -89,6 +89,9 @@ export function MealPlannerGrid({
   const [showStickyNav, setShowStickyNav] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
 
+  // Optimistic state for cook assignments (instant UI feedback)
+  const [optimisticCooks, setOptimisticCooks] = useState<Record<string, string | null>>({});
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -113,10 +116,27 @@ export function MealPlannerGrid({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Get all assignments as a flat array
+  // Apply optimistic cook values to assignments for instant UI feedback
+  const assignmentsWithOptimisticCooks = useMemo(() => {
+    const result: Record<DayOfWeek, MealAssignmentWithRecipe[]> = {} as Record<DayOfWeek, MealAssignmentWithRecipe[]>;
+    for (const day of DAYS_OF_WEEK) {
+      result[day] = (weekPlan.assignments[day] || []).map(assignment => {
+        if (assignment.id in optimisticCooks) {
+          return {
+            ...assignment,
+            cook: optimisticCooks[assignment.id],
+          };
+        }
+        return assignment;
+      });
+    }
+    return result;
+  }, [weekPlan.assignments, optimisticCooks]);
+
+  // Get all assignments as a flat array (with optimistic values)
   const allAssignments = useMemo(() => {
-    return Object.values(weekPlan.assignments).flat();
-  }, [weekPlan.assignments]);
+    return Object.values(assignmentsWithOptimisticCooks).flat();
+  }, [assignmentsWithOptimisticCooks]);
 
   const weekStartStr = weekStart.toISOString().split("T")[0];
 
@@ -152,12 +172,21 @@ export function MealPlannerGrid({
     [weekStartStr, recipes]
   );
 
-  // Handler for updating a cook
+  // Handler for updating a cook with optimistic updates
   const handleUpdateCook = useCallback(
     async (assignmentId: string, cook: string | null) => {
+      // Optimistically update local state immediately for instant UI feedback
+      setOptimisticCooks(prev => ({ ...prev, [assignmentId]: cook }));
+
       startTransition(async () => {
         const result = await updateMealAssignment(assignmentId, { cook: cook || undefined });
         if (result.error) {
+          // Rollback optimistic update on error
+          setOptimisticCooks(prev => {
+            const next = { ...prev };
+            delete next[assignmentId];
+            return next;
+          });
           toast.error(result.error);
         }
       });
@@ -374,7 +403,7 @@ export function MealPlannerGrid({
                   key={day}
                   day={day}
                   date={dayDate}
-                  assignments={weekPlan.assignments[day]}
+                  assignments={assignmentsWithOptimisticCooks[day]}
                   recipes={recipes}
                   favorites={favorites}
                   recentRecipeIds={recentRecipeIds}
@@ -405,7 +434,7 @@ export function MealPlannerGrid({
                     key={day}
                     day={day}
                     date={dayDate}
-                    assignments={weekPlan.assignments[day]}
+                    assignments={assignmentsWithOptimisticCooks[day]}
                     recipes={recipes}
                     favorites={favorites}
                     recentRecipeIds={recentRecipeIds}

@@ -445,6 +445,7 @@ export async function updateMealAssignment(
     revalidateTag(`meal-plan-${household.household_id}`);
   }
   revalidatePath("/app/plan");
+  revalidatePath("/app/shop");
   return { error: null };
 }
 
@@ -663,6 +664,59 @@ export async function getWeekPlanWithFullRecipes(weekStart: string) {
     error: null,
     data: {
       meal_plan: mealPlan,
+      assignments,
+    },
+  };
+}
+
+// Get week plan with minimal recipe data for shopping list (optimized query)
+export async function getWeekPlanForShoppingList(weekStart: string) {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found", data: null };
+  }
+
+  const supabase = await createClient();
+
+  // Get meal plan for the week
+  const { data: mealPlan } = await supabase
+    .from("meal_plans")
+    .select("id")
+    .eq("household_id", household.household_id)
+    .eq("week_start", weekStart)
+    .single();
+
+  if (!mealPlan) {
+    return { error: null, data: null };
+  }
+
+  // Get assignments with only the fields needed for shopping list display
+  const { data: assignmentData } = await supabase
+    .from("meal_assignments")
+    .select(`
+      id,
+      day_of_week,
+      cook,
+      recipe:recipes(id, title)
+    `)
+    .eq("meal_plan_id", mealPlan.id);
+
+  // Group by day for easier consumption
+  const assignments: Record<string, typeof assignmentData> = {};
+  if (assignmentData) {
+    for (const assignment of assignmentData) {
+      const day = assignment.day_of_week;
+      if (!assignments[day]) {
+        assignments[day] = [];
+      }
+      assignments[day].push(assignment);
+    }
+  }
+
+  return {
+    error: null,
+    data: {
       assignments,
     },
   };

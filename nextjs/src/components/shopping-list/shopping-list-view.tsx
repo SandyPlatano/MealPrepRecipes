@@ -135,7 +135,10 @@ export function ShoppingListView({
   const [isRecipesOpen, setIsRecipesOpen] = useState(false);
   const [isSendingPlan, setIsSendingPlan] = useState(false);
   const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
+
+  // Optimistic state for cook assignments (instant UI feedback)
+  const [optimisticCooks, setOptimisticCooks] = useState<Record<string, string | null>>({});
 
   // Offline support
   const { isOffline } = useOffline();
@@ -186,14 +189,32 @@ export function ShoppingListView({
       )
     : [];
 
-  // Handler for updating cook assignment
+  // Handler for updating cook assignment with optimistic updates
   const handleUpdateCook = async (assignmentId: string, cook: string | null) => {
+    // Optimistically update local state immediately for instant UI feedback
+    setOptimisticCooks(prev => ({ ...prev, [assignmentId]: cook }));
+
     startTransition(async () => {
       const result = await updateMealAssignment(assignmentId, { cook: cook || undefined });
       if (result.error) {
+        // Rollback optimistic update on error
+        setOptimisticCooks(prev => {
+          const next = { ...prev };
+          delete next[assignmentId];
+          return next;
+        });
         toast.error(result.error);
       }
     });
+  };
+
+  // Helper to get cook value with optimistic override
+  const getCookForAssignment = (assignmentId: string, serverCook: string | undefined): string | undefined => {
+    if (assignmentId in optimisticCooks) {
+      const optimisticValue = optimisticCooks[assignmentId];
+      return optimisticValue === null ? undefined : optimisticValue;
+    }
+    return serverCook;
   };
 
   // Handler for sending meal plan
@@ -445,7 +466,9 @@ export function ShoppingListView({
               <CardContent className="pt-0">
                 <div className="space-y-2">
                   {plannedRecipes.map((item, index) => {
-                    const cookColor = item.cook ? getCookBadgeColor(item.cook) : null;
+                    // Use optimistic cook value for instant UI feedback
+                    const currentCook = getCookForAssignment(item.assignmentId, item.cook);
+                    const cookColor = currentCook ? getCookBadgeColor(currentCook) : null;
                     return (
                       <div
                         key={index}
@@ -461,9 +484,8 @@ export function ShoppingListView({
                         </div>
                         <span className="flex-1 text-sm font-medium">{item.recipeName}</span>
                         <Select
-                          value={item.cook || "none"}
+                          value={currentCook || "none"}
                           onValueChange={(value) => handleUpdateCook(item.assignmentId, value === "none" ? null : value)}
-                          disabled={isPending}
                         >
                           <SelectTrigger
                             className="h-8 w-[130px] text-xs"
