@@ -44,7 +44,7 @@ export function detectTimers(instruction: string): DetectedTimer[] {
   // Check for hours only
   while ((match = hourPattern.exec(instruction)) !== null) {
     // Skip if this was already captured as part of hour+minute
-    if (timers.some(t => t.originalText.includes(match[0]))) {
+    if (timers.some(t => t.originalText.includes(match![0]))) {
       continue;
     }
 
@@ -65,7 +65,7 @@ export function detectTimers(instruction: string): DetectedTimer[] {
   // Check for minutes only
   while ((match = minutePattern.exec(instruction)) !== null) {
     // Skip if this was already captured as part of hour+minute
-    if (timers.some(t => t.originalText.includes(match[0]))) {
+    if (timers.some(t => t.originalText.includes(match![0]))) {
       continue;
     }
 
