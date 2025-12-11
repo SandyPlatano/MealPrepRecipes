@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 
 export function useOffline() {
-  const [isOffline, setIsOffline] = useState(false);
+  // Start with null to indicate we haven't checked yet (avoids false positive on SSR)
+  const [isOffline, setIsOffline] = useState<boolean | null>(null);
   const [isServiceWorkerReady, setIsServiceWorkerReady] = useState(false);
 
   useEffect(() => {
@@ -60,7 +61,8 @@ export function useOffline() {
     }
   }, []);
 
-  return { isOffline, isServiceWorkerReady };
+  // Return false if we haven't checked yet (null) to avoid showing offline banner prematurely
+  return { isOffline: isOffline === true, isServiceWorkerReady };
 }
 
 // Local storage helper for offline data persistence
