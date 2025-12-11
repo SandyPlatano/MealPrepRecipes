@@ -148,40 +148,23 @@ button:not(:disabled):hover {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Calendar component fixes - ensure proper spacing and alignment */
-.rdp-head_cell,
-[class*="head_cell"] {
-  width: 2.5rem !important;
-  min-width: 2.5rem !important;
-  max-width: 2.5rem !important;
-  flex: 0 0 2.5rem !important;
-  flex-shrink: 0 !important;
-  flex-grow: 0 !important;
-  text-align: center !important;
-  padding: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+/* Calendar component fixes for react-day-picker v9 */
+.rdp-weekday {
+  width: 2.5rem;
+  text-align: center;
+  padding: 0.5rem 0;
 }
 
-.rdp-cell,
-[class*="rdp-cell"] {
-  width: 2.5rem !important;
-  min-width: 2.5rem !important;
-  max-width: 2.5rem !important;
-  flex: 0 0 2.5rem !important;
-  flex-shrink: 0 !important;
-  flex-grow: 0 !important;
-  padding: 0 !important;
+.rdp-day {
+  width: 2.5rem;
+  height: 2.5rem;
+  text-align: center;
+  padding: 0;
 }
 
-.rdp-head_row,
-.rdp-row,
-[class*="head_row"],
-[class*="rdp-row"] {
-  display: flex !important;
-  width: 100% !important;
-  gap: 0.25rem !important;
+.rdp-month_grid {
+  border-collapse: separate;
+  border-spacing: 0.25rem;
 }
 
 /* Hide scrollbar utility */

@@ -6,9 +6,15 @@ export async function updateSession(request: NextRequest) {
     request,
   });
 
+  // Check if environment variables are set
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    console.error("Missing Supabase environment variables");
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
@@ -33,9 +39,22 @@ export async function updateSession(request: NextRequest) {
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Add timeout and error handling to prevent hanging
+  let user = null;
+  try {
+    const getUserPromise = supabase.auth.getUser();
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Auth timeout")), 5000)
+    );
+    
+    const result = await Promise.race([getUserPromise, timeoutPromise]) as { data: { user: any } };
+    user = result.data?.user ?? null;
+  } catch (error) {
+    // If auth check fails or times out, continue without user
+    // This prevents the middleware from hanging the entire request
+    console.error("Auth check failed in middleware:", error);
+    user = null;
+  }
 
   // Protected routes - redirect to login if not authenticated
   if (

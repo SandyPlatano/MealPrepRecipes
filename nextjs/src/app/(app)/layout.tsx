@@ -31,7 +31,16 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let user = null;
+  
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data?.user ?? null;
+  } catch (error) {
+    console.error("Failed to get user in app layout:", error);
+    // If auth check fails, redirect to login
+    redirect("/login");
+  }
 
   if (!user) {
     redirect("/login");

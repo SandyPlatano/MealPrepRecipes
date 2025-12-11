@@ -298,9 +298,9 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
     <>
       <Link href={`/app/recipes/${recipe.id}`}>
         <Card className="hover:shadow-xl hover:scale-105 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col h-full cursor-pointer overflow-hidden">
-          {/* Recipe Image or Gradient Fallback */}
-          <div className="relative w-full h-48 overflow-hidden">
-            {recipe.image_url ? (
+          {/* Recipe Image - only show if image exists */}
+          {recipe.image_url && (
+            <div className="relative w-full h-48 overflow-hidden">
               <Image
                 src={recipe.image_url}
                 alt={recipe.title}
@@ -308,14 +308,8 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
-            ) : (
-              <div className={`w-full h-full bg-gradient-to-br ${getRecipeGradient(recipe.recipe_type)} flex items-center justify-center`}>
-                <div className="text-white/80 text-6xl">
-                  {getRecipeIcon(recipe.recipe_type)}
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Allergen & Dietary Restriction Warning Banner */}
           {hasAnyWarnings && (
@@ -365,25 +359,6 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                     </>
                   )}
                 </CardDescription>
-                {/* Allergen badges */}
-                {allergens.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {allergens.slice(0, 3).map((allergen) => (
-                      <Badge
-                        key={allergen}
-                        variant="warning"
-                        className="text-xs"
-                      >
-                        {getAllergenDisplayName(allergen)}
-                      </Badge>
-                    ))}
-                    {allergens.length > 3 && (
-                      <Badge className="text-xs bg-muted text-muted-foreground border-border">
-                        +{allergens.length - 3}
-                      </Badge>
-                    )}
-                  </div>
-                )}
               </div>
               <div
                 className="flex gap-1 ml-2 shrink-0"

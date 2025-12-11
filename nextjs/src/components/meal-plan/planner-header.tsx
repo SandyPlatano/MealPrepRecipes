@@ -102,7 +102,7 @@ export function PlannerHeader({
   };
 
   return (
-    <div className="flex flex-col gap-3 pb-4 border-b">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b">
       {/* Week Navigation - Full width on mobile */}
       <div className="flex items-center gap-2">
         <Button

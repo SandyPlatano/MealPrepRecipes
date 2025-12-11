@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +29,7 @@ import {
   clearShoppingList,
   generateFromMealPlan,
 } from "@/app/actions/shopping-list";
+import { updateMealAssignment } from "@/app/actions/meal-plans";
 import {
   addToPantry,
   removeFromPantry,
@@ -70,16 +71,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ExternalLink, Share2, ChevronDown, ChevronUp, CalendarDays, Mail } from "lucide-react";
-import {
-  SUPPORTED_STORES,
-  openStoreWithItems,
-  copyForStore,
-  shareList,
-  type ExportableItem,
-} from "@/lib/store-export";
-import { GripVertical, Settings2, WifiOff, MoreVertical } from "lucide-react";
+import { ChevronDown, ChevronUp, CalendarDays, Mail, ChefHat } from "lucide-react";
+import { GripVertical, RotateCcw, WifiOff, MoreVertical } from "lucide-react";
 import { updateSettings } from "@/app/actions/settings";
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragStartEvent,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   useOffline,
   setCachedShoppingList,
@@ -117,11 +131,11 @@ export function ShoppingListView({
   const [categoryOrder, setCategoryOrder] = useState<string[] | null>(
     initialCategoryOrder
   );
-  const [isReorderMode, setIsReorderMode] = useState(false);
-  const [draggedCategory, setDraggedCategory] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isRecipesOpen, setIsRecipesOpen] = useState(false);
   const [isSendingPlan, setIsSendingPlan] = useState(false);
   const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   // Offline support
   const { isOffline } = useOffline();
@@ -145,6 +159,16 @@ export function ShoppingListView({
     return index >= 0 ? defaultColors[index % defaultColors.length] : "#6b7280";
   };
 
+  // Helper function to get date for a day of the week
+  const getDateForDay = (day: string): string => {
+    const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const dayIndex = daysOfWeek.indexOf(day);
+    if (dayIndex === -1 || !weekStart) return "";
+    const date = new Date(weekStart);
+    date.setDate(date.getDate() + dayIndex);
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
+
   // Extract planned recipes from weekPlan
   const plannedRecipes = weekPlan?.assignments
     ? Object.entries(weekPlan.assignments).flatMap(([day, assignments]: [string, Record<string, unknown>[]]) =>
@@ -152,6 +176,7 @@ export function ShoppingListView({
           const recipe = assignment.recipe as { title?: string; id?: string } | undefined;
           return {
             day,
+            assignmentId: assignment.id as string,
             recipeName: recipe?.title || "Unknown Recipe",
             recipeId: recipe?.id,
             cook: assignment.cook as string | undefined,
@@ -160,6 +185,16 @@ export function ShoppingListView({
         })
       )
     : [];
+
+  // Handler for updating cook assignment
+  const handleUpdateCook = async (assignmentId: string, cook: string | null) => {
+    startTransition(async () => {
+      const result = await updateMealAssignment(assignmentId, { cook: cook || undefined });
+      if (result.error) {
+        toast.error(result.error);
+      }
+    });
+  };
 
   // Handler for sending meal plan
   const handleSendPlan = async () => {
@@ -331,84 +366,38 @@ export function ShoppingListView({
     });
   };
 
-  // Get unchecked items for export (don't export already purchased items)
-  const itemsToExport: ExportableItem[] = visibleItems
-    .filter((item) => !item.is_checked)
-    .map((item) => ({
-      ingredient: item.ingredient,
-      quantity: item.quantity,
-      unit: item.unit,
-    }));
 
-  const handleStoreExport = (storeId: string) => {
-    if (itemsToExport.length === 0) {
-      toast.error("No items to export");
-      return;
-    }
-
-    const store = SUPPORTED_STORES.find((s) => s.id === storeId);
-    if (!store) return;
-
-    // Copy list to clipboard first
-    copyForStore(itemsToExport).then((copied) => {
-      if (copied) {
-        toast.success(
-          `List copied! Opening ${store.name}... Paste your list there.`,
-          { duration: 5000 }
-        );
-      }
-    });
-
-    // Open store in new tab
-    openStoreWithItems(store.id, itemsToExport);
-  };
-
-  const handleShare = async () => {
-    if (itemsToExport.length === 0) {
-      toast.error("No items to share");
-      return;
-    }
-
-    const shared = await shareList(itemsToExport, "Shopping List");
-    if (shared) {
-      toast.success("List shared!");
-    } else {
-      toast.error("Could not share list");
-    }
-  };
+  // @dnd-kit sensors for drag-and-drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // Drag and drop handlers for category reordering
-  const handleDragStart = (category: string) => {
-    setDraggedCategory(category);
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveCategory(event.active.id as string);
   };
 
-  const handleDragOver = (e: React.DragEvent, targetCategory: string) => {
-    e.preventDefault();
-    if (!draggedCategory || draggedCategory === targetCategory) return;
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveCategory(null);
 
-    const currentOrder = categoryOrder || [...INGREDIENT_CATEGORIES];
-    const fromIndex = currentOrder.indexOf(draggedCategory);
-    const toIndex = currentOrder.indexOf(targetCategory);
+    if (!over || active.id === over.id) return;
 
-    if (fromIndex === -1) {
-      // Dragged category not in current order, add it
-      const newOrder = [...currentOrder];
-      newOrder.splice(toIndex, 0, draggedCategory);
+    const oldIndex = sortedCategories.indexOf(active.id as string);
+    const newIndex = sortedCategories.indexOf(over.id as string);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const newOrder = arrayMove(sortedCategories, oldIndex, newIndex);
       setCategoryOrder(newOrder);
-    } else if (toIndex !== -1) {
-      // Both exist, swap positions
-      const newOrder = [...currentOrder];
-      newOrder.splice(fromIndex, 1);
-      newOrder.splice(toIndex, 0, draggedCategory);
-      setCategoryOrder(newOrder);
-    }
-  };
-
-  const handleDragEnd = async () => {
-    setDraggedCategory(null);
-    // Save the new order to settings
-    if (categoryOrder) {
-      await updateSettings({ category_order: categoryOrder });
+      await updateSettings({ category_order: newOrder });
       toast.success("Shopping route saved");
     }
   };
@@ -455,29 +444,61 @@ export function ShoppingListView({
             <CollapsibleContent>
               <CardContent className="pt-0">
                 <div className="space-y-2">
-                  {plannedRecipes.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
-                    >
-                      <span className="font-medium text-primary min-w-[80px] text-sm">
-                        {item.day}
-                      </span>
-                      <span className="flex-1 text-sm font-medium">{item.recipeName}</span>
-                      {item.cook && (
-                        <span
-                          className="text-xs px-2 py-1 rounded-full font-medium"
-                          style={{
-                            backgroundColor: `${getCookBadgeColor(item.cook)}20`,
-                            color: getCookBadgeColor(item.cook),
-                            border: `1px solid ${getCookBadgeColor(item.cook)}40`,
-                          }}
+                  {plannedRecipes.map((item, index) => {
+                    const cookColor = item.cook ? getCookBadgeColor(item.cook) : null;
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="min-w-[100px]">
+                          <span className="font-medium text-primary text-sm block">
+                            {item.day}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {getDateForDay(item.day)}
+                          </span>
+                        </div>
+                        <span className="flex-1 text-sm font-medium">{item.recipeName}</span>
+                        <Select
+                          value={item.cook || "none"}
+                          onValueChange={(value) => handleUpdateCook(item.assignmentId, value === "none" ? null : value)}
+                          disabled={isPending}
                         >
-                          {item.cook}
-                        </span>
-                      )}
-                    </div>
-                  ))}
+                          <SelectTrigger
+                            className="h-8 w-[130px] text-xs"
+                            style={cookColor ? {
+                              borderLeft: `3px solid ${cookColor}`,
+                            } : undefined}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <ChefHat className="h-3 w-3 mr-1 flex-shrink-0" />
+                            <SelectValue placeholder="Assign cook" />
+                          </SelectTrigger>
+                          <SelectContent
+                            onCloseAutoFocus={(e) => e.preventDefault()}
+                          >
+                            <SelectItem value="none">No cook</SelectItem>
+                            {cookNames.map((name) => {
+                              const color = getCookBadgeColor(name);
+                              return (
+                                <SelectItem key={name} value={name}>
+                                  <span className="flex items-center gap-2">
+                                    <span
+                                      className="h-2.5 w-2.5 rounded-full flex-shrink-0"
+                                      style={{ backgroundColor: color }}
+                                      aria-hidden="true"
+                                    />
+                                    {name}
+                                  </span>
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </CollapsibleContent>
@@ -519,40 +540,42 @@ export function ShoppingListView({
 
       {/* Actions */}
       {shoppingList.items.length > 0 && (
-        <div className="flex gap-2">
-          {/* Copy List - Primary */}
-          <Button variant="outline" onClick={handleCopyToClipboard}>
-            <Copy className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Copy List</span>
-            <span className="sm:hidden">Copy</span>
-          </Button>
+        <div className="flex gap-2 flex-wrap">
+          {/* Send Meal Plan - Primary */}
+          {plannedRecipes.length > 0 && (
+            <Button variant="outline" onClick={handleSendPlan} disabled={isSendingPlan}>
+              <Mail className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">{isSendingPlan ? "Sending..." : "Send Meal Plan"}</span>
+              <span className="sm:hidden">{isSendingPlan ? "..." : "Send"}</span>
+            </Button>
+          )}
 
-          {/* Send to Store - Primary */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Send to Store</span>
-                <span className="sm:hidden">Store</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              {SUPPORTED_STORES.map((store) => (
-                <DropdownMenuItem
-                  key={store.id}
-                  onClick={() => handleStoreExport(store.id)}
-                >
-                  <span className="mr-2">{store.icon}</span>
-                  {store.name}
-                </DropdownMenuItem>
-              ))}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleShare}>
-                <Share2 className="h-4 w-4 mr-2" />
-                Share List...
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Show Pantry Items */}
+          {pantryCount > 0 && (
+            <Button
+              variant={showPantryItems ? "default" : "outline"}
+              onClick={() => setShowPantryItems(!showPantryItems)}
+            >
+              <Cookie className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">
+                {showPantryItems ? "Hide" : "Show"} Pantry ({pantryCount})
+              </span>
+              <span className="sm:hidden">
+                Pantry ({pantryCount})
+              </span>
+            </Button>
+          )}
+
+          {/* Clear All Items */}
+          <Button
+            variant="outline"
+            className="text-destructive hover:text-destructive"
+            onClick={() => setClearAllDialogOpen(true)}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Clear All</span>
+            <span className="sm:hidden">Clear</span>
+          </Button>
 
           {/* Three-Dot Menu - Secondary Actions */}
           <DropdownMenu>
@@ -562,43 +585,32 @@ export function ShoppingListView({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {plannedRecipes.length > 0 && (
-                <DropdownMenuItem onClick={handleSendPlan} disabled={isSendingPlan}>
-                  <Mail className="h-4 w-4 mr-2" />
-                  {isSendingPlan ? "Sending..." : "Send Meal Plan"}
-                </DropdownMenuItem>
-              )}
+              <DropdownMenuItem onClick={handleCopyToClipboard}>
+                <Copy className="h-4 w-4 mr-2" />
+                Copy List
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={handleGenerateFromPlan} disabled={isGenerating}>
                 <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? "animate-spin" : ""}`} />
                 Refresh from Meal Plan
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              {pantryCount > 0 && (
-                <DropdownMenuItem onClick={() => setShowPantryItems(!showPantryItems)}>
-                  <Cookie className="h-4 w-4 mr-2" />
-                  {showPantryItems ? "Hide" : "Show"} Pantry Items ({pantryCount})
-                </DropdownMenuItem>
+              {categoryOrder && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleResetOrder}>
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Reset Category Order
+                  </DropdownMenuItem>
+                </>
               )}
-              {sortedCategories.length > 1 && (
-                <DropdownMenuItem onClick={() => setIsReorderMode(!isReorderMode)}>
-                  <Settings2 className="h-4 w-4 mr-2" />
-                  {isReorderMode ? "Done Reordering" : "Reorder Categories"}
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuSeparator />
               {checkedCount > 0 && (
-                <DropdownMenuItem onClick={() => clearCheckedItems()}>
-                  <Check className="h-4 w-4 mr-2" />
-                  Clear Checked ({checkedCount})
-                </DropdownMenuItem>
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => clearCheckedItems()}>
+                    <Check className="h-4 w-4 mr-2" />
+                    Clear Checked ({checkedCount})
+                  </DropdownMenuItem>
+                </>
               )}
-              <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
-                onClick={() => setClearAllDialogOpen(true)}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Clear All Items
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -660,90 +672,90 @@ export function ShoppingListView({
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
-          {sortedCategories.map((category) => (
-            <CategorySection
-              key={category}
-              category={category}
-              items={groupedItems[category]}
-              onPantryToggle={handlePantryToggle}
-              isReorderMode={isReorderMode}
-              isDragging={draggedCategory === category}
-              onDragStart={() => handleDragStart(category)}
-              onDragOver={(e) => handleDragOver(e, category)}
-              onDragEnd={handleDragEnd}
-            />
-          ))}
-        </div>
-      )}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={sortedCategories}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-4">
+              {sortedCategories.map((category) => (
+                <SortableCategorySection
+                  key={category}
+                  category={category}
+                  items={groupedItems[category]}
+                  onPantryToggle={handlePantryToggle}
+                />
+              ))}
+            </div>
+          </SortableContext>
 
-      {/* Reorder Mode Instructions - Only shown when active */}
-      {isReorderMode && (
-        <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border-t pt-4">
-          <Settings2 className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">
-            Drag categories to match your shopping route
-          </span>
-          <div className="ml-auto flex gap-2">
-            {categoryOrder && (
-              <Button variant="ghost" size="sm" onClick={handleResetOrder}>
-                Reset
-              </Button>
+          <DragOverlay>
+            {activeCategory && (
+              <CategoryCardOverlay
+                category={activeCategory}
+                items={groupedItems[activeCategory] || []}
+              />
             )}
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => setIsReorderMode(false)}
-            >
-              Done
-            </Button>
-          </div>
-        </div>
+          </DragOverlay>
+        </DndContext>
       )}
     </div>
   );
 }
 
-interface CategorySectionProps {
+interface SortableCategorySectionProps {
   category: string;
   items: (ShoppingListItem & { is_in_pantry?: boolean })[];
   onPantryToggle: (ingredient: string, isInPantry: boolean) => void;
-  isReorderMode?: boolean;
-  isDragging?: boolean;
-  onDragStart?: () => void;
-  onDragOver?: (e: React.DragEvent) => void;
-  onDragEnd?: () => void;
 }
 
-function CategorySection({
+function SortableCategorySection({
   category,
   items,
   onPantryToggle,
-  isReorderMode = false,
-  isDragging = false,
-  onDragStart,
-  onDragOver,
-  onDragEnd,
-}: CategorySectionProps) {
+}: SortableCategorySectionProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: category,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   const checkedCount = items.filter((i) => i.is_checked).length;
   const allChecked = checkedCount === items.length;
 
   return (
     <Card
+      ref={setNodeRef}
+      style={style}
       className={`${allChecked ? "opacity-60" : ""} ${
-        isReorderMode ? "cursor-move" : ""
-      } ${isDragging ? "opacity-50 border-dashed" : ""}`}
-      draggable={isReorderMode}
-      onDragStart={onDragStart}
-      onDragOver={onDragOver}
-      onDragEnd={onDragEnd}
+        isDragging ? "opacity-50 shadow-lg ring-2 ring-primary z-50" : ""
+      }`}
     >
       <CardHeader className="py-3">
         <CardTitle className="text-sm font-medium flex items-center justify-between">
           <span className="flex items-center gap-2">
-            {isReorderMode && (
+            <div
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing touch-none p-1 -ml-1 rounded hover:bg-muted"
+            >
               <GripVertical className="h-4 w-4 text-muted-foreground" />
-            )}
+            </div>
             {category}
           </span>
           <span className="text-xs text-muted-foreground font-normal">
@@ -762,6 +774,32 @@ function CategorySection({
           ))}
         </ul>
       </CardContent>
+    </Card>
+  );
+}
+
+function CategoryCardOverlay({
+  category,
+  items,
+}: {
+  category: string;
+  items: (ShoppingListItem & { is_in_pantry?: boolean })[];
+}) {
+  const checkedCount = items.filter((i) => i.is_checked).length;
+
+  return (
+    <Card className="shadow-xl border-2 border-primary opacity-90">
+      <CardHeader className="py-3">
+        <CardTitle className="text-sm font-medium flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <GripVertical className="h-4 w-4 text-muted-foreground" />
+            {category}
+          </span>
+          <span className="text-xs text-muted-foreground font-normal">
+            {checkedCount}/{items.length}
+          </span>
+        </CardTitle>
+      </CardHeader>
     </Card>
   );
 }
