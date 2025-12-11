@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition, memo } from "react";
+import { useState, useEffect, useTransition, memo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,6 +43,7 @@ import {
   sortCategories,
 } from "@/types/shopping-list";
 import { normalizeIngredientName } from "@/lib/ingredient-scaler";
+import { triggerHaptic } from "@/lib/haptics";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -100,6 +101,7 @@ import {
   getCachedShoppingList,
   type CachedShoppingList,
 } from "@/lib/use-offline";
+import { Confetti } from "@/components/ui/confetti";
 
 interface ShoppingListViewProps {
   shoppingList: ShoppingListWithItems;
@@ -139,6 +141,10 @@ export function ShoppingListView({
 
   // Optimistic state for cook assignments (instant UI feedback)
   const [optimisticCooks, setOptimisticCooks] = useState<Record<string, string | null>>({});
+
+  // Confetti celebration state
+  const [showConfetti, setShowConfetti] = useState(false);
+  const prevCheckedCountRef = useRef<number | null>(null);
 
   // Offline support
   const { isOffline } = useOffline();
@@ -309,6 +315,20 @@ export function ShoppingListView({
     (i) => i.is_in_pantry
   ).length;
 
+  // Trigger confetti when all items are checked (and it's a meaningful change)
+  useEffect(() => {
+    const allChecked = checkedCount === totalCount && totalCount > 0;
+    const wasNotAllChecked = prevCheckedCountRef.current !== null && prevCheckedCountRef.current < totalCount;
+
+    if (allChecked && wasNotAllChecked) {
+      setShowConfetti(true);
+      triggerHaptic("success");
+      setTimeout(() => setShowConfetti(false), 100);
+    }
+
+    prevCheckedCountRef.current = checkedCount;
+  }, [checkedCount, totalCount]);
+
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newItem.trim()) return;
@@ -403,6 +423,7 @@ export function ShoppingListView({
 
   // Drag and drop handlers for category reordering
   const handleDragStart = (event: DragStartEvent) => {
+    triggerHaptic("medium");
     setActiveCategory(event.active.id as string);
   };
 
@@ -412,6 +433,7 @@ export function ShoppingListView({
 
     if (!over || active.id === over.id) return;
 
+    triggerHaptic("success");
     const oldIndex = sortedCategories.indexOf(active.id as string);
     const newIndex = sortedCategories.indexOf(over.id as string);
 
@@ -431,6 +453,9 @@ export function ShoppingListView({
 
   return (
     <div className="space-y-6">
+      {/* Confetti celebration when all items checked */}
+      <Confetti active={showConfetti} />
+
       {/* Offline indicator */}
       {isOffline && (
         <div className="flex items-center gap-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-yellow-600 dark:text-yellow-400">
@@ -846,6 +871,7 @@ const ShoppingItemRow = memo(function ShoppingItemRow({ item, onPantryToggle }: 
   const [isTogglingPantry, setIsTogglingPantry] = useState(false);
 
   const handleToggle = async () => {
+    triggerHaptic("selection");
     await toggleShoppingListItem(item.id);
   };
 
@@ -855,6 +881,7 @@ const ShoppingItemRow = memo(function ShoppingItemRow({ item, onPantryToggle }: 
   };
 
   const handlePantryToggle = async () => {
+    triggerHaptic("light");
     setIsTogglingPantry(true);
     try {
       if (item.is_in_pantry) {

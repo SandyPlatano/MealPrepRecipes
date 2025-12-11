@@ -60,6 +60,7 @@ import { useRouter } from "next/navigation";
 import { MarkCookedDialog } from "./mark-cooked-dialog";
 import Image from "next/image";
 import { detectAllergens, mergeAllergens, getAllergenDisplayName, hasUserAllergens, hasCustomRestrictions } from "@/lib/allergen-detector";
+import { triggerHaptic } from "@/lib/haptics";
 
 // Get icon based on recipe type
 function getRecipeIcon(recipeType: RecipeType) {
@@ -140,6 +141,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
     e.stopPropagation();
     const added = addToCart(recipe);
     if (added) {
+      triggerHaptic("success");
       toast.success("Added to the plan");
     } else {
       toast.info("Already on there");
@@ -156,11 +158,13 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
+    triggerHaptic("light");
+
     // Optimistic update for instant UI feedback
     const optimisticState = !isFavorite;
     setIsFavorite(optimisticState);
-    
+
     startTransition(async () => {
       const result = await toggleFavorite(recipe.id);
       if (!result.error) {
@@ -305,13 +309,15 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
         >
           {/* Recipe Image - only show if image exists */}
           {recipe.image_url && (
-            <div className="relative w-full h-48 overflow-hidden">
+            <div className="relative w-full h-48 overflow-hidden bg-muted">
               <Image
                 src={recipe.image_url}
                 alt={recipe.title}
                 fill
-                className="object-cover"
+                className="object-cover transition-opacity duration-300"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYH/8QAIhAAAgEDAwUBAAAAAAAAAAAAAQIDAAQRBQYhEhMiMVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQADAQEBAAAAAAAAAAAAAAAAAQIDEUH/2gAMAwEAAhEDEQA/ALTce5Nw6XfRWOnWtjJAkccjGaN2LFhnHDDjgce/dSX9x73/AGb/AHfz/Sla1FNRlpHD9J//2Q=="
               />
             </div>
           )}

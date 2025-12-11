@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EmptyState } from "@/components/ui/empty-state";
 import { formatDistanceToNow, format } from "date-fns";
 import Link from "next/link";
 import { Calendar, Heart } from "lucide-react";
@@ -41,12 +42,12 @@ export default async function HistoryPage() {
         <TabsContent value="favorites" className="mt-6">
           {history.length === 0 ? (
             <Card>
-              <CardContent className="py-12 text-center">
-                <Heart className="h-12 w-12 mx-auto mb-4 opacity-50 text-muted-foreground" />
-                <p className="text-muted-foreground">No favorites yet.</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Heart the recipes you love to find them easily when babe asks.
-                </p>
+              <CardContent>
+                <EmptyState
+                  icon="❤️"
+                  title="No favorites yet"
+                  description="Heart the recipes you love to find them easily when it's time to decide what to cook."
+                />
               </CardContent>
             </Card>
           ) : (
@@ -119,12 +120,12 @@ export default async function HistoryPage() {
         <TabsContent value="weekly-plans" className="mt-6">
           {weeklyPlans.length === 0 ? (
             <Card>
-              <CardContent className="py-12 text-center">
-                <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50 text-muted-foreground" />
-                <p className="text-muted-foreground">No weekly plans yet.</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Send a plan from the cart to save it here.
-                </p>
+              <CardContent>
+                <EmptyState
+                  icon="📅"
+                  title="No weekly plans yet"
+                  description="Send a plan from the meal planner to save it here for reference."
+                />
               </CardContent>
             </Card>
           ) : (
