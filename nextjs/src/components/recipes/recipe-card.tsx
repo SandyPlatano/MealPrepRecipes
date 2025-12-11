@@ -104,9 +104,11 @@ interface RecipeCardProps {
   lastMadeDate?: string | null;
   userAllergenAlerts?: string[];
   customDietaryRestrictions?: string[];
+  /** Animation delay index for staggered animations (multiplied by 50ms) */
+  animationIndex?: number;
 }
 
-export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userAllergenAlerts = [], customDietaryRestrictions = [] }: RecipeCardProps) {
+export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userAllergenAlerts = [], customDietaryRestrictions = [], animationIndex }: RecipeCardProps) {
   const [isFavorite, setIsFavorite] = useState(recipe.is_favorite);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -297,7 +299,10 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
   return (
     <>
       <Link href={`/app/recipes/${recipe.id}`}>
-        <Card className="hover:shadow-xl hover:scale-105 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col h-full cursor-pointer overflow-hidden">
+        <Card
+          className="hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col h-full cursor-pointer overflow-hidden hover:ring-2 hover:ring-primary/20 animate-slide-up-fade"
+          style={animationIndex !== undefined ? { animationDelay: `${animationIndex * 50}ms`, animationFillMode: 'backwards' } : undefined}
+        >
           {/* Recipe Image - only show if image exists */}
           {recipe.image_url && (
             <div className="relative w-full h-48 overflow-hidden">

@@ -162,11 +162,11 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                 size="sm"
                 onClick={() => setModalOpen(true)}
                 className={cn(
-                  "w-full h-10 border-2 border-dashed",
+                  "w-full h-12 sm:h-10 border-2 border-dashed",
                   "hover:border-primary hover:bg-primary/5"
                 )}
               >
-                <Plus className="h-4 w-4 mr-1" />
+                <Plus className="h-5 w-5 sm:h-4 sm:w-4 mr-1" />
                 Add Meal
               </Button>
 
@@ -289,32 +289,32 @@ function RecipeRow({
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7"
+            className="h-9 w-9 sm:h-7 sm:w-7"
             title="View Recipe"
           >
-            <Eye className="h-3.5 w-3.5" />
+            <Eye className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </Button>
         </Link>
 
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7"
+          className="h-9 w-9 sm:h-7 sm:w-7"
           onClick={onSwap}
           title="Change Recipe"
         >
-          <Pencil className="h-3.5 w-3.5" />
+          <Pencil className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
         </Button>
 
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 hover:bg-destructive/10 hover:text-destructive"
+          className="h-9 w-9 sm:h-7 sm:w-7 hover:bg-destructive/10 hover:text-destructive"
           onClick={handleRemove}
           disabled={isRemoving}
           title="Remove"
         >
-          <Trash2 className="h-3.5 w-3.5" />
+          <Trash2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
         </Button>
       </div>
 

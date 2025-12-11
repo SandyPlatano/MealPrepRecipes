@@ -339,8 +339,14 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
         ) : (
           <TooltipProvider>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredRecipes.map((recipe) => (
-                <RecipeCard key={recipe.id} recipe={recipe} userAllergenAlerts={userAllergenAlerts} customDietaryRestrictions={customDietaryRestrictions} />
+              {filteredRecipes.map((recipe, index) => (
+                <RecipeCard
+                  key={recipe.id}
+                  recipe={recipe}
+                  userAllergenAlerts={userAllergenAlerts}
+                  customDietaryRestrictions={customDietaryRestrictions}
+                  animationIndex={index}
+                />
               ))}
             </div>
           </TooltipProvider>

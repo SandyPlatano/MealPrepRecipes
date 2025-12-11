@@ -133,8 +133,8 @@ export function RecipeDiscovery({ recipes, recentlyCookedIds }: RecipeDiscoveryP
         {discovered.length > 0 ? (
           <TooltipProvider>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {discovered.map((recipe) => (
-                <RecipeCard key={recipe.id} recipe={recipe} />
+              {discovered.map((recipe, index) => (
+                <RecipeCard key={recipe.id} recipe={recipe} animationIndex={index} />
               ))}
             </div>
           </TooltipProvider>

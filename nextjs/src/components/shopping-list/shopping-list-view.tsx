@@ -659,13 +659,23 @@ export function ShoppingListView({
 
       {/* Progress */}
       {totalCount > 0 && (
-        <div className="text-sm text-muted-foreground">
-          {checkedCount} of {totalCount} items checked
-          {checkedCount === totalCount && totalCount > 0 && (
-            <span className="ml-2 text-green-600 font-medium">
-              Boom. Shopping done!
+        <div className="space-y-2">
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary transition-all duration-500 ease-out"
+              style={{ width: `${(checkedCount / totalCount) * 100}%` }}
+            />
+          </div>
+          <div className="text-sm text-muted-foreground flex items-center justify-between">
+            <span>
+              {checkedCount} of {totalCount} items
             </span>
-          )}
+            {checkedCount === totalCount && totalCount > 0 && (
+              <span className="text-green-600 font-medium">
+                🎉 Shopping done!
+              </span>
+            )}
+          </div>
         </div>
       )}
 
@@ -774,9 +784,9 @@ const SortableCategorySection = memo(function SortableCategorySection({
             <div
               {...attributes}
               {...listeners}
-              className="cursor-grab active:cursor-grabbing touch-none p-1 -ml-1 rounded hover:bg-muted"
+              className="cursor-grab active:cursor-grabbing touch-none p-2 -ml-2 rounded hover:bg-muted"
             >
-              <GripVertical className="h-4 w-4 text-muted-foreground" />
+              <GripVertical className="h-5 w-5 text-muted-foreground" />
             </div>
             {category}
           </span>
@@ -869,7 +879,7 @@ const ShoppingItemRow = memo(function ShoppingItemRow({ item, onPantryToggle }: 
   return (
     <TooltipProvider>
       <li
-        className={`flex items-center gap-2 sm:gap-3 group ${
+        className={`flex items-center gap-3 group py-1 ${
           item.is_in_pantry ? "opacity-50" : ""
         }`}
       >
@@ -877,7 +887,7 @@ const ShoppingItemRow = memo(function ShoppingItemRow({ item, onPantryToggle }: 
           id={item.id}
           checked={item.is_checked}
           onCheckedChange={handleToggle}
-          className="h-5 w-5 sm:h-4 sm:w-4"
+          className="h-6 w-6 sm:h-5 sm:w-5"
         />
         <label
           htmlFor={item.id}
@@ -900,7 +910,7 @@ const ShoppingItemRow = memo(function ShoppingItemRow({ item, onPantryToggle }: 
             <Button
               variant="ghost"
               size="icon"
-              className={`h-9 w-9 sm:h-6 sm:w-6 flex-shrink-0 transition-opacity ${
+              className={`h-10 w-10 sm:h-8 sm:w-8 flex-shrink-0 transition-opacity ${
                 item.is_in_pantry
                   ? "opacity-100 text-green-600"
                   : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
@@ -908,7 +918,7 @@ const ShoppingItemRow = memo(function ShoppingItemRow({ item, onPantryToggle }: 
               onClick={handlePantryToggle}
               disabled={isTogglingPantry}
             >
-              <Cookie className="h-4 w-4 sm:h-3 sm:w-3" />
+              <Cookie className="h-5 w-5 sm:h-4 sm:w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
@@ -920,11 +930,11 @@ const ShoppingItemRow = memo(function ShoppingItemRow({ item, onPantryToggle }: 
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 sm:h-6 sm:w-6 flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+          className="h-10 w-10 sm:h-8 sm:w-8 flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
           onClick={handleRemove}
           disabled={isRemoving}
         >
-          <Trash2 className="h-4 w-4 sm:h-3 sm:w-3" />
+          <Trash2 className="h-5 w-5 sm:h-4 sm:w-4" />
         </Button>
       </li>
     </TooltipProvider>
