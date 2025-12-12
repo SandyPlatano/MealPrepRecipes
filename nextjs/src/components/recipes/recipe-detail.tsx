@@ -68,7 +68,6 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { detectAllergens, mergeAllergens, getAllergenDisplayName, hasUserAllergens, hasCustomRestrictions } from "@/lib/allergen-detector";
 import { Substitution } from "@/lib/substitutions";
-// import { findSubstitutionsForIngredients } from "@/lib/substitutions"; // FIXME: Cannot import server function in client component
 import {
   Popover,
   PopoverContent,
@@ -116,6 +115,7 @@ interface RecipeDetailProps {
   customDietaryRestrictions?: string[];
   nutrition?: RecipeNutrition | null;
   nutritionEnabled?: boolean;
+  substitutions?: Map<string, Substitution[]>;
 }
 
 export function RecipeDetail({
@@ -126,6 +126,7 @@ export function RecipeDetail({
   customDietaryRestrictions = [],
   nutrition = null,
   nutritionEnabled = false,
+  substitutions = new Map(),
 }: RecipeDetailProps) {
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [showCookedDialog, setShowCookedDialog] = useState(false);
@@ -156,25 +157,7 @@ export function RecipeDetail({
   const matchingCustomRestrictions = hasCustomRestrictions(recipe.ingredients, customDietaryRestrictions);
   const hasAnyWarnings = hasUserAllergensFlag || matchingCustomRestrictions.length > 0;
 
-  // Substitutions - TEMPORARILY DISABLED
-  // FIXME: findSubstitutionsForIngredients is a server function and cannot be called from client component
-  // This needs to be refactored to fetch substitutions server-side and pass as props
-  const [substitutions] = useState<Map<string, Substitution[]>>(new Map());
-
-  // useEffect(() => {
-  //   async function loadSubstitutions() {
-  //     setLoadingSubs(true);
-  //     try {
-  //       const subs = await findSubstitutionsForIngredients(recipe.ingredients);
-  //       setSubstitutions(subs);
-  //     } catch (error) {
-  //       console.error("Error loading substitutions:", error);
-  //     } finally {
-  //       setLoadingSubs(false);
-  //     }
-  //   }
-  //   loadSubstitutions();
-  // }, [recipe.ingredients]);
+  // Substitutions are now passed as a prop from the server component
 
   const handleToggleFavorite = async () => {
     const result = await toggleFavorite(recipe.id);
@@ -211,8 +194,9 @@ export function RecipeDetail({
       const response = await fetch("/api/ai/extract-nutrition", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // Ensure cookies are sent with the request
         body: JSON.stringify({
-          recipeId: recipe.id,
+          recipe_id: recipe.id, // Fixed: API expects recipe_id, not recipeId
           title: recipe.title,
           ingredients: recipe.ingredients,
           servings: recipe.base_servings || 4,

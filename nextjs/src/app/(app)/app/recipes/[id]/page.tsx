@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getRecipe, getFavorites, getRecipeHistory } from "@/app/actions/recipes";
 import { getSettings } from "@/app/actions/settings";
 import { getRecipeNutrition, isNutritionTrackingEnabled } from "@/app/actions/nutrition";
+import { findSubstitutionsForIngredients } from "@/lib/substitutions";
 import { RecipeDetail } from "@/components/recipes/recipe-detail";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit } from "lucide-react";
@@ -46,6 +47,9 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
     nutrition = nutritionResult.data;
   }
 
+  // Fetch substitutions for this recipe's ingredients
+  const substitutions = await findSubstitutionsForIngredients(recipe.ingredients);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -71,6 +75,7 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
         customDietaryRestrictions={customDietaryRestrictions}
         nutrition={nutrition}
         nutritionEnabled={nutritionEnabled}
+        substitutions={substitutions}
       />
     </div>
   );

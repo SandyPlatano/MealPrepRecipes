@@ -1,11 +1,14 @@
 import { getProfile, getSettings, getHouseholdInfo } from "@/app/actions/settings";
+import { getUserSubstitutions, getDefaultSubstitutions } from "@/lib/substitutions";
 import { SettingsForm } from "@/components/settings/settings-form";
 
 export default async function SettingsPage() {
-  const [profileResult, settingsResult, householdResult] = await Promise.all([
+  const [profileResult, settingsResult, householdResult, userSubstitutions, defaultSubstitutions] = await Promise.all([
     getProfile(),
     getSettings(),
     getHouseholdInfo(),
+    getUserSubstitutions(),
+    getDefaultSubstitutions(),
   ]);
 
   const profile = profileResult.data || {
@@ -43,6 +46,8 @@ export default async function SettingsPage() {
         household={household}
         householdRole={householdRole}
         members={members}
+        userSubstitutions={userSubstitutions}
+        defaultSubstitutions={defaultSubstitutions}
       />
     </div>
   );

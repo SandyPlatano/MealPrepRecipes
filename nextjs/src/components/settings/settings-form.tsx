@@ -31,6 +31,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { GoogleCalendarButton } from "./google-calendar-button";
+import { MacroGoalsSection } from "./macro-goals-section";
+import { SubstitutionsSection } from "./substitutions-section";
+import {
+  updateMacroGoals,
+  toggleNutritionTracking,
+} from "@/app/actions/nutrition";
+import type { MacroGoals, MacroGoalPreset } from "@/types/nutrition";
+import type { Substitution, UserSubstitution } from "@/lib/substitutions";
 
 // Helper to format time as HH:MM:SS for database
 const formatTimeForDB = (time: string | null | undefined): string | null => {
@@ -60,6 +68,9 @@ interface SettingsFormProps {
     calendar_event_time?: string | null;
     calendar_event_duration_minutes?: number | null;
     calendar_excluded_days?: string[] | null;
+    macro_goals?: MacroGoals | null;
+    macro_tracking_enabled?: boolean;
+    macro_goal_preset?: MacroGoalPreset | null;
   };
   household: {
     id: string;
@@ -71,6 +82,8 @@ interface SettingsFormProps {
     role: string;
     profiles: { name: string | null; email: string | null } | null;
   }>;
+  userSubstitutions?: UserSubstitution[];
+  defaultSubstitutions?: Substitution[];
 }
 
 export function SettingsForm({
@@ -79,6 +92,8 @@ export function SettingsForm({
   household,
   householdRole,
   members,
+  userSubstitutions = [],
+  defaultSubstitutions = [],
 }: SettingsFormProps) {
   const { theme, setTheme } = useTheme();
   const [firstName, setFirstName] = useState(profile.first_name || "");
@@ -121,7 +136,6 @@ export function SettingsForm({
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Use refs to store latest values to avoid dependency issues
   const themeRef = useRef(theme);
@@ -133,6 +147,73 @@ export function SettingsForm({
   const calendarEventTimeRef = useRef(calendarEventTime);
   const calendarEventDurationRef = useRef(calendarEventDuration);
   const calendarExcludedDaysRef = useRef(calendarExcludedDays);
+
+  // Track previous settings to detect changes
+  const prevSettingsRef = useRef(settings);
+  
+  // Sync state with props when settings change (e.g., after navigation)
+  useEffect(() => {
+    const prev = prevSettingsRef.current;
+    const newAllergenAlerts = settings.allergen_alerts || [];
+    const newCustomRestrictions = settings.custom_dietary_restrictions || [];
+    const newExcludedDays = settings.calendar_excluded_days || [];
+    
+    // Only update if values actually changed (compare with previous props, not current state)
+    const prevAllergenAlerts = prev.allergen_alerts || [];
+    if (JSON.stringify(prevAllergenAlerts) !== JSON.stringify(newAllergenAlerts)) {
+      setAllergenAlerts(newAllergenAlerts);
+      allergenAlertsRef.current = newAllergenAlerts;
+    }
+    
+    const prevCustomRestrictions = prev.custom_dietary_restrictions || [];
+    if (JSON.stringify(prevCustomRestrictions) !== JSON.stringify(newCustomRestrictions)) {
+      setCustomRestrictions(newCustomRestrictions);
+      customRestrictionsRef.current = newCustomRestrictions;
+    }
+    
+    if (prev.google_connected_account !== settings.google_connected_account) {
+      setGoogleConnectedAccount(settings.google_connected_account || null);
+    }
+    
+    if (settings.calendar_event_time) {
+      const time = settings.calendar_event_time;
+      const formattedTime = time.length >= 5 ? time.substring(0, 5) : time;
+      const prevTime = prev.calendar_event_time;
+      const prevFormattedTime = prevTime && prevTime.length >= 5 ? prevTime.substring(0, 5) : prevTime;
+      if (prevFormattedTime !== formattedTime) {
+        setCalendarEventTime(formattedTime);
+        calendarEventTimeRef.current = formattedTime;
+      }
+    }
+    
+    if (settings.calendar_event_duration_minutes !== prev.calendar_event_duration_minutes) {
+      setCalendarEventDuration(settings.calendar_event_duration_minutes || 60);
+      calendarEventDurationRef.current = settings.calendar_event_duration_minutes || 60;
+    }
+    
+    const prevExcludedDays = prev.calendar_excluded_days || [];
+    if (JSON.stringify(prevExcludedDays) !== JSON.stringify(newExcludedDays)) {
+      setCalendarExcludedDays(newExcludedDays);
+      calendarExcludedDaysRef.current = newExcludedDays;
+    }
+    
+    // Update ref for next comparison - use a deep copy to ensure reference changes
+    prevSettingsRef.current = {
+      ...settings,
+      allergen_alerts: [...(settings.allergen_alerts || [])],
+      custom_dietary_restrictions: [...(settings.custom_dietary_restrictions || [])],
+      calendar_excluded_days: [...(settings.calendar_excluded_days || [])],
+    };
+  }, [
+    settings.allergen_alerts, 
+    settings.custom_dietary_restrictions, 
+    settings.google_connected_account, 
+    settings.calendar_event_time, 
+    settings.calendar_event_duration_minutes, 
+    settings.calendar_excluded_days,
+    // Add updated_at to detect when settings are refreshed from server
+    settings.updated_at,
+  ]);
 
   // Keep refs in sync with state
   useEffect(() => {
@@ -168,18 +249,12 @@ export function SettingsForm({
     setMounted(true);
   }, []);
 
-  // Auto-save settings with debounce - using refs to avoid callback recreation
-  const autoSaveSettings = useCallback(() => {
-    // Clear existing timeout
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current);
-    }
-
-    // Set new timeout to save after 500ms of inactivity
-    autoSaveTimeoutRef.current = setTimeout(async () => {
-      const isDarkMode = themeRef.current === "dark";
-      
-      // Update settings using refs for latest values
+  // Auto-save settings - using refs to avoid callback recreation
+  const autoSaveSettings = useCallback(async () => {
+    const isDarkMode = themeRef.current === "dark";
+    
+    // Update settings using refs for latest values
+    try {
       const settingsResult = await updateSettings({
         dark_mode: isDarkMode,
         cook_names: cookNamesRef.current.filter((n) => n.trim()),
@@ -193,21 +268,18 @@ export function SettingsForm({
       });
       
       if (settingsResult.error) {
-        toast.error(settingsResult.error);
+        console.error('Failed to save settings:', settingsResult.error);
+        toast.error(`Failed to save: ${settingsResult.error}`);
       } else {
+        // Note: No router.refresh() needed here - the component maintains its own state
+        // and when navigating back, the server component will fetch fresh data from DB
         toast.success("Settings saved", { duration: 2000 });
       }
-    }, 500);
-  }, []); // No dependencies - uses refs instead
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-    };
-  }, []);
+    } catch (error) {
+      console.error('Exception during save:', error);
+      toast.error('Failed to save settings. Please try again.');
+    }
+  }, []); // No dependencies - uses refs for state values
 
   const handleGoogleConnectionChange = async () => {
     // Refetch settings to get updated Google Calendar connection
@@ -332,20 +404,17 @@ export function SettingsForm({
   };
 
   const toggleAllergenAlert = useCallback((allergen: string) => {
-    // Update state immediately - React will batch and apply instantly
     setAllergenAlerts((prev) => {
       const updated = prev.includes(allergen)
         ? prev.filter((a) => a !== allergen)
         : [...prev, allergen];
-      // Update ref immediately for auto-save
+      // Update ref immediately and synchronously for auto-save
       allergenAlertsRef.current = updated;
       return updated;
     });
-    // Schedule auto-save asynchronously - don't block the UI update
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current);
-    }
-    autoSaveTimeoutRef.current = setTimeout(() => autoSaveSettings(), 300);
+    
+    // Save immediately - no delay
+    autoSaveSettings();
   }, [autoSaveSettings]);
 
   // Memoize toggle handlers for each allergen to prevent re-creating callbacks
@@ -360,8 +429,12 @@ export function SettingsForm({
   const addCustomRestriction = () => {
     const trimmed = customRestrictionInput.trim();
     if (trimmed && !customRestrictions.includes(trimmed)) {
-      setCustomRestrictions([...customRestrictions, trimmed]);
+      const updated = [...customRestrictions, trimmed];
+      setCustomRestrictions(updated);
       setCustomRestrictionInput("");
+      // Update ref immediately
+      customRestrictionsRef.current = updated;
+      // Save immediately (no debounce for addition)
       autoSaveSettings();
     } else if (customRestrictions.includes(trimmed)) {
       toast.info("Already added");
@@ -369,7 +442,11 @@ export function SettingsForm({
   };
 
   const removeCustomRestriction = (restriction: string) => {
-    setCustomRestrictions(customRestrictions.filter((r) => r !== restriction));
+    const updated = customRestrictions.filter((r) => r !== restriction);
+    setCustomRestrictions(updated);
+    // Update ref immediately
+    customRestrictionsRef.current = updated;
+    // Save immediately (no debounce for removal)
     autoSaveSettings();
   };
 
@@ -688,6 +765,23 @@ export function SettingsForm({
           </div>
         </CardContent>
       </Card>
+
+      {/* Nutrition Tracking & Macro Goals */}
+      <MacroGoalsSection
+        initialGoals={settings.macro_goals}
+        initialEnabled={settings.macro_tracking_enabled || false}
+        initialPreset={settings.macro_goal_preset}
+        onSave={async (goals, enabled, preset) => {
+          await updateMacroGoals(goals);
+          await toggleNutritionTracking(enabled);
+        }}
+      />
+
+      {/* Ingredient Substitutions */}
+      <SubstitutionsSection
+        initialUserSubstitutions={userSubstitutions}
+        defaultSubstitutions={defaultSubstitutions}
+      />
 
       {/* Google Calendar */}
       <Card>
