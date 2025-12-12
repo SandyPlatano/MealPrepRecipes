@@ -6,6 +6,13 @@ import {
   getPreviousWeekMealCount,
   getSmartSuggestions,
 } from "@/app/actions/meal-plan-suggestions";
+import { checkAIQuota } from "@/app/actions/ai-meal-suggestions";
+import {
+  getBulkRecipeNutrition,
+  getWeeklyNutritionDashboard,
+  getMacroGoals,
+  isNutritionTrackingEnabled,
+} from "@/app/actions/nutrition";
 import { MealPlannerGrid } from "@/components/meal-plan/meal-planner-grid";
 import { PlanScrollRestorer } from "@/components/meal-plan/plan-scroll-restorer";
 import { getWeekStart } from "@/types/meal-plan";
@@ -38,6 +45,8 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
     recentlyCooked,
     prevWeekCount,
     suggestions,
+    aiQuota,
+    nutritionTrackingResult,
   ] = await Promise.all([
     getWeekPlan(weekStartStr),
     getRecipesForPlanning(),
@@ -46,6 +55,8 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
     getRecentlyCooked(),
     getPreviousWeekMealCount(previousWeekStr),
     getSmartSuggestions(weekStartStr),
+    checkAIQuota(),
+    isNutritionTrackingEnabled(),
   ]);
 
   const weekPlan = planResult.data || {
@@ -71,6 +82,40 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
   const recentRecipeIds = (recentlyCooked.data || []).map((r) => r.id);
   const suggestedRecipeIds = (suggestions.data || []).map((r) => r.id);
 
+  // Get existing meal days for AI suggestions
+  const existingMealDays = Object.entries(weekPlan.assignments)
+    .filter(([, meals]) => meals.length > 0)
+    .map(([day]) => day);
+
+  // Fetch nutrition data if tracking is enabled
+  const nutritionEnabled = nutritionTrackingResult.enabled || false;
+  let nutritionData = null;
+  let weeklyNutritionDashboard = null;
+  let macroGoals = null;
+
+  if (nutritionEnabled) {
+    // Get all unique recipe IDs from assignments
+    const allRecipeIds = Object.values(weekPlan.assignments)
+      .flat()
+      .map((a) => a.recipe_id);
+    const uniqueRecipeIds = [...new Set(allRecipeIds)];
+
+    // Fetch nutrition data for all recipes in parallel
+    const [nutritionResult, dashboardResult, goalsResult] = await Promise.all([
+      uniqueRecipeIds.length > 0 ? getBulkRecipeNutrition(uniqueRecipeIds) : { data: null },
+      getWeeklyNutritionDashboard(weekStartStr),
+      getMacroGoals(),
+    ]);
+
+    // Create nutrition lookup map
+    if (nutritionResult.data) {
+      nutritionData = new Map(nutritionResult.data.map((n) => [n.recipe_id, n]));
+    }
+
+    weeklyNutritionDashboard = dashboardResult.data;
+    macroGoals = goalsResult.data;
+  }
+
   return (
     <div className="space-y-6">
       <PlanScrollRestorer />
@@ -94,6 +139,13 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
         recentRecipeIds={recentRecipeIds}
         suggestedRecipeIds={suggestedRecipeIds}
         previousWeekMealCount={prevWeekCount.count}
+        subscriptionTier={aiQuota.data?.tier || 'free'}
+        aiQuotaRemaining={aiQuota.data?.remaining || null}
+        existingMealDays={existingMealDays}
+        nutritionEnabled={nutritionEnabled}
+        nutritionData={nutritionData}
+        weeklyNutritionDashboard={weeklyNutritionDashboard}
+        macroGoals={macroGoals}
       />
     </div>
   );

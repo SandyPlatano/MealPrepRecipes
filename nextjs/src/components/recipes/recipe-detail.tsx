@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
+import { NutritionFactsCard } from "@/components/nutrition";
 import {
   Heart,
   Clock,
@@ -32,6 +33,8 @@ import {
   Download,
   Trash2,
   Edit,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -58,6 +61,7 @@ import {
 import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
 import { MarkCookedDialog } from "@/components/recipes/mark-cooked-dialog";
 import type { Recipe, RecipeType } from "@/types/recipe";
+import type { RecipeNutrition } from "@/types/nutrition";
 import { formatDistanceToNow } from "date-fns";
 import { scaleIngredients } from "@/lib/ingredient-scaler";
 import { toast } from "sonner";
@@ -110,6 +114,8 @@ interface RecipeDetailProps {
   history: CookingHistoryEntry[];
   userAllergenAlerts?: string[];
   customDietaryRestrictions?: string[];
+  nutrition?: RecipeNutrition | null;
+  nutritionEnabled?: boolean;
 }
 
 export function RecipeDetail({
@@ -118,11 +124,15 @@ export function RecipeDetail({
   history,
   userAllergenAlerts = [],
   customDietaryRestrictions = [],
+  nutrition = null,
+  nutritionEnabled = false,
 }: RecipeDetailProps) {
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [showCookedDialog, setShowCookedDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isExtractingNutrition, setIsExtractingNutrition] = useState(false);
+  const [localNutrition, setLocalNutrition] = useState<RecipeNutrition | null>(nutrition);
   const router = useRouter();
   
   // Serving size scaling
@@ -193,6 +203,41 @@ export function RecipeDetail({
       router.push("/app/recipes");
     }
     setDeleteDialogOpen(false);
+  };
+
+  const handleExtractNutrition = async () => {
+    setIsExtractingNutrition(true);
+    try {
+      const response = await fetch("/api/ai/extract-nutrition", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          recipeId: recipe.id,
+          title: recipe.title,
+          ingredients: recipe.ingredients,
+          servings: recipe.base_servings || 4,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        toast.error(result.error || "Failed to extract nutrition");
+        return;
+      }
+
+      // Update local nutrition state with extracted data
+      setLocalNutrition(result.nutrition);
+      toast.success("Nutrition extracted successfully!");
+
+      // Refresh the page to update all data
+      router.refresh();
+    } catch (error) {
+      console.error("Error extracting nutrition:", error);
+      toast.error("Failed to extract nutrition");
+    } finally {
+      setIsExtractingNutrition(false);
+    }
   };
 
   const incrementServings = () => {
@@ -568,6 +613,54 @@ export function RecipeDetail({
               </ol>
             </div>
           </div>
+
+          {/* Nutrition Facts */}
+          {nutritionEnabled && (
+            <>
+              <div className="border-t" />
+              <div className="space-y-4">
+                {localNutrition ? (
+                  <NutritionFactsCard
+                    nutrition={localNutrition}
+                    recipeId={recipe.id}
+                    servings={recipe.base_servings || 4}
+                    editable
+                  />
+                ) : (
+                  <div className="space-y-3">
+                    <div className="text-center py-8 space-y-4">
+                      <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                        <Sparkles className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-lg">No Nutrition Data</h3>
+                        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                          Use AI to automatically extract nutrition information from the recipe ingredients.
+                        </p>
+                      </div>
+                      <Button
+                        onClick={handleExtractNutrition}
+                        disabled={isExtractingNutrition}
+                        className="mx-auto"
+                      >
+                        {isExtractingNutrition ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Extracting...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            Extract Nutrition with AI
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
 
           {/* Notes */}
           {recipe.notes && (

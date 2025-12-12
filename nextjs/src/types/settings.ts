@@ -1,5 +1,7 @@
 // User Settings Types
 
+import type { MacroGoals, MacroGoalPreset } from "./nutrition";
+
 export interface UserSettings {
   id: string;
   user_id: string;
@@ -13,6 +15,12 @@ export interface UserSettings {
   calendar_event_time?: string | null;
   calendar_event_duration_minutes?: number | null;
   calendar_excluded_days?: string[] | null;
+
+  // Nutrition tracking (new)
+  macro_goals?: MacroGoals;
+  macro_tracking_enabled?: boolean;
+  macro_goal_preset?: MacroGoalPreset | null;
+
   created_at: string;
   updated_at: string;
 }
@@ -28,6 +36,11 @@ export interface UserSettingsFormData {
   calendar_event_time?: string | null;
   calendar_event_duration_minutes?: number | null;
   calendar_excluded_days?: string[] | null;
+
+  // Nutrition tracking (new)
+  macro_goals?: MacroGoals;
+  macro_tracking_enabled?: boolean;
+  macro_goal_preset?: MacroGoalPreset | null;
 }
 
 export interface UserProfile {

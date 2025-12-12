@@ -50,6 +50,9 @@ interface Recipe {
   tags?: string[];
 }
 
+import type { SubscriptionTier } from "@/types/subscription";
+import type { RecipeNutrition, WeeklyMacroDashboard, MacroGoals } from "@/types/nutrition";
+
 interface MealPlannerGridProps {
   weekStart: Date;
   weekPlan: WeekPlanData;
@@ -63,6 +66,13 @@ interface MealPlannerGridProps {
   recentRecipeIds: string[];
   suggestedRecipeIds: string[];
   previousWeekMealCount: number;
+  subscriptionTier?: SubscriptionTier;
+  aiQuotaRemaining?: number | null;
+  existingMealDays?: string[];
+  nutritionEnabled?: boolean;
+  nutritionData?: Map<string, RecipeNutrition> | null;
+  weeklyNutritionDashboard?: WeeklyMacroDashboard | null;
+  macroGoals?: MacroGoals | null;
 }
 
 export function MealPlannerGrid({
@@ -80,6 +90,13 @@ export function MealPlannerGrid({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   suggestedRecipeIds,
   previousWeekMealCount,
+  subscriptionTier = 'free',
+  aiQuotaRemaining = null,
+  existingMealDays = [],
+  nutritionEnabled = false,
+  nutritionData = null,
+  weeklyNutritionDashboard = null,
+  macroGoals = null,
 }: MealPlannerGridProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -359,6 +376,9 @@ export function MealPlannerGrid({
               previousWeekMealCount={previousWeekMealCount}
               isSending={isSending}
               currentWeekMealCount={allAssignments.length}
+              subscriptionTier={subscriptionTier}
+              aiQuotaRemaining={aiQuotaRemaining}
+              existingMealDays={existingMealDays}
             />
           </div>
 
@@ -410,6 +430,7 @@ export function MealPlannerGrid({
                   onAddMeal={handleAddMeal}
                   onUpdateCook={handleUpdateCook}
                   onRemoveMeal={handleRemoveMeal}
+                  nutritionData={nutritionData}
                 />
               );
             })}
@@ -420,6 +441,10 @@ export function MealPlannerGrid({
             assignments={allAssignments}
             weekStartStr={weekStartStr}
             cookColors={cookColors}
+            nutritionEnabled={nutritionEnabled}
+            nutritionData={nutritionData}
+            weeklyNutritionDashboard={weeklyNutritionDashboard}
+            macroGoals={macroGoals}
           />
         </div>
 

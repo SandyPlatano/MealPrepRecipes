@@ -13,26 +13,36 @@ export const getCachedUser = cache(async () => {
 
 /**
  * Cached user + household data - combines two most common queries
- * Returns user info along with their household membership
+ * Returns user info along with their household membership and subscription
  */
 export const getCachedUserWithHousehold = cache(async () => {
   const { user, error: authError } = await getCachedUser();
-  
+
   if (authError || !user) {
-    return { user: null, household: null, error: authError };
+    return { user: null, household: null, subscription: null, error: authError };
   }
 
   const supabase = await createClient();
+
+  // Fetch household membership
   const { data: membership, error: householdError } = await supabase
     .from("household_members")
     .select("household_id, role")
     .eq("user_id", user.id)
     .single();
 
+  // Fetch subscription data
+  const { data: subscription, error: subscriptionError } = await supabase
+    .from("subscriptions")
+    .select("*")
+    .eq("user_id", user.id)
+    .single();
+
   return {
     user,
     household: membership,
-    error: householdError,
+    subscription,
+    error: householdError || subscriptionError,
   };
 });
 

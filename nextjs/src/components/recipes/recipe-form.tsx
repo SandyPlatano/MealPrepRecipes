@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Plus, X, Upload, AlertCircle } from "lucide-react";
+import { Loader2, Plus, X, Upload, AlertCircle, Sparkles } from "lucide-react";
 import { createRecipe, updateRecipe, uploadRecipeImage } from "@/app/actions/recipes";
 import type { Recipe, RecipeType, RecipeFormData } from "@/types/recipe";
 import { toast } from "sonner";
@@ -28,10 +28,12 @@ import { ALLERGEN_TYPES, detectAllergens, mergeAllergens, getAllergenDisplayName
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MarkdownEditor } from "@/components/ui/markdown-editor";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface RecipeFormProps {
   recipe?: Recipe;
   initialData?: RecipeFormData;
+  nutritionEnabled?: boolean;
 }
 
 const recipeTypes: RecipeType[] = [
@@ -43,7 +45,7 @@ const recipeTypes: RecipeType[] = [
   "Side Dish",
 ];
 
-export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
+export function RecipeForm({ recipe, initialData, nutritionEnabled = false }: RecipeFormProps) {
   const router = useRouter();
   const isEditing = !!recipe;
   const errorRef = useRef<HTMLDivElement>(null);
@@ -720,6 +722,17 @@ export function RecipeForm({ recipe, initialData }: RecipeFormProps) {
             </div>
           </div>
         )}
+
+        {/* Nutrition Auto-Extraction Info */}
+        {!isEditing && nutritionEnabled && (
+          <Alert className="bg-primary/5 border-primary/20">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <AlertDescription className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">Nutrition tracking enabled:</span> We&apos;ll automatically extract nutrition information from your ingredients after you create this recipe.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="flex gap-4">
           <Button type="submit" disabled={loading}>
             {loading ? (

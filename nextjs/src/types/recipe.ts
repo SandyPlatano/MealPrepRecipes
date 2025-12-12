@@ -1,5 +1,7 @@
 // Recipe types matching the database schema
 
+import type { RecipeNutrition } from "./nutrition";
+
 export type RecipeType =
   | "Dinner"
   | "Baking"
@@ -31,6 +33,11 @@ export interface Recipe {
   is_shared_with_household: boolean;
   created_at: string;
   updated_at: string;
+}
+
+// Recipe with nutrition data
+export interface RecipeWithNutrition extends Recipe {
+  nutrition?: RecipeNutrition | null;
 }
 
 // Form data for creating/editing recipes

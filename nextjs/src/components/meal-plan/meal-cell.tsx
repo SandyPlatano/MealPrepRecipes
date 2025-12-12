@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -19,6 +20,7 @@ import {
 import { GripVertical, X, Clock, ChefHat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { MealAssignmentWithRecipe } from "@/types/meal-plan";
+import type { RecipeNutrition } from "@/types/nutrition";
 
 interface MealCellProps {
   assignment: MealAssignmentWithRecipe;
@@ -26,6 +28,7 @@ interface MealCellProps {
   onUpdateCook: (assignmentId: string, cook: string | null) => Promise<void>;
   onRemove: (assignmentId: string) => Promise<void>;
   isDragging?: boolean;
+  nutrition?: RecipeNutrition | null;
 }
 
 export function MealCell({
@@ -34,6 +37,7 @@ export function MealCell({
   onUpdateCook,
   onRemove,
   isDragging = false,
+  nutrition = null,
 }: MealCellProps) {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
@@ -225,13 +229,29 @@ export function MealCell({
           </TooltipContent>
         </Tooltip>
 
-        {/* Prep Time */}
-        {assignment.recipe.prep_time && (
-          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-            <Clock className="h-3 w-3" />
-            {assignment.recipe.prep_time}
-          </p>
-        )}
+        {/* Prep Time and Nutrition */}
+        <div className="mt-0.5 flex items-center gap-2 flex-wrap">
+          {assignment.recipe.prep_time && (
+            <span className="text-xs text-muted-foreground flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {assignment.recipe.prep_time}
+            </span>
+          )}
+          {nutrition && (
+            <>
+              {nutrition.calories && (
+                <Badge variant="outline" className="text-xs font-mono px-1.5 py-0">
+                  {Math.round(nutrition.calories)} cal
+                </Badge>
+              )}
+              {nutrition.protein_g && (
+                <Badge variant="outline" className="text-xs font-mono px-1.5 py-0">
+                  {Math.round(nutrition.protein_g)}g protein
+                </Badge>
+              )}
+            </>
+          )}
+        </div>
 
         {/* Cook Selector */}
         <div className="mt-2">

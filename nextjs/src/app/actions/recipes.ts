@@ -5,6 +5,7 @@ import { getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
 import { revalidatePath, revalidateTag } from "next/cache";
 import type { Recipe, RecipeFormData } from "@/types/recipe";
 import { randomUUID } from "crypto";
+import { isNutritionTrackingEnabled } from "./nutrition";
 
 // Get all recipes for the current user (own + shared household recipes)
 export async function getRecipes() {
@@ -94,6 +95,21 @@ export async function createRecipe(formData: RecipeFormData) {
     return { error: error.message, data: null };
   }
 
+  // Background task: Auto-extract nutrition if tracking is enabled
+  // This runs asynchronously and doesn't block the response
+  const nutritionCheck = await isNutritionTrackingEnabled();
+  if (nutritionCheck.enabled && data) {
+    // Fire and forget - don't await to avoid blocking recipe creation
+    extractNutritionInBackground(data.id, {
+      title: data.title,
+      ingredients: data.ingredients,
+      servings: data.base_servings || 4,
+    }).catch((err) => {
+      // Log error but don't fail recipe creation
+      console.error("Background nutrition extraction failed:", err);
+    });
+  }
+
   revalidatePath("/app/recipes");
   revalidateTag(`recipes-${user.id}`);
   return { error: null, data: data as Recipe };
@@ -141,6 +157,23 @@ export async function updateRecipe(id: string, formData: Partial<RecipeFormData>
 
   if (error) {
     return { error: error.message, data: null };
+  }
+
+  // Background task: Re-extract nutrition if ingredients were updated and tracking is enabled
+  const ingredientsUpdated = formData.ingredients !== undefined;
+  if (ingredientsUpdated && data) {
+    const nutritionCheck = await isNutritionTrackingEnabled();
+    if (nutritionCheck.enabled) {
+      // Fire and forget - don't await to avoid blocking recipe update
+      extractNutritionInBackground(data.id, {
+        title: data.title,
+        ingredients: data.ingredients,
+        servings: data.base_servings || 4,
+      }).catch((err) => {
+        // Log error but don't fail recipe update
+        console.error("Background nutrition re-extraction failed:", err);
+      });
+    }
   }
 
   revalidatePath("/app/recipes");
@@ -428,4 +461,35 @@ export async function deleteRecipeImage(imagePath: string) {
   }
 
   return { error: null };
+}
+
+// Helper function to extract nutrition in the background
+async function extractNutritionInBackground(
+  recipeId: string,
+  recipeData: { title: string; ingredients: string[]; servings: number }
+) {
+  try {
+    // Call the nutrition extraction API endpoint
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const response = await fetch(`${baseUrl}/api/ai/extract-nutrition`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        recipeId,
+        title: recipeData.title,
+        ingredients: recipeData.ingredients,
+        servings: recipeData.servings,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: "Unknown error" }));
+      throw new Error(error.error || "Nutrition extraction failed");
+    }
+
+    console.log(`[Nutrition] Auto-extracted for recipe ${recipeId}`);
+  } catch (error) {
+    console.error(`[Nutrition] Background extraction failed for recipe ${recipeId}:`, error);
+    throw error;
+  }
 }

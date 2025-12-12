@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,6 +34,23 @@ export function RecipeImport() {
   const [urlInput, setUrlInput] = useState("");
   const [isParsing, setIsParsing] = useState(false);
   const [parsedRecipe, setParsedRecipe] = useState<RecipeFormData | null>(null);
+  const [nutritionEnabled, setNutritionEnabled] = useState(false);
+
+  // Check if nutrition tracking is enabled
+  useEffect(() => {
+    async function checkNutritionTracking() {
+      try {
+        const response = await fetch("/api/nutrition/tracking-status");
+        if (response.ok) {
+          const data = await response.json();
+          setNutritionEnabled(data.enabled || false);
+        }
+      } catch (error) {
+        console.error("Failed to check nutrition tracking status:", error);
+      }
+    }
+    checkNutritionTracking();
+  }, []);
 
   const handlePasteSubmit = async () => {
     if (!pasteText.trim()) {
@@ -198,7 +215,7 @@ export function RecipeImport() {
             </Button>
           </div>
         </div>
-        <RecipeForm initialData={parsedRecipe} />
+        <RecipeForm initialData={parsedRecipe} nutritionEnabled={nutritionEnabled} />
       </div>
     );
   }
@@ -234,7 +251,7 @@ export function RecipeImport() {
       </div>
 
       {/* Manual Entry */}
-      {mode === "manual" && <RecipeForm />}
+      {mode === "manual" && <RecipeForm nutritionEnabled={nutritionEnabled} />}
 
       {/* Paste Text */}
       {mode === "paste" && (

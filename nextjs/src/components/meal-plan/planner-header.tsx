@@ -26,10 +26,14 @@ import {
   CheckCircle2,
   Save,
   FolderOpen,
+  Sparkles,
 } from "lucide-react";
 import { formatWeekRange, getWeekStart } from "@/types/meal-plan";
 import { SaveTemplateDialog } from "./save-template-dialog";
 import { TemplateManagerDialog } from "./template-manager-dialog";
+import { AISuggestionModal } from "./AISuggestionModal";
+import { UpgradeModal } from "@/components/subscriptions/UpgradeModal";
+import type { SubscriptionTier } from "@/types/subscription";
 
 interface PlannerHeaderProps {
   weekStart: Date;
@@ -40,6 +44,9 @@ interface PlannerHeaderProps {
   previousWeekMealCount: number;
   isSending?: boolean;
   currentWeekMealCount: number;
+  subscriptionTier?: SubscriptionTier;
+  aiQuotaRemaining?: number | null;
+  existingMealDays?: string[];
 }
 
 export function PlannerHeader({
@@ -49,6 +56,9 @@ export function PlannerHeader({
   hasMeals,
   previousWeekMealCount,
   currentWeekMealCount,
+  subscriptionTier = 'free',
+  aiQuotaRemaining = null,
+  existingMealDays = [],
 }: PlannerHeaderProps) {
   const router = useRouter();
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -56,6 +66,8 @@ export function PlannerHeader({
   const [isClearing, setIsClearing] = useState(false);
   const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
   const [templateManagerOpen, setTemplateManagerOpen] = useState(false);
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -108,6 +120,20 @@ export function PlannerHeader({
     }
   };
 
+  const handleAISuggest = () => {
+    if (subscriptionTier === 'free') {
+      setUpgradeModalOpen(true);
+    } else if (subscriptionTier === 'pro' && aiQuotaRemaining !== null && aiQuotaRemaining <= 0) {
+      // Show quota exhausted state
+      return;
+    } else {
+      setAiModalOpen(true);
+    }
+  };
+
+  const canUseAI = subscriptionTier !== 'free';
+  const quotaExhausted = subscriptionTier === 'pro' && aiQuotaRemaining !== null && aiQuotaRemaining <= 0;
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b">
       {/* Week Navigation - Full width on mobile */}
@@ -159,6 +185,30 @@ export function PlannerHeader({
 
       {/* Actions - Full width on mobile */}
       <div className="flex items-center gap-2">
+        {/* AI Suggest Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleAISuggest}
+          disabled={quotaExhausted}
+          className="flex-1 sm:flex-none gap-2 h-10 border-coral-500 hover:bg-coral-50 dark:hover:bg-coral-950/20"
+        >
+          <Sparkles className="h-4 w-4 text-coral-500" />
+          <span className="hidden md:inline">
+            {canUseAI
+              ? quotaExhausted
+                ? 'Quota Used'
+                : 'AI Suggest'
+              : 'AI Suggest ✨'}
+          </span>
+          <span className="md:hidden">AI</span>
+          {canUseAI && aiQuotaRemaining !== null && !quotaExhausted && (
+            <span className="hidden sm:inline text-xs text-muted-foreground">
+              ({aiQuotaRemaining} left)
+            </span>
+          )}
+        </Button>
+
         {/* Actions Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -234,6 +284,21 @@ export function PlannerHeader({
         open={templateManagerOpen}
         onOpenChange={setTemplateManagerOpen}
         weekStart={weekStart.toISOString().split("T")[0]}
+      />
+
+      {/* AI Suggestion Modal */}
+      <AISuggestionModal
+        open={aiModalOpen}
+        onOpenChange={setAiModalOpen}
+        weekStart={weekStart.toISOString().split("T")[0]}
+        existingMealDays={existingMealDays}
+      />
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        open={upgradeModalOpen}
+        onOpenChange={setUpgradeModalOpen}
+        feature="AI Meal Suggestions"
       />
     </div>
   );

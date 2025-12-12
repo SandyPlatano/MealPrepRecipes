@@ -21,6 +21,7 @@ import { Plus, Trash2, Eye, Pencil, ChefHat, CalendarOff } from "lucide-react";
 import { RecipePickerModal } from "./recipe-picker-modal";
 import { cn } from "@/lib/utils";
 import type { DayOfWeek, MealAssignmentWithRecipe } from "@/types/meal-plan";
+import type { RecipeNutrition } from "@/types/nutrition";
 
 interface Recipe {
   id: string;
@@ -47,6 +48,7 @@ interface PlannerDayRowProps {
   onUpdateCook: (assignmentId: string, cook: string | null) => Promise<void>;
   onRemoveMeal: (assignmentId: string) => Promise<void>;
   isOver?: boolean;
+  nutritionData?: Map<string, RecipeNutrition> | null;
 }
 
 export const PlannerDayRow = memo(function PlannerDayRow({
@@ -66,6 +68,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
   onUpdateCook,
   onRemoveMeal,
   isOver = false,
+  nutritionData = null,
 }: PlannerDayRowProps) {
   const [isPending, startTransition] = useTransition();
   const [modalOpen, setModalOpen] = useState(false);
@@ -156,6 +159,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                     onRemoveMeal(assignment.id);
                     setModalOpen(true);
                   }}
+                  nutrition={nutritionData?.get(assignment.recipe_id) || null}
                 />
               ))
             )}
@@ -212,6 +216,7 @@ interface RecipeRowProps {
   onUpdateCook: (assignmentId: string, cook: string | null) => Promise<void>;
   onRemove: (assignmentId: string) => Promise<void>;
   onSwap: () => void;
+  nutrition?: RecipeNutrition | null;
 }
 
 function RecipeRow({
@@ -221,6 +226,7 @@ function RecipeRow({
   onUpdateCook,
   onRemove,
   onSwap,
+  nutrition = null,
 }: RecipeRowProps) {
   
   // Default colors for cooks (fallback)
@@ -283,11 +289,27 @@ function RecipeRow({
         <p className="font-medium text-sm truncate" title={assignment.recipe.title}>
           {assignment.recipe.title}
         </p>
-        {assignment.recipe.prep_time && (
-          <p className="text-[11px] text-muted-foreground">
-            {assignment.recipe.prep_time}
-          </p>
-        )}
+        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+          {assignment.recipe.prep_time && (
+            <span className="text-[11px] text-muted-foreground">
+              {assignment.recipe.prep_time}
+            </span>
+          )}
+          {nutrition && (
+            <>
+              {nutrition.calories && (
+                <Badge variant="outline" className="text-[10px] font-mono px-1 py-0 h-4">
+                  {Math.round(nutrition.calories)} cal
+                </Badge>
+              )}
+              {nutrition.protein_g && (
+                <Badge variant="outline" className="text-[10px] font-mono px-1 py-0 h-4">
+                  {Math.round(nutrition.protein_g)}g p
+                </Badge>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       {/* Action Buttons */}
