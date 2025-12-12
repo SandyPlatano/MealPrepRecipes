@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getCachedUserWithHousehold } from '@/lib/supabase/cached-queries';
 import { createClient } from '@/lib/supabase/server';
-import { checkAISuggestionQuota, decrementAISuggestionQuota, getUserTier } from '@/lib/stripe/subscription';
+import { checkAISuggestionQuota, decrementAISuggestionQuota } from '@/lib/stripe/subscription';
 import { buildMealSuggestionPrompt, parseAISuggestionResponse } from '@/lib/ai/meal-suggestion-prompt';
 import { rateLimit } from '@/lib/rate-limit';
 import type { AISuggestionRequest, AISuggestionContext } from '@/types/ai-suggestion';
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
 
     // Parse request
     const body: AISuggestionRequest = await req.json();
-    const { week_start, locked_days = [], preferences = {} } = body;
+    const { week_start, locked_days = [] } = body;
 
     if (!week_start) {
       return NextResponse.json({ error: 'week_start is required' }, { status: 400 });
@@ -204,11 +204,11 @@ async function gatherSuggestionContext(
     })) || [],
     recent_history: history?.map((h) => ({
       recipe_id: h.recipe_id,
-      recipe_title: (h.recipes as any)?.title || 'Unknown',
+      recipe_title: (h.recipes as { title?: string })?.title || 'Unknown',
       cooked_at: h.cooked_at,
       rating: h.rating,
     })) || [],
-    favorites: favoritesData?.map((f) => (f.recipes as any)?.title).filter(Boolean) || [],
+    favorites: favoritesData?.map((f) => (f.recipes as { title?: string })?.title).filter(Boolean) || [],
     allergen_alerts: settings?.allergen_alerts || [],
     dietary_restrictions: settings?.custom_dietary_restrictions || [],
     household_size: householdMembers?.length || 1,

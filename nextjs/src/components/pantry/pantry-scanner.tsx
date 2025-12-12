@@ -191,7 +191,7 @@ export default function PantryScanner({ onScanComplete, subscriptionTier = 'free
         {/* Scan Type Selection */}
         <div className="space-y-2">
           <Label>What are you scanning?</Label>
-          <RadioGroup value={scanType} onValueChange={(value) => setScanType(value as 'fridge' | 'pantry' | 'other')}>
+          <RadioGroup value={scanType} onValueChange={(value: string) => setScanType(value as 'fridge' | 'pantry' | 'other')}>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="fridge" id="fridge" />
               <Label htmlFor="fridge">Refrigerator</Label>

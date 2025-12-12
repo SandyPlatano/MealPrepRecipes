@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { ArrowRight, Check, X, Sparkles } from "lucide-react";
+import { ArrowRight, Check, X } from "lucide-react";
 import { FAQ } from "@/components/landing/faq";
 import { PricingCardsClient } from "./pricing-cards-client";
 import { SUBSCRIPTION_TIERS } from "@/lib/stripe/client-config";

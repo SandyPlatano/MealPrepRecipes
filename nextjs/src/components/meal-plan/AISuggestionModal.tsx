@@ -36,7 +36,7 @@ export function AISuggestionModal({
     if (open && suggestions.length === 0) {
       handleGenerate();
     }
-  }, [open]);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -54,7 +54,7 @@ export function AISuggestionModal({
         setSuggestions(result.data.suggestions);
         setRemainingRegens(result.data.remaining_regenerations);
       }
-    } catch (err) {
+    } catch {
       setError('Failed to generate suggestions. Please try again.');
     } finally {
       setLoading(false);
@@ -76,7 +76,7 @@ export function AISuggestionModal({
         );
         toast.success(`Swapped ${day}'s meal!`);
       }
-    } catch (err) {
+    } catch {
       toast.error('Failed to swap meal');
     } finally {
       setSwapping(null);
@@ -112,7 +112,7 @@ export function AISuggestionModal({
         toast.success('Added all meals to your plan!');
         onOpenChange(false);
       }
-    } catch (err) {
+    } catch {
       toast.error('Failed to add meals to plan');
     } finally {
       setAccepting(false);
