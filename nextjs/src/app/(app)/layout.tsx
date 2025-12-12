@@ -7,13 +7,14 @@ import { Settings } from "lucide-react";
 import { BrandLogoCompact } from "@/components/brand/logo";
 import { AppNav } from "@/components/navigation/app-nav";
 import { MobileMenu } from "@/components/navigation/mobile-menu";
+import { SettingsButton } from "@/components/navigation/settings-button";
 
-// Navigation: Plan, List, Recipes, Discover, History
+// Navigation: Plan, List, Recipes, Nutrition, History
 const navItems = [
   { href: "/app", iconKey: "plan" as const, label: "Plan" },
   { href: "/app/shop", iconKey: "shop" as const, label: "List" },
   { href: "/app/recipes", iconKey: "recipes" as const, label: "Recipes" },
-  { href: "/app/recipes/discover", iconKey: "discover" as const, label: "Discover" },
+  { href: "/app/nutrition", iconKey: "nutrition" as const, label: "Nutrition" },
   { href: "/app/history", iconKey: "history" as const, label: "History" },
 ];
 const settingsItem = { href: "/app/settings", iconKey: "settings" as const, label: "Settings" };
@@ -52,11 +53,7 @@ export default async function AppLayout({
             {/* Desktop Navigation + Settings grouped */}
             <div className="hidden md:flex items-center gap-3">
               <AppNav items={navItems} variant="desktop" />
-              <Link href="/app/settings">
-                <Button variant="ghost" size="icon" className="h-9 w-9">
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </Link>
+              <SettingsButton />
             </div>
 
             {/* Mobile Menu */}

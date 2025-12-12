@@ -19,6 +19,7 @@ interface BatchResult {
   total: number;
   errors?: string[];
   recipeIds?: string[];
+  processedRecipes?: Array<{ id: string; title: string }>;
 }
 
 export default function BatchExtractPage() {
@@ -34,6 +35,7 @@ export default function BatchExtractPage() {
     try {
       const response = await fetch(`/api/admin/extract-nutrition-batch?dryRun=true&limit=${limit}`, {
         method: "POST",
+        credentials: "include", // Ensure cookies are sent with the request
       });
 
       const result = await response.json();
@@ -59,6 +61,7 @@ export default function BatchExtractPage() {
     try {
       const response = await fetch(`/api/admin/extract-nutrition-batch?limit=${limit}`, {
         method: "POST",
+        credentials: "include", // Ensure cookies are sent with the request
       });
 
       const result = await response.json();
@@ -125,13 +128,13 @@ export default function BatchExtractPage() {
               id="limit"
               type="number"
               min={1}
-              max={100}
+              max={20}
               value={limit}
               onChange={(e) => setLimit(parseInt(e.target.value) || 10)}
               className="max-w-xs"
             />
             <p className="text-xs text-muted-foreground">
-              Recommended: 10-20 recipes at a time to avoid rate limits
+              Maximum: 20 recipes per batch to avoid rate limits
             </p>
           </div>
 
@@ -233,6 +236,20 @@ export default function BatchExtractPage() {
                 <p className="text-2xl font-bold">{processResult.total}</p>
               </div>
             </div>
+
+            {processResult.processedRecipes && processResult.processedRecipes.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-green-600">Successfully Processed Recipes:</p>
+                <div className="space-y-1 max-h-60 overflow-y-auto">
+                  {processResult.processedRecipes.map((recipe) => (
+                    <div key={recipe.id} className="text-sm bg-green-50 dark:bg-green-950/20 p-2 rounded border border-green-200 dark:border-green-900/30">
+                      <p className="font-medium text-green-700 dark:text-green-400">{recipe.title}</p>
+                      <p className="text-xs text-muted-foreground font-mono">{recipe.id}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {processResult.errors && processResult.errors.length > 0 && (
               <div className="space-y-2">

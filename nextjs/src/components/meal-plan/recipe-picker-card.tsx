@@ -15,6 +15,7 @@ interface Recipe {
   cook_time?: string | null;
   image_url?: string | null;
   tags?: string[];
+  protein_type?: string | null;
 }
 
 interface RecipePickerCardProps {
@@ -70,57 +71,38 @@ export function RecipePickerCard({
         )}
       </div>
 
-      <CardContent className="p-3">
+      <CardContent className="p-2.5">
         {/* Title */}
-        <h4 className="font-medium text-sm line-clamp-2 mb-2 min-h-[2.5rem]">
+        <h4 className="font-medium text-sm line-clamp-2 mb-1.5">
           {recipe.title}
         </h4>
 
-        {/* Meta Info */}
-        <div className="space-y-1.5">
+        {/* Simple Meta Info - Recipe Type, Time, Protein */}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
           {/* Recipe Type */}
-          <Badge variant="secondary" className="text-xs">
-            {recipe.recipe_type}
-          </Badge>
+          <span className="font-medium text-foreground">{recipe.recipe_type}</span>
+          
+          {/* Separator */}
+          {(recipe.prep_time || recipe.cook_time || recipe.protein_type) && (
+            <span className="text-muted-foreground/50">•</span>
+          )}
 
-          {/* Prep Time */}
-          {recipe.prep_time && (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          {/* Time - Show cook_time if available, otherwise prep_time */}
+          {(recipe.prep_time || recipe.cook_time) && (
+            <div className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
-              <span>{recipe.prep_time}</span>
+              <span>{recipe.cook_time || recipe.prep_time}</span>
             </div>
           )}
 
-          {/* Category */}
-          {recipe.category && (
-            <p className="text-xs text-muted-foreground truncate">
-              {recipe.category}
-            </p>
+          {/* Protein Type */}
+          {recipe.protein_type && (
+            <>
+              <span className="text-muted-foreground/50">•</span>
+              <span>{recipe.protein_type}</span>
+            </>
           )}
         </div>
-
-        {/* Tags */}
-        {recipe.tags && recipe.tags.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1">
-            {recipe.tags.slice(0, 2).map((tag) => (
-              <Badge
-                key={tag}
-                variant="outline"
-                className="text-[10px] px-1.5 py-0"
-              >
-                {tag}
-              </Badge>
-            ))}
-            {recipe.tags.length > 2 && (
-              <Badge
-                variant="outline"
-                className="text-[10px] px-1.5 py-0"
-              >
-                +{recipe.tags.length - 2}
-              </Badge>
-            )}
-          </div>
-        )}
       </CardContent>
     </Card>
   );

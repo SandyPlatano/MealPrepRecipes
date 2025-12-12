@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Bold, Italic, Link2, Heading2 } from "lucide-react";
@@ -23,28 +23,60 @@ export function MarkdownEditor({
   maxLength,
 }: MarkdownEditorProps) {
   const [showPreview, setShowPreview] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const selectionRef = useRef<{ start: number; end: number } | null>(null);
 
-  const insertMarkdown = (prefix: string, suffix: string = "") => {
-    const textarea = document.activeElement as HTMLTextAreaElement;
-    if (textarea && textarea.tagName === "TEXTAREA") {
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const selectedText = value.substring(start, end);
-      const newText =
-        value.substring(0, start) +
-        prefix +
-        selectedText +
-        suffix +
-        value.substring(end);
-      onChange(newText);
+  // Store selection when textarea is focused
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
 
-      // Reset cursor position
-      setTimeout(() => {
-        textarea.focus();
-        const newPos = start + prefix.length + selectedText.length;
-        textarea.setSelectionRange(newPos, newPos);
-      }, 0);
-    }
+    const handleSelectionChange = () => {
+      selectionRef.current = {
+        start: textarea.selectionStart,
+        end: textarea.selectionEnd,
+      };
+    };
+
+    textarea.addEventListener("select", handleSelectionChange);
+    textarea.addEventListener("keyup", handleSelectionChange);
+    textarea.addEventListener("mouseup", handleSelectionChange);
+
+    return () => {
+      textarea.removeEventListener("select", handleSelectionChange);
+      textarea.removeEventListener("keyup", handleSelectionChange);
+      textarea.removeEventListener("mouseup", handleSelectionChange);
+    };
+  }, []);
+
+  const insertMarkdown = (prefix: string, suffix: string = "", e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    // Use stored selection or current selection
+    const start = selectionRef.current?.start ?? textarea.selectionStart;
+    const end = selectionRef.current?.end ?? textarea.selectionEnd;
+    const selectedText = value.substring(start, end);
+    
+    const newText =
+      value.substring(0, start) +
+      prefix +
+      selectedText +
+      suffix +
+      value.substring(end);
+    
+    onChange(newText);
+
+    // Reset cursor position after state update
+    setTimeout(() => {
+      textarea.focus();
+      const newPos = start + prefix.length + selectedText.length + suffix.length;
+      textarea.setSelectionRange(newPos, newPos);
+      selectionRef.current = { start: newPos, end: newPos };
+    }, 0);
   };
 
   return (
@@ -56,7 +88,8 @@ export function MarkdownEditor({
           variant="ghost"
           size="sm"
           className="h-7 px-2"
-          onClick={() => insertMarkdown("**", "**")}
+          onClick={(e) => insertMarkdown("**", "**", e)}
+          onMouseDown={(e) => e.preventDefault()}
           title="Bold"
         >
           <Bold className="h-4 w-4" />
@@ -66,7 +99,8 @@ export function MarkdownEditor({
           variant="ghost"
           size="sm"
           className="h-7 px-2"
-          onClick={() => insertMarkdown("*", "*")}
+          onClick={(e) => insertMarkdown("*", "*", e)}
+          onMouseDown={(e) => e.preventDefault()}
           title="Italic"
         >
           <Italic className="h-4 w-4" />
@@ -76,7 +110,8 @@ export function MarkdownEditor({
           variant="ghost"
           size="sm"
           className="h-7 px-2"
-          onClick={() => insertMarkdown("## ")}
+          onClick={(e) => insertMarkdown("## ", "", e)}
+          onMouseDown={(e) => e.preventDefault()}
           title="Heading"
         >
           <Heading2 className="h-4 w-4" />
@@ -86,7 +121,8 @@ export function MarkdownEditor({
           variant="ghost"
           size="sm"
           className="h-7 px-2"
-          onClick={() => insertMarkdown("[", "](url)")}
+          onClick={(e) => insertMarkdown("[", "](url)", e)}
+          onMouseDown={(e) => e.preventDefault()}
           title="Link"
         >
           <Link2 className="h-4 w-4" />
@@ -112,6 +148,7 @@ export function MarkdownEditor({
         </div>
       ) : (
         <Textarea
+          ref={textareaRef}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
@@ -120,11 +157,6 @@ export function MarkdownEditor({
           className="font-mono text-sm"
         />
       )}
-
-      {/* Help text */}
-      <p className="text-xs text-muted-foreground">
-        Supports Markdown: **bold**, *italic*, ## headings, [links](url)
-      </p>
     </div>
   );
 }

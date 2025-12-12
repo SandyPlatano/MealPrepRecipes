@@ -13,7 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Activity, Target } from "lucide-react";
+import { Activity, Target, ExternalLink } from "lucide-react";
+import Link from "next/link";
 import type { MacroGoals, MacroGoalPreset } from "@/types/nutrition";
 import { MACRO_GOAL_PRESETS } from "@/types/nutrition";
 import { toast } from "sonner";
@@ -260,6 +261,17 @@ export function MacroGoalsSection({
           <p className="text-sm text-muted-foreground">
             Enable nutrition tracking to set macro goals and monitor your daily intake.
           </p>
+        </CardContent>
+      )}
+
+      {enabled && (
+        <CardContent className="pt-0 border-t mt-4">
+          <Button asChild variant="outline" className="w-full">
+            <Link href="/app/nutrition">
+              <ExternalLink className="mr-2 h-4 w-4" />
+              View Nutrition Dashboard
+            </Link>
+          </Button>
         </CardContent>
       )}
     </Card>

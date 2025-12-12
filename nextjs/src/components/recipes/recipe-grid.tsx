@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Search, X, SlidersHorizontal, Plus, ArrowDownUp } from "lucide-react";
+import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles } from "lucide-react";
 import type { RecipeWithFavorite, RecipeType } from "@/types/recipe";
 
 interface RecipeGridProps {
@@ -23,6 +23,7 @@ interface RecipeGridProps {
   recipeCookCounts?: Record<string, number>; // recipe_id -> count
   userAllergenAlerts?: string[];
   customDietaryRestrictions?: string[];
+  onDiscoverClick?: () => void;
 }
 
 const recipeTypes: RecipeType[] = [
@@ -36,7 +37,7 @@ const recipeTypes: RecipeType[] = [
 
 type SortOption = "recent" | "most-cooked" | "highest-rated" | "alphabetical";
 
-export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, userAllergenAlerts = [], customDietaryRestrictions = [] }: RecipeGridProps) {
+export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, userAllergenAlerts = [], customDietaryRestrictions = [], onDiscoverClick }: RecipeGridProps) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<RecipeType | "all">("all");
   const [proteinFilter, setProteinFilter] = useState<string>("all");
@@ -181,6 +182,14 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
           {hasActiveFilters && (
             <span className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full" />
           )}
+        </Button>
+        <Button 
+          variant="outline" 
+          className="h-11 w-full sm:w-auto"
+          onClick={onDiscoverClick}
+        >
+          <Sparkles className="h-4 w-4 mr-2" />
+          <span>Discover</span>
         </Button>
         <Link href="/app/recipes/new">
           <Button className="h-11 w-full sm:w-auto">

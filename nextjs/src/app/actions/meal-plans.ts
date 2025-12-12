@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
+import { getCachedUser, getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
 import { revalidatePath, revalidateTag } from "next/cache";
 import type {
   MealPlan,
@@ -209,10 +209,18 @@ async function removeRecipeFromShoppingList(
 
 // Get or create a meal plan for a specific week
 export async function getOrCreateMealPlan(weekStart: string) {
-  const { user, household, error: authError } = await getCachedUserWithHousehold();
+  // Check authentication first
+  const { user: authUser, error: authError } = await getCachedUser();
+  
+  if (authError || !authUser) {
+    return { error: "Not authenticated", data: null };
+  }
 
-  if (authError || !user || !household) {
-    return { error: authError?.message || "No household found", data: null };
+  // Get household separately (required for meal planning)
+  const { household } = await getCachedUserWithHousehold();
+  
+  if (!household) {
+    return { error: "Please create or join a household to use meal planning", data: null };
   }
 
   const supabase = await createClient();
@@ -221,7 +229,7 @@ export async function getOrCreateMealPlan(weekStart: string) {
   let { data: mealPlan } = await supabase
     .from("meal_plans")
     .select("*")
-    .eq("household_id", household.household_id)
+    .eq("household_id", household!.household_id)
     .eq("week_start", weekStart)
     .single();
 
@@ -230,7 +238,7 @@ export async function getOrCreateMealPlan(weekStart: string) {
     const { data: newPlan, error } = await supabase
       .from("meal_plans")
       .insert({
-        household_id: household.household_id,
+        household_id: household!.household_id,
         week_start: weekStart,
       })
       .select()
@@ -250,10 +258,18 @@ export async function getWeekPlan(weekStart: string): Promise<{
   error: string | null;
   data: WeekPlanData | null;
 }> {
-  const { user, household, error: authError } = await getCachedUserWithHousehold();
+  // Check authentication first
+  const { user: authUser, error: authError } = await getCachedUser();
+  
+  if (authError || !authUser) {
+    return { error: "Not authenticated", data: null };
+  }
 
-  if (authError || !user || !household) {
-    return { error: authError?.message || "No household found", data: null };
+  // Get household separately (required for meal planning)
+  const { household } = await getCachedUserWithHousehold();
+  
+  if (!household) {
+    return { error: "Please create or join a household to use meal planning", data: null };
   }
 
   const supabase = await createClient();
@@ -262,7 +278,7 @@ export async function getWeekPlan(weekStart: string): Promise<{
   const { data: mealPlan } = await supabase
     .from("meal_plans")
     .select("*")
-    .eq("household_id", household.household_id)
+    .eq("household_id", household!.household_id)
     .eq("week_start", weekStart)
     .single();
 
@@ -315,10 +331,18 @@ export async function addMealAssignment(
   dayOfWeek: DayOfWeek,
   cook?: string
 ) {
-  const { user, household, error: authError } = await getCachedUserWithHousehold();
-
-  if (authError || !user || !household) {
+  // Check authentication first
+  const { user: authUser, error: authError } = await getCachedUser();
+  
+  if (authError || !authUser) {
     return { error: "Not authenticated" };
+  }
+
+  // Get household separately (required for meal planning)
+  const { household } = await getCachedUserWithHousehold();
+  
+  if (!household) {
+    return { error: "Please create or join a household to use meal planning" };
   }
 
   const supabase = await createClient();
@@ -351,7 +375,7 @@ export async function addMealAssignment(
   if (recipe && recipe.ingredients && recipe.ingredients.length > 0) {
     await addRecipeToShoppingList(
       supabase,
-      household.household_id,
+      household!.household_id,
       planResult.data.id,
       recipeId,
       recipe.title,
@@ -359,7 +383,7 @@ export async function addMealAssignment(
     );
   }
 
-  revalidateTag(`meal-plan-${household.household_id}`);
+  revalidateTag(`meal-plan-${household!.household_id}`);
   revalidatePath("/app/plan");
   revalidatePath("/app/shop");
   return { error: null };
@@ -367,10 +391,18 @@ export async function addMealAssignment(
 
 // Remove an assignment
 export async function removeMealAssignment(assignmentId: string) {
-  const { user, household, error: authError } = await getCachedUserWithHousehold();
-
-  if (authError || !user || !household) {
+  // Check authentication first
+  const { user: authUser, error: authError } = await getCachedUser();
+  
+  if (authError || !authUser) {
     return { error: "Not authenticated" };
+  }
+
+  // Get household separately (required for meal planning)
+  const { household } = await getCachedUserWithHousehold();
+  
+  if (!household) {
+    return { error: "Please create or join a household to use meal planning" };
   }
 
   const supabase = await createClient();
@@ -411,7 +443,7 @@ export async function removeMealAssignment(assignmentId: string) {
     }
   }
 
-  revalidateTag(`meal-plan-${household.household_id}`);
+  revalidateTag(`meal-plan-${household!.household_id}`);
   revalidatePath("/app/plan");
   revalidatePath("/app/shop");
   return { error: null };
@@ -422,9 +454,10 @@ export async function updateMealAssignment(
   assignmentId: string,
   updates: { day_of_week?: DayOfWeek; cook?: string }
 ) {
-  const { user, error: authError } = await getCachedUserWithHousehold();
-
-  if (authError || !user) {
+  // Check authentication first
+  const { user: authUser, error: authError } = await getCachedUser();
+  
+  if (authError || !authUser) {
     return { error: "Not authenticated" };
   }
 
@@ -459,22 +492,35 @@ export async function moveAssignment(
 
 // Get recipes available for planning (user's + household shared)
 export async function getRecipesForPlanning() {
-  const { user, household, error: authError } = await getCachedUserWithHousehold();
-
-  if (authError || !user) {
+  // Check authentication first - household is optional
+  const { user: authUser, error: authError } = await getCachedUser();
+  
+  if (authError || !authUser) {
     return { error: "Not authenticated", data: [] };
   }
 
+  // Get household separately (optional - user can have recipes without household)
+  const { household } = await getCachedUserWithHousehold();
+
   const supabase = await createClient();
 
-  // Get recipes
-  const { data, error } = await supabase
+  // Build query: user's own recipes OR shared household recipes
+  // If user has no household, only get their own recipes
+  let query = supabase
     .from("recipes")
-    .select("id, title, recipe_type, category, prep_time, cook_time, tags")
-    .or(
-      `user_id.eq.${user.id},and(household_id.eq.${household?.household_id},is_shared_with_household.eq.true)`
-    )
-    .order("title");
+    .select("id, title, recipe_type, category, prep_time, cook_time, tags, protein_type");
+
+  if (household?.household_id) {
+    // User has household - get own recipes + shared household recipes
+    query = query.or(
+      `user_id.eq.${authUser.id},and(household_id.eq.${household.household_id},is_shared_with_household.eq.true)`
+    );
+  } else {
+    // User has no household - only get their own recipes
+    query = query.eq("user_id", authUser.id);
+  }
+
+  const { data, error } = await query.order("title");
 
   if (error) {
     return { error: error.message, data: [] };

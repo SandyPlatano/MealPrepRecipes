@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
+import { getCachedUser, getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
 import { revalidatePath, revalidateTag } from "next/cache";
 import type { Recipe, RecipeFormData } from "@/types/recipe";
 import { randomUUID } from "crypto";
@@ -9,22 +9,35 @@ import { isNutritionTrackingEnabled } from "./nutrition";
 
 // Get all recipes for the current user (own + shared household recipes)
 export async function getRecipes() {
-  const { user, household, error: authError } = await getCachedUserWithHousehold();
-
-  if (authError || !user) {
+  // Check authentication first - household is optional
+  const { user: authUser, error: authError } = await getCachedUser();
+  
+  if (authError || !authUser) {
     return { error: "Not authenticated", data: null };
   }
 
+  // Get household separately (optional - user can have recipes without household)
+  const { household } = await getCachedUserWithHousehold();
+
   const supabase = await createClient();
 
-  // Get recipes: user's own + shared household recipes
-  const { data, error } = await supabase
+  // Build query: user's own recipes OR shared household recipes
+  // If user has no household, only get their own recipes
+  let query = supabase
     .from("recipes")
-    .select("*")
-    .or(
-      `user_id.eq.${user.id},and(household_id.eq.${household?.household_id},is_shared_with_household.eq.true)`
-    )
-    .order("created_at", { ascending: false });
+    .select("*");
+
+  if (household?.household_id) {
+    // User has household - get own recipes + shared household recipes
+    query = query.or(
+      `user_id.eq.${authUser.id},and(household_id.eq.${household.household_id},is_shared_with_household.eq.true)`
+    );
+  } else {
+    // User has no household - only get their own recipes
+    query = query.eq("user_id", authUser.id);
+  }
+
+  const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {
     return { error: error.message, data: null };
@@ -35,9 +48,10 @@ export async function getRecipes() {
 
 // Get a single recipe by ID
 export async function getRecipe(id: string) {
-  const { user, error: authError } = await getCachedUserWithHousehold();
-
-  if (authError || !user) {
+  // Check authentication first - household is optional
+  const { user: authUser, error: authError } = await getCachedUser();
+  
+  if (authError || !authUser) {
     return { error: "Not authenticated", data: null };
   }
 
@@ -58,11 +72,15 @@ export async function getRecipe(id: string) {
 
 // Create a new recipe
 export async function createRecipe(formData: RecipeFormData) {
-  const { user, household, error: authError } = await getCachedUserWithHousehold();
-
-  if (authError || !user) {
+  // Check authentication first - household is optional
+  const { user: authUser, error: authError } = await getCachedUser();
+  
+  if (authError || !authUser) {
     return { error: "Not authenticated", data: null };
   }
+
+  // Get household separately (optional - user can create recipes without household)
+  const { household } = await getCachedUserWithHousehold();
 
   const supabase = await createClient();
 
@@ -84,7 +102,7 @@ export async function createRecipe(formData: RecipeFormData) {
       source_url: formData.source_url || null,
       image_url: formData.image_url || null,
       allergen_tags: formData.allergen_tags || [],
-      user_id: user.id,
+      user_id: authUser.id,
       household_id: household?.household_id || null,
       is_shared_with_household: formData.is_shared_with_household ?? true,
     })
@@ -111,15 +129,16 @@ export async function createRecipe(formData: RecipeFormData) {
   }
 
   revalidatePath("/app/recipes");
-  revalidateTag(`recipes-${user.id}`);
+  revalidateTag(`recipes-${authUser.id}`);
   return { error: null, data: data as Recipe };
 }
 
 // Update an existing recipe
 export async function updateRecipe(id: string, formData: Partial<RecipeFormData>) {
-  const { user, error: authError } = await getCachedUserWithHousehold();
-
-  if (authError || !user) {
+  // Check authentication first - household is optional
+  const { user: authUser, error: authError } = await getCachedUser();
+  
+  if (authError || !authUser) {
     return { error: "Not authenticated", data: null };
   }
 
@@ -151,7 +170,7 @@ export async function updateRecipe(id: string, formData: Partial<RecipeFormData>
     .from("recipes")
     .update(updateData)
     .eq("id", id)
-    .eq("user_id", user.id) // Only owner can update
+    .eq("user_id", authUser.id) // Only owner can update
     .select()
     .single();
 
@@ -178,15 +197,16 @@ export async function updateRecipe(id: string, formData: Partial<RecipeFormData>
 
   revalidatePath("/app/recipes");
   revalidatePath(`/app/recipes/${id}`);
-  revalidateTag(`recipes-${user.id}`);
+  revalidateTag(`recipes-${authUser.id}`);
   return { error: null, data: data as Recipe };
 }
 
 // Delete a recipe
 export async function deleteRecipe(id: string) {
-  const { user, error: authError } = await getCachedUserWithHousehold();
-
-  if (authError || !user) {
+  // Check authentication first - household is optional
+  const { user: authUser, error: authError } = await getCachedUser();
+  
+  if (authError || !authUser) {
     return { error: "Not authenticated" };
   }
 
@@ -196,22 +216,23 @@ export async function deleteRecipe(id: string) {
     .from("recipes")
     .delete()
     .eq("id", id)
-    .eq("user_id", user.id); // Only owner can delete
+    .eq("user_id", authUser.id); // Only owner can delete
 
   if (error) {
     return { error: error.message };
   }
 
   revalidatePath("/app/recipes");
-  revalidateTag(`recipes-${user.id}`);
+  revalidateTag(`recipes-${authUser.id}`);
   return { error: null };
 }
 
 // Update recipe rating
 export async function updateRecipeRating(id: string, rating: number) {
-  const { user, error: authError } = await getCachedUserWithHousehold();
-
-  if (authError || !user) {
+  // Check authentication first - household is optional
+  const { user: authUser, error: authError } = await getCachedUser();
+  
+  if (authError || !authUser) {
     return { error: "Not authenticated" };
   }
 
@@ -221,7 +242,7 @@ export async function updateRecipeRating(id: string, rating: number) {
     .from("recipes")
     .update({ rating })
     .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("user_id", authUser.id);
 
   if (error) {
     return { error: error.message };
@@ -229,7 +250,7 @@ export async function updateRecipeRating(id: string, rating: number) {
 
   revalidatePath("/app/recipes");
   revalidatePath(`/app/recipes/${id}`);
-  revalidateTag(`recipes-${user.id}`);
+  revalidateTag(`recipes-${authUser.id}`);
   return { error: null };
 }
 

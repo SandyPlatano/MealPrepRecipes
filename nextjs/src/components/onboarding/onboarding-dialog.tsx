@@ -130,7 +130,12 @@ export function OnboardingDialog({
 
       setSaving(false);
       onComplete();
-      router.push("/app/recipes/new");
+      // Refresh the router to ensure saved data is reflected
+      router.refresh();
+      // Small delay to ensure revalidation completes before redirect
+      setTimeout(() => {
+        router.push("/app/recipes/new");
+      }, 100);
     } catch (error) {
       console.error("Onboarding error:", error);
       toast.error("An unexpected error occurred");

@@ -6,9 +6,10 @@ import { revalidatePath } from "next/cache";
 
 // Get user profile
 export async function getProfile() {
-  const { user, error: authError } = await getCachedUserWithHousehold();
+  const { user } = await getCachedUserWithHousehold();
 
-  if (authError || !user) {
+  // Only check if user exists - authError might be from household/subscription lookup, not auth
+  if (!user) {
     return { error: "Not authenticated", data: null };
   }
 
@@ -58,20 +59,122 @@ export async function updateProfile(firstName: string, lastName: string) {
 
 // Get user settings (from user_settings table, or create default)
 export async function getSettings() {
-  const { user, error: authError } = await getCachedUserWithHousehold();
+  const { user } = await getCachedUserWithHousehold();
 
-  if (authError || !user) {
+  // Only check if user exists - authError might be from household/subscription lookup, not auth
+  if (!user) {
     return { error: "Not authenticated", data: null };
   }
 
   const supabase = await createClient();
 
   // Try to get existing settings
-  let { data: settings } = await supabase
+  // Explicitly select columns to avoid schema cache issues with missing columns
+  let { data: settings, error: selectError } = await supabase
     .from("user_settings")
-    .select("*")
+    .select(`
+      id,
+      user_id,
+      dark_mode,
+      cook_names,
+      cook_colors,
+      allergen_alerts,
+      custom_dietary_restrictions,
+      category_order,
+      calendar_event_time,
+      calendar_event_duration_minutes,
+      calendar_excluded_days,
+      google_connected_account,
+      created_at,
+      updated_at,
+      email_notifications
+    `)
     .eq("user_id", user.id)
     .single();
+
+  // If select failed due to missing column, try without email_notifications
+  if (selectError && selectError.message?.includes("email_notifications")) {
+    const { data: settingsWithoutEmail, error: retryError } = await supabase
+      .from("user_settings")
+      .select(`
+        id,
+        user_id,
+        dark_mode,
+        cook_names,
+        cook_colors,
+        allergen_alerts,
+        custom_dietary_restrictions,
+        category_order,
+        calendar_event_time,
+        calendar_event_duration_minutes,
+        calendar_excluded_days,
+        google_connected_account,
+        created_at,
+        updated_at
+      `)
+      .eq("user_id", user.id)
+      .single();
+    
+    if (retryError) {
+      // If still fails, return defaults
+      return {
+        error: null,
+        data: {
+          id: "",
+          user_id: user.id,
+          dark_mode: false,
+          cook_names: ["Me"],
+          email_notifications: true,
+          allergen_alerts: [],
+          custom_dietary_restrictions: [],
+          calendar_excluded_days: [],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      };
+    }
+    
+    // Add default email_notifications to the result
+    settings = settingsWithoutEmail ? { ...settingsWithoutEmail, email_notifications: true } : null;
+  } else if (selectError) {
+    // Other error - return defaults
+    return {
+      error: null,
+      data: {
+        id: "",
+        user_id: user.id,
+        dark_mode: false,
+        cook_names: ["Me"],
+        email_notifications: true,
+        allergen_alerts: [],
+        custom_dietary_restrictions: [],
+        calendar_excluded_days: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    };
+  }
+
+  // Ensure email_notifications has a default value if missing
+  if (settings && settings.email_notifications === undefined) {
+    settings.email_notifications = true;
+  }
+
+  // Ensure array fields are never null - convert to empty arrays
+  if (settings) {
+    if (!settings.allergen_alerts || !Array.isArray(settings.allergen_alerts)) {
+      settings.allergen_alerts = [];
+    }
+    if (!settings.custom_dietary_restrictions || !Array.isArray(settings.custom_dietary_restrictions)) {
+      settings.custom_dietary_restrictions = [];
+    }
+    if (!settings.calendar_excluded_days || !Array.isArray(settings.calendar_excluded_days)) {
+      settings.calendar_excluded_days = [];
+    }
+    if (!settings.cook_names || !Array.isArray(settings.cook_names)) {
+      settings.cook_names = ["Me"];
+    }
+  }
 
   // Create default settings if none exist
   if (!settings) {
@@ -82,12 +185,15 @@ export async function getSettings() {
         dark_mode: false,
         cook_names: ["Me"],
         email_notifications: true,
+        allergen_alerts: [],
+        custom_dietary_restrictions: [],
+        calendar_excluded_days: [],
       })
       .select()
       .single();
 
     if (error) {
-      // Table might not exist - return defaults
+      // Table might not exist or column missing - return defaults
       return {
         error: null,
         data: {
@@ -96,12 +202,26 @@ export async function getSettings() {
           dark_mode: false,
           cook_names: ["Me"],
           email_notifications: true,
+          allergen_alerts: [],
+          custom_dietary_restrictions: [],
+          calendar_excluded_days: [],
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
       };
     }
     settings = newSettings;
+    
+    // Ensure array fields are arrays after insert
+    if (!settings.allergen_alerts || !Array.isArray(settings.allergen_alerts)) {
+      settings.allergen_alerts = [];
+    }
+    if (!settings.custom_dietary_restrictions || !Array.isArray(settings.custom_dietary_restrictions)) {
+      settings.custom_dietary_restrictions = [];
+    }
+    if (!settings.calendar_excluded_days || !Array.isArray(settings.calendar_excluded_days)) {
+      settings.calendar_excluded_days = [];
+    }
   }
 
   return { error: null, data: settings };
@@ -128,21 +248,71 @@ export async function updateSettings(settings: {
     return { error: "Not authenticated" };
   }
 
-  // Upsert settings
-  const { error } = await supabase.from("user_settings").upsert(
-    {
-      user_id: user.id,
-      ...settings,
-      updated_at: new Date().toISOString(),
-    },
+  // First, get existing settings to merge with new values
+  const { data: existingSettings } = await supabase
+    .from("user_settings")
+    .select("*")
+    .eq("user_id", user.id)
+    .single();
+
+  // Prepare settings for save - merge existing with new, ensure array fields are arrays (never null)
+  const settingsToSave: Record<string, any> = {
+    user_id: user.id,
+    updated_at: new Date().toISOString(),
+    // Start with existing settings if they exist
+    ...(existingSettings || {}),
+  };
+
+  // Override with new values that are explicitly provided
+  // Always ensure arrays are arrays (never null or undefined)
+  if (settings.dark_mode !== undefined) settingsToSave.dark_mode = settings.dark_mode;
+  if (settings.cook_names !== undefined) settingsToSave.cook_names = settings.cook_names || ["Me"];
+  if (settings.cook_colors !== undefined) settingsToSave.cook_colors = settings.cook_colors;
+  if (settings.email_notifications !== undefined) settingsToSave.email_notifications = settings.email_notifications;
+  
+  // Array fields - always ensure they're arrays
+  if (settings.allergen_alerts !== undefined) {
+    settingsToSave.allergen_alerts = Array.isArray(settings.allergen_alerts) ? settings.allergen_alerts : [];
+  }
+  if (settings.custom_dietary_restrictions !== undefined) {
+    settingsToSave.custom_dietary_restrictions = Array.isArray(settings.custom_dietary_restrictions) 
+      ? settings.custom_dietary_restrictions 
+      : [];
+  }
+  if (settings.calendar_excluded_days !== undefined) {
+    settingsToSave.calendar_excluded_days = Array.isArray(settings.calendar_excluded_days) 
+      ? settings.calendar_excluded_days 
+      : [];
+  }
+  
+  if (settings.category_order !== undefined) settingsToSave.category_order = settings.category_order;
+  if (settings.calendar_event_time !== undefined) settingsToSave.calendar_event_time = settings.calendar_event_time;
+  if (settings.calendar_event_duration_minutes !== undefined) settingsToSave.calendar_event_duration_minutes = settings.calendar_event_duration_minutes;
+
+  // Ensure array fields are never null in the final object
+  if (!settingsToSave.allergen_alerts || !Array.isArray(settingsToSave.allergen_alerts)) {
+    settingsToSave.allergen_alerts = [];
+  }
+  if (!settingsToSave.custom_dietary_restrictions || !Array.isArray(settingsToSave.custom_dietary_restrictions)) {
+    settingsToSave.custom_dietary_restrictions = [];
+  }
+  if (!settingsToSave.calendar_excluded_days || !Array.isArray(settingsToSave.calendar_excluded_days)) {
+    settingsToSave.calendar_excluded_days = [];
+  }
+
+  // Upsert settings - this will update existing or create new
+  const { error, data } = await supabase.from("user_settings").upsert(
+    settingsToSave,
     { onConflict: "user_id" }
-  );
+  ).select();
 
   if (error) {
+    console.error('Error saving settings:', error);
     return { error: error.message };
   }
 
   revalidatePath("/app/settings");
+  revalidatePath("/app");
   return { error: null };
 }
 

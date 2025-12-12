@@ -57,12 +57,20 @@ export function MobileRecipePickerSheet({
   // Handle escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle Escape key, and only if not typing in an input/textarea
       if (e.key === "Escape" && isOpen) {
-        onClose();
+        const target = e.target as HTMLElement;
+        const isInput = target.tagName === "INPUT" || target.tagName === "TEXTAREA";
+        // Allow Escape to work even in inputs to close the sheet
+        if (!isInput || target === inputRef.current) {
+          onClose();
+        }
       }
+      // Explicitly allow all other keyboard shortcuts (Ctrl/Cmd+A, Ctrl/Cmd+C, etc.)
+      // to work normally - don't prevent default or stop propagation
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown, { capture: false });
+    return () => window.removeEventListener("keydown", handleKeyDown, { capture: false });
   }, [onClose, isOpen]);
 
   // Prevent body scroll when open

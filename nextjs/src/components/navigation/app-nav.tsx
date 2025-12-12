@@ -11,10 +11,11 @@ import {
   Settings,
   ShoppingCart,
   Package,
+  Activity,
   type LucideIcon,
 } from "lucide-react";
 
-type IconKey = "plan" | "recipes" | "discover" | "shop" | "pantry" | "history" | "settings";
+type IconKey = "plan" | "recipes" | "discover" | "shop" | "pantry" | "history" | "settings" | "nutrition";
 
 const iconMap: Record<IconKey, LucideIcon> = {
   plan: Calendar,
@@ -24,6 +25,7 @@ const iconMap: Record<IconKey, LucideIcon> = {
   pantry: Package,
   history: History,
   settings: Settings,
+  nutrition: Activity,
 };
 
 type NavItem = {
@@ -58,6 +60,34 @@ export function AppNav({
     
     // Special case: Plan link (/app) should also be active when on /app/plan (for backward compatibility)
     if (href === "/app" && pathname === "/app/plan") return true;
+    
+    // Special case: Plan link (/app) should NOT be active for other /app/* routes like /app/settings, /app/shop, etc.
+    if (href === "/app") {
+      // Only active if pathname is exactly /app or /app/plan
+      if (pathname === "/app" || pathname === "/app/plan") return true;
+      
+      // Explicitly exclude known /app/* routes that should not make Plan active
+      const excludedRoutes = [
+        "/app/settings",
+        "/app/shop",
+        "/app/recipes",
+        "/app/history",
+        "/app/pantry",
+        "/app/nutrition",
+      ];
+      if (excludedRoutes.some(route => pathname === route || pathname.startsWith(`${route}/`))) {
+        return false;
+      }
+      
+      // Check if there's a more specific route that should be active instead
+      const isMoreSpecificRoute = allHrefs.some(otherHref => {
+        if (otherHref === href) return false;
+        // Check if otherHref is a child of /app AND pathname matches otherHref
+        return otherHref.startsWith("/app/") && 
+               (pathname === otherHref || pathname.startsWith(`${otherHref}/`));
+      });
+      return !isMoreSpecificRoute;
+    }
     
     // Check if pathname starts with this href (for nested routes)
     if (!pathname.startsWith(`${href}/`)) return false;

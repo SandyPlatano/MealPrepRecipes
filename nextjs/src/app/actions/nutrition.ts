@@ -35,9 +35,11 @@ export async function getRecipeNutrition(recipeId: string): Promise<{
 }> {
   try {
     const { user, error: authError } = await getCachedUserWithHousehold();
-    if (authError || !user) {
+    // Only check for actual auth errors, not household/subscription errors
+    if (!user) {
       return { data: null, error: "Not authenticated" };
     }
+    // authError might be from household/subscription lookup, which is OK for nutrition tracking
 
     const supabase = await createClient();
 
@@ -79,9 +81,11 @@ export async function updateRecipeNutrition(
 }> {
   try {
     const { user, error: authError } = await getCachedUserWithHousehold();
-    if (authError || !user) {
+    // Only check for actual auth errors, not household/subscription errors
+    if (!user) {
       return { data: null, error: "Not authenticated" };
     }
+    // authError might be from household/subscription lookup, which is OK for nutrition tracking
 
     const supabase = await createClient();
 
@@ -150,9 +154,11 @@ export async function deleteRecipeNutrition(recipeId: string): Promise<{
 }> {
   try {
     const { user, error: authError } = await getCachedUserWithHousehold();
-    if (authError || !user) {
+    // Only check for actual auth errors, not household/subscription errors
+    if (!user) {
       return { success: false, error: "Not authenticated" };
     }
+    // authError might be from household/subscription lookup, which is OK for nutrition tracking
 
     const supabase = await createClient();
 
@@ -207,9 +213,11 @@ export async function getBulkRecipeNutrition(recipeIds: string[]): Promise<{
 }> {
   try {
     const { user, error: authError } = await getCachedUserWithHousehold();
-    if (authError || !user) {
+    // Only check for actual auth errors, not household/subscription errors
+    if (!user) {
       return { data: {}, error: "Not authenticated" };
     }
+    // authError might be from household/subscription lookup, which is OK for nutrition tracking
 
     const supabase = await createClient();
 
@@ -252,9 +260,11 @@ export async function getMacroGoals(): Promise<{
 }> {
   try {
     const { user, error: authError } = await getCachedUserWithHousehold();
-    if (authError || !user) {
+    // Only check for actual auth errors, not household/subscription errors
+    if (!user) {
       return { data: null, error: "Not authenticated" };
     }
+    // authError might be from household/subscription lookup, which is OK for nutrition tracking
 
     const supabase = await createClient();
 
@@ -288,9 +298,11 @@ export async function updateMacroGoals(goals: MacroGoals): Promise<{
 }> {
   try {
     const { user, error: authError } = await getCachedUserWithHousehold();
-    if (authError || !user) {
+    // Only check for actual auth errors, not household/subscription errors
+    if (!user) {
       return { success: false, error: "Not authenticated" };
     }
+    // authError might be from household/subscription lookup, which is OK for nutrition tracking
 
     const supabase = await createClient();
 
@@ -331,9 +343,11 @@ export async function toggleNutritionTracking(enabled: boolean): Promise<{
 }> {
   try {
     const { user, error: authError } = await getCachedUserWithHousehold();
-    if (authError || !user) {
+    // Only check for actual auth errors, not household/subscription errors
+    if (!user) {
       return { success: false, error: "Not authenticated" };
     }
+    // authError might be from household/subscription lookup, which is OK for nutrition tracking
 
     const supabase = await createClient();
 
@@ -377,9 +391,11 @@ export async function getDailyNutritionSummary(date: string): Promise<{
 }> {
   try {
     const { user, error: authError } = await getCachedUserWithHousehold();
-    if (authError || !user) {
+    // Only check for actual auth errors, not household/subscription errors
+    if (!user) {
       return { data: null, error: "Not authenticated" };
     }
+    // authError might be from household/subscription lookup, which is OK for nutrition tracking
 
     const supabase = await createClient();
 
@@ -446,9 +462,11 @@ export async function getWeeklyNutritionDashboard(weekStart: string): Promise<{
 }> {
   try {
     const { user, error: authError } = await getCachedUserWithHousehold();
-    if (authError || !user) {
+    // Only check for actual auth errors, not household/subscription errors
+    if (!user) {
       return { data: null, error: "Not authenticated" };
     }
+    // authError might be from household/subscription lookup, which is OK for nutrition tracking
 
     // Get macro goals
     const { data: goals } = await getMacroGoals();
@@ -499,9 +517,11 @@ export async function saveDailyNutritionLog(date: string): Promise<{
 }> {
   try {
     const { user, error: authError } = await getCachedUserWithHousehold();
-    if (authError || !user) {
+    // Only check for actual auth errors, not household/subscription errors
+    if (!user) {
       return { success: false, error: "Not authenticated" };
     }
+    // authError might be from household/subscription lookup, which is OK for nutrition tracking
 
     const supabase = await createClient();
 
@@ -540,9 +560,11 @@ export async function getNutritionHistory(weeks: number = 4): Promise<{
 }> {
   try {
     const { user, error: authError } = await getCachedUserWithHousehold();
-    if (authError || !user) {
+    // Only check for actual auth errors, not household/subscription errors
+    if (!user) {
       return { data: [], error: "Not authenticated" };
     }
+    // authError might be from household/subscription lookup, which is OK for nutrition tracking
 
     const supabase = await createClient();
 
@@ -582,9 +604,11 @@ export async function isNutritionTrackingEnabled(): Promise<{
 }> {
   try {
     const { user, error: authError } = await getCachedUserWithHousehold();
-    if (authError || !user) {
+    // Only check for actual auth errors, not household/subscription errors
+    if (!user) {
       return { enabled: false, error: "Not authenticated" };
     }
+    // authError might be from household/subscription lookup, which is OK for nutrition tracking
 
     const supabase = await createClient();
 

@@ -15,9 +15,11 @@ export async function POST(request: NextRequest) {
   try {
     const { user, household, error: authError } = await getCachedUserWithHousehold();
 
-    if (authError || !user) {
+    // Only check for actual auth errors, not household/subscription errors
+    if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
+    // authError might be from household/subscription lookup, which is OK for nutrition tracking
 
     // Check if nutrition tracking is enabled
     const nutritionCheck = await isNutritionTrackingEnabled();
@@ -92,18 +94,25 @@ export async function POST(request: NextRequest) {
       skipped: 0,
       total: recipesWithoutNutrition.length,
       errors: [] as string[],
+      processedRecipes: [] as Array<{ id: string; title: string }>,
     };
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+    // Get cookies from the original request to forward to internal API calls
+    const cookieHeader = request.headers.get("cookie") || "";
 
     // Process recipes sequentially to avoid rate limits
     for (const recipe of recipesWithoutNutrition) {
       try {
         const response = await fetch(`${baseUrl}/api/ai/extract-nutrition`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Cookie": cookieHeader, // Forward authentication cookies
+          },
           body: JSON.stringify({
-            recipeId: recipe.id,
+            recipe_id: recipe.id, // Fixed: API expects recipe_id, not recipeId
             title: recipe.title,
             ingredients: recipe.ingredients,
             servings: recipe.base_servings || 4,
@@ -116,6 +125,7 @@ export async function POST(request: NextRequest) {
         }
 
         results.processed++;
+        results.processedRecipes.push({ id: recipe.id, title: recipe.title });
         console.log(`[Nutrition Batch] Extracted for recipe ${recipe.id}: ${recipe.title}`);
       } catch (error) {
         results.failed++;
