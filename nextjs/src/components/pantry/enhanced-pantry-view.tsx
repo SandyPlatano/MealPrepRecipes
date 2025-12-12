@@ -358,7 +358,7 @@ export function EnhancedPantryView({
                   <div className="text-2xl font-bold">🍳</div>
                   <h3 className="font-semibold mt-2">Recipe Suggestions</h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Get recipes based on what's in your pantry
+                    Get recipes based on what&apos;s in your pantry
                   </p>
                 </CardContent>
               </Card>

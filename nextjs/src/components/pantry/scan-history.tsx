@@ -34,6 +34,7 @@ export default function ScanHistory({ onReuseScan, maxItems = 10 }: ScanHistoryP
 
   useEffect(() => {
     loadScanHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maxItems]);
 
   const loadScanHistory = async () => {
@@ -184,7 +185,7 @@ export default function ScanHistory({ onReuseScan, maxItems = 10 }: ScanHistoryP
                   <div className="relative w-16 h-16 rounded-md overflow-hidden bg-muted flex items-center justify-center">
                     {scan.image_url ? (
                       <>
-                        {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={scan.image_url}
                           alt={`${scan.scan_type} scan`}
