@@ -43,18 +43,25 @@ export default function SignupPage() {
     setError(null);
 
     try {
+      console.log("Starting Google OAuth...");
       const supabase = createClient();
+      console.log("Supabase client created");
+
+      const redirectTo = `${window.location.origin}/auth/callback?next=/app`;
+      console.log("Redirect URL:", redirectTo);
 
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=/app`,
+          redirectTo,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
           },
         },
       });
+
+      console.log("OAuth response - data:", data, "error:", oauthError);
 
       if (oauthError) {
         console.error("Google OAuth error:", oauthError);
@@ -63,9 +70,11 @@ export default function SignupPage() {
         return;
       }
 
-      // The browser client handles the redirect automatically
-      // If we get here without a redirect, something went wrong
-      if (!data.url) {
+      if (data?.url) {
+        console.log("Redirecting to:", data.url);
+        window.location.href = data.url;
+      } else {
+        console.error("No URL returned from OAuth");
         setError("Something went wrong. Please try again.");
         setGoogleLoading(false);
       }

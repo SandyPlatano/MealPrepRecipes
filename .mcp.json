@@ -1,8 +1,8 @@
 {
   "mcpServers": {
-    "browsermcp": {
+    "cursor-ide-browser": {
       "command": "npx",
-      "args": ["@browsermcp/mcp@latest"]
+      "args": ["-y", "@browsermcp/mcp@latest"]
     }
   }
 }
