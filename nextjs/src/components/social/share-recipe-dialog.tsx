@@ -179,11 +179,17 @@ export function ShareRecipeDialog({
     }
   };
 
-  const handleUsernameSet = () => {
+  const handleUsernameSet = async () => {
+    // Close username modal first
     setShowUsernameModal(false);
+    // Update username state
     setHasUsername(true);
-    // Retry making public
-    handleTogglePublic(true);
+    
+    // Small delay to ensure username modal fully closes and share dialog is visible
+    await new Promise(resolve => setTimeout(resolve, 150));
+    
+    // Retry making public - this will update the share dialog content
+    await handleTogglePublic(true);
   };
 
   return (
@@ -353,7 +359,18 @@ export function ShareRecipeDialog({
       {/* Username Setup Modal */}
       <UsernameSetupModal
         open={showUsernameModal}
-        onOpenChange={setShowUsernameModal}
+        onOpenChange={(open) => {
+          setShowUsernameModal(open);
+          // If closing the username modal without success, refresh username check
+          if (!open) {
+            // Small delay to ensure modal is fully closed
+            setTimeout(() => {
+              getCurrentUserProfile().then(({ data }) => {
+                setHasUsername(!!data?.username);
+              });
+            }, 100);
+          }
+        }}
         onSuccess={handleUsernameSet}
       />
     </>

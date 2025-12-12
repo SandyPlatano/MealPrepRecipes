@@ -74,7 +74,7 @@ export default async function AppLayout({
 
       {/* Mobile Bottom Navigation */}
       <AppNav
-        items={navItems}
+        items={navItems.filter(item => item.href !== "/app/discover")}
         includeSettings
         settingsItem={settingsItem}
         variant="mobile"

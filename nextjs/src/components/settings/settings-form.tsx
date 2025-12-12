@@ -34,6 +34,7 @@ import { GoogleCalendarButton } from "./google-calendar-button";
 import { MacroGoalsSection } from "./macro-goals-section";
 import { SubstitutionsSection } from "./substitutions-section";
 import { ApiCostsSection } from "./api-costs-section";
+import { UsernameSection } from "./username-section";
 import {
   updateMacroGoals,
   toggleNutritionTracking,
@@ -85,6 +86,7 @@ interface SettingsFormProps {
   }>;
   userSubstitutions?: UserSubstitution[];
   defaultSubstitutions?: Substitution[];
+  username?: string | null;
 }
 
 export function SettingsForm({
@@ -95,6 +97,7 @@ export function SettingsForm({
   members,
   userSubstitutions = [],
   defaultSubstitutions = [],
+  username = null,
 }: SettingsFormProps) {
   const { theme, setTheme } = useTheme();
   const [firstName, setFirstName] = useState(profile.first_name || "");
@@ -502,6 +505,9 @@ export function SettingsForm({
           </div>
         </CardContent>
       </Card>
+
+      {/* Public Username */}
+      <UsernameSection currentUsername={username} />
 
       {/* Appearance */}
       {mounted && (

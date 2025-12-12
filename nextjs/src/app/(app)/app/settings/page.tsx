@@ -15,6 +15,7 @@ export default async function SettingsPage() {
     id: "",
     name: null,
     email: null,
+    username: null,
   };
 
   const settings = settingsResult.data || {
@@ -48,6 +49,7 @@ export default async function SettingsPage() {
         members={members}
         userSubstitutions={userSubstitutions}
         defaultSubstitutions={defaultSubstitutions}
+        username={profile.username || null}
       />
     </div>
   );
