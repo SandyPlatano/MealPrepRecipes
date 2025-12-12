@@ -11,10 +11,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import {
   ChevronLeft,
@@ -135,9 +135,9 @@ export function PlannerHeader({
   const quotaExhausted = subscriptionTier === 'pro' && aiQuotaRemaining !== null && aiQuotaRemaining <= 0;
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b">
-      {/* Week Navigation - Left side */}
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-3 pb-4 border-b">
+      {/* Week Navigation - Full width */}
+      <div className="flex items-center gap-2 w-full">
         <Button
           variant="outline"
           size="icon"
@@ -147,25 +147,28 @@ export function PlannerHeader({
           <ChevronLeft className="h-5 w-5" />
         </Button>
 
-        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-          <PopoverTrigger asChild>
+        <Dialog open={calendarOpen} onOpenChange={setCalendarOpen}>
+          <DialogTrigger asChild>
             <Button
               variant="outline"
-              className="sm:min-w-[180px] justify-center font-mono font-semibold h-10"
+              className="flex-1 justify-center font-mono font-semibold h-10 min-w-0"
             >
               <CalendarIcon className="h-4 w-4 mr-2" />
               <span className="truncate">{formatWeekRange(weekStart)}</span>
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="center">
-            <Calendar
-              mode="single"
-              selected={weekStart}
-              onSelect={handleDateSelect}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
+          </DialogTrigger>
+          <DialogContent className="h-[70vh] max-h-[70vh] w-[95vw] max-w-md p-0 flex flex-col [&>button]:z-10">
+            <div className="p-4 pb-2 flex-1 overflow-auto">
+              <Calendar
+                mode="single"
+                selected={weekStart}
+                onSelect={handleDateSelect}
+                initialFocus
+                className="w-full"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
 
         <Button
           variant="outline"
@@ -183,8 +186,8 @@ export function PlannerHeader({
         )}
       </div>
 
-      {/* Actions - Right side */}
-      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+      {/* Actions - Full width */}
+      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full">
         {/* AI Suggest Button */}
         <Button
           variant="outline"

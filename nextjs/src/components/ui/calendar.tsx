@@ -21,34 +21,34 @@ function Calendar({
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
       style={{
-        "--rdp-day-width": "2.5rem",
-        "--rdp-day-height": "2.5rem",
-        "--rdp-day_button-width": "2.5rem",
-        "--rdp-day_button-height": "2.5rem",
+        "--rdp-day-width": "3rem",
+        "--rdp-day-height": "3rem",
+        "--rdp-day_button-width": "3rem",
+        "--rdp-day_button-height": "3rem",
       } as React.CSSProperties}
       classNames={{
         months: "flex flex-col sm:flex-row gap-4",
         month: "space-y-4",
-        month_caption: "flex justify-center pt-1 relative items-center h-10 w-full",
+        month_caption: "flex justify-center relative items-center h-12 w-full px-8",
         caption_label: "text-sm font-medium",
         nav: "flex items-center gap-1",
         button_previous: cn(
           buttonVariants({ variant: "outline" }),
-          "h-9 w-9 bg-transparent p-0 opacity-50 hover:opacity-100 absolute -left-2"
+          "h-8 w-8 bg-transparent p-0 hover:bg-transparent absolute left-0 top-1/2 -translate-y-1/2 text-coral-500 hover:text-coral-600 border-coral-500/30 hover:border-coral-500/50"
         ),
         button_next: cn(
           buttonVariants({ variant: "outline" }),
-          "h-9 w-9 bg-transparent p-0 opacity-50 hover:opacity-100 absolute -right-2"
+          "h-8 w-8 bg-transparent p-0 hover:bg-transparent absolute right-0 top-1/2 -translate-y-1/2 text-coral-500 hover:text-coral-600 border-coral-500/30 hover:border-coral-500/50"
         ),
         month_grid: "w-full border-collapse mt-4",
         weekdays: "",
         weekday:
-          "text-muted-foreground rounded-md w-10 font-normal text-[0.8rem] text-center uppercase",
+          "text-muted-foreground rounded-md w-12 font-normal text-[0.8rem] text-center uppercase",
         week: "mt-2",
-        day: "h-10 w-10 text-center text-sm p-0 relative [&:has([aria-selected].range_end)]:rounded-r-md [&:has([aria-selected].outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+        day: "h-12 w-12 text-center text-sm p-0 relative [&:has([aria-selected].range_end)]:rounded-r-md [&:has([aria-selected].outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
         day_button: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-10 w-10 p-0 font-normal aria-selected:opacity-100"
+          "h-12 w-12 p-0 font-normal aria-selected:opacity-100"
         ),
         range_end: "range-end",
         selected:
@@ -65,9 +65,9 @@ function Calendar({
       components={{
         Chevron: ({ orientation }) => {
           if (orientation === "left") {
-            return <ChevronLeft className="h-4 w-4" />;
+            return <ChevronLeft className="h-5 w-5" />;
           }
-          return <ChevronRight className="h-4 w-4" />;
+          return <ChevronRight className="h-5 w-5" />;
         },
       }}
       {...props}

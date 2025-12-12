@@ -19,11 +19,12 @@ import {
   ShoppingCart,
   History,
   Settings,
+  Activity,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type IconKey = "plan" | "recipes" | "discover" | "shop" | "history" | "settings";
+type IconKey = "plan" | "recipes" | "discover" | "shop" | "history" | "settings" | "nutrition";
 
 const iconMap: Record<IconKey, LucideIcon> = {
   plan: Calendar,
@@ -32,6 +33,7 @@ const iconMap: Record<IconKey, LucideIcon> = {
   shop: ShoppingCart,
   history: History,
   settings: Settings,
+  nutrition: Activity,
 };
 
 type NavItem = {
