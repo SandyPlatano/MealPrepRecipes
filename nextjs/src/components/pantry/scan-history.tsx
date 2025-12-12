@@ -193,7 +193,8 @@ export default function ScanHistory({ onReuseScan, maxItems = 10 }: ScanHistoryP
                         />
                       </>
                     ) : (
-                      <Image className="h-6 w-6 text-muted-foreground" />
+                      // eslint-disable-next-line jsx-a11y/alt-text
+                      <Image className="h-6 w-6 text-muted-foreground" aria-hidden="true" />
                     )}
                     <div className="absolute top-1 left-1 text-lg">
                       {getScanTypeIcon(scan.scan_type)}

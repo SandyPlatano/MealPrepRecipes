@@ -94,6 +94,7 @@ export function getQuotaForTier(tier: SubscriptionTier): number | null {
 
 export function hasFeatureAccess(
   tier: SubscriptionTier,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _feature: 'ai_suggestions' | 'household_sharing' | 'google_calendar' | 'email_lists'
 ): boolean {
   if (tier === 'free') return false;

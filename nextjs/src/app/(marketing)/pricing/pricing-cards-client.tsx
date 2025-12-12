@@ -13,11 +13,10 @@ import Link from "next/link";
 import { ArrowRight, Check, Loader2, Sparkles } from "lucide-react";
 import { SUBSCRIPTION_TIERS } from "@/lib/stripe/client-config";
 import { useRouter } from 'next/navigation';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export function PricingCardsClient() {
   const router = useRouter();
-  const { toast } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleUpgrade = async (tier: 'pro' | 'premium') => {
@@ -27,10 +26,8 @@ export function PricingCardsClient() {
       const priceId = SUBSCRIPTION_TIERS[tier].priceId;
 
       if (!priceId) {
-        toast({
-          title: "Configuration error",
+        toast.error("Configuration error", {
           description: "Price ID not configured. Please contact support.",
-          variant: "destructive"
         });
         return;
       }
@@ -62,10 +59,8 @@ export function PricingCardsClient() {
       }
     } catch (error) {
       console.error('Error creating checkout session:', error);
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: error instanceof Error ? error.message : "Failed to start checkout",
-        variant: "destructive"
       });
     } finally {
       setLoading(null);

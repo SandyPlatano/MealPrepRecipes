@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import Anthropic from '@anthropic-ai/sdk';
-import { getUserTier, hasActiveSubscription } from '@/lib/stripe/subscription';
+import { getUserTier } from '@/lib/stripe/subscription';
 import { SUBSCRIPTION_TIERS } from '@/lib/stripe/client-config';
 
 const anthropic = new Anthropic({

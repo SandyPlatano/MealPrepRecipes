@@ -279,41 +279,55 @@ function RecipeRow({
   return (
     <div
       className={cn(
-        "group flex items-center gap-2 p-2 rounded-md border bg-card/50 transition-all",
+        "group flex flex-col sm:flex-row sm:items-center gap-2 p-2 rounded-md border bg-card/50 transition-all",
         "hover:bg-card hover:shadow-sm hover:border-primary/30",
         isRemoving && "opacity-50"
       )}
     >
-      {/* Recipe Title */}
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm truncate" title={assignment.recipe.title}>
-          {assignment.recipe.title}
-        </p>
-        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-          {assignment.recipe.prep_time && (
-            <span className="text-[11px] text-muted-foreground">
-              {assignment.recipe.prep_time}
-            </span>
-          )}
-          {nutrition && (
-            <>
-              {nutrition.calories && (
-                <Badge variant="outline" className="text-[10px] font-mono px-1 py-0 h-4">
-                  {Math.round(nutrition.calories)} cal
-                </Badge>
-              )}
-              {nutrition.protein_g && (
-                <Badge variant="outline" className="text-[10px] font-mono px-1 py-0 h-4">
-                  {Math.round(nutrition.protein_g)}g p
-                </Badge>
-              )}
-            </>
-          )}
+      {/* Mobile: Row 1 - Title + Delete | Desktop: Title only */}
+      <div className="flex items-center gap-2 sm:flex-1 sm:min-w-0">
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-sm truncate" title={assignment.recipe.title}>
+            {assignment.recipe.title}
+          </p>
+          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+            {assignment.recipe.prep_time && (
+              <span className="text-[11px] text-muted-foreground">
+                {assignment.recipe.prep_time}
+              </span>
+            )}
+            {nutrition && (
+              <>
+                {nutrition.calories && (
+                  <Badge variant="outline" className="text-[10px] font-mono px-1 py-0 h-4">
+                    {Math.round(nutrition.calories)} cal
+                  </Badge>
+                )}
+                {nutrition.protein_g && (
+                  <Badge variant="outline" className="text-[10px] font-mono px-1 py-0 h-4">
+                    {Math.round(nutrition.protein_g)}g p
+                  </Badge>
+                )}
+              </>
+            )}
+          </div>
         </div>
+
+        {/* Delete button - visible on mobile in row 1, hidden on desktop (shown in action buttons) */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9 sm:hidden hover:bg-destructive/10 hover:text-destructive flex-shrink-0"
+          onClick={handleRemove}
+          disabled={isRemoving}
+          title="Remove"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex items-center gap-0.5">
+      {/* Mobile: Row 2 - View, Edit, Cook Selector | Desktop: All action buttons + Cook Selector */}
+      <div className="flex items-center gap-1 sm:gap-0.5">
         <Link href={`/app/recipes/${assignment.recipe.id}`} target="_blank">
           <Button
             variant="ghost"
@@ -335,60 +349,61 @@ function RecipeRow({
           <Pencil className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
         </Button>
 
+        {/* Delete button - hidden on mobile (shown in row 1), visible on desktop */}
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 sm:h-7 sm:w-7 hover:bg-destructive/10 hover:text-destructive"
+          className="hidden sm:flex h-7 w-7 hover:bg-destructive/10 hover:text-destructive"
           onClick={handleRemove}
           disabled={isRemoving}
           title="Remove"
         >
-          <Trash2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+          <Trash2 className="h-3.5 w-3.5" />
         </Button>
-      </div>
 
-      {/* Cook Selector */}
-      <div className="w-[130px] sm:w-[140px] min-w-0">
-        {(() => {
-          const cookColor = getCookColor(assignment.cook);
-          return (
-            <Select
-              value={assignment.cook || "none"}
-              onValueChange={handleCookChange}
-              disabled={isUpdating}
-            >
-              <SelectTrigger
-                className="h-7 text-xs min-w-0 [&>span]:min-w-0 [&>span]:truncate"
-                style={cookColor ? {
-                  borderLeft: `3px solid ${cookColor}`,
-                } : undefined}
+        {/* Cook Selector - flex-1 on mobile, fixed width on desktop */}
+        <div className="flex-1 sm:flex-none sm:w-[140px] min-w-0">
+          {(() => {
+            const cookColor = getCookColor(assignment.cook);
+            return (
+              <Select
+                value={assignment.cook || "none"}
+                onValueChange={handleCookChange}
+                disabled={isUpdating}
               >
-                <ChefHat className="h-3 w-3 mr-1 flex-shrink-0" />
-                <SelectValue placeholder="Assign cook" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No cook assigned</SelectItem>
-                {cookNames.map((name) => {
-                  const color = getCookColor(name);
-                  return (
-                    <SelectItem key={name} value={name}>
-                      <span className="flex items-center gap-2">
-                        {color && (
-                          <span
-                            className="h-2.5 w-2.5 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: color }}
-                            aria-hidden="true"
-                          />
-                        )}
-                        {name}
-                      </span>
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-          );
-        })()}
+                <SelectTrigger
+                  className="h-7 text-xs min-w-0 [&>span]:min-w-0 [&>span]:truncate"
+                  style={cookColor ? {
+                    borderLeft: `3px solid ${cookColor}`,
+                  } : undefined}
+                >
+                  <ChefHat className="h-3 w-3 mr-1 flex-shrink-0" />
+                  <SelectValue placeholder="Assign cook" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No cook assigned</SelectItem>
+                  {cookNames.map((name) => {
+                    const color = getCookColor(name);
+                    return (
+                      <SelectItem key={name} value={name}>
+                        <span className="flex items-center gap-2">
+                          {color && (
+                            <span
+                              className="h-2.5 w-2.5 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: color }}
+                              aria-hidden="true"
+                            />
+                          )}
+                          {name}
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            );
+          })()}
+        </div>
       </div>
     </div>
   );
