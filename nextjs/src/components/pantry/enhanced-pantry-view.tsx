@@ -50,6 +50,26 @@ import ScanReview from './scan-review';
 import ScanHistory from './scan-history';
 import { PantryScan } from '@/app/actions/pantry-scan';
 
+interface DetectedItem {
+  ingredient: string;
+  quantity?: string;
+  category: string;
+  confidence: number;
+  confirmed?: boolean;
+  edited?: boolean;
+}
+
+interface SuggestedRecipe {
+  id: string;
+  title: string;
+  prep_time?: number;
+  cook_time?: number;
+  image_url?: string;
+  matching_ingredients: number;
+  total_ingredients: number;
+  missing_ingredients: number;
+}
+
 interface EnhancedPantryViewProps {
   initialItems: PantryItem[];
   subscriptionTier?: 'free' | 'pro' | 'premium';
@@ -68,8 +88,8 @@ export function EnhancedPantryView({
   const [showScanReview, setShowScanReview] = useState(false);
   const [scanData, setScanData] = useState<{
     scanId: string;
-    detectedItems: unknown[];
-    suggestedRecipes: unknown[];
+    detectedItems: DetectedItem[];
+    suggestedRecipes: SuggestedRecipe[];
   } | null>(null);
 
   // Group items by category for display
@@ -124,7 +144,7 @@ export function EnhancedPantryView({
     }
   };
 
-  const handleScanComplete = (scanId: string, detectedItems: unknown[], suggestedRecipes: unknown[]) => {
+  const handleScanComplete = (scanId: string, detectedItems: DetectedItem[], suggestedRecipes: SuggestedRecipe[]) => {
     setScanData({ scanId, detectedItems, suggestedRecipes });
     setShowScanReview(true);
     setActiveTab('items'); // Switch back to items tab to show review
@@ -138,9 +158,9 @@ export function EnhancedPantryView({
   };
 
   const handleReuseScan = (scan: PantryScan) => {
-    const items = scan.confirmed_items?.length > 0
+    const items = (scan.confirmed_items?.length > 0
       ? scan.confirmed_items
-      : scan.detected_items || [];
+      : scan.detected_items || []) as DetectedItem[];
 
     setScanData({
       scanId: scan.id,

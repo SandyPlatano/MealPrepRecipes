@@ -12,8 +12,28 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { getPantryScanQuota } from '@/app/actions/pantry-scan';
 
+interface DetectedItem {
+  ingredient: string;
+  quantity?: string;
+  category: string;
+  confidence: number;
+  confirmed?: boolean;
+  edited?: boolean;
+}
+
+interface SuggestedRecipe {
+  id: string;
+  title: string;
+  prep_time?: number;
+  cook_time?: number;
+  image_url?: string;
+  matching_ingredients: number;
+  total_ingredients: number;
+  missing_ingredients: number;
+}
+
 interface PantryScannerProps {
-  onScanComplete: (scanId: string, detectedItems: unknown[], suggestedRecipes: unknown[]) => void;
+  onScanComplete: (scanId: string, detectedItems: DetectedItem[], suggestedRecipes: SuggestedRecipe[]) => void;
   subscriptionTier?: 'free' | 'pro' | 'premium';
 }
 
@@ -157,7 +177,7 @@ export default function PantryScanner({ onScanComplete, subscriptionTier = 'free
               Take a photo of your fridge or pantry to automatically detect ingredients
             </CardDescription>
           </div>
-          {subscriptionTier === 'pro' && remainingScans !== null && (
+          {subscriptionTier === 'pro' && typeof remainingScans === 'number' && (
             <Badge variant={remainingScans > 3 ? 'secondary' : 'destructive'}>
               {remainingScans} scans left
             </Badge>

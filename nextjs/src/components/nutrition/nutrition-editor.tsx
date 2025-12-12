@@ -64,7 +64,8 @@ export function NutritionEditor({
   const [warnings, setWarnings] = useState<string[]>([]);
 
   const form = useForm<NutritionFormData>({
-    resolver: zodResolver(nutritionSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(nutritionSchema) as any,
     defaultValues: {
       calories: initialNutrition?.calories ?? null,
       protein_g: initialNutrition?.protein_g ?? null,

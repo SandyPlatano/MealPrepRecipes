@@ -98,7 +98,7 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
     const allRecipeIds = Object.values(weekPlan.assignments)
       .flat()
       .map((a) => a.recipe_id);
-    const uniqueRecipeIds = [...new Set(allRecipeIds)];
+    const uniqueRecipeIds = Array.from(new Set(allRecipeIds));
 
     // Fetch nutrition data for all recipes in parallel
     const [nutritionResult, dashboardResult, goalsResult] = await Promise.all([

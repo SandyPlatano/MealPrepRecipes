@@ -288,15 +288,15 @@ interface WeeklySummaryRowProps {
   week: {
     id: string;
     week_start: string;
-    days_on_target: number;
-    avg_calories: number;
-    avg_protein_g: number;
-    avg_carbs_g: number;
-    avg_fat_g: number;
-    user_goals_snapshot: unknown;
+    days_on_target?: number | null;
+    avg_calories?: number | null;
+    avg_protein_g?: number | null;
+    avg_carbs_g?: number | null;
+    avg_fat_g?: number | null;
+    user_goals_snapshot?: unknown;
   };
   isRecent: boolean;
-  goals: unknown;
+  goals?: unknown;
 }
 
 function WeeklySummaryRow({ week, isRecent }: WeeklySummaryRowProps) {
