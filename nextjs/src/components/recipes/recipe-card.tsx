@@ -58,6 +58,7 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { MarkCookedDialog } from "./mark-cooked-dialog";
+import { ShareRecipeDialog } from "@/components/social/share-recipe-dialog";
 import Image from "next/image";
 import { detectAllergens, mergeAllergens, getAllergenDisplayName, hasUserAllergens, hasCustomRestrictions } from "@/lib/allergen-detector";
 import { triggerHaptic } from "@/lib/haptics";
@@ -96,6 +97,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [showCookedDialog, setShowCookedDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [servingMultiplier, setServingMultiplier] = useState<number>(1);
   const [customInput, setCustomInput] = useState<string>("");
   const [showCustomInput, setShowCustomInput] = useState(false);
@@ -209,41 +211,10 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
     toast.success("Opening PDF...");
   };
 
-  const handleShare = async (e: React.MouseEvent) => {
+  const handleShare = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
-    const recipeUrl = `${window.location.origin}/app/recipes/${recipe.id}`;
-    const shareText = `Check out this recipe: ${recipe.title}`;
-    const shareData = {
-      title: recipe.title,
-      text: shareText,
-      url: recipeUrl,
-    };
-
-    // Try Web Share API first (mobile and modern browsers)
-    if (navigator.share && navigator.canShare(shareData)) {
-      try {
-        await navigator.share(shareData);
-        toast.success("Recipe shared!");
-        return;
-      } catch (error: unknown) {
-        // User cancelled or error occurred
-        if ((error as {name?: string}).name !== "AbortError") {
-          console.error("Error sharing:", error);
-        }
-        // Fall through to clipboard fallback
-      }
-    }
-
-    // Fallback: Copy link to clipboard
-    try {
-      await navigator.clipboard.writeText(recipeUrl);
-      toast.success("Recipe link copied to clipboard!");
-    } catch (error) {
-      console.error("Failed to copy:", error);
-      toast.error("Failed to share recipe");
-    }
+    setShowShareDialog(true);
   };
 
   const handleDelete = async () => {
@@ -588,6 +559,16 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
         recipeTitle={recipe.title}
         open={showCookedDialog}
         onOpenChange={setShowCookedDialog}
+      />
+
+      <ShareRecipeDialog
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
+        recipeId={recipe.id}
+        recipeTitle={recipe.title}
+        isPublic={recipe.is_public ?? false}
+        shareToken={recipe.share_token ?? null}
+        viewCount={recipe.view_count ?? 0}
       />
     </>
   );

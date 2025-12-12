@@ -35,6 +35,10 @@ import {
   Edit,
   Sparkles,
   Loader2,
+  Share2,
+  Globe,
+  Link2,
+  Eye,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -60,6 +64,8 @@ import {
 } from "@/components/ui/tooltip";
 import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
 import { MarkCookedDialog } from "@/components/recipes/mark-cooked-dialog";
+import { ShareRecipeDialog } from "@/components/social/share-recipe-dialog";
+import { ReviewList } from "@/components/social/review-list";
 import type { Recipe, RecipeType } from "@/types/recipe";
 import type { RecipeNutrition } from "@/types/nutrition";
 import { formatDistanceToNow } from "date-fns";
@@ -116,6 +122,7 @@ interface RecipeDetailProps {
   nutrition?: RecipeNutrition | null;
   nutritionEnabled?: boolean;
   substitutions?: Map<string, Substitution[]>;
+  currentUserId?: string;
 }
 
 export function RecipeDetail({
@@ -127,9 +134,11 @@ export function RecipeDetail({
   nutrition = null,
   nutritionEnabled = false,
   substitutions = new Map(),
+  currentUserId,
 }: RecipeDetailProps) {
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [showCookedDialog, setShowCookedDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isExtractingNutrition, setIsExtractingNutrition] = useState(false);
@@ -298,11 +307,15 @@ export function RecipeDetail({
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Recipe
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowShareDialog(true)}>
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share Recipe
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleExportPDF}>
                       <Download className="h-4 w-4 mr-2" />
                       Export as PDF
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={() => setDeleteDialogOpen(true)}
                       className="text-destructive focus:text-destructive"
                     >
@@ -347,6 +360,24 @@ export function RecipeDetail({
                     addSuffix: true,
                   })}
                 </span>
+              </div>
+            )}
+            {recipe.is_public && (
+              <div className="flex items-center gap-1 text-green-600">
+                <Globe className="h-4 w-4" />
+                <span>Public</span>
+              </div>
+            )}
+            {recipe.share_token && !recipe.is_public && (
+              <div className="flex items-center gap-1 text-blue-600">
+                <Link2 className="h-4 w-4" />
+                <span>Link shared</span>
+              </div>
+            )}
+            {(recipe.view_count || 0) > 0 && (recipe.is_public || recipe.share_token) && (
+              <div className="flex items-center gap-1">
+                <Eye className="h-4 w-4" />
+                <span>{recipe.view_count} views</span>
               </div>
             )}
           </div>
@@ -698,6 +729,21 @@ export function RecipeDetail({
               </div>
             </>
           )}
+
+          {/* Community Reviews */}
+          {recipe.is_public && (
+            <>
+              <div className="border-t" />
+              <ReviewList
+                recipeId={recipe.id}
+                recipeOwnerId={recipe.user_id}
+                currentUserId={currentUserId}
+                avgRating={recipe.avg_rating}
+                reviewCount={recipe.review_count || 0}
+                isPublic={recipe.is_public}
+              />
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -707,6 +753,17 @@ export function RecipeDetail({
         recipeTitle={recipe.title}
         open={showCookedDialog}
         onOpenChange={setShowCookedDialog}
+      />
+
+      {/* Share Recipe Dialog */}
+      <ShareRecipeDialog
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
+        recipeId={recipe.id}
+        recipeTitle={recipe.title}
+        isPublic={recipe.is_public || false}
+        shareToken={recipe.share_token || null}
+        viewCount={recipe.view_count || 0}
       />
 
       {/* Delete Confirmation Dialog */}

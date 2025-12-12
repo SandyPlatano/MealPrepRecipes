@@ -74,6 +74,7 @@ export function AppNav({
         "/app/history",
         "/app/pantry",
         "/app/nutrition",
+        "/app/discover",
       ];
       if (excludedRoutes.some(route => pathname === route || pathname.startsWith(`${route}/`))) {
         return false;

@@ -1,0 +1,17 @@
+# Cursor Rules
+
+## Context7 MCP Integration
+
+Always use Context7 MCP tools when the user needs:
+- Code generation
+- Setup or configuration steps
+- Library/API documentation
+
+This means you should automatically use the Context7 MCP tools (`resolve-library-id` and `get-library-docs`) without the user having to explicitly ask. When encountering requests for:
+- Code examples or implementations
+- Setting up libraries or frameworks
+- Understanding how to use specific APIs or libraries
+- Configuration file examples
+
+Automatically resolve the library ID and fetch the relevant documentation using Context7 before proceeding with the response.
+

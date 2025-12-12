@@ -31,6 +31,15 @@ export interface Recipe {
   user_id: string;
   household_id: string | null;
   is_shared_with_household: boolean;
+  // Social features (Phase 1)
+  is_public: boolean;
+  share_token: string | null;
+  view_count: number;
+  original_recipe_id: string | null;
+  original_author_id: string | null;
+  // Reviews aggregate (Phase 3)
+  avg_rating: number | null;
+  review_count: number;
   created_at: string;
   updated_at: string;
 }
@@ -58,6 +67,8 @@ export interface RecipeFormData {
   image_url?: string;
   allergen_tags?: string[]; // Manual allergen tags
   is_shared_with_household?: boolean;
+  // Social features
+  is_public?: boolean;
 }
 
 // Recipe with favorite status for display

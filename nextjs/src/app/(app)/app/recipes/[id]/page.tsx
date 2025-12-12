@@ -7,6 +7,7 @@ import { findSubstitutionsForIngredients } from "@/lib/substitutions";
 import { RecipeDetail } from "@/components/recipes/recipe-detail";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
 interface RecipePageProps {
   params: Promise<{ id: string }>;
@@ -20,6 +21,11 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
   const from = Array.isArray(fromParam) ? fromParam[0] : fromParam;
   const backHref = from === "plan" ? "/app/plan" : "/app/recipes";
   const backLabel = from === "plan" ? "Back to Plan" : "Back to The Vault";
+
+  // Get current user
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const [recipeResult, favoritesResult, historyResult, settingsResult, nutritionTrackingResult] = await Promise.all([
     getRecipe(id),
     getFavorites(),
@@ -76,6 +82,7 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
         nutrition={nutrition}
         nutritionEnabled={nutritionEnabled}
         substitutions={substitutions}
+        currentUserId={user?.id}
       />
     </div>
   );
