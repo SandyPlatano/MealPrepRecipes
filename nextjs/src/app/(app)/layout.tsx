@@ -10,7 +10,7 @@ import { MobileMenu } from "@/components/navigation/mobile-menu";
 
 // Navigation: Plan, List, Recipes, Discover, History
 const navItems = [
-  { href: "/app/plan", iconKey: "plan" as const, label: "Plan" },
+  { href: "/app", iconKey: "plan" as const, label: "Plan" },
   { href: "/app/shop", iconKey: "shop" as const, label: "List" },
   { href: "/app/recipes", iconKey: "recipes" as const, label: "Recipes" },
   { href: "/app/recipes/discover", iconKey: "discover" as const, label: "Discover" },

@@ -56,6 +56,9 @@ export function AppNav({
     // Exact match always wins
     if (pathname === href) return true;
     
+    // Special case: Plan link (/app) should also be active when on /app/plan (for backward compatibility)
+    if (href === "/app" && pathname === "/app/plan") return true;
+    
     // Check if pathname starts with this href (for nested routes)
     if (!pathname.startsWith(`${href}/`)) return false;
     

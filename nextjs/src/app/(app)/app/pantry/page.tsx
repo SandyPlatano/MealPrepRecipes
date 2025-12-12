@@ -1,6 +1,7 @@
 import { getPantryItems } from "@/app/actions/pantry";
 import { EnhancedPantryView } from "@/components/pantry/enhanced-pantry-view";
 import { createClient } from "@/lib/supabase/server";
+import { getUserTier } from "@/lib/stripe/subscription";
 
 export default async function PantryPage() {
   const supabase = await createClient();
@@ -9,20 +10,12 @@ export default async function PantryPage() {
   const pantryResult = await getPantryItems();
   const pantryItems = pantryResult.data || [];
 
-  // Get user's subscription tier
+  // Get user's subscription tier (respects localhost for development)
   let subscriptionTier: 'free' | 'pro' | 'premium' = 'free';
   const { data: { user } } = await supabase.auth.getUser();
 
   if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('subscription_tier')
-      .eq('id', user.id)
-      .single();
-
-    if (profile?.subscription_tier) {
-      subscriptionTier = profile.subscription_tier as 'free' | 'pro' | 'premium';
-    }
+    subscriptionTier = await getUserTier(user.id);
   }
 
   return (

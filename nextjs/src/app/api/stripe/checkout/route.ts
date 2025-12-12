@@ -55,7 +55,13 @@ export async function POST(request: NextRequest) {
         .eq('id', user.id);
     }
 
-    // Create checkout session
+    // Get tier details for better checkout experience
+    const tierName = tier === 'pro' ? 'Pro' : 'Premium';
+    const tierDescription = tier === 'pro' 
+      ? 'Perfect for growing families - Advanced meal planning with smart pantry scanning'
+      : 'For serious meal planners - Unlimited features and priority support';
+
+    // Create checkout session with enhanced branding
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ['card'],
@@ -73,7 +79,25 @@ export async function POST(request: NextRequest) {
       metadata: {
         supabase_user_id: user.id,
         tier: tier
-      }
+      },
+      subscription_data: {
+        metadata: {
+          supabase_user_id: user.id,
+          tier: tier,
+        },
+        description: `Babe What's For Dinner - ${tierName}`,
+      },
+      custom_text: {
+        submit: {
+          message: `Welcome to ${tierName}! 🍳 Start planning amazing meals right away.`,
+        },
+        shipping_address: {
+          message: 'Your subscription will be activated immediately after payment.',
+        },
+        terms_of_service_acceptance: {
+          message: 'By subscribing, you agree to our terms of service. Cancel anytime from your account settings.',
+        },
+      },
     });
 
     return NextResponse.json({ sessionId: session.id, url: session.url });

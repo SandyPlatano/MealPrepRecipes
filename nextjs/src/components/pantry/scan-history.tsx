@@ -41,10 +41,15 @@ export default function ScanHistory({ onReuseScan, maxItems = 10 }: ScanHistoryP
     try {
       setLoading(true);
       const history = await getPantryScanHistory(maxItems);
-      setScans(history);
+      // Function now returns empty array instead of throwing errors
+      // Empty array is handled gracefully by the component's empty state UI
+      setScans(history || []);
     } catch (error) {
+      // Only show error toast for unexpected errors (network issues, etc.)
       console.error('Error loading scan history:', error);
       toast.error('Failed to load scan history');
+      // Set empty array to show empty state instead of error state
+      setScans([]);
     } finally {
       setLoading(false);
     }

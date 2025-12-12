@@ -23,13 +23,34 @@ export function UpgradeModal({ open, onOpenChange, feature = 'AI Meal Suggestion
         body: JSON.stringify({ tier: 'pro' }),
       });
 
-      const { url } = await response.json();
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const errorMessage = data.error || `Server error (${response.status})`;
+        console.error('Error creating checkout:', {
+          status: response.status,
+          error: errorMessage,
+          data,
+        });
+        alert(errorMessage);
+        setLoading(false);
+        return;
+      }
+
+      const { url } = data;
 
       if (url) {
         window.location.href = url;
+        // Don't reset loading here since we're redirecting
+      } else {
+        console.error('No checkout URL received', data);
+        alert('Failed to create checkout session. Please try again.');
+        setLoading(false);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating checkout:', error);
+      const errorMessage = error?.message || 'Network error. Please check your connection and try again.';
+      alert(errorMessage);
       setLoading(false);
     }
   };

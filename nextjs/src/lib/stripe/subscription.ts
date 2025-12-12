@@ -3,6 +3,18 @@ import type { Subscription, SubscriptionTier } from '@/types/subscription';
 import { getQuotaForTier } from '@/types/subscription';
 
 /**
+ * Check if running on localhost/development (enables premium features for testing)
+ */
+function isLocalhost(): boolean {
+  return (
+    process.env.NODE_ENV === 'development' ||
+    process.env.NEXT_PUBLIC_APP_URL?.includes('localhost') ||
+    process.env.NEXT_PUBLIC_APP_URL?.includes('127.0.0.1') ||
+    process.env.NEXT_PUBLIC_APP_URL?.includes('0.0.0.0')
+  );
+}
+
+/**
  * Get the subscription status for a user
  */
 export async function getSubscriptionStatus(
@@ -26,11 +38,17 @@ export async function getSubscriptionStatus(
 
 /**
  * Check if user has an active subscription of a specific tier or higher
+ * In development/localhost, always returns true for testing
  */
 export async function hasActiveSubscription(
   userId: string,
   requiredTier: SubscriptionTier = 'pro'
 ): Promise<boolean> {
+  // Enable premium features on localhost for development
+  if (isLocalhost()) {
+    return true;
+  }
+
   const subscription = await getSubscriptionStatus(userId);
 
   if (!subscription) return false;
@@ -52,8 +70,14 @@ export async function hasActiveSubscription(
 
 /**
  * Get the current tier for a user (defaults to 'free' if no subscription)
+ * In development/localhost, automatically returns 'premium' for testing
  */
 export async function getUserTier(userId: string): Promise<SubscriptionTier> {
+  // Enable premium features on localhost for development
+  if (isLocalhost()) {
+    return 'premium';
+  }
+
   const subscription = await getSubscriptionStatus(userId);
 
   if (!subscription) return 'free';
@@ -67,6 +91,7 @@ export async function getUserTier(userId: string): Promise<SubscriptionTier> {
 
 /**
  * Check AI suggestion quota for a user
+ * In development/localhost, returns unlimited quota
  */
 export async function checkAISuggestionQuota(
   userId: string
@@ -74,7 +99,7 @@ export async function checkAISuggestionQuota(
   const supabase = await createClient();
   const tier = await getUserTier(userId);
 
-  // Premium users have unlimited
+  // Premium users (and localhost) have unlimited
   if (tier === 'premium') {
     return { remaining: null, tier };
   }
@@ -124,6 +149,7 @@ export async function checkAISuggestionQuota(
 
 /**
  * Decrement AI suggestion quota for a user
+ * In development/localhost, always succeeds (unlimited)
  */
 export async function decrementAISuggestionQuota(
   userId: string
@@ -131,7 +157,7 @@ export async function decrementAISuggestionQuota(
   const supabase = await createClient();
   const tier = await getUserTier(userId);
 
-  // Premium users have unlimited, don't decrement
+  // Premium users (and localhost) have unlimited, don't decrement
   if (tier === 'premium') {
     return true;
   }
@@ -201,6 +227,7 @@ async function getProUserIds(): Promise<string[]> {
 
 /**
  * Require subscription middleware - throws error if user doesn't have required tier
+ * In development/localhost, always succeeds for testing
  */
 export async function requireSubscription(
   userId: string,

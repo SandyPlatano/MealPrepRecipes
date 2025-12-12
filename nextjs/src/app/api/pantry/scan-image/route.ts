@@ -32,14 +32,31 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user's household
-    const { data: member } = await supabase
+    const { data: member, error: memberError } = await supabase
       .from('household_members')
       .select('household_id')
       .eq('user_id', user.id)
       .single();
 
-    if (!member) {
-      return NextResponse.json({ error: 'No household found' }, { status: 400 });
+    if (memberError || !member) {
+      console.error('Error fetching household member:', memberError);
+      return NextResponse.json({ 
+        error: 'No household found. Please create or join a household first.' 
+      }, { status: 400 });
+    }
+
+    // Verify household exists (for foreign key constraint)
+    const { data: household, error: householdError } = await supabase
+      .from('households')
+      .select('id')
+      .eq('id', member.household_id)
+      .single();
+
+    if (householdError || !household) {
+      console.error('Error verifying household:', householdError);
+      return NextResponse.json({ 
+        error: 'Invalid household reference. Please contact support.' 
+      }, { status: 400 });
     }
 
     // Check subscription access and limits
@@ -108,6 +125,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create a scan record
+    // Use a placeholder URL initially since image_url is NOT NULL
+    // We'll update it with the actual URL after upload
     const { data: scan, error: scanError } = await supabase
       .from('pantry_scans')
       .insert({
@@ -115,14 +134,36 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         scan_type: scanType,
         processing_status: 'processing',
-        image_url: '' // Will be updated after upload
+        image_url: 'pending' // Placeholder - will be updated after upload
       })
       .select()
       .single();
 
     if (scanError) {
-      console.error('Error creating scan record:', scanError);
-      return NextResponse.json({ error: 'Failed to create scan record' }, { status: 500 });
+      console.error('Error creating scan record:', {
+        error: scanError,
+        message: scanError.message,
+        details: scanError.details,
+        hint: scanError.hint,
+        code: scanError.code,
+        household_id: member.household_id,
+        user_id: user.id,
+      });
+      
+      // Provide more specific error message
+      let errorMessage = 'Failed to create scan record';
+      if (scanError.code === '42501') {
+        errorMessage = 'Permission denied. Please ensure you are part of a household.';
+      } else if (scanError.code === '23503') {
+        errorMessage = 'Invalid household or user reference.';
+      } else if (scanError.message) {
+        errorMessage = `Failed to create scan record: ${scanError.message}`;
+      }
+      
+      return NextResponse.json({ 
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? scanError : undefined
+      }, { status: 500 });
     }
 
     // Upload image to Supabase Storage
@@ -132,12 +173,39 @@ export async function POST(request: NextRequest) {
       .upload(fileName, file);
 
     if (uploadError) {
-      console.error('Error uploading image:', uploadError);
+      console.error('Error uploading image:', {
+        error: uploadError,
+        message: uploadError.message,
+        statusCode: uploadError.statusCode,
+        errorCode: uploadError.error,
+      });
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to upload image';
+      if (uploadError.message?.includes('Bucket not found') || uploadError.message?.includes('does not exist')) {
+        errorMessage = 'Storage bucket not configured. Please create the "pantry-scans" bucket in Supabase Dashboard.';
+      } else if (uploadError.message?.includes('new row violates row-level security policy') || uploadError.statusCode === '403') {
+        errorMessage = 'Permission denied. Storage bucket RLS policies may need to be configured.';
+      } else if (uploadError.message) {
+        errorMessage = `Failed to upload image: ${uploadError.message}`;
+      }
+      
       await supabase
         .from('pantry_scans')
-        .update({ processing_status: 'failed', error_message: 'Failed to upload image' })
+        .update({ 
+          processing_status: 'failed', 
+          error_message: errorMessage 
+        })
         .eq('id', scan.id);
-      return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 });
+      
+      return NextResponse.json({ 
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? {
+          uploadError: uploadError.message,
+          statusCode: uploadError.statusCode,
+          errorCode: uploadError.error,
+        } : undefined
+      }, { status: 500 });
     }
 
     // Get public URL for the image

@@ -455,7 +455,45 @@ export async function someProFeature() {
    - `invoice.payment_failed`
 4. Copy webhook signing secret to env vars
 
-## Step 10: Testing
+## Step 10: Configure Checkout Branding
+
+To make your Stripe Checkout page match your brand, configure the following in your Stripe Dashboard:
+
+### Visual Branding (Stripe Dashboard)
+
+1. **Go to Stripe Dashboard → Settings → Branding**
+   - Upload your logo (recommended: 128x128px PNG with transparent background)
+   - Set primary brand color: `#F97316` (Coral/Orange - matches your app theme)
+   - Set accent color: `#4ADE80` (Sage Green - matches your brand colors)
+
+2. **Product Descriptions**
+   - Ensure your Stripe products have clear, friendly descriptions
+   - Example: "Perfect for growing families - Advanced meal planning with smart pantry scanning"
+
+3. **Checkout Customization**
+   - The checkout session now includes custom text messages (configured in code)
+   - Custom welcome message: "Welcome to Pro! 🍳 Start planning amazing meals right away."
+   - Terms message: "By subscribing, you agree to our terms of service. Cancel anytime from your account settings."
+
+### Brand Colors Reference
+
+Your app uses these brand colors (configure in Stripe Dashboard):
+- **Primary/Coral**: `#F97316` (HSL: 25 95% 53%)
+- **Sage Green**: `#4ADE80` (HSL: 142 40% 45%)
+- **Background**: Warm white/cream tones
+
+### Code-Level Customizations
+
+The checkout sessions are already configured with:
+- ✅ Custom welcome messages
+- ✅ Helpful subscription information
+- ✅ Billing address collection
+- ✅ Promotion code support
+- ✅ Proper metadata for webhook handling
+
+**Note**: Visual appearance (colors, logo) must be configured in Stripe Dashboard as these cannot be set via API for security reasons.
+
+## Step 11: Testing
 
 ### Test Mode
 

@@ -124,13 +124,15 @@ export async function getPantryScanQuota(): Promise<ScanQuota> {
 
 /**
  * Get pantry scan history for the user's household
+ * Returns empty array if no household found or no scans exist
  */
 export async function getPantryScanHistory(limit = 10): Promise<PantryScan[]> {
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    throw new Error('Not authenticated');
+    // Return empty array instead of throwing - component handles empty state
+    return [];
   }
 
   // Get user's household
@@ -140,8 +142,9 @@ export async function getPantryScanHistory(limit = 10): Promise<PantryScan[]> {
     .eq('user_id', user.id)
     .single();
 
+  // If no household found, return empty array (user hasn't set up household yet)
   if (!member) {
-    throw new Error('No household found');
+    return [];
   }
 
   const { data: scans, error } = await supabase
@@ -153,7 +156,8 @@ export async function getPantryScanHistory(limit = 10): Promise<PantryScan[]> {
 
   if (error) {
     console.error('Error fetching scan history:', error);
-    throw new Error('Failed to fetch scan history');
+    // Return empty array instead of throwing - component handles empty state gracefully
+    return [];
   }
 
   return scans || [];

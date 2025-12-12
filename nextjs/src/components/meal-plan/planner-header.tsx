@@ -135,9 +135,9 @@ export function PlannerHeader({
   const quotaExhausted = subscriptionTier === 'pro' && aiQuotaRemaining !== null && aiQuotaRemaining <= 0;
 
   return (
-    <div className="flex flex-col gap-3 pb-4 border-b">
-      {/* Week Navigation - Full width on mobile */}
-      <div className="flex items-center gap-2 w-full">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b">
+      {/* Week Navigation - Left side */}
+      <div className="flex items-center gap-2">
         <Button
           variant="outline"
           size="icon"
@@ -151,7 +151,7 @@ export function PlannerHeader({
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="flex-1 sm:min-w-[180px] sm:flex-none justify-center font-mono font-semibold h-10"
+              className="sm:min-w-[180px] justify-center font-mono font-semibold h-10"
             >
               <CalendarIcon className="h-4 w-4 mr-2" />
               <span className="truncate">{formatWeekRange(weekStart)}</span>
@@ -183,8 +183,8 @@ export function PlannerHeader({
         )}
       </div>
 
-      {/* Actions - Full width on mobile, wrap on small screens */}
-      <div className="flex items-center gap-2 flex-wrap w-full">
+      {/* Actions - Right side */}
+      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
         {/* AI Suggest Button */}
         <Button
           variant="outline"
