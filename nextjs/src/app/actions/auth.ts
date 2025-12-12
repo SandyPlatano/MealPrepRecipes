@@ -87,10 +87,13 @@ export async function logout() {
 export async function signInWithGoogle() {
   const supabase = await createClient();
 
+  const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/app`;
+  console.log("Google OAuth redirect URL:", redirectUrl);
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/app`,
+      redirectTo: redirectUrl,
       queryParams: {
         access_type: "offline",
         prompt: "consent",
@@ -99,8 +102,11 @@ export async function signInWithGoogle() {
   });
 
   if (error) {
+    console.error("Google OAuth error:", error);
     return { error: "Google auth failed. Try again?" };
   }
+
+  console.log("Google OAuth data:", data);
 
   if (data.url) {
     return { url: data.url };

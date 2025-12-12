@@ -13,7 +13,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { signup, signInWithGoogle } from "@/app/actions/auth";
+import { signup } from "@/app/actions/auth";
+import { createClient } from "@/lib/supabase/client";
 import { Loader2, CheckCircle2 } from "lucide-react";
 
 export default function SignupPage() {
@@ -41,14 +42,37 @@ export default function SignupPage() {
     setGoogleLoading(true);
     setError(null);
 
-    const result = await signInWithGoogle();
+    try {
+      const supabase = createClient();
 
-    if (result?.error) {
-      setError(result.error);
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=/app`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
+      });
+
+      if (oauthError) {
+        console.error("Google OAuth error:", oauthError);
+        setError("Google auth failed. Try again?");
+        setGoogleLoading(false);
+        return;
+      }
+
+      // The browser client handles the redirect automatically
+      // If we get here without a redirect, something went wrong
+      if (!data.url) {
+        setError("Something went wrong. Please try again.");
+        setGoogleLoading(false);
+      }
+    } catch (err) {
+      console.error("Google sign-in error:", err);
+      setError("Failed to connect to Google. Please try again.");
       setGoogleLoading(false);
-    } else if (result?.url) {
-      // Redirect to Google OAuth
-      window.location.href = result.url;
     }
   }
 

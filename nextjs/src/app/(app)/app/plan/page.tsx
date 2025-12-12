@@ -107,9 +107,11 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
       getMacroGoals(),
     ]);
 
-    // Create nutrition lookup map
+    // Create nutrition lookup map from the Record
     if (nutritionResult.data) {
-      nutritionData = new Map(nutritionResult.data.map((n) => [n.recipe_id, n]));
+      nutritionData = new Map(
+        Object.entries(nutritionResult.data).map(([recipeId, nutrition]) => [recipeId, nutrition])
+      );
     }
 
     weeklyNutritionDashboard = dashboardResult.data;
