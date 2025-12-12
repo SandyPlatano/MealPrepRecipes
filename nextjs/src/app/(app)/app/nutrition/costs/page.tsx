@@ -28,6 +28,12 @@ export default function NutritionCostsPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Only allow access on localhost
+    if (!isLocalhost()) {
+      router.push("/app/nutrition");
+      return;
+    }
+
     async function fetchCosts() {
       setLoading(true);
       setError(null);
@@ -40,7 +46,7 @@ export default function NutritionCostsPage() {
       setLoading(false);
     }
     fetchCosts();
-  }, []);
+  }, [router]);
 
   if (loading) {
     return (

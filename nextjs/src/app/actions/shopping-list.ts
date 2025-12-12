@@ -515,3 +515,151 @@ function guessCategory(ingredient: string): string {
 
   return "Other";
 }
+
+// Generate shopping list from multiple weeks' meal plans (Pro+ feature)
+export async function generateMultiWeekShoppingList(
+  weekStarts: string[]
+): Promise<{
+  error: string | null;
+  data: ShoppingListWithItems | null;
+  itemCount: number;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated", data: null, itemCount: 0 };
+  }
+
+  if (!weekStarts || weekStarts.length === 0) {
+    return { error: "No weeks selected", data: null, itemCount: 0 };
+  }
+
+  // Get user's household
+  const { data: membership } = await supabase
+    .from("household_members")
+    .select("household_id")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!membership) {
+    return { error: "No household found", data: null, itemCount: 0 };
+  }
+
+  // Get meal plans for all selected weeks
+  const { data: mealPlans } = await supabase
+    .from("meal_plans")
+    .select("id")
+    .eq("household_id", membership.household_id)
+    .in("week_start", weekStarts);
+
+  if (!mealPlans || mealPlans.length === 0) {
+    return { error: "No meal plans found for selected weeks", data: null, itemCount: 0 };
+  }
+
+  const mealPlanIds = mealPlans.map((mp) => mp.id);
+
+  // Get all assignments with recipe details from all selected weeks
+  const { data: assignments } = await supabase
+    .from("meal_assignments")
+    .select(
+      `
+      recipe_id,
+      recipe:recipes(id, title, ingredients)
+    `
+    )
+    .in("meal_plan_id", mealPlanIds);
+
+  if (!assignments || assignments.length === 0) {
+    return { error: "No meals planned for selected weeks", data: null, itemCount: 0 };
+  }
+
+  // Collect all ingredients from all recipes
+  const ingredientsToAdd: MergeableItem[] = [];
+
+  for (const assignment of assignments) {
+    const recipe = assignment.recipe as unknown as {
+      id: string;
+      title: string;
+      ingredients: string[];
+    };
+
+    if (recipe && recipe.ingredients) {
+      for (const ingredient of recipe.ingredients) {
+        const parsed = parseIngredient(ingredient);
+        ingredientsToAdd.push({
+          ...parsed,
+          recipe_id: recipe.id,
+          recipe_title: recipe.title,
+        });
+      }
+    }
+  }
+
+  // Merge duplicate ingredients with smart unit conversion
+  const mergedItems = mergeShoppingItems(ingredientsToAdd);
+
+  // Get or create shopping list for current week (default list)
+  const listResult = await getOrCreateShoppingList();
+  if (listResult.error || !listResult.data) {
+    return { error: listResult.error || "Failed to get shopping list", data: null, itemCount: 0 };
+  }
+
+  const shoppingList = listResult.data;
+
+  // Clear existing items before adding new multi-week items
+  await supabase
+    .from("shopping_list_items")
+    .delete()
+    .eq("shopping_list_id", shoppingList.id);
+
+  // Add merged ingredients to shopping list
+  const itemsToInsert = mergedItems.map((item) => ({
+    shopping_list_id: shoppingList.id,
+    ingredient: item.ingredient,
+    quantity: item.quantity || null,
+    unit: item.unit || null,
+    category: item.category || "Other",
+    recipe_id: item.sources[0]?.recipe_id || null,
+    recipe_title:
+      item.sources.length > 1
+        ? `${item.sources[0]?.recipe_title || "Recipe"} +${item.sources.length - 1} more`
+        : item.sources[0]?.recipe_title || null,
+    is_checked: false,
+  }));
+
+  if (itemsToInsert.length > 0) {
+    const { error } = await supabase
+      .from("shopping_list_items")
+      .insert(itemsToInsert);
+
+    if (error) {
+      return { error: error.message, data: null, itemCount: 0 };
+    }
+  }
+
+  // Fetch the updated shopping list with items
+  const { data: items, error: fetchError } = await supabase
+    .from("shopping_list_items")
+    .select("*")
+    .eq("shopping_list_id", shoppingList.id)
+    .order("category")
+    .order("ingredient");
+
+  if (fetchError) {
+    return { error: fetchError.message, data: null, itemCount: 0 };
+  }
+
+  revalidatePath("/app/shop");
+
+  return {
+    error: null,
+    data: {
+      ...shoppingList,
+      items: (items || []) as ShoppingListItem[],
+    },
+    itemCount: items?.length || 0,
+  };
+}

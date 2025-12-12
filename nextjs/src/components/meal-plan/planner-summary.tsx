@@ -11,11 +11,10 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import {
-  ArrowRight,
   Activity,
-  CheckCircle2,
   Users,
   CalendarDays,
+  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -90,14 +89,26 @@ interface MacroProgressCompactProps {
   unit?: string;
 }
 
+interface RecipeRepetitionWarning {
+  recipeId: string;
+  recipeTitle: string;
+  count: number;
+  weeks: string[];
+}
+
+interface RepetitionWarningSectionProps {
+  warnings: RecipeRepetitionWarning[];
+}
+
 interface PlannerSummaryProps {
   assignments: MealAssignmentWithRecipe[];
-  weekStartStr: string;
+  weekStartStr?: string; // Optional - used for legacy calls
   cookColors?: Record<string, string>;
   nutritionEnabled?: boolean;
   nutritionData?: Map<string, RecipeNutrition> | null;
   weeklyNutritionDashboard?: WeeklyMacroDashboard | null;
   macroGoals?: MacroGoals | null;
+  repetitionWarnings?: RecipeRepetitionWarning[];
 }
 
 // Sub-components
@@ -339,26 +350,43 @@ function NutritionSummarySection({
   );
 }
 
-function FinalizeCTA({ weekStartStr }: { weekStartStr: string }) {
+
+function RepetitionWarningSection({ warnings }: RepetitionWarningSectionProps) {
+  if (warnings.length === 0) return null;
+
   return (
-    <div className="flex items-center justify-center md:justify-end lg:items-center">
-      <Button
-        asChild
-        size="lg"
-        className={cn(
-          "w-full md:w-auto",
-          "flex items-center gap-2",
-          "shadow-lg hover:shadow-xl hover:scale-105",
-          "transition-all duration-300"
-        )}
-      >
-        <Link href={`/app/finalize?week=${weekStartStr}`}>
-          <CheckCircle2 className="h-5 w-5" />
-          <span className="font-semibold">Finalize Plan</span>
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </Button>
-    </div>
+    <Card className="overflow-hidden border-yellow-500/30 bg-yellow-500/5 transition-shadow hover:shadow-md">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base font-mono flex items-center gap-2 text-yellow-600 dark:text-yellow-500">
+          <AlertTriangle className="h-4 w-4" />
+          Recipe Diversity
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <p className="text-sm text-muted-foreground mb-3">
+          These recipes appear frequently across your planned weeks:
+        </p>
+        {warnings.map((warning) => (
+          <div
+            key={warning.recipeId}
+            className="flex items-center justify-between p-2 rounded-md bg-background/50 border border-border/50"
+          >
+            <Link
+              href={`/app/recipes/${warning.recipeId}`}
+              className="text-sm font-medium hover:underline truncate max-w-[60%]"
+            >
+              {warning.recipeTitle}
+            </Link>
+            <Badge variant="outline" className="text-yellow-600 border-yellow-500/50">
+              {warning.count}x planned
+            </Badge>
+          </div>
+        ))}
+        <p className="text-xs text-muted-foreground mt-2">
+          Consider adding variety to your meal plan for better nutrition balance.
+        </p>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -388,11 +416,11 @@ function EmptyState() {
 
 export function PlannerSummary({
   assignments,
-  weekStartStr,
   cookColors = {},
   nutritionEnabled = false,
   weeklyNutritionDashboard = null,
   macroGoals = null,
+  repetitionWarnings = [],
 }: PlannerSummaryProps) {
   // Calculate which days have meals
   const daysWithMeals = useMemo(() => {
@@ -433,8 +461,8 @@ export function PlannerSummary({
         className={cn(
           "grid gap-4",
           showNutrition
-            ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]"
-            : "grid-cols-1 md:grid-cols-[1fr_auto]"
+            ? "grid-cols-1 md:grid-cols-2"
+            : "grid-cols-1"
         )}
       >
         {/* Section 1: Week Progress */}
@@ -452,10 +480,12 @@ export function PlannerSummary({
             goals={macroGoals}
           />
         )}
-
-        {/* Section 3: CTA */}
-        <FinalizeCTA weekStartStr={weekStartStr} />
       </div>
+
+      {/* Recipe Repetition Warnings (Pro+ feature for multi-week planning) */}
+      {repetitionWarnings.length > 0 && (
+        <RepetitionWarningSection warnings={repetitionWarnings} />
+      )}
     </div>
   );
 }

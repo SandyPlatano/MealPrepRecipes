@@ -33,6 +33,7 @@ import {
 import { GoogleCalendarButton } from "./google-calendar-button";
 import { MacroGoalsSection } from "./macro-goals-section";
 import { SubstitutionsSection } from "./substitutions-section";
+import { ApiCostsSection } from "./api-costs-section";
 import {
   updateMacroGoals,
   toggleNutritionTracking,
@@ -913,6 +914,9 @@ export function SettingsForm({
           </div>
         </CardContent>
       </Card>
+
+      {/* API Costs (Localhost Only) */}
+      <ApiCostsSection />
 
       {/* Save Button */}
       <Button onClick={handleSave} disabled={isSaving} className="w-full">

@@ -1028,3 +1028,196 @@ export async function applyMealPlanTemplate(
   revalidatePath("/app/shop");
   return { error: null };
 }
+
+// Clear all meal assignments for an entire week
+export async function clearWeekMealPlan(weekStart: string): Promise<{
+  error: string | null;
+  clearedCount: number;
+}> {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found", clearedCount: 0 };
+  }
+
+  const supabase = await createClient();
+
+  // Get the meal plan
+  const { data: mealPlan } = await supabase
+    .from("meal_plans")
+    .select("id")
+    .eq("household_id", household.household_id)
+    .eq("week_start", weekStart)
+    .single();
+
+  if (!mealPlan) {
+    return { error: null, clearedCount: 0 }; // No plan means nothing to clear
+  }
+
+  // Count assignments before clearing
+  const { count } = await supabase
+    .from("meal_assignments")
+    .select("id", { count: "exact", head: true })
+    .eq("meal_plan_id", mealPlan.id);
+
+  const clearedCount = count || 0;
+
+  // Delete all assignments for this week
+  const { error } = await supabase
+    .from("meal_assignments")
+    .delete()
+    .eq("meal_plan_id", mealPlan.id);
+
+  if (error) {
+    return { error: error.message, clearedCount: 0 };
+  }
+
+  // Clear the shopping list for this meal plan
+  const { data: shoppingList } = await supabase
+    .from("shopping_lists")
+    .select("id")
+    .eq("meal_plan_id", mealPlan.id)
+    .single();
+
+  if (shoppingList) {
+    await supabase
+      .from("shopping_list_items")
+      .delete()
+      .eq("shopping_list_id", shoppingList.id);
+  }
+
+  revalidateTag(`meal-plan-${household.household_id}`);
+  revalidatePath("/app/plan");
+  revalidatePath("/app/shop");
+  return { error: null, clearedCount };
+}
+
+// Get meal counts for multiple weeks (for multi-week shopping list selector)
+export async function getWeeksMealCounts(weekStarts: string[]): Promise<{
+  error: string | null;
+  data: Array<{ weekStart: string; mealCount: number }>;
+}> {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found", data: [] };
+  }
+
+  const supabase = await createClient();
+
+  // Get meal plans for the requested weeks
+  const { data: mealPlans, error: plansError } = await supabase
+    .from("meal_plans")
+    .select("id, week_start")
+    .eq("household_id", household.household_id)
+    .in("week_start", weekStarts);
+
+  if (plansError) {
+    return { error: plansError.message, data: [] };
+  }
+
+  // Get assignment counts for each meal plan
+  const result: Array<{ weekStart: string; mealCount: number }> = [];
+
+  for (const weekStart of weekStarts) {
+    const mealPlan = mealPlans?.find((mp) => mp.week_start === weekStart);
+
+    if (mealPlan) {
+      const { count } = await supabase
+        .from("meal_assignments")
+        .select("id", { count: "exact", head: true })
+        .eq("meal_plan_id", mealPlan.id);
+
+      result.push({ weekStart, mealCount: count || 0 });
+    } else {
+      result.push({ weekStart, mealCount: 0 });
+    }
+  }
+
+  return { error: null, data: result };
+}
+
+// Get recipe repetition warnings across weeks (shows recipes that appear multiple times)
+export async function getRecipeRepetitionWarnings(weekStarts: string[]): Promise<{
+  error: string | null;
+  data: Array<{ recipeId: string; recipeTitle: string; count: number; weeks: string[] }>;
+}> {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found", data: [] };
+  }
+
+  if (!weekStarts || weekStarts.length === 0) {
+    return { error: null, data: [] };
+  }
+
+  const supabase = await createClient();
+
+  // Get meal plans for the requested weeks
+  const { data: mealPlans, error: plansError } = await supabase
+    .from("meal_plans")
+    .select("id, week_start")
+    .eq("household_id", household.household_id)
+    .in("week_start", weekStarts);
+
+  if (plansError) {
+    return { error: plansError.message, data: [] };
+  }
+
+  if (!mealPlans || mealPlans.length === 0) {
+    return { error: null, data: [] };
+  }
+
+  const mealPlanIds = mealPlans.map((mp) => mp.id);
+  const mealPlanIdToWeek = new Map(mealPlans.map((mp) => [mp.id, mp.week_start]));
+
+  // Get all assignments with recipe details
+  const { data: assignments, error: assignmentsError } = await supabase
+    .from("meal_assignments")
+    .select(`
+      recipe_id,
+      meal_plan_id,
+      recipe:recipes(id, title)
+    `)
+    .in("meal_plan_id", mealPlanIds);
+
+  if (assignmentsError) {
+    return { error: assignmentsError.message, data: [] };
+  }
+
+  // Count recipe occurrences across weeks
+  const recipeCounts = new Map<string, { title: string; count: number; weeks: Set<string> }>();
+
+  for (const assignment of assignments || []) {
+    const recipe = assignment.recipe as unknown as { id: string; title: string } | null;
+    if (!recipe) continue;
+
+    const week = mealPlanIdToWeek.get(assignment.meal_plan_id) || "";
+
+    if (recipeCounts.has(recipe.id)) {
+      const existing = recipeCounts.get(recipe.id)!;
+      existing.count++;
+      existing.weeks.add(week);
+    } else {
+      recipeCounts.set(recipe.id, {
+        title: recipe.title,
+        count: 1,
+        weeks: new Set([week]),
+      });
+    }
+  }
+
+  // Filter to recipes that appear 3+ times (warning threshold)
+  const warnings = Array.from(recipeCounts.entries())
+    .filter(([, data]) => data.count >= 3)
+    .map(([recipeId, data]) => ({
+      recipeId,
+      recipeTitle: data.title,
+      count: data.count,
+      weeks: Array.from(data.weeks).sort(),
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  return { error: null, data: warnings };
+}

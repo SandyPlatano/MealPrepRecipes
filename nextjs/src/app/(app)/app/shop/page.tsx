@@ -1,21 +1,36 @@
 import { getShoppingListWithItems } from "@/app/actions/shopping-list";
 import { getPantryItems } from "@/app/actions/pantry";
 import { getSettings } from "@/app/actions/settings";
-import { getWeekPlanForShoppingList } from "@/app/actions/meal-plans";
+import { getWeekPlanForShoppingList, getWeeksMealCounts } from "@/app/actions/meal-plans";
+import { checkAIQuota } from "@/app/actions/ai-meal-suggestions";
 import { ShoppingListView } from "@/components/shopping-list/shopping-list-view";
+import { WeekSelector, getWeekOptions, getUpcomingWeeks } from "@/components/shopping/week-selector";
 import Link from "next/link";
 import { Cookie } from "lucide-react";
 import { getWeekStart } from "@/types/meal-plan";
+import { createClient } from "@/lib/supabase/server";
+import { hasActiveSubscription } from "@/lib/stripe/subscription";
 
 export default async function ShopPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const currentWeekStart = getWeekStart(new Date()).toISOString().split("T")[0];
 
+  // Get upcoming weeks for the multi-week selector
+  const upcomingWeeks = getUpcomingWeeks(4);
+
+  // Check subscription status for multi-week feature
+  const canSelectMultipleWeeks = user ? await hasActiveSubscription(user.id, 'pro') : false;
+
   // Use lightweight query for shopping list (fetches only id, title, cook - not full recipe)
-  const [listResult, pantryResult, settingsResult, weekPlanResult] = await Promise.all([
+  const [listResult, pantryResult, settingsResult, weekPlanResult, aiQuota, weeksMealCountsResult] = await Promise.all([
     getShoppingListWithItems(),
     getPantryItems(),
     getSettings(),
     getWeekPlanForShoppingList(currentWeekStart),
+    checkAIQuota(),
+    getWeeksMealCounts(upcomingWeeks),
   ]);
 
   const shoppingList = listResult.data || {
@@ -32,6 +47,8 @@ export default async function ShopPage() {
   const weekPlan = weekPlanResult.data || null;
   const cookNames = settingsResult.data?.cook_names || [];
   const cookColors = settingsResult.data?.cook_colors || {};
+  const subscriptionTier = aiQuota.data?.tier || 'free';
+  const weekOptions = getWeekOptions(currentWeekStart, weeksMealCountsResult.data || []);
 
   return (
     <div className="space-y-6">
@@ -56,6 +73,14 @@ export default async function ShopPage() {
           )}
         </Link>
       </div>
+
+      {/* Multi-Week Selector (Pro+ feature) */}
+      <WeekSelector
+        currentWeekStart={currentWeekStart}
+        weekOptions={weekOptions}
+        subscriptionTier={subscriptionTier}
+        canSelectMultiple={canSelectMultipleWeeks}
+      />
 
       <ShoppingListView
         shoppingList={shoppingList}

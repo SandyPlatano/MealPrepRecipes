@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getWeekPlan, getRecipesForPlanning } from "@/app/actions/meal-plans";
 import { getSettings } from "@/app/actions/settings";
 import { getFavorites } from "@/app/actions/recipes";
@@ -19,6 +20,7 @@ import { PlanScrollRestorer } from "@/components/meal-plan/plan-scroll-restorer"
 import { getWeekStart } from "@/types/meal-plan";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingWrapper } from "@/components/onboarding/onboarding-wrapper";
+import { hasActiveSubscription } from "@/lib/stripe/subscription";
 
 interface HomePageProps {
   searchParams: Promise<{ week?: string }>;
@@ -36,12 +38,23 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     .eq("id", user?.id)
     .single();
 
+  // Get current week for comparison
+  const currentWeekStart = getWeekStart(new Date()).toISOString().split("T")[0];
+
   // Get week start from URL or default to current week
   const weekStartDate = params.week
     ? new Date(params.week)
     : getWeekStart(new Date());
 
   const weekStartStr = weekStartDate.toISOString().split("T")[0];
+
+  // Check if user can navigate to other weeks (Pro+ feature)
+  const canNavigateWeeks = user ? await hasActiveSubscription(user.id, 'pro') : false;
+
+  // Redirect free users who try to navigate to non-current weeks via URL
+  if (!canNavigateWeeks && weekStartStr !== currentWeekStart) {
+    redirect(`/app?week=${currentWeekStart}`);
+  }
 
   // Calculate previous week for copy feature
   const previousWeekStart = new Date(weekStartDate);
@@ -180,6 +193,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           nutritionData={nutritionData}
           weeklyNutritionDashboard={weeklyNutritionDashboard}
           macroGoals={macroGoals}
+          canNavigateWeeks={canNavigateWeeks}
         />
       </div>
     </>

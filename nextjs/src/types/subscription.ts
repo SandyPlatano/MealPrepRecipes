@@ -60,6 +60,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     features: [
       'Everything in Free',
       '5 AI meal suggestions per week',
+      'Multi-week meal planning',
+      'Multi-week shopping lists',
       'Household sharing',
       'Google Calendar sync',
       'Email shopping lists',
@@ -92,10 +94,17 @@ export function getQuotaForTier(tier: SubscriptionTier): number | null {
   return 0;
 }
 
+export type SubscriptionFeature =
+  | 'ai_suggestions'
+  | 'household_sharing'
+  | 'google_calendar'
+  | 'email_lists'
+  | 'multi_week_planning';
+
 export function hasFeatureAccess(
   tier: SubscriptionTier,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _feature: 'ai_suggestions' | 'household_sharing' | 'google_calendar' | 'email_lists'
+  _feature: SubscriptionFeature
 ): boolean {
   if (tier === 'free') return false;
   if (tier === 'pro' || tier === 'premium') return true;

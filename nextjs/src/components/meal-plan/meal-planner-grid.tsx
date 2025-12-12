@@ -73,6 +73,7 @@ interface MealPlannerGridProps {
   nutritionData?: Map<string, RecipeNutrition> | null;
   weeklyNutritionDashboard?: WeeklyMacroDashboard | null;
   macroGoals?: MacroGoals | null;
+  canNavigateWeeks?: boolean;
 }
 
 export function MealPlannerGrid({
@@ -97,6 +98,7 @@ export function MealPlannerGrid({
   nutritionData = null,
   weeklyNutritionDashboard = null,
   macroGoals = null,
+  canNavigateWeeks = false,
 }: MealPlannerGridProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -379,6 +381,7 @@ export function MealPlannerGrid({
               subscriptionTier={subscriptionTier}
               aiQuotaRemaining={aiQuotaRemaining}
               existingMealDays={existingMealDays}
+              canNavigateWeeks={canNavigateWeeks}
             />
           </div>
 
@@ -387,13 +390,23 @@ export function MealPlannerGrid({
             <div className="hidden md:block fixed top-16 left-0 right-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b shadow-sm">
               <div className="container mx-auto px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="icon" onClick={() => navigateWeek("prev")}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => navigateWeek("prev")}
+                    disabled={!canNavigateWeeks}
+                  >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
                   <div className="text-sm font-semibold min-w-[180px] text-center">
                     {formatWeekRange(weekStart)}
                   </div>
-                  <Button variant="outline" size="icon" onClick={() => navigateWeek("next")}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => navigateWeek("next")}
+                    disabled={!canNavigateWeeks}
+                  >
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>

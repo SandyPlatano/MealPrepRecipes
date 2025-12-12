@@ -27,6 +27,7 @@ import {
   Save,
   FolderOpen,
   Sparkles,
+  Lock,
 } from "lucide-react";
 import { formatWeekRange, getWeekStart } from "@/types/meal-plan";
 import { SaveTemplateDialog } from "./save-template-dialog";
@@ -47,6 +48,7 @@ interface PlannerHeaderProps {
   subscriptionTier?: SubscriptionTier;
   aiQuotaRemaining?: number | null;
   existingMealDays?: string[];
+  canNavigateWeeks?: boolean;
 }
 
 export function PlannerHeader({
@@ -59,6 +61,7 @@ export function PlannerHeader({
   subscriptionTier = 'free',
   aiQuotaRemaining = null,
   existingMealDays = [],
+  canNavigateWeeks = false,
 }: PlannerHeaderProps) {
   const router = useRouter();
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -68,6 +71,7 @@ export function PlannerHeader({
   const [templateManagerOpen, setTemplateManagerOpen] = useState(false);
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  const [upgradeModalFeature, setUpgradeModalFeature] = useState("AI Meal Suggestions");
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -81,6 +85,11 @@ export function PlannerHeader({
     : false;
 
   const navigateWeek = (direction: "prev" | "next") => {
+    if (!canNavigateWeeks) {
+      setUpgradeModalFeature("Multi-Week Planning");
+      setUpgradeModalOpen(true);
+      return;
+    }
     const newDate = new Date(weekStart);
     newDate.setDate(newDate.getDate() + (direction === "next" ? 7 : -7));
     const weekStr = newDate.toISOString().split("T")[0];
@@ -94,12 +103,22 @@ export function PlannerHeader({
   };
 
   const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      const monday = getWeekStart(date);
-      const weekStr = monday.toISOString().split("T")[0];
-      router.push(`/app/plan?week=${weekStr}`);
+    if (!date) return;
+
+    const monday = getWeekStart(date);
+    const weekStr = monday.toISOString().split("T")[0];
+    const currentWeekStr = getWeekStart(new Date()).toISOString().split("T")[0];
+
+    // Allow selecting current week even for free users
+    if (!canNavigateWeeks && weekStr !== currentWeekStr) {
+      setUpgradeModalFeature("Multi-Week Planning");
+      setUpgradeModalOpen(true);
       setCalendarOpen(false);
+      return;
     }
+
+    router.push(`/app/plan?week=${weekStr}`);
+    setCalendarOpen(false);
   };
 
   const handleCopyLastWeek = async () => {
@@ -122,6 +141,7 @@ export function PlannerHeader({
 
   const handleAISuggest = () => {
     if (subscriptionTier === 'free') {
+      setUpgradeModalFeature("AI Meal Suggestions");
       setUpgradeModalOpen(true);
     } else if (subscriptionTier === 'pro' && aiQuotaRemaining !== null && aiQuotaRemaining <= 0) {
       // Show quota exhausted state
@@ -142,9 +162,12 @@ export function PlannerHeader({
           variant="outline"
           size="icon"
           onClick={() => navigateWeek("prev")}
-          className="h-10 w-10 flex-shrink-0"
+          className="h-10 w-10 flex-shrink-0 relative"
         >
           <ChevronLeft className="h-5 w-5" />
+          {!canNavigateWeeks && (
+            <Lock className="h-3 w-3 absolute -top-1 -right-1 text-muted-foreground" />
+          )}
         </Button>
 
         <Dialog open={calendarOpen} onOpenChange={setCalendarOpen}>
@@ -155,10 +178,19 @@ export function PlannerHeader({
             >
               <CalendarIcon className="h-4 w-4 mr-2" />
               <span className="truncate">{formatWeekRange(weekStart)}</span>
+              {!canNavigateWeeks && (
+                <Lock className="h-3 w-3 ml-1 text-muted-foreground" />
+              )}
             </Button>
           </DialogTrigger>
           <DialogContent className="h-[70vh] max-h-[70vh] w-[95vw] max-w-md p-0 flex flex-col [&>button]:z-10">
             <div className="p-4 pb-2 flex-1 overflow-auto">
+              {!canNavigateWeeks && (
+                <div className="mb-3 p-3 bg-muted rounded-lg text-sm text-muted-foreground flex items-center gap-2">
+                  <Lock className="h-4 w-4" />
+                  <span>Upgrade to Pro to plan any week</span>
+                </div>
+              )}
               <Calendar
                 mode="single"
                 selected={weekStart}
@@ -174,9 +206,12 @@ export function PlannerHeader({
           variant="outline"
           size="icon"
           onClick={() => navigateWeek("next")}
-          className="h-10 w-10 flex-shrink-0"
+          className="h-10 w-10 flex-shrink-0 relative"
         >
           <ChevronRight className="h-5 w-5" />
+          {!canNavigateWeeks && (
+            <Lock className="h-3 w-3 absolute -top-1 -right-1 text-muted-foreground" />
+          )}
         </Button>
 
         {!isCurrentWeek && (
@@ -301,7 +336,7 @@ export function PlannerHeader({
       <UpgradeModal
         open={upgradeModalOpen}
         onOpenChange={setUpgradeModalOpen}
-        feature="AI Meal Suggestions"
+        feature={upgradeModalFeature}
       />
     </div>
   );
