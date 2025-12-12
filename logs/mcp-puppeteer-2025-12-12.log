@@ -73,3 +73,13 @@
 {"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-12 13:20:17.053"}
 {"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-12 13:20:17.055"}
 {"level":"info","message":"Puppeteer MCP Server closing","service":"mcp-puppeteer","timestamp":"2025-12-12 13:20:25.108"}
+{"arguments":{"url":"http://localhost:3000/app/settings"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-12 13:21:32.604","tool":"puppeteer_navigate"}
+{"0":"n","1":"p","2":"x","level":"info","message":"Launching browser with config:","service":"mcp-puppeteer","timestamp":"2025-12-12 13:21:32.605"}
+{"level":"info","message":"Browser launched successfully","service":"mcp-puppeteer","timestamp":"2025-12-12 13:21:34.385"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-12 13:21:34.386","url":"http://localhost:3000/app/settings"}
+{"error":"net::ERR_CONNECTION_REFUSED at http://localhost:3000/app/settings","level":"error","message":"Navigation failed","service":"mcp-puppeteer","timestamp":"2025-12-12 13:21:34.395","url":"http://localhost:3000/app/settings"}
+{"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-12 13:22:00.296"}
+{"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-12 13:22:00.300"}
+{"level":"info","message":"Puppeteer MCP Server closing","service":"mcp-puppeteer","timestamp":"2025-12-12 13:22:06.030"}
+{"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-12 13:22:27.372"}
+{"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-12 13:22:27.374"}

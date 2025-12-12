@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { MacroDashboard } from "@/components/nutrition/macro-dashboard";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Calendar, AlertCircle, Sparkles, HelpCircle } from "lucide-react";
+import { TrendingUp, Calendar, AlertCircle, HelpCircle } from "lucide-react";
 import {
   getNutritionHistory,
   getMacroGoals,
@@ -46,20 +46,12 @@ export default async function NutritionPage() {
             Track your macro goals, view trends, and analyze your nutrition over time
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button asChild variant="outline">
-            <Link href="/app/nutrition/help">
-              <HelpCircle className="mr-2 h-4 w-4" />
-              Help
-            </Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/app/nutrition/batch-extract">
-              <Sparkles className="mr-2 h-4 w-4" />
-              Batch Extract
-            </Link>
-          </Button>
-        </div>
+        <Button asChild variant="outline">
+          <Link href="/app/nutrition/help">
+            <HelpCircle className="mr-2 h-4 w-4" />
+            Help
+          </Link>
+        </Button>
       </div>
 
       {/* Check if nutrition tracking is enabled */}

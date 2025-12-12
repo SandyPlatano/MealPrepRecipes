@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/reset-ai-quota",
       "schedule": "0 0 * * 1"
+    },
+    {
+      "path": "/api/cron/process-nutrition-queue",
+      "schedule": "*/2 * * * *"
     }
   ]
 }

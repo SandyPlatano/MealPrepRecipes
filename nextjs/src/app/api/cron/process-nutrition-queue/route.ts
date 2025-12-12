@@ -27,7 +27,7 @@ function getAdminClient() {
 /**
  * Cron job to process nutrition extraction queue
  * Runs every 2 minutes, processes up to 3 recipes per run
- * Configure in vercel.json with schedule: "*/2 * * * *"
+ * Configure in vercel.json with schedule: "* /2 * * * *" (remove space)
  */
 export async function GET(req: Request) {
   try {

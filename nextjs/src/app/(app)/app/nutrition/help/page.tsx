@@ -392,17 +392,6 @@ export default function NutritionHelpPage() {
               <Link href="/app/settings">Open Settings</Link>
             </Button>
           </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-sm">Batch Extract</p>
-              <p className="text-sm text-muted-foreground">
-                Process existing recipes
-              </p>
-            </div>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/app/nutrition/batch-extract">Batch Extract</Link>
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>

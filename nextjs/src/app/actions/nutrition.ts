@@ -336,10 +336,12 @@ export async function updateMacroGoals(goals: MacroGoals): Promise<{
 
 /**
  * Toggle nutrition tracking on/off
+ * When enabled, automatically queues all recipes without nutrition for extraction
  */
 export async function toggleNutritionTracking(enabled: boolean): Promise<{
   success: boolean;
   error: string | null;
+  queuedRecipes?: number;
 }> {
   try {
     const { user, error: authError } = await getCachedUserWithHousehold();
@@ -364,16 +366,82 @@ export async function toggleNutritionTracking(enabled: boolean): Promise<{
       return { success: false, error: error.message };
     }
 
+    let queuedRecipes = 0;
+
+    // When enabling, queue all recipes without nutrition for background extraction
+    if (enabled) {
+      queuedRecipes = await queueRecipesForNutritionExtraction(user.id);
+    }
+
     revalidatePath("/app/settings");
     revalidatePath("/app/plan");
 
-    return { success: true, error: null };
+    return { success: true, error: null, queuedRecipes };
   } catch (error) {
     console.error("Error in toggleNutritionTracking:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to toggle nutrition tracking",
     };
+  }
+}
+
+/**
+ * Queue all user's recipes without nutrition data for background extraction
+ * Called when user enables nutrition tracking
+ */
+async function queueRecipesForNutritionExtraction(userId: string): Promise<number> {
+  try {
+    const supabase = await createClient();
+
+    // Get all user's recipes
+    const { data: recipes, error: recipesError } = await supabase
+      .from("recipes")
+      .select("id")
+      .eq("user_id", userId);
+
+    if (recipesError || !recipes || recipes.length === 0) {
+      return 0;
+    }
+
+    const recipeIds = recipes.map((r) => r.id);
+
+    // Get recipes that already have nutrition data
+    const { data: existingNutrition } = await supabase
+      .from("recipe_nutrition")
+      .select("recipe_id")
+      .in("recipe_id", recipeIds);
+
+    const existingIds = new Set(existingNutrition?.map((n) => n.recipe_id) || []);
+
+    // Filter to recipes without nutrition
+    const recipesToQueue = recipeIds.filter((id) => !existingIds.has(id));
+
+    if (recipesToQueue.length === 0) {
+      return 0;
+    }
+
+    // Insert into queue (upsert to avoid duplicates)
+    const { error: queueError } = await supabase.from("nutrition_extraction_queue").upsert(
+      recipesToQueue.map((recipeId) => ({
+        recipe_id: recipeId,
+        status: "pending",
+        priority: 0,
+        attempts: 0,
+      })),
+      { onConflict: "recipe_id" }
+    );
+
+    if (queueError) {
+      console.error("Error queueing recipes for extraction:", queueError);
+      return 0;
+    }
+
+    console.log(`[Nutrition] Queued ${recipesToQueue.length} recipes for extraction`);
+    return recipesToQueue.length;
+  } catch (error) {
+    console.error("Error in queueRecipesForNutritionExtraction:", error);
+    return 0;
   }
 }
 
