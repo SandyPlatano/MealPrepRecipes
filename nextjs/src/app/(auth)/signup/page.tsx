@@ -46,8 +46,10 @@ export default function SignupPage() {
     if (result?.error) {
       setError(result.error);
       setGoogleLoading(false);
+    } else if (result?.url) {
+      // Redirect to Google OAuth
+      window.location.href = result.url;
     }
-    // If successful, the server action redirects to Google
   }
 
   if (success) {

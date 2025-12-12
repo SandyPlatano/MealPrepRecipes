@@ -29,13 +29,13 @@ export async function getProfile() {
 
 // Update user profile
 export async function updateProfile(firstName: string, lastName: string) {
-  const { user, error: authError } = await getCachedUserWithHousehold();
+  // Use direct auth check instead of getCachedUserWithHousehold since user might not have a household yet
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {
     return { error: "Not authenticated" };
   }
-
-  const supabase = await createClient();
 
   const { error } = await supabase
     .from("profiles")
@@ -44,7 +44,6 @@ export async function updateProfile(firstName: string, lastName: string) {
       last_name: lastName,
       // Keep name field updated for backwards compatibility
       name: `${firstName} ${lastName}`.trim(),
-      updated_at: new Date().toISOString()
     })
     .eq("id", user.id);
 
@@ -121,13 +120,13 @@ export async function updateSettings(settings: {
   calendar_event_duration_minutes?: number | null;
   calendar_excluded_days?: string[] | null;
 }) {
-  const { user, error: authError } = await getCachedUserWithHousehold();
+  // Use direct auth check instead of getCachedUserWithHousehold since user might not have a household yet
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {
     return { error: "Not authenticated" };
   }
-
-  const supabase = await createClient();
 
   // Upsert settings
   const { error } = await supabase.from("user_settings").upsert(

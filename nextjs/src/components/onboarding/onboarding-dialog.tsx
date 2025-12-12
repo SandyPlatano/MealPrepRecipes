@@ -17,11 +17,23 @@ import { ChefHat, Plus, Users, ArrowRight, Check } from "lucide-react";
 import { updateProfile, updateSettings } from "@/app/actions/settings";
 import { toast } from "sonner";
 
+// Default colors for cooks
+const defaultColors = [
+  "#3b82f6", // blue
+  "#a855f7", // purple
+  "#10b981", // green
+  "#f59e0b", // amber
+  "#ec4899", // pink
+  "#14b8a6", // teal
+  "#f97316", // orange
+];
+
 interface OnboardingDialogProps {
   open: boolean;
   onComplete: () => void;
   currentName?: string;
   currentCookNames?: string[];
+  currentCookColors?: Record<string, string>;
 }
 
 export function OnboardingDialog({
@@ -29,12 +41,14 @@ export function OnboardingDialog({
   onComplete,
   currentName = "",
   currentCookNames = [],
+  currentCookColors = {},
 }: OnboardingDialogProps) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [firstName, setFirstName] = useState(currentName.split(" ")[0] || "");
   const [lastName, setLastName] = useState(currentName.split(" ")[1] || "");
   const [cookNames, setCookNames] = useState<string[]>(currentCookNames.length > 0 ? currentCookNames : ["Me", ""]);
+  const [cookColors, setCookColors] = useState<Record<string, string>>(currentCookColors);
   const [saving, setSaving] = useState(false);
 
   const progress = (step / 3) * 100;
@@ -50,9 +64,26 @@ export function OnboardingDialog({
   };
 
   const updateCook = (index: number, value: string) => {
+    const oldName = cookNames[index];
     const newNames = [...cookNames];
     newNames[index] = value;
     setCookNames(newNames);
+
+    // Transfer color from old name to new name
+    if (oldName && oldName !== value && cookColors[oldName]) {
+      const newColors = { ...cookColors };
+      newColors[value] = newColors[oldName];
+      delete newColors[oldName];
+      setCookColors(newColors);
+    }
+  };
+
+  const updateCookColor = (cookName: string, color: string) => {
+    setCookColors({ ...cookColors, [cookName]: color });
+  };
+
+  const getCookColor = (cookName: string, index: number) => {
+    return cookColors[cookName] || defaultColors[index % defaultColors.length];
   };
 
   const handleNext = () => {
@@ -64,34 +95,47 @@ export function OnboardingDialog({
   const handleComplete = async () => {
     setSaving(true);
 
-    // Save profile
-    if (firstName.trim()) {
-      const profileResult = await updateProfile(firstName.trim(), lastName.trim());
-      if (profileResult.error) {
-        toast.error("Failed to save profile");
-        setSaving(false);
-        return;
+    try {
+      // Save profile
+      if (firstName.trim()) {
+        const profileResult = await updateProfile(firstName.trim(), lastName.trim());
+        if (profileResult.error) {
+          console.error("Profile save error:", profileResult.error);
+          toast.error(`Failed to save profile: ${profileResult.error}`);
+          setSaving(false);
+          return;
+        }
       }
-    }
 
-    // Save cook names
-    const filteredCookNames = cookNames.filter((n) => n.trim());
-    if (filteredCookNames.length > 0) {
-      const settingsResult = await updateSettings({
-        dark_mode: false,
-        cook_names: filteredCookNames,
-        email_notifications: true,
-      });
-      if (settingsResult.error) {
-        toast.error("Failed to save settings");
-        setSaving(false);
-        return;
+      // Save cook names and colors
+      const filteredCookNames = cookNames.filter((n) => n.trim());
+      if (filteredCookNames.length > 0) {
+        // Build cook colors object with defaults for cooks without explicit colors
+        const finalCookColors: Record<string, string> = {};
+        filteredCookNames.forEach((name, index) => {
+          finalCookColors[name] = cookColors[name] || defaultColors[index % defaultColors.length];
+        });
+
+        const settingsResult = await updateSettings({
+          cook_names: filteredCookNames,
+          cook_colors: finalCookColors,
+        });
+        if (settingsResult.error) {
+          console.error("Settings save error:", settingsResult.error);
+          toast.error(`Failed to save settings: ${settingsResult.error}`);
+          setSaving(false);
+          return;
+        }
       }
-    }
 
-    setSaving(false);
-    onComplete();
-    router.push("/app/recipes/new");
+      setSaving(false);
+      onComplete();
+      router.push("/app/recipes/new");
+    } catch (error) {
+      console.error("Onboarding error:", error);
+      toast.error("An unexpected error occurred");
+      setSaving(false);
+    }
   };
 
   return (
@@ -172,12 +216,33 @@ export function OnboardingDialog({
 
             <div className="space-y-3">
               {cookNames.map((cook, index) => (
-                <div key={index} className="flex gap-2">
+                <div key={index} className="flex gap-2 items-center">
+                  <div className="relative overflow-hidden rounded-md shadow-sm ring-1 ring-gray-200 dark:ring-gray-800 hover:ring-gray-300 dark:hover:ring-gray-700 transition-all h-10 w-12 flex-shrink-0">
+                    <input
+                      type="color"
+                      value={getCookColor(cook, index)}
+                      onChange={(e) => updateCookColor(cook || `cook-${index}`, e.target.value)}
+                      className="h-full w-full cursor-pointer"
+                      style={{
+                        border: 'none',
+                        outline: 'none',
+                        padding: 0,
+                        margin: 0,
+                        width: '100%',
+                        height: '100%',
+                        WebkitAppearance: 'none',
+                        MozAppearance: 'none',
+                        appearance: 'none',
+                      }}
+                      title="Choose color"
+                    />
+                  </div>
                   <Input
                     value={cook}
                     onChange={(e) => updateCook(index, e.target.value)}
                     placeholder={index === 0 ? "Your name" : "Partner's name"}
                     maxLength={50}
+                    className="flex-1"
                   />
                   {cookNames.length > 1 && (
                     <Button

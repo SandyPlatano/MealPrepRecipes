@@ -7,9 +7,10 @@ interface OnboardingWrapperProps {
   shouldShow: boolean;
   currentName?: string;
   currentCookNames?: string[];
+  currentCookColors?: Record<string, string>;
 }
 
-export function OnboardingWrapper({ shouldShow, currentName, currentCookNames }: OnboardingWrapperProps) {
+export function OnboardingWrapper({ shouldShow, currentName, currentCookNames, currentCookColors }: OnboardingWrapperProps) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -30,6 +31,7 @@ export function OnboardingWrapper({ shouldShow, currentName, currentCookNames }:
       onComplete={handleComplete}
       currentName={currentName}
       currentCookNames={currentCookNames}
+      currentCookColors={currentCookColors}
     />
   );
 }

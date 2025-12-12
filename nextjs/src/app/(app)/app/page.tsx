@@ -40,10 +40,11 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <OnboardingWrapper 
+      <OnboardingWrapper
         shouldShow={needsOnboarding}
         currentName={profile?.first_name && profile?.last_name ? `${profile.first_name} ${profile.last_name}` : profile?.name || ""}
         currentCookNames={settings?.cook_names || []}
+        currentCookColors={settings?.cook_colors || {}}
       />
       
       <div className="space-y-8">
