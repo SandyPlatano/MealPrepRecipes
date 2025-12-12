@@ -1,8 +1,12 @@
 {
   "mcpServers": {
-    "cursor-ide-browser": {
+    "browsermcp": {
       "command": "npx",
       "args": ["-y", "@browsermcp/mcp@latest"]
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": ["-y", "@hisma/server-puppeteer@latest"]
     }
   }
 }

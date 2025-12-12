@@ -13,6 +13,7 @@ import {
   getMacroGoals,
   isNutritionTrackingEnabled,
 } from "@/app/actions/nutrition";
+import type { RecipeNutrition } from "@/types/nutrition";
 import { MealPlannerGrid } from "@/components/meal-plan/meal-planner-grid";
 import { PlanScrollRestorer } from "@/components/meal-plan/plan-scroll-restorer";
 import { getWeekStart } from "@/types/meal-plan";
@@ -102,16 +103,19 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
 
     // Fetch nutrition data for all recipes in parallel
     const [nutritionResult, dashboardResult, goalsResult] = await Promise.all([
-      uniqueRecipeIds.length > 0 ? getBulkRecipeNutrition(uniqueRecipeIds) : { data: null },
+      uniqueRecipeIds.length > 0 ? getBulkRecipeNutrition(uniqueRecipeIds) : Promise.resolve({ data: {} as Record<string, RecipeNutrition>, error: null }),
       getWeeklyNutritionDashboard(weekStartStr),
       getMacroGoals(),
     ]);
 
     // Create nutrition lookup map from the Record
-    if (nutritionResult.data) {
+    if (nutritionResult.data && Object.keys(nutritionResult.data).length > 0) {
       nutritionData = new Map(
         Object.entries(nutritionResult.data).map(([recipeId, nutrition]) => [recipeId, nutrition])
       );
+    } else {
+      // Create empty Map when nutrition is enabled but no data exists
+      nutritionData = new Map();
     }
 
     weeklyNutritionDashboard = dashboardResult.data;

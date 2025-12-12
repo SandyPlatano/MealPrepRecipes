@@ -135,9 +135,9 @@ export function PlannerHeader({
   const quotaExhausted = subscriptionTier === 'pro' && aiQuotaRemaining !== null && aiQuotaRemaining <= 0;
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b">
+    <div className="flex flex-col gap-3 pb-4 border-b">
       {/* Week Navigation - Full width on mobile */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 w-full">
         <Button
           variant="outline"
           size="icon"
@@ -177,24 +177,24 @@ export function PlannerHeader({
         </Button>
 
         {!isCurrentWeek && (
-          <Button variant="ghost" size="sm" onClick={goToCurrentWeek} className="hidden sm:inline-flex">
+          <Button variant="ghost" size="sm" onClick={goToCurrentWeek} className="hidden sm:inline-flex h-10">
             This Week
           </Button>
         )}
       </div>
 
-      {/* Actions - Full width on mobile */}
-      <div className="flex items-center gap-2">
+      {/* Actions - Full width on mobile, wrap on small screens */}
+      <div className="flex items-center gap-2 flex-wrap w-full">
         {/* AI Suggest Button */}
         <Button
           variant="outline"
           size="sm"
           onClick={handleAISuggest}
           disabled={quotaExhausted}
-          className="flex-1 sm:flex-none gap-2 h-10 border-coral-500 hover:bg-coral-50 dark:hover:bg-coral-950/20"
+          className="flex-[1_1_auto] sm:flex-none min-w-[80px] gap-2 h-10 border-coral-500 hover:bg-coral-50 dark:hover:bg-coral-950/20"
         >
-          <Sparkles className="h-4 w-4 text-coral-500" />
-          <span className="hidden md:inline">
+          <Sparkles className="h-4 w-4 text-coral-500 flex-shrink-0" />
+          <span className="hidden md:inline truncate">
             {canUseAI
               ? quotaExhausted
                 ? 'Quota Used'
@@ -212,9 +212,9 @@ export function PlannerHeader({
         {/* Actions Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="flex-1 sm:flex-none sm:min-w-[100px] h-10">
-              <MoreHorizontal className="h-4 w-4 mr-2" />
-              Actions
+            <Button variant="outline" size="sm" className="flex-[1_1_auto] sm:flex-none sm:min-w-[100px] min-w-[80px] h-10">
+              <MoreHorizontal className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span className="truncate">Actions</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
@@ -259,15 +259,15 @@ export function PlannerHeader({
           }}
           disabled={!hasMeals}
           size="sm"
-          className="flex-1 sm:flex-none gap-2 sm:min-w-[120px] h-10"
+          className="flex-[1_1_auto] sm:flex-none gap-2 sm:min-w-[120px] min-w-[100px] h-10"
         >
-          <CheckCircle2 className="h-4 w-4" />
-          <span className="hidden sm:inline">Finalize Plan</span>
-          <span className="sm:hidden">Finalize</span>
+          <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+          <span className="hidden sm:inline truncate">Finalize Plan</span>
+          <span className="sm:hidden truncate">Finalize</span>
         </Button>
 
         {!isCurrentWeek && (
-          <Button variant="ghost" size="sm" onClick={goToCurrentWeek} className="sm:hidden h-10">
+          <Button variant="ghost" size="sm" onClick={goToCurrentWeek} className="sm:hidden h-10 flex-shrink-0 min-w-[60px]">
             Today
           </Button>
         )}
