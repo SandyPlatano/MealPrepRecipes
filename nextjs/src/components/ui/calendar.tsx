@@ -27,18 +27,18 @@ function Calendar({
         "--rdp-day_button-height": "3rem",
       } as React.CSSProperties}
       classNames={{
-        months: "flex flex-col sm:flex-row gap-4",
+        months: "flex flex-col sm:flex-row gap-4 relative",
         month: "space-y-4",
-        month_caption: "flex justify-center relative items-center h-12 w-full px-8",
+        month_caption: "flex justify-center items-center h-12 w-full",
         caption_label: "text-sm font-medium",
-        nav: "flex items-center gap-1",
+        nav: "absolute top-0 left-0 right-0 h-12 flex items-center justify-between px-2 z-10",
         button_previous: cn(
           buttonVariants({ variant: "outline" }),
-          "h-8 w-8 bg-transparent p-0 hover:bg-transparent absolute left-0 top-1/2 -translate-y-1/2 text-coral-500 hover:text-coral-600 border-coral-500/30 hover:border-coral-500/50"
+          "h-8 w-8 bg-background p-0 hover:bg-coral-50 dark:hover:bg-coral-950/30 text-coral-500 hover:text-coral-600 border-coral-500/50 hover:border-coral-500"
         ),
         button_next: cn(
           buttonVariants({ variant: "outline" }),
-          "h-8 w-8 bg-transparent p-0 hover:bg-transparent absolute right-0 top-1/2 -translate-y-1/2 text-coral-500 hover:text-coral-600 border-coral-500/30 hover:border-coral-500/50"
+          "h-8 w-8 bg-background p-0 hover:bg-coral-50 dark:hover:bg-coral-950/30 text-coral-500 hover:text-coral-600 border-coral-500/50 hover:border-coral-500"
         ),
         month_grid: "w-full border-collapse mt-4",
         weekdays: "",

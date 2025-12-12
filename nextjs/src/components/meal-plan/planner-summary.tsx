@@ -119,9 +119,6 @@ function DayProgressCircles({ daysWithMeals }: DayProgressCirclesProps) {
                   )}
                 >
                   {DAY_LETTERS[day]}
-                  {hasPlanned && (
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-green-500" />
-                  )}
                 </div>
               </TooltipTrigger>
               <TooltipContent>
