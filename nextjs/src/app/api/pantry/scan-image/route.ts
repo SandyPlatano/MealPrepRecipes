@@ -256,7 +256,7 @@ If no items can be identified with sufficient confidence, return an empty array:
           suggestedRecipes = recipes
             .map(recipe => {
               const recipeIngredients = recipe.ingredients || [];
-              const matchingIngredients = recipeIngredients.filter((ing: any) =>
+              const matchingIngredients = recipeIngredients.filter((ing: { name?: string }) =>
                 ingredientNames.some(pantryIng =>
                   ing.name?.toLowerCase().includes(pantryIng.toLowerCase()) ||
                   pantryIng.toLowerCase().includes(ing.name?.toLowerCase())

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Check, X, Edit2, Plus, Loader2, ShoppingCart, ChefHat, TrendingUp } from 'lucide-react';
+import { useState } from 'react';
+import { Check, X, Edit2, Plus, Loader2, ShoppingCart, ChefHat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -9,14 +9,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
@@ -185,7 +183,7 @@ export default function ScanReview({
           <CardTitle>Review Detected Items</CardTitle>
           <CardDescription>
             We found {items.length} items in your {scanId ? 'scan' : 'image'}.
-            Review and confirm what you'd like to add to your pantry.
+            Review and confirm what you&apos;d like to add to your pantry.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -321,11 +319,14 @@ export default function ScanReview({
                   onClick={() => window.location.href = `/recipes/${recipe.id}`}
                 >
                   {recipe.image_url && (
-                    <img
-                      src={recipe.image_url}
-                      alt={recipe.title}
-                      className="w-16 h-16 rounded-md object-cover"
-                    />
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={recipe.image_url}
+                        alt={recipe.title}
+                        className="w-16 h-16 rounded-md object-cover"
+                      />
+                    </>
                   )}
                   <div className="flex-1">
                     <div className="font-medium">{recipe.title}</div>
@@ -379,7 +380,7 @@ export default function ScanReview({
           <DialogHeader>
             <DialogTitle>Add Item Manually</DialogTitle>
             <DialogDescription>
-              Add an item that wasn't detected in the scan
+              Add an item that wasn&apos;t detected in the scan
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">

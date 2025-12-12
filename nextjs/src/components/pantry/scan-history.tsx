@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Image, Trash2, RefreshCw, Package, AlertCircle } from 'lucide-react';
+import { Image, Trash2, RefreshCw, Package, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -183,11 +183,14 @@ export default function ScanHistory({ onReuseScan, maxItems = 10 }: ScanHistoryP
                   {/* Thumbnail */}
                   <div className="relative w-16 h-16 rounded-md overflow-hidden bg-muted flex items-center justify-center">
                     {scan.image_url ? (
-                      <img
-                        src={scan.image_url}
-                        alt={`${scan.scan_type} scan`}
-                        className="w-full h-full object-cover"
-                      />
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+                        <img
+                          src={scan.image_url}
+                          alt={`${scan.scan_type} scan`}
+                          className="w-full h-full object-cover"
+                        />
+                      </>
                     ) : (
                       <Image className="h-6 w-6 text-muted-foreground" />
                     )}

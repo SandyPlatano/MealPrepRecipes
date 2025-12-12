@@ -68,8 +68,8 @@ export function EnhancedPantryView({
   const [showScanReview, setShowScanReview] = useState(false);
   const [scanData, setScanData] = useState<{
     scanId: string;
-    detectedItems: any[];
-    suggestedRecipes: any[];
+    detectedItems: unknown[];
+    suggestedRecipes: unknown[];
   } | null>(null);
 
   // Group items by category for display
@@ -124,7 +124,7 @@ export function EnhancedPantryView({
     }
   };
 
-  const handleScanComplete = (scanId: string, detectedItems: any[], suggestedRecipes: any[]) => {
+  const handleScanComplete = (scanId: string, detectedItems: unknown[], suggestedRecipes: unknown[]) => {
     setScanData({ scanId, detectedItems, suggestedRecipes });
     setShowScanReview(true);
     setActiveTab('items'); // Switch back to items tab to show review

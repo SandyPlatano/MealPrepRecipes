@@ -9,8 +9,8 @@ export interface PantryScan {
   user_id: string;
   image_url: string;
   scan_type: 'fridge' | 'pantry' | 'other';
-  detected_items: any[];
-  confirmed_items: any[];
+  detected_items: unknown[];
+  confirmed_items: unknown[];
   processing_status: 'pending' | 'processing' | 'completed' | 'failed';
   error_message: string | null;
   created_at: string;
@@ -302,9 +302,9 @@ export async function getSuggestedRecipesFromPantry(limit = 5) {
     .map(recipe => {
       const recipeIngredients = recipe.ingredients || [];
       let matchingIngredients = 0;
-      let totalIngredients = recipeIngredients.length;
+      const totalIngredients = recipeIngredients.length;
 
-      recipeIngredients.forEach((ing: any) => {
+      recipeIngredients.forEach((ing: { name?: string }) => {
         const ingName = (ing.name || '').toLowerCase();
         if (ingredientNames.some(pantryIng =>
           ingName.includes(pantryIng) || pantryIng.includes(ingName)

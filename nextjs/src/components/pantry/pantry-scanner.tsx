@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, ChangeEvent } from 'react';
-import { Camera, Upload, Loader2, AlertCircle, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { Camera, Loader2, AlertCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { getPantryScanQuota } from '@/app/actions/pantry-scan';
 
 interface PantryScannerProps {
-  onScanComplete: (scanId: string, detectedItems: any[], suggestedRecipes: any[]) => void;
+  onScanComplete: (scanId: string, detectedItems: unknown[], suggestedRecipes: unknown[]) => void;
   subscriptionTier?: 'free' | 'pro' | 'premium';
 }
 
@@ -231,11 +231,14 @@ export default function PantryScanner({ onScanComplete, subscriptionTier = 'free
               {/* Image Preview */}
               <div className="relative rounded-lg overflow-hidden bg-muted">
                 {previewUrl && (
-                  <img
-                    src={previewUrl}
-                    alt="Selected image"
-                    className="w-full h-64 object-cover"
-                  />
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={previewUrl}
+                      alt="Selected image"
+                      className="w-full h-64 object-cover"
+                    />
+                  </>
                 )}
                 <Button
                   size="sm"
