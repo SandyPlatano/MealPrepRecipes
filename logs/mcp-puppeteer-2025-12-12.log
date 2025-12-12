@@ -38,3 +38,15 @@
 {"error":"Attempted to use detached Frame '2A52C98DEF13D71955931342562EBE23'.","level":"error","message":"Navigation failed","service":"mcp-puppeteer","timestamp":"2025-12-12 11:22:48.697","url":"http://localhost:3001/app/shop"}
 {"arguments":{},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-12 11:22:54.512","tool":"puppeteer_connect_active_tab"}
 {"arguments":{"debugPort":9222},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-12 11:26:21.480","tool":"puppeteer_connect_active_tab"}
+{"arguments":{"url":"http://localhost:3001/app/shop"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-12 11:26:58.295","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-12 11:26:58.295","url":"http://localhost:3001/app/shop"}
+{"error":"Attempted to use detached Frame '2A52C98DEF13D71955931342562EBE23'.","level":"error","message":"Navigation failed","service":"mcp-puppeteer","timestamp":"2025-12-12 11:26:58.295","url":"http://localhost:3001/app/shop"}
+{"level":"info","message":"Puppeteer MCP Server closing","service":"mcp-puppeteer","timestamp":"2025-12-12 11:27:31.512"}
+{"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-12 11:28:00.921"}
+{"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-12 11:28:00.922"}
+{"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-12 11:28:01.355"}
+{"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-12 11:28:01.357"}
+{"arguments":{"debugPort":9222,"targetUrl":"http://localhost:3001"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-12 11:28:39.291","tool":"puppeteer_connect_active_tab"}
+{"0":"n","1":"p","2":"x","level":"info","message":"Launching browser with config:","service":"mcp-puppeteer","timestamp":"2025-12-12 11:28:39.291"}
+{"level":"info","message":"Browser launched successfully","service":"mcp-puppeteer","timestamp":"2025-12-12 11:28:40.691"}
+{"level":"info","message":"Puppeteer MCP Server closing","service":"mcp-puppeteer","timestamp":"2025-12-12 11:28:58.651"}
