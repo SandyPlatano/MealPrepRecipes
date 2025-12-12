@@ -28,3 +28,12 @@
 {"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-12 11:00:07.387"}
 {"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-12 11:00:34.488"}
 {"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-12 11:00:34.489"}
+{"arguments":{"url":"http://localhost:3000/app/shop"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-12 11:22:27.479","tool":"puppeteer_navigate"}
+{"0":"n","1":"p","2":"x","level":"info","message":"Launching browser with config:","service":"mcp-puppeteer","timestamp":"2025-12-12 11:22:27.480"}
+{"level":"info","message":"Browser launched successfully","service":"mcp-puppeteer","timestamp":"2025-12-12 11:22:28.970"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-12 11:22:28.971","url":"http://localhost:3000/app/shop"}
+{"error":"net::ERR_CONNECTION_REFUSED at http://localhost:3000/app/shop","level":"error","message":"Navigation failed","service":"mcp-puppeteer","timestamp":"2025-12-12 11:22:28.982","url":"http://localhost:3000/app/shop"}
+{"arguments":{"url":"http://localhost:3001/app/shop"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-12 11:22:48.696","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-12 11:22:48.696","url":"http://localhost:3001/app/shop"}
+{"error":"Attempted to use detached Frame '2A52C98DEF13D71955931342562EBE23'.","level":"error","message":"Navigation failed","service":"mcp-puppeteer","timestamp":"2025-12-12 11:22:48.697","url":"http://localhost:3001/app/shop"}
+{"arguments":{},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-12 11:22:54.512","tool":"puppeteer_connect_active_tab"}
