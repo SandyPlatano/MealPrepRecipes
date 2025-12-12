@@ -38,6 +38,17 @@ const DAY_LETTERS: Record<DayOfWeek, string> = {
   Sunday: "S",
 };
 
+// Default colors for cooks (fallback when no custom color assigned)
+const DEFAULT_COOK_COLORS = [
+  "#3b82f6", // blue
+  "#a855f7", // purple
+  "#10b981", // green
+  "#f59e0b", // amber
+  "#ec4899", // pink
+  "#06b6d4", // cyan
+  "#f43f5e", // rose
+];
+
 // Sub-component interfaces
 interface CookBreakdown {
   breakdown: Record<string, number>;
@@ -140,6 +151,17 @@ function CookBreakdownChips({
   cookColors,
 }: CookBreakdownChipsProps) {
   const hasCooksAssigned = Object.keys(breakdown.breakdown).length > 0;
+  const cookNames = Object.keys(breakdown.breakdown);
+
+  // Get cook color with fallback to default colors
+  const getCookColor = (cook: string): string => {
+    if (cookColors[cook]) {
+      return cookColors[cook];
+    }
+    // Fallback to default color based on index
+    const index = cookNames.indexOf(cook);
+    return DEFAULT_COOK_COLORS[index % DEFAULT_COOK_COLORS.length];
+  };
 
   if (!hasCooksAssigned) {
     return (
@@ -152,30 +174,34 @@ function CookBreakdownChips({
 
   return (
     <div className="flex flex-wrap gap-2">
-      {Object.entries(breakdown.breakdown).map(([cook, count]) => (
-        <div
-          key={cook}
-          className={cn(
-            "inline-flex items-center gap-2 px-3 py-1.5 rounded-full",
-            "bg-secondary text-secondary-foreground text-sm font-medium",
-            "transition-all hover:shadow-sm"
-          )}
-        >
-          {cookColors[cook] && (
+      {Object.entries(breakdown.breakdown).map(([cook, count]) => {
+        const cookColor = getCookColor(cook);
+        return (
+          <div
+            key={cook}
+            className={cn(
+              "inline-flex items-center gap-2 px-3 py-1.5 rounded-md",
+              "bg-secondary text-secondary-foreground text-sm font-medium",
+              "transition-all hover:shadow-sm border border-input"
+            )}
+            style={{
+              borderLeft: `3px solid ${cookColor}`,
+            }}
+          >
             <span
-              className="w-3 h-3 rounded-full ring-2 ring-white shadow-sm flex-shrink-0"
-              style={{ backgroundColor: cookColors[cook] }}
+              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+              style={{ backgroundColor: cookColor }}
             />
-          )}
-          <span className="truncate max-w-[100px]">{cook}</span>
-          <Badge variant="outline" className="h-5 px-1.5 text-xs font-mono">
-            {count}
-          </Badge>
-        </div>
-      ))}
+            <span className="truncate max-w-[100px]">{cook}</span>
+            <Badge variant="outline" className="h-5 px-1.5 text-xs font-mono">
+              {count}
+            </Badge>
+          </div>
+        );
+      })}
       {breakdown.unassigned > 0 && (
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted text-muted-foreground text-sm">
-          <span className="w-3 h-3 rounded-full bg-muted-foreground/30 flex-shrink-0" />
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-muted text-muted-foreground text-sm border border-input">
+          <span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/40 flex-shrink-0" />
           <span>Unassigned</span>
           <Badge variant="outline" className="h-5 px-1.5 text-xs font-mono">
             {breakdown.unassigned}
@@ -293,30 +319,20 @@ function NutritionSummarySection({
             progress={dashboard.overall_progress.protein}
             unit="g"
           />
-        </div>
-
-        {/* Days on target indicator */}
-        <div className="flex items-center justify-between pt-2 border-t">
-          <span className="text-sm text-muted-foreground">Days on Target</span>
-          <div className="flex items-center gap-2">
-            <div className="flex gap-0.5">
-              {Array.from({ length: 7 }).map((_, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "w-2 h-4 rounded-sm transition-colors",
-                    i < dashboard.days_on_target ? "bg-green-500" : "bg-muted"
-                  )}
-                />
-              ))}
-            </div>
-            <Badge
-              variant={dashboard.days_on_target >= 5 ? "default" : "secondary"}
-              className="font-mono"
-            >
-              {dashboard.days_on_target}/7
-            </Badge>
-          </div>
+          <MacroProgressCompact
+            label="Avg Carbs"
+            actual={dashboard.overall_progress.carbs.actual}
+            target={goals.carbs_g}
+            progress={dashboard.overall_progress.carbs}
+            unit="g"
+          />
+          <MacroProgressCompact
+            label="Avg Fat"
+            actual={dashboard.overall_progress.fat.actual}
+            target={goals.fat_g}
+            progress={dashboard.overall_progress.fat}
+            unit="g"
+          />
         </div>
       </CardContent>
     </Card>

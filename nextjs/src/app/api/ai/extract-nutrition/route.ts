@@ -202,7 +202,15 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     const content = data.content[0].text;
 
-    // 9. PARSE NUTRITION RESPONSE
+    // 9. EXTRACT USAGE AND CALCULATE COST
+    // Claude Sonnet 4.5 pricing: $3 per 1M input tokens, $15 per 1M output tokens
+    const inputTokens = data.usage?.input_tokens || 0;
+    const outputTokens = data.usage?.output_tokens || 0;
+    const costUsd = inputTokens > 0 || outputTokens > 0
+      ? (inputTokens * 3 / 1_000_000) + (outputTokens * 15 / 1_000_000)
+      : null;
+
+    // 10. PARSE NUTRITION RESPONSE
     const nutritionData = parseNutritionResponse(content);
 
     if (!nutritionData) {
@@ -216,10 +224,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 10. VALIDATE NUTRITION RANGES
+    // 11. VALIDATE NUTRITION RANGES
     const warnings = validateNutritionRanges(nutritionData);
 
-    // 11. SAVE TO DATABASE
+    // 12. SAVE TO DATABASE
     const { data: savedNutrition, error: saveError } = await supabase
       .from("recipe_nutrition")
       .upsert(
@@ -234,6 +242,9 @@ export async function POST(request: NextRequest) {
           sodium_mg: nutritionData.sodium_mg,
           source: "ai_extracted" as const,
           confidence_score: nutritionData.confidence_score,
+          input_tokens: inputTokens > 0 ? inputTokens : null,
+          output_tokens: outputTokens > 0 ? outputTokens : null,
+          cost_usd: costUsd,
           updated_at: new Date().toISOString(),
         },
         {
@@ -255,7 +266,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 12. RETURN SUCCESS RESPONSE
+    // 13. RETURN SUCCESS RESPONSE
     return NextResponse.json({
       success: true,
       nutrition: savedNutrition,
@@ -266,6 +277,11 @@ export async function POST(request: NextRequest) {
           : nutritionData.confidence_score >= 0.4
           ? "medium"
           : "low",
+      cost: costUsd ? {
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        cost_usd: costUsd,
+      } : undefined,
     });
   } catch (error) {
     console.error("Error extracting nutrition:", error);

@@ -386,26 +386,6 @@ export function RecipeDetail({
             </Alert>
           )}
 
-          {/* Allergen warnings - All allergens */}
-          {allergens.length > 0 && (
-            <Alert className="mb-4">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                  <div className="flex flex-wrap gap-2 items-center">
-                    <span className="text-sm font-medium">Contains:</span>
-                    {allergens.map((allergen) => (
-                      <Badge
-                        key={allergen}
-                        variant="warning"
-                      >
-                        {getAllergenDisplayName(allergen)}
-                      </Badge>
-                    ))}
-                </div>
-              </AlertDescription>
-            </Alert>
-          )}
-
           {/* Tags */}
           {recipe.tags.length > 0 && (
             <div className="flex flex-wrap gap-2">

@@ -30,6 +30,9 @@ export interface RecipeNutrition extends NutritionData {
   recipe_id: string;
   source: NutritionSource;
   confidence_score?: number | null; // 0.00 to 1.00
+  input_tokens?: number | null; // API usage tracking
+  output_tokens?: number | null; // API usage tracking
+  cost_usd?: number | null; // Cost in USD for AI extraction
   created_at: string;
   updated_at: string;
 }

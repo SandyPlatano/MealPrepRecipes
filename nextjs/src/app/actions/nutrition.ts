@@ -700,3 +700,98 @@ export async function isNutritionTrackingEnabled(): Promise<{
     };
   }
 }
+
+/**
+ * Get nutrition extraction cost summary
+ * Returns total cost and cost breakdown by recipe
+ */
+export async function getNutritionExtractionCosts(): Promise<{
+  data: {
+    totalCost: number;
+    totalRecipes: number;
+    averageCostPerRecipe: number;
+    recipes: Array<{
+      recipe_id: string;
+      recipe_title: string;
+      cost_usd: number;
+      input_tokens: number;
+      output_tokens: number;
+      extracted_at: string;
+    }>;
+  } | null;
+  error: string | null;
+}> {
+  try {
+    const { user, error: authError } = await getCachedUserWithHousehold();
+    if (!user) {
+      return { data: null, error: "Not authenticated" };
+    }
+
+    const supabase = await createClient();
+
+    // Get all nutrition extractions with costs for user's recipes
+    const { data, error } = await supabase
+      .from("recipe_nutrition")
+      .select(`
+        recipe_id,
+        cost_usd,
+        input_tokens,
+        output_tokens,
+        created_at,
+        recipes!inner (
+          id,
+          title,
+          user_id
+        )
+      `)
+      .eq("recipes.user_id", user.id)
+      .not("cost_usd", "is", null)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching nutrition costs:", error);
+      return { data: null, error: error.message };
+    }
+
+    if (!data || data.length === 0) {
+      return {
+        data: {
+          totalCost: 0,
+          totalRecipes: 0,
+          averageCostPerRecipe: 0,
+          recipes: [],
+        },
+        error: null,
+      };
+    }
+
+    const recipes = data.map((item) => ({
+      recipe_id: item.recipe_id,
+      recipe_title: (item.recipes as any)?.title || "Unknown Recipe",
+      cost_usd: Number(item.cost_usd),
+      input_tokens: item.input_tokens || 0,
+      output_tokens: item.output_tokens || 0,
+      extracted_at: item.created_at,
+    }));
+
+    const totalCost = recipes.reduce((sum, r) => sum + r.cost_usd, 0);
+    const totalRecipes = recipes.length;
+    const averageCostPerRecipe = totalRecipes > 0 ? totalCost / totalRecipes : 0;
+
+    return {
+      data: {
+        totalCost,
+        totalRecipes,
+        averageCostPerRecipe,
+        recipes,
+      },
+      error: null,
+    };
+  } catch (error) {
+    console.error("Error in getNutritionExtractionCosts:", error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to fetch costs",
+    };
+  }
+}
