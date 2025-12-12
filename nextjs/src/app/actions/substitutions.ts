@@ -12,9 +12,10 @@ export interface UserSubstitutionFormData {
 
 // Create a user substitution
 export async function createUserSubstitution(formData: UserSubstitutionFormData) {
-  const { user, error: authError } = await getCachedUserWithHousehold();
+  const { user } = await getCachedUserWithHousehold();
 
-  if (authError || !user) {
+  // Only check if user exists - error might be from household/subscription lookup, not auth
+  if (!user) {
     return { error: "Not authenticated", data: null };
   }
 
@@ -44,9 +45,10 @@ export async function updateUserSubstitution(
   id: string,
   formData: Partial<UserSubstitutionFormData>
 ) {
-  const { user, error: authError } = await getCachedUserWithHousehold();
+  const { user } = await getCachedUserWithHousehold();
 
-  if (authError || !user) {
+  // Only check if user exists - error might be from household/subscription lookup, not auth
+  if (!user) {
     return { error: "Not authenticated", data: null };
   }
 
@@ -78,9 +80,10 @@ export async function updateUserSubstitution(
 
 // Delete a user substitution
 export async function deleteUserSubstitution(id: string) {
-  const { user, error: authError } = await getCachedUserWithHousehold();
+  const { user } = await getCachedUserWithHousehold();
 
-  if (authError || !user) {
+  // Only check if user exists - error might be from household/subscription lookup, not auth
+  if (!user) {
     return { error: "Not authenticated" };
   }
 
