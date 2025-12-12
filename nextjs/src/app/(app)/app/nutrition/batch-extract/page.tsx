@@ -156,7 +156,7 @@ export default function BatchExtractPage() {
 
             <Button
               onClick={handleProcess}
-              disabled={isProcessing || isChecking || (checkResult && checkResult.total === 0)}
+              disabled={isProcessing || isChecking || (checkResult !== null && checkResult.total === 0)}
             >
               {isProcessing ? (
                 <>
