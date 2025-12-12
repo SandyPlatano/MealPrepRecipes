@@ -10,6 +10,7 @@ import Link from "next/link";
 import { ArrowRight, Check, X, Sparkles } from "lucide-react";
 import { FAQ } from "@/components/landing/faq";
 import { PricingCardsClient } from "./pricing-cards-client";
+import { SUBSCRIPTION_TIERS } from "@/lib/stripe/client-config";
 
 export default function PricingPage() {
   return (
@@ -31,135 +32,7 @@ export default function PricingPage() {
       {/* Pricing Cards */}
       <section className="pb-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
-            {/* Free Plan */}
-            <Card className="border-2 relative">
-              <CardHeader className="pb-8">
-                <CardTitle className="text-2xl">Free</CardTitle>
-                <CardDescription>
-                  Everything you need to start meal planning
-                </CardDescription>
-                <div className="pt-6">
-                  <span className="text-5xl font-mono font-bold">$0</span>
-                  <span className="text-muted-foreground ml-2">forever</span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <Link href="/signup" className="block">
-                  <Button className="w-full" size="lg">
-                    Get Started Free
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-                <div className="space-y-4">
-                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                    Includes:
-                  </p>
-                  <ul className="space-y-3">
-                    <li className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>Unlimited recipes</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>AI recipe import from any website</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>Weekly meal planning</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>Auto-generated shopping lists</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>Export as PDF or Markdown</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>Cooking history tracking</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>Share lists via text/email</span>
-                    </li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Pro Plan */}
-            <Card className="border-2 border-primary relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-bl-lg">
-                Coming Soon
-              </div>
-              <CardHeader className="pb-8">
-                <CardTitle className="text-2xl">Pro</CardTitle>
-                <CardDescription>
-                  For households who want to plan together
-                </CardDescription>
-                <div className="pt-6">
-                  <span className="text-5xl font-mono font-bold">$5</span>
-                  <span className="text-muted-foreground ml-2">per month</span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <Button className="w-full" size="lg" disabled>
-                  Coming Soon
-                </Button>
-                <div className="space-y-4">
-                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                    Everything in Free, plus:
-                  </p>
-                  <ul className="space-y-3">
-                    <li className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>
-                        <strong>Household sharing</strong> — Sync recipes and
-                        plans with your partner
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>
-                        <strong>Google Calendar sync</strong> — See meals on
-                        your calendar
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>
-                        <strong>Email shopping lists</strong> — Send directly to
-                        any email
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>
-                        <strong>Recipe scaling</strong> — Adjust servings
-                        automatically
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>
-                        <strong>Meal suggestions</strong> — AI-powered
-                        recommendations
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>
-                        <strong>Priority support</strong> — Get help when you
-                        need it
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <PricingCardsClient />
         </div>
       </section>
 
@@ -175,27 +48,65 @@ export default function PricingPage() {
                 <thead>
                   <tr className="border-b">
                     <th className="text-left py-4 pr-4 font-medium">Feature</th>
-                    <th className="text-center py-4 px-4 font-medium">Free</th>
-                    <th className="text-center py-4 pl-4 font-medium">Pro</th>
+                    <th className="text-center py-4 px-4 font-medium">
+                      {SUBSCRIPTION_TIERS.free.name}
+                    </th>
+                    <th className="text-center py-4 px-4 font-medium">
+                      {SUBSCRIPTION_TIERS.pro.name}
+                    </th>
+                    <th className="text-center py-4 pl-4 font-medium">
+                      {SUBSCRIPTION_TIERS.premium.name}
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
                   <tr>
-                    <td className="py-4 pr-4">Recipes</td>
-                    <td className="text-center py-4 px-4">Unlimited</td>
+                    <td className="py-4 pr-4">AI meal suggestions</td>
+                    <td className="text-center py-4 px-4">
+                      {SUBSCRIPTION_TIERS.free.limits.aiSuggestions}/month
+                    </td>
+                    <td className="text-center py-4 px-4">
+                      {SUBSCRIPTION_TIERS.pro.limits.aiSuggestions}/month
+                    </td>
                     <td className="text-center py-4 pl-4">Unlimited</td>
                   </tr>
                   <tr>
-                    <td className="py-4 pr-4">AI recipe import</td>
+                    <td className="py-4 pr-4">Recipes</td>
                     <td className="text-center py-4 px-4">
-                      <Check className="h-5 w-5 text-green-500 mx-auto" />
+                      Up to {SUBSCRIPTION_TIERS.free.limits.recipes}
+                    </td>
+                    <td className="text-center py-4 px-4">
+                      Up to {SUBSCRIPTION_TIERS.pro.limits.recipes}
+                    </td>
+                    <td className="text-center py-4 pl-4">Unlimited</td>
+                  </tr>
+                  <tr>
+                    <td className="py-4 pr-4">Household members</td>
+                    <td className="text-center py-4 px-4">
+                      {SUBSCRIPTION_TIERS.free.limits.householdMembers}
+                    </td>
+                    <td className="text-center py-4 px-4">
+                      {SUBSCRIPTION_TIERS.pro.limits.householdMembers}
                     </td>
                     <td className="text-center py-4 pl-4">
-                      <Check className="h-5 w-5 text-green-500 mx-auto" />
+                      {SUBSCRIPTION_TIERS.premium.limits.householdMembers}
                     </td>
                   </tr>
                   <tr>
+                    <td className="py-4 pr-4">Pantry scanning</td>
+                    <td className="text-center py-4 px-4">
+                      <X className="h-5 w-5 text-muted-foreground/50 mx-auto" />
+                    </td>
+                    <td className="text-center py-4 px-4">
+                      {SUBSCRIPTION_TIERS.pro.limits.pantryScans}/month
+                    </td>
+                    <td className="text-center py-4 pl-4">Unlimited</td>
+                  </tr>
+                  <tr>
                     <td className="py-4 pr-4">Meal planning</td>
+                    <td className="text-center py-4 px-4">
+                      <Check className="h-5 w-5 text-green-500 mx-auto" />
+                    </td>
                     <td className="text-center py-4 px-4">
                       <Check className="h-5 w-5 text-green-500 mx-auto" />
                     </td>
@@ -208,23 +119,8 @@ export default function PricingPage() {
                     <td className="text-center py-4 px-4">
                       <Check className="h-5 w-5 text-green-500 mx-auto" />
                     </td>
-                    <td className="text-center py-4 pl-4">
-                      <Check className="h-5 w-5 text-green-500 mx-auto" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="py-4 pr-4">Export recipes</td>
                     <td className="text-center py-4 px-4">
                       <Check className="h-5 w-5 text-green-500 mx-auto" />
-                    </td>
-                    <td className="text-center py-4 pl-4">
-                      <Check className="h-5 w-5 text-green-500 mx-auto" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="py-4 pr-4">Household sharing</td>
-                    <td className="text-center py-4 px-4">
-                      <X className="h-5 w-5 text-muted-foreground/50 mx-auto" />
                     </td>
                     <td className="text-center py-4 pl-4">
                       <Check className="h-5 w-5 text-green-500 mx-auto" />
@@ -235,12 +131,18 @@ export default function PricingPage() {
                     <td className="text-center py-4 px-4">
                       <X className="h-5 w-5 text-muted-foreground/50 mx-auto" />
                     </td>
+                    <td className="text-center py-4 px-4">
+                      <Check className="h-5 w-5 text-green-500 mx-auto" />
+                    </td>
                     <td className="text-center py-4 pl-4">
                       <Check className="h-5 w-5 text-green-500 mx-auto" />
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-4 pr-4">Email shopping lists</td>
+                    <td className="py-4 pr-4">Advanced nutrition tracking</td>
+                    <td className="text-center py-4 px-4">
+                      <X className="h-5 w-5 text-muted-foreground/50 mx-auto" />
+                    </td>
                     <td className="text-center py-4 px-4">
                       <X className="h-5 w-5 text-muted-foreground/50 mx-auto" />
                     </td>
@@ -249,16 +151,22 @@ export default function PricingPage() {
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-4 pr-4">Recipe scaling</td>
+                    <td className="py-4 pr-4">Priority support</td>
                     <td className="text-center py-4 px-4">
                       <X className="h-5 w-5 text-muted-foreground/50 mx-auto" />
+                    </td>
+                    <td className="text-center py-4 px-4">
+                      <Check className="h-5 w-5 text-green-500 mx-auto" />
                     </td>
                     <td className="text-center py-4 pl-4">
                       <Check className="h-5 w-5 text-green-500 mx-auto" />
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-4 pr-4">AI meal suggestions</td>
+                    <td className="py-4 pr-4">Early access to new features</td>
+                    <td className="text-center py-4 px-4">
+                      <X className="h-5 w-5 text-muted-foreground/50 mx-auto" />
+                    </td>
                     <td className="text-center py-4 px-4">
                       <X className="h-5 w-5 text-muted-foreground/50 mx-auto" />
                     </td>
@@ -302,4 +210,3 @@ export default function PricingPage() {
     </div>
   );
 }
-

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import Anthropic from '@anthropic-ai/sdk';
-import { checkSubscriptionAccess, getSubscriptionLimits } from '@/lib/subscription-utils';
+import { getUserTier, hasActiveSubscription } from '@/lib/stripe/subscription';
+import { SUBSCRIPTION_TIERS } from '@/lib/stripe/client-config';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
@@ -42,17 +43,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Check subscription access and limits
-    const hasAccess = await checkSubscriptionAccess(user.id, 'pantry_scanning');
-    if (!hasAccess) {
+    const tier = await getUserTier(user.id);
+    if (tier === 'free') {
       return NextResponse.json({
         error: 'Pantry scanning is available for Pro and Premium tiers only'
       }, { status: 403 });
     }
 
-    const limits = await getSubscriptionLimits(user.id);
+    const limits = SUBSCRIPTION_TIERS[tier].limits;
 
     // Check scan quota for Pro tier (Premium has unlimited)
-    if (limits.tier === 'pro') {
+    if (tier === 'pro') {
       // Get user settings to check quota
       const { data: settings } = await supabase
         .from('user_settings')
@@ -74,9 +75,9 @@ export async function POST(request: NextRequest) {
               pantry_scans_reset_at: new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString()
             })
             .eq('user_id', user.id);
-        } else if (settings.pantry_scans_used >= limits.pantryScansPerMonth) {
+        } else if (settings.pantry_scans_used >= limits.pantryScans) {
           return NextResponse.json({
-            error: `Monthly scan limit reached (${limits.pantryScansPerMonth}). Resets on ${resetDate.toLocaleDateString()}`,
+            error: `Monthly scan limit reached (${limits.pantryScans}). Resets on ${resetDate.toLocaleDateString()}`,
             quotaExceeded: true
           }, { status: 429 });
         }
@@ -226,15 +227,17 @@ If no items can be identified with sufficient confidence, return an empty array:
         .eq('id', scan.id);
 
       // Update quota for Pro tier
-      if (limits.tier === 'pro') {
+      if (tier === 'pro') {
+        const { data: currentSettings } = await supabase
+          .from('user_settings')
+          .select('pantry_scans_used')
+          .eq('user_id', user.id)
+          .single();
+
         await supabase
           .from('user_settings')
           .update({
-            pantry_scans_used: (await supabase
-              .from('user_settings')
-              .select('pantry_scans_used')
-              .eq('user_id', user.id)
-              .single()).data?.pantry_scans_used + 1 || 1
+            pantry_scans_used: (currentSettings?.pantry_scans_used || 0) + 1
           })
           .eq('user_id', user.id);
       }
@@ -289,12 +292,12 @@ If no items can be identified with sufficient confidence, return an empty array:
         scan_id: scan.id,
         detected_items: detectedItems,
         suggested_recipes: suggestedRecipes,
-        remaining_scans: limits.tier === 'pro'
-          ? limits.pantryScansPerMonth - ((await supabase
+        remaining_scans: tier === 'pro'
+          ? Math.max(0, limits.pantryScans - ((await supabase
               .from('user_settings')
               .select('pantry_scans_used')
               .eq('user_id', user.id)
-              .single()).data?.pantry_scans_used || 0)
+              .single()).data?.pantry_scans_used || 0))
           : 'unlimited'
       });
 
