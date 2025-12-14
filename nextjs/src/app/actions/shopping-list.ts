@@ -492,7 +492,7 @@ function guessCategory(ingredient: string): string {
 
   // Spices
   if (
-    /salt|pepper|cumin|paprika|oregano|thyme|rosemary|cinnamon|nutmeg|ginger|turmeric|chili|cayenne|spice|seasoning/i.test(
+    /salt|pepper|cumin|paprika|oregano|thyme|rosemary|cinnamon|nutmeg|ginger|turmeric|chili|cayenne|spice|seasoning|fennel|cardamom|coriander|clove|allspice|anise|caraway|dill|mustard seed/i.test(
       lower
     )
   ) {
@@ -508,8 +508,8 @@ function guessCategory(ingredient: string): string {
     return "Condiments";
   }
 
-  // Beverages
-  if (/juice|soda|water|coffee|tea|wine|beer/i.test(lower)) {
+  // Beverages (using word boundaries to prevent "tea" matching "teaspoon")
+  if (/\b(juice|soda|water|coffee|tea|wine|beer)\b/i.test(lower)) {
     return "Beverages";
   }
 
