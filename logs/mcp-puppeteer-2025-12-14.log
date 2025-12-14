@@ -4,3 +4,102 @@
 {"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-14 15:50:02.502"}
 {"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-14 16:16:42.078"}
 {"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-14 16:16:42.080"}
+{"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-14 16:23:33.233"}
+{"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-14 16:23:33.234"}
+{"arguments":{"url":"https://babewfd.com"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:24:43.572","tool":"puppeteer_navigate"}
+{"0":"n","1":"p","2":"x","level":"info","message":"Launching browser with config:","service":"mcp-puppeteer","timestamp":"2025-12-14 16:24:43.573"}
+{"level":"info","message":"Browser launched successfully","service":"mcp-puppeteer","timestamp":"2025-12-14 16:24:44.577"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-14 16:24:44.577","url":"https://babewfd.com"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-14 16:24:46.224","url":"https://babewfd.com"}
+{"arguments":{"height":800,"name":"homepage","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:24:52.071","tool":"puppeteer_screenshot"}
+{"arguments":{"selector":"button:has-text(\"Accept\")"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:24:59.668","tool":"puppeteer_click"}
+{"arguments":{"script":"document.querySelector('button').textContent.includes('Accept') ? document.querySelectorAll('button').forEach(b => { if(b.textContent.includes('Accept')) b.click() }) : null"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:25:05.497","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":173,"service":"mcp-puppeteer","timestamp":"2025-12-14 16:25:05.498"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-14 16:25:05.499"}
+{"arguments":{"script":"window.scrollBy(0, 500); 'scrolled';"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:25:32.593","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":36,"service":"mcp-puppeteer","timestamp":"2025-12-14 16:25:32.593"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-14 16:25:32.595"}
+{"arguments":{"height":800,"name":"homepage-scrolled","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:25:36.184","tool":"puppeteer_screenshot"}
+{"arguments":{"selector":"button[class*=\"Accept\"], button:nth-of-type(2)"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:25:42.387","tool":"puppeteer_click"}
+{"arguments":{"script":"\n// Check for any errors in the window\nconst errors = [];\nwindow.onerror = function(msg, url, line) {\n  errors.push({msg, url, line});\n};\n// Check if there are any visible error messages\nconst errorElements = document.querySelectorAll('[class*=\"error\"], [class*=\"Error\"]');\nconst errorTexts = Array.from(errorElements).map(el => el.textContent).filter(t => t);\nJSON.stringify({errorTexts, pageTitle: document.title, url: window.location.href});\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:25:58.091","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":445,"service":"mcp-puppeteer","timestamp":"2025-12-14 16:25:58.091"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-14 16:25:58.092"}
+{"arguments":{"height":800,"name":"homepage-after-cookies","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:26:03.577","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 1000); 'scrolled';"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:26:13.307","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":37,"service":"mcp-puppeteer","timestamp":"2025-12-14 16:26:13.307"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-14 16:26:13.308"}
+{"arguments":{"height":800,"name":"homepage-scroll-2","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:26:18.860","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 1800); 'scrolled';"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:26:33.550","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":37,"service":"mcp-puppeteer","timestamp":"2025-12-14 16:26:33.550"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-14 16:26:33.550"}
+{"arguments":{"height":800,"name":"homepage-scroll-3","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:26:39.368","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 2600); 'scrolled';"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:26:47.225","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":37,"service":"mcp-puppeteer","timestamp":"2025-12-14 16:26:47.225"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-14 16:26:47.226"}
+{"arguments":{"height":800,"name":"homepage-scroll-4","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:26:52.285","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 3400); 'scrolled';"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:27:08.086","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":37,"service":"mcp-puppeteer","timestamp":"2025-12-14 16:27:08.087"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-14 16:27:08.088"}
+{"arguments":{"height":800,"name":"homepage-scroll-5","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:27:13.316","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, document.body.scrollHeight); 'scrolled to bottom';"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:27:26.971","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":69,"service":"mcp-puppeteer","timestamp":"2025-12-14 16:27:26.971"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-14 16:27:26.973"}
+{"arguments":{"height":800,"name":"homepage-footer","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:27:35.621","tool":"puppeteer_screenshot"}
+{"arguments":{"url":"https://babewfd.com/signup"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:27:54.055","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-14 16:27:54.055","url":"https://babewfd.com/signup"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-14 16:27:55.522","url":"https://babewfd.com/signup"}
+{"arguments":{"height":800,"name":"signup-page","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:28:00.941","tool":"puppeteer_screenshot"}
+{"arguments":{"url":"https://babewfd.com/login"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:28:09.761","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-14 16:28:09.761","url":"https://babewfd.com/login"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-14 16:28:10.994","url":"https://babewfd.com/login"}
+{"arguments":{"height":800,"name":"login-page","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:28:17.463","tool":"puppeteer_screenshot"}
+{"arguments":{"url":"https://babewfd.com/pricing"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:28:27.187","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-14 16:28:27.188","url":"https://babewfd.com/pricing"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-14 16:28:28.351","url":"https://babewfd.com/pricing"}
+{"arguments":{"height":800,"name":"pricing-page","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:28:38.134","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 500); 'scrolled';"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:28:52.484","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":36,"service":"mcp-puppeteer","timestamp":"2025-12-14 16:28:52.484"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-14 16:28:52.485"}
+{"arguments":{"height":800,"name":"pricing-page-scroll","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:28:58.394","tool":"puppeteer_screenshot"}
+{"arguments":{"url":"https://babewfd.com/app"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:29:10.831","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-14 16:29:10.832","url":"https://babewfd.com/app"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":304,"timestamp":"2025-12-14 16:29:12.058","url":"https://babewfd.com/app"}
+{"arguments":{"height":800,"name":"app-page","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:29:17.681","tool":"puppeteer_screenshot"}
+{"arguments":{"selector":"button[type=\"submit\"], button:contains(\"Sign in\")"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:29:26.619","tool":"puppeteer_click"}
+{"arguments":{"script":"\n// Click the Sign in button\nconst buttons = document.querySelectorAll('button');\nfor (const btn of buttons) {\n  if (btn.textContent.includes('Sign in')) {\n    btn.click();\n    break;\n  }\n}\n'clicked';\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:29:41.997","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":201,"service":"mcp-puppeteer","timestamp":"2025-12-14 16:29:41.998"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-14 16:29:42.005"}
+{"arguments":{"height":800,"name":"login-validation","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:29:48.538","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"\n// Click the Forgot password link\nconst links = document.querySelectorAll('a');\nfor (const link of links) {\n  if (link.textContent.includes('Forgot password')) {\n    link.click();\n    break;\n  }\n}\n'clicked';\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:29:58.347","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":209,"service":"mcp-puppeteer","timestamp":"2025-12-14 16:29:58.348"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-14 16:29:58.350"}
+{"arguments":{"height":800,"name":"forgot-password","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:30:08.321","tool":"puppeteer_screenshot"}
+{"arguments":{"url":"https://babewfd.com/about"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:30:21.281","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-14 16:30:21.281","url":"https://babewfd.com/about"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-14 16:30:22.785","url":"https://babewfd.com/about"}
+{"arguments":{"height":800,"name":"about-page","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:30:28.943","tool":"puppeteer_screenshot"}
+{"arguments":{"height":667,"name":"about-mobile","width":375},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:30:36.291","tool":"puppeteer_screenshot"}
+{"arguments":{"url":"https://babewfd.com"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:30:50.437","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-14 16:30:50.437","url":"https://babewfd.com"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":304,"timestamp":"2025-12-14 16:30:51.572","url":"https://babewfd.com"}
+{"arguments":{"height":667,"name":"homepage-mobile","width":375},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:30:58.183","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"\n// Get console errors\nconst errors = [];\n// Check for any error elements on page\nconst allText = document.body.innerText;\n// Return page info\nJSON.stringify({\n  title: document.title,\n  url: window.location.href,\n  bodyLength: allText.length\n});\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:31:07.656","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":247,"service":"mcp-puppeteer","timestamp":"2025-12-14 16:31:07.656"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-14 16:31:07.657"}
+{"arguments":{"selector":"button[aria-label=\"Menu\"], [class*=\"hamburger\"], [class*=\"menu-button\"]"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:31:22.847","tool":"puppeteer_click"}
+{"arguments":{"script":"\n// Find and click the hamburger/menu button (the three lines icon)\nconst buttons = document.querySelectorAll('button');\nlet clicked = false;\nfor (const btn of buttons) {\n  // Look for a button with menu-related content or the hamburger icon\n  if (btn.innerHTML.includes('svg') || btn.innerHTML.includes('Menu') || btn.querySelector('svg')) {\n    btn.click();\n    clicked = true;\n    break;\n  }\n}\nclicked ? 'clicked menu button' : 'no menu button found';\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:31:30.430","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":455,"service":"mcp-puppeteer","timestamp":"2025-12-14 16:31:30.430"}
+{"hasResult":false,"level":"debug","logCount":1,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-14 16:31:30.444"}
+{"arguments":{"height":667,"name":"mobile-menu-open","width":375},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:31:37.583","tool":"puppeteer_screenshot"}
+{"arguments":{"url":"https://babewfd.com/privacy"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:32:14.086","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-14 16:32:14.086","url":"https://babewfd.com/privacy"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-14 16:32:15.492","url":"https://babewfd.com/privacy"}
+{"arguments":{"height":800,"name":"privacy-page","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:32:21.811","tool":"puppeteer_screenshot"}
+{"arguments":{"url":"https://babewfd.com/terms"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:32:28.106","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-14 16:32:28.106","url":"https://babewfd.com/terms"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-14 16:32:29.397","url":"https://babewfd.com/terms"}
+{"arguments":{"height":800,"name":"terms-page","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:32:35.588","tool":"puppeteer_screenshot"}
+{"arguments":{"url":"http://localhost:3001"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:38:29.116","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-14 16:38:29.116","url":"http://localhost:3001"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-14 16:38:32.134","url":"http://localhost:3001"}
+{"arguments":{"height":800,"name":"localhost-homepage","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:38:40.697","tool":"puppeteer_screenshot"}
