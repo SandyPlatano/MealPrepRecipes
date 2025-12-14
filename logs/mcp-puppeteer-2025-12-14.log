@@ -103,3 +103,16 @@
 {"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-14 16:38:29.116","url":"http://localhost:3001"}
 {"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-14 16:38:32.134","url":"http://localhost:3001"}
 {"arguments":{"height":800,"name":"localhost-homepage","width":1280},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:38:40.697","tool":"puppeteer_screenshot"}
+{"arguments":{"url":"http://localhost:3001/app"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:41:19.507","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-14 16:41:19.508","url":"http://localhost:3001/app"}
+{"error":"Attempted to use detached Frame 'C58B0D64576D48DEEEF49B59A7F6E231'.","level":"error","message":"Navigation failed","service":"mcp-puppeteer","timestamp":"2025-12-14 16:41:19.509","url":"http://localhost:3001/app"}
+{"arguments":{"url":"http://localhost:3001/app"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:41:26.356","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-14 16:41:26.356","url":"http://localhost:3001/app"}
+{"error":"Attempted to use detached Frame 'C58B0D64576D48DEEEF49B59A7F6E231'.","level":"error","message":"Navigation failed","service":"mcp-puppeteer","timestamp":"2025-12-14 16:41:26.356","url":"http://localhost:3001/app"}
+{"arguments":{},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:41:33.091","tool":"puppeteer_connect_active_tab"}
+{"arguments":{"url":"http://localhost:3001"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:41:54.204","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-14 16:41:54.205","url":"http://localhost:3001"}
+{"error":"Attempted to use detached Frame 'C58B0D64576D48DEEEF49B59A7F6E231'.","level":"error","message":"Navigation failed","service":"mcp-puppeteer","timestamp":"2025-12-14 16:41:54.205","url":"http://localhost:3001"}
+{"arguments":{"url":"https://www.babewfd.com/app"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-14 16:42:18.849","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-14 16:42:18.849","url":"https://www.babewfd.com/app"}
+{"error":"Attempted to use detached Frame 'C58B0D64576D48DEEEF49B59A7F6E231'.","level":"error","message":"Navigation failed","service":"mcp-puppeteer","timestamp":"2025-12-14 16:42:18.849","url":"https://www.babewfd.com/app"}
