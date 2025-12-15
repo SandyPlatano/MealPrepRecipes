@@ -65,8 +65,27 @@ export function ConfirmationView({
 
   return (
     <div className="space-y-6 pb-24 md:pb-8">
-      {/* Confetti celebration */}
-      <Confetti active={true} duration={3000} pieces={80} />
+      {/* Confetti celebration - only if save was successful */}
+      {saveSuccessful && <Confetti active={true} duration={3000} pieces={80} />}
+
+      {/* Warning if save failed */}
+      {!saveSuccessful && saveError && (
+        <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-amber-700 dark:text-amber-300">
+                  Could not save to History
+                </p>
+                <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
+                  {saveError}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Success Header Card */}
       <Card className="border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20">
