@@ -143,7 +143,30 @@ export function RecipeDetail({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isExtractingNutrition, setIsExtractingNutrition] = useState(false);
   const [localNutrition, setLocalNutrition] = useState<RecipeNutrition | null>(nutrition);
+  const [localHistory, setLocalHistory] = useState(history);
   const router = useRouter();
+
+  // Check if recipe was cooked today
+  const today = new Date().toDateString();
+  const cookedToday = localHistory.some(
+    (entry) => new Date(entry.cooked_at).toDateString() === today
+  );
+
+  const handleCookedSuccess = () => {
+    // Optimistically add a new entry to local history
+    const newEntry: CookingHistoryEntry = {
+      id: `temp-${Date.now()}`,
+      cooked_at: new Date().toISOString(),
+      rating: null,
+      notes: null,
+      modifications: null,
+      photo_url: null,
+      cooked_by_profile: null,
+    };
+    setLocalHistory([newEntry, ...localHistory]);
+    // Also refresh the page to get server data
+    router.refresh();
+  };
   
   // Serving size scaling
   const [currentServings, setCurrentServings] = useState(

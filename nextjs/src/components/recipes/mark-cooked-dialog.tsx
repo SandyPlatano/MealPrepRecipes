@@ -13,14 +13,16 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { StarRating } from "@/components/ui/star-rating";
-import { Loader2, ChefHat } from "lucide-react";
+import { Loader2, ChefHat, CheckCircle2 } from "lucide-react";
 import { markAsCooked } from "@/app/actions/recipes";
+import { toast } from "sonner";
 
 interface MarkCookedDialogProps {
   recipeId: string;
   recipeTitle: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
 export function MarkCookedDialog({
@@ -28,6 +30,7 @@ export function MarkCookedDialog({
   recipeTitle,
   open,
   onOpenChange,
+  onSuccess,
 }: MarkCookedDialogProps) {
   const [rating, setRating] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
@@ -36,17 +39,35 @@ export function MarkCookedDialog({
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    await markAsCooked(
+    const result = await markAsCooked(
       recipeId,
       rating || undefined,
       notes || undefined,
       modifications || undefined
     );
     setIsSubmitting(false);
+
+    if (result.error) {
+      toast.error("Failed to save", {
+        description: result.error,
+      });
+      return;
+    }
+
+    // Success! Show confirmation toast
+    toast.success("Logged as cooked! 🎉", {
+      description: `${recipeTitle} has been added to your cooking history.`,
+      icon: <CheckCircle2 className="h-4 w-4" />,
+    });
+
+    // Reset form
     setRating(null);
     setNotes("");
     setModifications("");
     onOpenChange(false);
+
+    // Notify parent to refresh data
+    onSuccess?.();
   };
 
   const handleClose = () => {
