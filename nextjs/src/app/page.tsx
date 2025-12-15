@@ -83,11 +83,8 @@ export default function Home() {
 
           {/* Mobile Navigation */}
           <div className="md:hidden flex items-center gap-2">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Log in
+            <Link href="/login">
+              <Button size="sm" variant="ghost">Log in</Button>
             </Link>
             <Link href="/signup">
               <Button size="sm">Sign Up</Button>
@@ -120,24 +117,6 @@ export default function Home() {
                         className="w-full justify-start text-base hover:bg-primary/5"
                       >
                         Pricing
-                      </Button>
-                    </Link>
-                  </SheetClose>
-                  <div className="border-t my-3" />
-                  <SheetClose asChild>
-                    <Link href="/login">
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start text-base hover:bg-primary/5"
-                      >
-                        Log in
-                      </Button>
-                    </Link>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <Link href="/signup">
-                      <Button className="w-full">
-                        Sign Up Free
                       </Button>
                     </Link>
                   </SheetClose>
