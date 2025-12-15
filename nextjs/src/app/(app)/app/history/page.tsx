@@ -135,7 +135,7 @@ export default async function HistoryPage() {
               {history.map((entry) => (
                 <Card key={entry.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                       <div className="space-y-1 flex-1">
                         <Link
                           href={`/app/recipes/${entry.recipe_id}`}
@@ -159,36 +159,58 @@ export default async function HistoryPage() {
                         </div>
                       </div>
                       {entry.rating && (
-                        <StarRating rating={entry.rating} readonly size="sm" />
+                        <div className="flex-shrink-0">
+                          <StarRating rating={entry.rating} readonly size="sm" />
+                        </div>
                       )}
                     </div>
                   </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>
-                        {formatDistanceToNow(new Date(entry.cooked_at), {
+                  <CardContent className="pt-0 space-y-3">
+                    {/* Date and Cook Info */}
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">
+                          {new Date(entry.cooked_at).toLocaleDateString("en-US", {
+                            weekday: "short",
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </span>
+                      </div>
+                      <span className="text-muted-foreground">
+                        ({formatDistanceToNow(new Date(entry.cooked_at), {
                           addSuffix: true,
-                        })}
+                        })})
                       </span>
                       {entry.cooked_by_profile?.name && (
-                        <>
-                          <span>•</span>
-                          <span>Cooked by {entry.cooked_by_profile.name}</span>
-                        </>
+                        <div className="flex items-center gap-1.5">
+                          <ChefHat className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">
+                            {entry.cooked_by_profile.name}
+                          </span>
+                        </div>
                       )}
-                      <span>•</span>
-                      <span>
-                        {new Date(entry.cooked_at).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
-                      </span>
                     </div>
+
+                    {/* Modifications */}
+                    {entry.modifications && (
+                      <div className="bg-muted/50 rounded-lg p-3">
+                        <p className="text-xs font-medium text-muted-foreground mb-1">
+                          Changes made:
+                        </p>
+                        <p className="text-sm">{entry.modifications}</p>
+                      </div>
+                    )}
+
+                    {/* Notes */}
                     {entry.notes && (
-                      <p className="text-sm text-muted-foreground mt-3 italic">
-                        &quot;{entry.notes}&quot;
-                      </p>
+                      <div className="border-l-2 border-muted-foreground/20 pl-3">
+                        <p className="text-sm text-muted-foreground italic">
+                          &quot;{entry.notes}&quot;
+                        </p>
+                      </div>
                     )}
                   </CardContent>
                 </Card>

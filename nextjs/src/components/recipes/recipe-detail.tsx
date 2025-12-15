@@ -39,6 +39,7 @@ import {
   Globe,
   Link2,
   Eye,
+  CheckCircle2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -270,7 +271,7 @@ export function RecipeDetail({
     }
   };
 
-  const lastCooked = history.length > 0 ? history[0].cooked_at : null;
+  const lastCooked = localHistory.length > 0 ? localHistory[0].cooked_at : null;
 
   return (
     <>
@@ -453,9 +454,21 @@ export function RecipeDetail({
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => setShowCookedDialog(true)}>
-              I Made This!
-            </Button>
+            {cookedToday ? (
+              <Button
+                variant="secondary"
+                onClick={() => setShowCookedDialog(true)}
+                className="bg-green-100 hover:bg-green-200 text-green-800 dark:bg-green-900/30 dark:hover:bg-green-900/50 dark:text-green-300"
+              >
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+                Cooked Today
+              </Button>
+            ) : (
+              <Button onClick={() => setShowCookedDialog(true)}>
+                <ChefHat className="mr-2 h-4 w-4" />
+                I Made This!
+              </Button>
+            )}
             <Button variant="outline" asChild>
               <Link href={`/app/recipes/${recipe.id}/cook`}>
                 <Play className="mr-2 h-4 w-4" />
@@ -696,19 +709,19 @@ export function RecipeDetail({
           )}
 
           {/* Cooking History */}
-          {history.length > 0 && (
+          {localHistory.length > 0 && (
             <>
               <div className="border-t" />
               <div className="space-y-3">
                 <div>
                   <h3 className="text-lg font-semibold">Cooking History</h3>
                   <p className="text-sm text-muted-foreground">
-                    Made {history.length} time
-                    {history.length !== 1 ? "s" : ""}
+                    Made {localHistory.length} time
+                    {localHistory.length !== 1 ? "s" : ""}
                   </p>
                 </div>
                 <ul className="space-y-3">
-                  {history.slice(0, 5).map((entry) => (
+                  {localHistory.slice(0, 5).map((entry) => (
                     <li
                       key={entry.id}
                       className="flex items-center justify-between text-sm p-2 rounded-lg bg-muted/50"
@@ -776,6 +789,7 @@ export function RecipeDetail({
         recipeTitle={recipe.title}
         open={showCookedDialog}
         onOpenChange={setShowCookedDialog}
+        onSuccess={handleCookedSuccess}
       />
 
       {/* Share Recipe Dialog */}

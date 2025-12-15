@@ -8,6 +8,7 @@ export interface CookingHistoryEntry {
   cooked_at: string; // ISO timestamp
   rating: number | null; // 1-5 star rating
   notes: string | null;
+  modifications: string | null; // what the user changed in the recipe
   created_at: string;
 }
 
@@ -29,4 +30,5 @@ export interface MarkAsCookedInput {
   cooked_at?: string;
   rating?: number;
   notes?: string;
+  modifications?: string;
 }
