@@ -1272,3 +1272,128 @@ export async function getRecipeRepetitionWarnings(weekStarts: string[]): Promise
 
   return { error: null, data: warnings };
 }
+
+// Delete a meal plan from history
+export async function deleteMealPlan(planId: string): Promise<{
+  error: string | null;
+}> {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found" };
+  }
+
+  const supabase = await createClient();
+
+  // Verify the meal plan belongs to this household
+  const { data: mealPlan, error: fetchError } = await supabase
+    .from("meal_plans")
+    .select("id, household_id")
+    .eq("id", planId)
+    .single();
+
+  if (fetchError || !mealPlan) {
+    return { error: "Meal plan not found" };
+  }
+
+  if (mealPlan.household_id !== household.household_id) {
+    return { error: "Not authorized to delete this meal plan" };
+  }
+
+  // Delete assignments first (foreign key constraint)
+  const { error: assignmentError } = await supabase
+    .from("meal_assignments")
+    .delete()
+    .eq("meal_plan_id", planId);
+
+  if (assignmentError) {
+    return { error: assignmentError.message };
+  }
+
+  // Delete the meal plan
+  const { error: deleteError } = await supabase
+    .from("meal_plans")
+    .delete()
+    .eq("id", planId);
+
+  if (deleteError) {
+    return { error: deleteError.message };
+  }
+
+  revalidateTag(`meal-plan-${household.household_id}`);
+  revalidatePath("/app/history");
+  return { error: null };
+}
+
+// Create a template from an existing meal plan (by plan ID)
+export async function createMealPlanTemplateFromPlan(
+  planId: string,
+  templateName: string
+): Promise<{
+  error: string | null;
+  data?: MealPlanTemplate;
+}> {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household) {
+    return { error: authError?.message || "No household found" };
+  }
+
+  if (!templateName.trim()) {
+    return { error: "Template name is required" };
+  }
+
+  const supabase = await createClient();
+
+  // Get the meal plan and verify ownership
+  const { data: mealPlan, error: fetchError } = await supabase
+    .from("meal_plans")
+    .select("id, household_id")
+    .eq("id", planId)
+    .single();
+
+  if (fetchError || !mealPlan) {
+    return { error: "Meal plan not found" };
+  }
+
+  if (mealPlan.household_id !== household.household_id) {
+    return { error: "Not authorized to access this meal plan" };
+  }
+
+  // Get all assignments for this plan
+  const { data: assignments, error: assignmentsError } = await supabase
+    .from("meal_assignments")
+    .select("recipe_id, day_of_week, cook")
+    .eq("meal_plan_id", planId);
+
+  if (assignmentsError) {
+    return { error: assignmentsError.message };
+  }
+
+  if (!assignments || assignments.length === 0) {
+    return { error: "No meals to save as template" };
+  }
+
+  // Create the template
+  const templateAssignments = assignments.map((a) => ({
+    recipe_id: a.recipe_id,
+    day_of_week: a.day_of_week,
+    cook: a.cook,
+  }));
+
+  const { data: template, error: createError } = await supabase
+    .from("meal_plan_templates")
+    .insert({
+      household_id: household.household_id,
+      name: templateName.trim(),
+      assignments: templateAssignments,
+    })
+    .select()
+    .single();
+
+  if (createError) {
+    return { error: createError.message };
+  }
+
+  return { error: null, data: template as MealPlanTemplate };
+}

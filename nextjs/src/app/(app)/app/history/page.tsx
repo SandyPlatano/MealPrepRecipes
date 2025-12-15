@@ -1,11 +1,12 @@
 import { getCookingHistory } from "@/app/actions/cooking-history";
 import { getSentMealPlans } from "@/app/actions/meal-plans";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/ui/empty-state";
-import { formatDistanceToNow, format } from "date-fns";
+import { WeeklyPlanCard } from "@/components/history/weekly-plan-card";
+import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import { Calendar, Heart } from "lucide-react";
 
@@ -127,50 +128,18 @@ export default async function HistoryPage() {
                 <EmptyState
                   icon="📅"
                   title="No weekly plans yet"
-                  description="Send a plan from the meal planner to save it here for reference."
+                  description="Finalize a plan from the meal planner to save it here for reference."
                 />
               </CardContent>
             </Card>
           ) : (
             <div className="space-y-4">
-              {weeklyPlans.map((plan: Record<string, unknown>) => {
-                const weekStart = plan.week_start as string;
-                const weekEnd = new Date(weekStart);
-                weekEnd.setDate(weekEnd.getDate() + 6);
-                
-                return (
-                  <Card key={plan.id as string} className="hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle>
-                            Week of {format(new Date(weekStart), 'MMM d')} - {format(weekEnd, 'MMM d, yyyy')}
-                          </CardTitle>
-                          <CardDescription className="mt-1">
-                            Saved on {format(new Date(plan.sent_at as string), 'MMM d, yyyy')}
-                          </CardDescription>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {(plan.meal_assignments as Array<Record<string, unknown>>)?.map((assignment) => (
-                          <div 
-                            key={assignment.id as string} 
-                            className="flex items-center justify-between text-sm border-b pb-2 last:border-b-0"
-                          >
-                            <span className="font-medium">{(assignment.recipe as Record<string, unknown>)?.title as string}</span>
-                            <div className="flex gap-2 text-muted-foreground">
-                              {assignment.cook ? <Badge variant="outline">{String(assignment.cook)}</Badge> : null}
-                              <Badge variant="outline">{String(assignment.day_of_week)}</Badge>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {weeklyPlans.map((plan) => (
+                <WeeklyPlanCard
+                  key={plan.id}
+                  plan={plan as Parameters<typeof WeeklyPlanCard>[0]["plan"]}
+                />
+              ))}
             </div>
           )}
         </TabsContent>
