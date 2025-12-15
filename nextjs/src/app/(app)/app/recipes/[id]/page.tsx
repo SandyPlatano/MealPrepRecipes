@@ -20,7 +20,7 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
   const fromParam = search?.from;
   const from = Array.isArray(fromParam) ? fromParam[0] : fromParam;
   const backHref = from === "plan" ? "/app/plan" : "/app/recipes";
-  const backLabel = from === "plan" ? "Back to Plan" : "Back to The Vault";
+  const backLabel = from === "plan" ? "Back to Plan" : "Back to Recipes";
 
   // Get current user
   const supabase = await createClient();
