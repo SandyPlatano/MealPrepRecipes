@@ -3,8 +3,17 @@ import { NextResponse } from 'next/server';
 /**
  * Diagnostic endpoint to check Stripe configuration
  * This helps identify missing environment variables
+ * PROTECTED: Only accessible in development mode
  */
 export async function GET() {
+  // Only allow in development - block in production
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      { error: 'This endpoint is disabled in production' },
+      { status: 403 }
+    );
+  }
+
   const config = {
     STRIPE_SECRET_KEY: !!process.env.STRIPE_SECRET_KEY,
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
