@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarRange, RefreshCw, Lock } from "lucide-react";
-import { formatWeekRange, getWeekStart } from "@/types/meal-plan";
+// Re-export utilities for backwards compatibility
+export { getWeekOptions, getUpcomingWeeks } from "./week-utils";
 import { generateMultiWeekShoppingList } from "@/app/actions/shopping-list";
 import { toast } from "sonner";
 import { UpgradeModal } from "@/components/subscriptions/UpgradeModal";
@@ -178,28 +179,3 @@ export function WeekSelector({
   );
 }
 
-// Helper to get week options for the selector
-export function getWeekOptions(
-  currentWeekStart: string,
-  weeksData: Array<{ weekStart: string; mealCount: number }>
-): WeekOption[] {
-  return weeksData.map((week) => ({
-    weekStart: week.weekStart,
-    label: formatWeekRange(new Date(week.weekStart)),
-    mealCount: week.mealCount,
-  }));
-}
-
-// Helper to get upcoming weeks
-export function getUpcomingWeeks(count: number = 4): string[] {
-  const weeks: string[] = [];
-  const today = new Date();
-
-  for (let i = 0; i < count; i++) {
-    const weekStart = getWeekStart(today);
-    weekStart.setDate(weekStart.getDate() + i * 7);
-    weeks.push(weekStart.toISOString().split("T")[0]);
-  }
-
-  return weeks;
-}
