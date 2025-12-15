@@ -26,6 +26,21 @@ export function createCartItem(recipe: Recipe): CartItem {
   };
 }
 
+export function createCartItemWithAssignment(
+  recipe: Recipe,
+  day: DayOfWeek,
+  cook: string | null
+): CartItem {
+  return {
+    id: crypto.randomUUID(),
+    recipeId: recipe.id,
+    recipe,
+    cook,
+    day,
+    addedAt: new Date().toISOString(),
+  };
+}
+
 export function getAssignedItems(items: CartItem[]): CartItem[] {
   return items.filter((item) => item.cook !== null && item.day !== null);
 }

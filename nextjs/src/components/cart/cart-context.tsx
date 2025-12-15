@@ -10,7 +10,7 @@ import {
 } from "react";
 import type { Recipe } from "@/types/recipe";
 import type { DayOfWeek } from "@/types/meal-plan";
-import { type CartItem, createCartItem } from "@/types/cart";
+import { type CartItem, createCartItem, createCartItemWithAssignment } from "@/types/cart";
 import { getWeekStart } from "@/types/meal-plan";
 
 interface CartContextType {
@@ -19,6 +19,7 @@ interface CartContextType {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   addToCart: (recipe: Recipe) => boolean;
+  addToCartWithAssignment: (recipe: Recipe, day: DayOfWeek, cook: string | null) => boolean;
   removeFromCart: (itemId: string) => void;
   removeByRecipeId: (recipeId: string) => void;
   updateCartItem: (itemId: string, updates: { cook?: string | null; day?: DayOfWeek | null }) => void;
@@ -88,6 +89,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return true;
   }, [items]);
 
+  const addToCartWithAssignment = useCallback((recipe: Recipe, day: DayOfWeek, cook: string | null): boolean => {
+    const alreadyInCart = items.some((item) => item.recipeId === recipe.id);
+    if (alreadyInCart) {
+      return false;
+    }
+    setItems((prev) => [...prev, createCartItemWithAssignment(recipe, day, cook)]);
+    return true;
+  }, [items]);
+
   const removeFromCart = useCallback((itemId: string) => {
     setItems((prev) => prev.filter((item) => item.id !== itemId));
   }, []);
@@ -130,6 +140,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         isOpen,
         setIsOpen,
         addToCart,
+        addToCartWithAssignment,
         removeFromCart,
         removeByRecipeId,
         updateCartItem,

@@ -304,7 +304,7 @@ function NutritionSummarySection({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Activity className="h-4 w-4 text-primary" />
-            <CardTitle className="text-base font-mono">Nutrition</CardTitle>
+            <CardTitle className="text-base font-mono">Nutrition for the Week</CardTitle>
           </div>
           <Link
             href="/app/nutrition"

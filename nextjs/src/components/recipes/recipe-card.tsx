@@ -53,7 +53,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
 import type { RecipeWithFavorite, RecipeType } from "@/types/recipe";
+import type { DayOfWeek } from "@/types/meal-plan";
 import { useCart } from "@/components/cart";
+import { AddToPlanSheet } from "./add-to-plan-sheet";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
@@ -102,8 +104,9 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
   const [customInput, setCustomInput] = useState<string>("");
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const { addToCart, removeByRecipeId, isInCart } = useCart();
+  const { addToCart, addToCartWithAssignment, removeByRecipeId, isInCart } = useCart();
   const inCart = isInCart(recipe.id);
+  const [showAddToPlanSheet, setShowAddToPlanSheet] = useState(false);
   const canScale = recipe.base_servings !== null && recipe.base_servings > 0;
   const router = useRouter();
 
@@ -123,10 +126,23 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const added = addToCart(recipe);
+    // Check if already in cart first
+    if (inCart) {
+      toast.info("Already on there");
+      return;
+    }
+    // Open the sheet to select day and cook
+    setShowAddToPlanSheet(true);
+  };
+
+  const handleAddFromSheet = (day: DayOfWeek, cook: string | null) => {
+    const added = addToCartWithAssignment(recipe, day, cook);
     if (added) {
       triggerHaptic("success");
-      toast.success("Added to the plan");
+      const message = cook
+        ? `Added to ${day} for ${cook}`
+        : `Added to ${day}`;
+      toast.success(message);
     } else {
       toast.info("Already on there");
     }
@@ -569,6 +585,13 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
         isPublic={recipe.is_public ?? false}
         shareToken={recipe.share_token ?? null}
         viewCount={recipe.view_count ?? 0}
+      />
+
+      <AddToPlanSheet
+        recipe={recipe}
+        isOpen={showAddToPlanSheet}
+        onClose={() => setShowAddToPlanSheet(false)}
+        onAdd={handleAddFromSheet}
       />
     </>
   );

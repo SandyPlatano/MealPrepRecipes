@@ -385,6 +385,7 @@ export async function addMealAssignment(
   }
 
   revalidateTag(`meal-plan-${household!.household_id}`);
+  revalidatePath("/app");
   revalidatePath("/app/plan");
   revalidatePath("/app/shop");
   return { error: null };
@@ -445,6 +446,7 @@ export async function removeMealAssignment(assignmentId: string) {
   }
 
   revalidateTag(`meal-plan-${household!.household_id}`);
+  revalidatePath("/app");
   revalidatePath("/app/plan");
   revalidatePath("/app/shop");
   return { error: null };
@@ -478,6 +480,7 @@ export async function updateMealAssignment(
   if (household) {
     revalidateTag(`meal-plan-${household.household_id}`);
   }
+  revalidatePath("/app");
   revalidatePath("/app/plan");
   revalidatePath("/app/shop");
   return { error: null };
@@ -592,6 +595,7 @@ export async function clearDayAssignments(weekStart: string, dayOfWeek: DayOfWee
   }
 
   revalidateTag(`meal-plan-${household.household_id}`);
+  revalidatePath("/app");
   revalidatePath("/app/plan");
   revalidatePath("/app/shop");
   return { error: null };
@@ -1075,6 +1079,7 @@ export async function applyMealPlanTemplate(
   }
 
   revalidateTag(`meal-plan-${household.household_id}`);
+  revalidatePath("/app");
   revalidatePath("/app/plan");
   revalidatePath("/app/shop");
   return { error: null };
@@ -1138,6 +1143,7 @@ export async function clearWeekMealPlan(weekStart: string): Promise<{
   }
 
   revalidateTag(`meal-plan-${household.household_id}`);
+  revalidatePath("/app");
   revalidatePath("/app/plan");
   revalidatePath("/app/shop");
   return { error: null, clearedCount };
