@@ -19,7 +19,11 @@ export async function POST(req: Request) {
     }
 
     // Rate limiting (10 requests/hour)
-    const rateLimitResult = await rateLimit(`ai-suggest:${user.id}`, 10, 3600);
+    const rateLimitResult = await rateLimit({
+      identifier: `ai-suggest:${user.id}`,
+      limit: 10,
+      windowMs: 3600 * 1000, // 1 hour in milliseconds
+    });
     if (!rateLimitResult.success) {
       return NextResponse.json(
         { error: 'Rate limit exceeded. Please try again later.' },
@@ -208,7 +212,7 @@ async function gatherSuggestionContext(
       cooked_at: h.cooked_at,
       rating: h.rating,
     })) || [],
-    favorites: favoritesData?.map((f) => (f.recipes as { title?: string })?.title).filter(Boolean) || [],
+    favorites: favoritesData?.map((f) => (f.recipes as { title?: string })?.title).filter((t): t is string => !!t) || [],
     allergen_alerts: settings?.allergen_alerts || [],
     dietary_restrictions: settings?.custom_dietary_restrictions || [],
     household_size: householdMembers?.length || 1,

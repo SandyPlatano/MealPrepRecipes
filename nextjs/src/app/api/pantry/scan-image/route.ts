@@ -173,37 +173,39 @@ export async function POST(request: NextRequest) {
       .upload(fileName, file);
 
     if (uploadError) {
+      // Cast to access potential additional error properties
+      const errorObj = uploadError as unknown as { statusCode?: string; error?: string };
       console.error('Error uploading image:', {
         error: uploadError,
         message: uploadError.message,
-        statusCode: uploadError.statusCode,
-        errorCode: uploadError.error,
+        statusCode: errorObj.statusCode,
+        errorCode: errorObj.error,
       });
-      
+
       // Provide more specific error messages
       let errorMessage = 'Failed to upload image';
       if (uploadError.message?.includes('Bucket not found') || uploadError.message?.includes('does not exist')) {
         errorMessage = 'Storage bucket not configured. Please create the "pantry-scans" bucket in Supabase Dashboard.';
-      } else if (uploadError.message?.includes('new row violates row-level security policy') || uploadError.statusCode === '403') {
+      } else if (uploadError.message?.includes('new row violates row-level security policy') || errorObj.statusCode === '403') {
         errorMessage = 'Permission denied. Storage bucket RLS policies may need to be configured.';
       } else if (uploadError.message) {
         errorMessage = `Failed to upload image: ${uploadError.message}`;
       }
-      
+
       await supabase
         .from('pantry_scans')
-        .update({ 
-          processing_status: 'failed', 
-          error_message: errorMessage 
+        .update({
+          processing_status: 'failed',
+          error_message: errorMessage
         })
         .eq('id', scan.id);
-      
-      return NextResponse.json({ 
+
+      return NextResponse.json({
         error: errorMessage,
         details: process.env.NODE_ENV === 'development' ? {
           uploadError: uploadError.message,
-          statusCode: uploadError.statusCode,
-          errorCode: uploadError.error,
+          statusCode: errorObj.statusCode,
+          errorCode: errorObj.error,
         } : undefined
       }, { status: 500 });
     }
@@ -311,7 +313,16 @@ If no items can be identified with sufficient confidence, return an empty array:
       }
 
       // Get recipe suggestions based on detected items
-      let suggestedRecipes = [];
+      let suggestedRecipes: Array<{
+        id: string;
+        title: string;
+        prep_time: string | null;
+        cook_time: string | null;
+        image_url: string | null;
+        matching_ingredients: number;
+        total_ingredients: number;
+        missing_ingredients: number;
+      }> = [];
       if (detectedItems.length > 0) {
         const ingredientNames = detectedItems.map(item => item.ingredient);
 
@@ -328,10 +339,11 @@ If no items can be identified with sufficient confidence, return an empty array:
             .map(recipe => {
               const recipeIngredients = recipe.ingredients || [];
               const matchingIngredients = recipeIngredients.filter((ing: { name?: string }) =>
-                ingredientNames.some(pantryIng =>
-                  ing.name?.toLowerCase().includes(pantryIng.toLowerCase()) ||
-                  pantryIng.toLowerCase().includes(ing.name?.toLowerCase())
-                )
+                ingredientNames.some(pantryIng => {
+                  const ingName = ing.name?.toLowerCase() || '';
+                  return ingName.includes(pantryIng.toLowerCase()) ||
+                    pantryIng.toLowerCase().includes(ingName);
+                })
               );
 
               return {

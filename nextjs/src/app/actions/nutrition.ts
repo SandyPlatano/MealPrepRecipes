@@ -34,7 +34,7 @@ export async function getRecipeNutrition(recipeId: string): Promise<{
   error: string | null;
 }> {
   try {
-    const { user, error: authError } = await getCachedUserWithHousehold();
+    const { user } = await getCachedUserWithHousehold();
     // Only check for actual auth errors, not household/subscription errors
     if (!user) {
       return { data: null, error: "Not authenticated" };
@@ -80,7 +80,7 @@ export async function updateRecipeNutrition(
   error: string | null;
 }> {
   try {
-    const { user, error: authError } = await getCachedUserWithHousehold();
+    const { user } = await getCachedUserWithHousehold();
     // Only check for actual auth errors, not household/subscription errors
     if (!user) {
       return { data: null, error: "Not authenticated" };
@@ -153,7 +153,7 @@ export async function deleteRecipeNutrition(recipeId: string): Promise<{
   error: string | null;
 }> {
   try {
-    const { user, error: authError } = await getCachedUserWithHousehold();
+    const { user } = await getCachedUserWithHousehold();
     // Only check for actual auth errors, not household/subscription errors
     if (!user) {
       return { success: false, error: "Not authenticated" };
@@ -212,7 +212,7 @@ export async function getBulkRecipeNutrition(recipeIds: string[]): Promise<{
   error: string | null;
 }> {
   try {
-    const { user, error: authError } = await getCachedUserWithHousehold();
+    const { user } = await getCachedUserWithHousehold();
     // Only check for actual auth errors, not household/subscription errors
     if (!user) {
       return { data: {}, error: "Not authenticated" };
@@ -259,7 +259,7 @@ export async function getMacroGoals(): Promise<{
   error: string | null;
 }> {
   try {
-    const { user, error: authError } = await getCachedUserWithHousehold();
+    const { user } = await getCachedUserWithHousehold();
     // Only check for actual auth errors, not household/subscription errors
     if (!user) {
       return { data: null, error: "Not authenticated" };
@@ -297,7 +297,7 @@ export async function updateMacroGoals(goals: MacroGoals): Promise<{
   error: string | null;
 }> {
   try {
-    const { user, error: authError } = await getCachedUserWithHousehold();
+    const { user } = await getCachedUserWithHousehold();
     // Only check for actual auth errors, not household/subscription errors
     if (!user) {
       return { success: false, error: "Not authenticated" };
@@ -344,7 +344,7 @@ export async function toggleNutritionTracking(enabled: boolean): Promise<{
   queuedRecipes?: number;
 }> {
   try {
-    const { user, error: authError } = await getCachedUserWithHousehold();
+    const { user } = await getCachedUserWithHousehold();
     // Only check for actual auth errors, not household/subscription errors
     if (!user) {
       return { success: false, error: "Not authenticated" };
@@ -458,7 +458,7 @@ export async function getDailyNutritionSummary(date: string): Promise<{
   error: string | null;
 }> {
   try {
-    const { user, error: authError } = await getCachedUserWithHousehold();
+    const { user } = await getCachedUserWithHousehold();
     // Only check for actual auth errors, not household/subscription errors
     if (!user) {
       return { data: null, error: "Not authenticated" };
@@ -529,7 +529,7 @@ export async function getWeeklyNutritionDashboard(weekStart: string): Promise<{
   error: string | null;
 }> {
   try {
-    const { user, error: authError } = await getCachedUserWithHousehold();
+    const { user } = await getCachedUserWithHousehold();
     // Only check for actual auth errors, not household/subscription errors
     if (!user) {
       return { data: null, error: "Not authenticated" };
@@ -584,7 +584,7 @@ export async function saveDailyNutritionLog(date: string): Promise<{
   error: string | null;
 }> {
   try {
-    const { user, error: authError } = await getCachedUserWithHousehold();
+    const { user } = await getCachedUserWithHousehold();
     // Only check for actual auth errors, not household/subscription errors
     if (!user) {
       return { success: false, error: "Not authenticated" };
@@ -627,7 +627,7 @@ export async function getNutritionHistory(weeks: number = 4): Promise<{
   error: string | null;
 }> {
   try {
-    const { user, error: authError } = await getCachedUserWithHousehold();
+    const { user } = await getCachedUserWithHousehold();
     // Only check for actual auth errors, not household/subscription errors
     if (!user) {
       return { data: [], error: "Not authenticated" };
@@ -671,7 +671,7 @@ export async function isNutritionTrackingEnabled(): Promise<{
   error: string | null;
 }> {
   try {
-    const { user, error: authError } = await getCachedUserWithHousehold();
+    const { user } = await getCachedUserWithHousehold();
     // Only check for actual auth errors, not household/subscription errors
     if (!user) {
       return { enabled: false, error: "Not authenticated" };
@@ -722,7 +722,7 @@ export async function getNutritionExtractionCosts(): Promise<{
   error: string | null;
 }> {
   try {
-    const { user, error: authError } = await getCachedUserWithHousehold();
+    const { user } = await getCachedUserWithHousehold();
     if (!user) {
       return { data: null, error: "Not authenticated" };
     }
@@ -767,7 +767,7 @@ export async function getNutritionExtractionCosts(): Promise<{
 
     const recipes = data.map((item) => ({
       recipe_id: item.recipe_id,
-      recipe_title: (item.recipes as any)?.title || "Unknown Recipe",
+      recipe_title: (item.recipes as { title?: string } | null)?.title || "Unknown Recipe",
       cost_usd: Number(item.cost_usd),
       input_tokens: item.input_tokens || 0,
       output_tokens: item.output_tokens || 0,

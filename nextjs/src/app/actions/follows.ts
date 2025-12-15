@@ -149,7 +149,7 @@ export async function getFollowers(
   }
 
   const profiles: UserProfile[] = (data || []).map((item) => {
-    const f = item.follower as {
+    const f = item.follower as unknown as {
       id: string;
       username: string;
       first_name: string | null;
@@ -234,7 +234,7 @@ export async function getFollowing(
   }
 
   const profiles: UserProfile[] = (data || []).map((item) => {
-    const f = item.following as {
+    const f = item.following as unknown as {
       id: string;
       username: string;
       first_name: string | null;

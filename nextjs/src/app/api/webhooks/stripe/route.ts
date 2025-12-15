@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe/client';
+import { getStripe } from '@/lib/stripe/client';
 import { createClient } from '@/lib/supabase/server';
 import type Stripe from 'stripe';
 import type { SubscriptionTier, SubscriptionStatus } from '@/types/subscription';
@@ -21,6 +21,7 @@ export async function POST(req: Request) {
   }
 
   let event: Stripe.Event;
+  const stripe = getStripe();
 
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
@@ -50,8 +51,10 @@ export async function POST(req: Request) {
           }
 
           // Get subscription details from Stripe
-          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const subscriptionResponse = await stripe.subscriptions.retrieve(subscriptionId);
+          const subscription = subscriptionResponse as Stripe.Subscription;
           const tier = getTierFromPriceId(subscription.items.data[0].price.id);
+          const periodEnd = (subscription as unknown as { current_period_end: number }).current_period_end;
 
           // Create or update subscription record
           const { error } = await supabase.from('subscriptions').upsert({
@@ -60,7 +63,7 @@ export async function POST(req: Request) {
             stripe_subscription_id: subscriptionId,
             status: subscription.status as SubscriptionStatus,
             tier,
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            current_period_end: new Date(periodEnd * 1000).toISOString(),
             cancel_at_period_end: subscription.cancel_at_period_end,
           });
 
@@ -89,13 +92,14 @@ export async function POST(req: Request) {
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
         const tier = getTierFromPriceId(subscription.items.data[0].price.id);
+        const periodEnd = (subscription as unknown as { current_period_end: number }).current_period_end;
 
         const { error } = await supabase
           .from('subscriptions')
           .update({
             status: subscription.status as SubscriptionStatus,
             tier,
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            current_period_end: new Date(periodEnd * 1000).toISOString(),
             cancel_at_period_end: subscription.cancel_at_period_end,
           })
           .eq('stripe_subscription_id', subscription.id);
@@ -165,7 +169,7 @@ export async function POST(req: Request) {
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice;
-        const subscriptionId = invoice.subscription as string;
+        const subscriptionId = (invoice as unknown as { subscription: string | null }).subscription;
 
         if (subscriptionId) {
           await supabase

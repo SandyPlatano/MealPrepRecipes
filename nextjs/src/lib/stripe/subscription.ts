@@ -6,7 +6,7 @@ import { getQuotaForTier } from '@/types/subscription';
  * Check if running on localhost/development (enables premium features for testing)
  */
 function isLocalhost(): boolean {
-  return (
+  return !!(
     process.env.NODE_ENV === 'development' ||
     process.env.NEXT_PUBLIC_APP_URL?.includes('localhost') ||
     process.env.NEXT_PUBLIC_APP_URL?.includes('127.0.0.1') ||

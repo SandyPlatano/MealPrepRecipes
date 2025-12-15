@@ -70,6 +70,7 @@ export async function getSettings() {
 
   // Try to get existing settings
   // Explicitly select columns to avoid schema cache issues with missing columns
+  // eslint-disable-next-line prefer-const -- selectError is not reassigned but settings is
   let { data: settings, error: selectError } = await supabase
     .from("user_settings")
     .select(`
@@ -124,10 +125,15 @@ export async function getSettings() {
           user_id: user.id,
           dark_mode: false,
           cook_names: ["Me"],
+          cook_colors: {} as Record<string, string>,
           email_notifications: true,
           allergen_alerts: [],
           custom_dietary_restrictions: [],
+          category_order: null as string[] | null,
+          calendar_event_time: null as string | null,
+          calendar_event_duration_minutes: null as number | null,
           calendar_excluded_days: [],
+          google_connected_account: null as string | null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
@@ -145,10 +151,15 @@ export async function getSettings() {
         user_id: user.id,
         dark_mode: false,
         cook_names: ["Me"],
+        cook_colors: {} as Record<string, string>,
         email_notifications: true,
         allergen_alerts: [],
         custom_dietary_restrictions: [],
+        category_order: null as string[] | null,
+        calendar_event_time: null as string | null,
+        calendar_event_duration_minutes: null as number | null,
         calendar_excluded_days: [],
+        google_connected_account: null as string | null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       },
@@ -201,26 +212,33 @@ export async function getSettings() {
           user_id: user.id,
           dark_mode: false,
           cook_names: ["Me"],
+          cook_colors: {} as Record<string, string>,
           email_notifications: true,
           allergen_alerts: [],
           custom_dietary_restrictions: [],
+          category_order: null as string[] | null,
+          calendar_event_time: null as string | null,
+          calendar_event_duration_minutes: null as number | null,
           calendar_excluded_days: [],
+          google_connected_account: null as string | null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
       };
     }
     settings = newSettings;
-    
+
     // Ensure array fields are arrays after insert
-    if (!settings.allergen_alerts || !Array.isArray(settings.allergen_alerts)) {
-      settings.allergen_alerts = [];
-    }
-    if (!settings.custom_dietary_restrictions || !Array.isArray(settings.custom_dietary_restrictions)) {
-      settings.custom_dietary_restrictions = [];
-    }
-    if (!settings.calendar_excluded_days || !Array.isArray(settings.calendar_excluded_days)) {
-      settings.calendar_excluded_days = [];
+    if (settings) {
+      if (!settings.allergen_alerts || !Array.isArray(settings.allergen_alerts)) {
+        settings.allergen_alerts = [];
+      }
+      if (!settings.custom_dietary_restrictions || !Array.isArray(settings.custom_dietary_restrictions)) {
+        settings.custom_dietary_restrictions = [];
+      }
+      if (!settings.calendar_excluded_days || !Array.isArray(settings.calendar_excluded_days)) {
+        settings.calendar_excluded_days = [];
+      }
     }
   }
 
@@ -256,7 +274,7 @@ export async function updateSettings(settings: {
     .single();
 
   // Prepare settings for save - merge existing with new, ensure array fields are arrays (never null)
-  const settingsToSave: Record<string, any> = {
+  const settingsToSave: Record<string, unknown> = {
     user_id: user.id,
     updated_at: new Date().toISOString(),
     // Start with existing settings if they exist
@@ -301,7 +319,7 @@ export async function updateSettings(settings: {
   }
 
   // Upsert settings - this will update existing or create new
-  const { error, data } = await supabase.from("user_settings").upsert(
+  const { error } = await supabase.from("user_settings").upsert(
     settingsToSave,
     { onConflict: "user_id" }
   ).select();

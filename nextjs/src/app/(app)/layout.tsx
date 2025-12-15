@@ -1,9 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { logout } from "@/app/actions/auth";
-import { Settings } from "lucide-react";
 import { BrandLogoCompact } from "@/components/brand/logo";
 import { AppNav } from "@/components/navigation/app-nav";
 import { MobileMenu } from "@/components/navigation/mobile-menu";

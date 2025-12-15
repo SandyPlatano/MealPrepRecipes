@@ -203,6 +203,24 @@ export interface SavedRecipe {
   created_at: string;
 }
 
+// Simplified type for saved recipe list display (doesn't need all Recipe fields)
+export interface SavedRecipeListItem {
+  id: string;
+  title: string;
+  recipe_type: string;
+  category: string | null;
+  prep_time: string | null;
+  cook_time: string | null;
+  servings: string | null;
+  image_url: string | null;
+  view_count: number;
+  avg_rating: number | null;
+  review_count: number;
+  created_at: string;
+  author: RecipeAuthor;
+  is_saved: boolean;
+}
+
 // ============================================
 // TRENDING TYPES
 // ============================================

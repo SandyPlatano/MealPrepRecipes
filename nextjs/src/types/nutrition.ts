@@ -252,6 +252,8 @@ export interface NutritionExtractionRequest {
   recipe_id: string;
   ingredients: string[];
   servings: number;
+  title?: string; // Optional recipe title for better context
+  instructions?: string[]; // Optional instructions for better context
   force_reextract?: boolean; // Override existing nutrition data
 }
 

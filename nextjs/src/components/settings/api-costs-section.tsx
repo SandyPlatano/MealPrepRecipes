@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getNutritionExtractionCosts } from "@/app/actions/nutrition";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, DollarSign, FileText, TrendingUp } from "lucide-react";
+import { Loader2, DollarSign } from "lucide-react";
 import { format } from "date-fns";
 import { isLocalhost } from "@/lib/utils/is-localhost";
 
@@ -24,13 +24,12 @@ export function ApiCostsSection() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Only show on localhost
-  if (!isLocalhost()) {
-    return null;
-  }
+  const showSection = isLocalhost();
 
   useEffect(() => {
+    // Only fetch if we're on localhost
+    if (!showSection) return;
+
     async function fetchCosts() {
       setLoading(true);
       setError(null);
@@ -43,7 +42,12 @@ export function ApiCostsSection() {
       setLoading(false);
     }
     fetchCosts();
-  }, []);
+  }, [showSection]);
+
+  // Only show on localhost - moved after hooks
+  if (!showSection) {
+    return null;
+  }
 
   return (
     <Card className="border-amber-500/50 bg-amber-50/50 dark:bg-amber-950/20">

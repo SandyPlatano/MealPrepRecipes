@@ -47,9 +47,9 @@ export function UpgradeModal({ open, onOpenChange, feature = 'AI Meal Suggestion
         alert('Failed to create checkout session. Please try again.');
         setLoading(false);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating checkout:', error);
-      const errorMessage = error?.message || 'Network error. Please check your connection and try again.';
+      const errorMessage = (error as { message?: string })?.message || 'Network error. Please check your connection and try again.';
       alert(errorMessage);
       setLoading(false);
     }

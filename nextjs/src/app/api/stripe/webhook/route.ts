@@ -72,13 +72,14 @@ export async function POST(request: NextRequest) {
 
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
+        const periodEnd = (subscription as unknown as { current_period_end: number }).current_period_end;
 
         // Update subscription status
         const { error: updateError } = await supabase
           .from('user_settings')
           .update({
             subscription_status: subscription.status,
-            subscription_current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            subscription_current_period_end: new Date(periodEnd * 1000).toISOString(),
             updated_at: new Date().toISOString()
           })
           .eq('stripe_subscription_id', subscription.id);
@@ -111,8 +112,9 @@ export async function POST(request: NextRequest) {
 
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object as Stripe.Invoice;
+        const invoiceSubscriptionId = (invoice as unknown as { subscription: string | null }).subscription;
 
-        if (invoice.subscription) {
+        if (invoiceSubscriptionId) {
           // Update last payment date
           const { error: updateError } = await supabase
             .from('user_settings')
@@ -120,7 +122,7 @@ export async function POST(request: NextRequest) {
               last_payment_date: new Date().toISOString(),
               updated_at: new Date().toISOString()
             })
-            .eq('stripe_subscription_id', invoice.subscription);
+            .eq('stripe_subscription_id', invoiceSubscriptionId);
 
           if (updateError) {
             console.error('Error updating payment date:', updateError);
@@ -131,8 +133,9 @@ export async function POST(request: NextRequest) {
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice;
+        const failedSubscriptionId = (invoice as unknown as { subscription: string | null }).subscription;
 
-        if (invoice.subscription) {
+        if (failedSubscriptionId) {
           // Mark subscription as past_due
           const { error: updateError } = await supabase
             .from('user_settings')
@@ -140,7 +143,7 @@ export async function POST(request: NextRequest) {
               subscription_status: 'past_due',
               updated_at: new Date().toISOString()
             })
-            .eq('stripe_subscription_id', invoice.subscription);
+            .eq('stripe_subscription_id', failedSubscriptionId);
 
           if (updateError) {
             console.error('Error updating subscription status:', updateError);

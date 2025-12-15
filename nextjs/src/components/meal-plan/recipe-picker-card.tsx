@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Check, Star, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";

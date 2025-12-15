@@ -5,6 +5,7 @@ import type {
   PublicRecipe,
   TrendingRecipe,
   RecipeReportReason,
+  SavedRecipeListItem,
 } from "@/types/social";
 
 // Get public recipes with filtering
@@ -193,7 +194,7 @@ export async function unsaveRecipe(
 export async function getSavedRecipes(options?: {
   limit?: number;
   offset?: number;
-}): Promise<{ data: PublicRecipe[] | null; error: string | null }> {
+}): Promise<{ data: SavedRecipeListItem[] | null; error: string | null }> {
   const supabase = await createClient();
 
   const {
@@ -241,9 +242,9 @@ export async function getSavedRecipes(options?: {
     return { data: null, error: error.message };
   }
 
-  // Transform to PublicRecipe type
-  const recipes: PublicRecipe[] = (data || []).map((item) => {
-    const r = item.recipe as {
+  // Transform to SavedRecipeListItem type
+  const recipes: SavedRecipeListItem[] = (data || []).map((item) => {
+    const r = item.recipe as unknown as {
       id: string;
       title: string;
       recipe_type: string;
@@ -356,7 +357,7 @@ export async function getPublicCategories(): Promise<{
   }
 
   // Get unique categories
-  const categories = [...new Set(data.map((r) => r.category).filter(Boolean))] as string[];
+  const categories = Array.from(new Set(data.map((r) => r.category).filter(Boolean))) as string[];
   return { data: categories.sort(), error: null };
 }
 
@@ -379,7 +380,7 @@ export async function getPublicRecipeTypes(): Promise<{
   }
 
   // Get unique recipe types
-  const types = [...new Set(data.map((r) => r.recipe_type).filter(Boolean))] as string[];
+  const types = Array.from(new Set(data.map((r) => r.recipe_type).filter(Boolean))) as string[];
   return { data: types.sort(), error: null };
 }
 

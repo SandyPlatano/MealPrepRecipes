@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe/client';
+import { getStripe } from '@/lib/stripe/client';
 import { getCachedUserWithHousehold } from '@/lib/supabase/cached-queries';
 
 export async function POST(req: Request) {
@@ -18,6 +18,7 @@ export async function POST(req: Request) {
     const returnUrl = `${origin}/app/settings`;
 
     // Create Stripe customer portal session
+    const stripe = getStripe();
     const session = await stripe.billingPortal.sessions.create({
       customer: subscription.stripe_customer_id,
       return_url: returnUrl,

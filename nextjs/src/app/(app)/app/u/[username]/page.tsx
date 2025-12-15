@@ -14,13 +14,11 @@ import {
   Users,
   Eye,
   Lock,
-  Loader2,
   Grid3X3,
   Activity,
 } from "lucide-react";
 import { FollowButton } from "@/components/social/follow-button";
 import { FollowersModal } from "@/components/social/followers-modal";
-import { PublicRecipeCard } from "@/components/social/public-recipe-card";
 import { ActivityFeed } from "@/components/social/activity-feed";
 import {
   getUserByUsername,

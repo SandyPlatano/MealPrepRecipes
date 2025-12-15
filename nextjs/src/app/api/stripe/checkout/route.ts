@@ -57,9 +57,6 @@ export async function POST(request: NextRequest) {
 
     // Get tier details for better checkout experience
     const tierName = tier === 'pro' ? 'Pro' : 'Premium';
-    const tierDescription = tier === 'pro' 
-      ? 'Perfect for growing families - Advanced meal planning with smart pantry scanning'
-      : 'For serious meal planners - Unlimited features and priority support';
 
     // Create checkout session with enhanced branding
     const session = await stripe.checkout.sessions.create({

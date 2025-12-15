@@ -14,7 +14,8 @@ export async function GET() {
   };
 
   const missing = Object.entries(config)
-    .filter(([_, isSet]) => !isSet)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    .filter(([_key, isSet]) => !isSet)
     .map(([key]) => key);
 
   const allConfigured = missing.length === 0;

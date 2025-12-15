@@ -14,7 +14,6 @@ import {
   Loader2,
   MoreVertical,
   Trash2,
-  Edit,
 } from "lucide-react";
 import {
   DropdownMenu,

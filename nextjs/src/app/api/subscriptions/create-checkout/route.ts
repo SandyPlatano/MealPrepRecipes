@@ -53,9 +53,6 @@ export async function POST(req: Request) {
 
     // Get tier details for better checkout experience
     const tierName = tier === 'pro' ? 'Pro' : 'Premium';
-    const tierDescription = tier === 'pro' 
-      ? 'Perfect for growing families - Advanced meal planning with smart pantry scanning'
-      : 'For serious meal planners - Unlimited features and priority support';
 
     // Create Stripe checkout session with enhanced branding
     const stripeInstance = getStripe();
@@ -112,41 +109,42 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ url: session.url });
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Log full error details for debugging
+    const err = error as { message?: string; type?: string; code?: string; statusCode?: number };
     console.error('Error creating checkout session:', {
-      message: error?.message,
-      type: error?.type,
-      code: error?.code,
-      statusCode: error?.statusCode,
+      message: err?.message,
+      type: err?.type,
+      code: err?.code,
+      statusCode: err?.statusCode,
       raw: error,
     });
     
     // Provide more specific error messages
     let errorMessage = 'Failed to create checkout session';
-    
-    if (error?.type === 'StripeInvalidRequestError') {
+
+    if (err?.type === 'StripeInvalidRequestError') {
       // Stripe API errors
-      if (error?.code === 'resource_missing') {
+      if (err?.code === 'resource_missing') {
         errorMessage = 'Invalid price ID. Please check your Stripe configuration.';
-      } else if (error?.code === 'api_key_expired' || error?.code === 'invalid_api_key') {
+      } else if (err?.code === 'api_key_expired' || err?.code === 'invalid_api_key') {
         errorMessage = 'Invalid Stripe API key. Please check your configuration.';
       } else {
-        errorMessage = error.message || 'Invalid Stripe configuration';
+        errorMessage = err.message || 'Invalid Stripe configuration';
       }
-    } else if (error?.message) {
-      errorMessage = error.message;
+    } else if (err?.message) {
+      errorMessage = err.message;
     }
-    
+
     return NextResponse.json(
-      { 
+      {
         error: errorMessage,
         // Include error code in development for debugging
         ...(process.env.NODE_ENV === 'development' && {
           debug: {
-            type: error?.type,
-            code: error?.code,
-            statusCode: error?.statusCode,
+            type: err?.type,
+            code: err?.code,
+            statusCode: err?.statusCode,
           },
         }),
       },

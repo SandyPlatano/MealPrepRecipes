@@ -154,7 +154,10 @@ export function SettingsForm({
 
   // Track previous settings to detect changes
   const prevSettingsRef = useRef(settings);
-  
+
+  // Extract updated_at for dependency array (eslint requires simple expressions)
+  const settingsUpdatedAt = (settings as { updated_at?: string }).updated_at;
+
   // Sync state with props when settings change (e.g., after navigation)
   useEffect(() => {
     const prev = prevSettingsRef.current;
@@ -208,15 +211,16 @@ export function SettingsForm({
       custom_dietary_restrictions: [...(settings.custom_dietary_restrictions || [])],
       calendar_excluded_days: [...(settings.calendar_excluded_days || [])],
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally depend on specific properties, not full settings object
   }, [
-    settings.allergen_alerts, 
-    settings.custom_dietary_restrictions, 
-    settings.google_connected_account, 
-    settings.calendar_event_time, 
-    settings.calendar_event_duration_minutes, 
+    settings.allergen_alerts,
+    settings.custom_dietary_restrictions,
+    settings.google_connected_account,
+    settings.calendar_event_time,
+    settings.calendar_event_duration_minutes,
     settings.calendar_excluded_days,
     // Add updated_at to detect when settings are refreshed from server
-    settings.updated_at,
+    settingsUpdatedAt,
   ]);
 
   // Keep refs in sync with state
@@ -778,7 +782,7 @@ export function SettingsForm({
         initialGoals={settings.macro_goals}
         initialEnabled={settings.macro_tracking_enabled || false}
         initialPreset={settings.macro_goal_preset}
-        onSave={async (goals, enabled, preset) => {
+        onSave={async (goals, enabled) => {
           await updateMacroGoals(goals);
           await toggleNutritionTracking(enabled);
         }}

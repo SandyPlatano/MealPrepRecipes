@@ -351,7 +351,7 @@ export async function respondToReview(
     return { success: false, error: "Review not found" };
   }
 
-  const recipeUserId = (review.recipe as { user_id: string }).user_id;
+  const recipeUserId = (review.recipe as unknown as { user_id: string }).user_id;
   if (recipeUserId !== user.id) {
     return { success: false, error: "Only the recipe owner can respond" };
   }
