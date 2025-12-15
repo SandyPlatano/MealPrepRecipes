@@ -7,7 +7,9 @@ import { WeekSchedule } from "./week-schedule";
 import { CheckoutShoppingList } from "./checkout-shopping-list";
 import { WeekStats } from "./week-stats";
 import { FinalizeActions } from "./finalize-actions";
+import { MacroDashboard } from "@/components/nutrition/macro-dashboard";
 import type { PantryItem } from "@/types/shopping-list";
+import type { WeeklyMacroDashboard } from "@/types/nutrition";
 
 interface Recipe {
   id: string;
@@ -38,6 +40,7 @@ interface FinalizeViewProps {
   cookNames: string[];
   cookColors: Record<string, string>;
   pantryItems: PantryItem[];
+  nutritionDashboard?: WeeklyMacroDashboard | null;
 }
 
 export function FinalizeView({
@@ -45,6 +48,7 @@ export function FinalizeView({
   weekPlan,
   cookColors,
   pantryItems,
+  nutritionDashboard,
 }: FinalizeViewProps) {
   const weekStartStr = weekStart.toISOString().split("T")[0];
 
@@ -99,6 +103,11 @@ export function FinalizeView({
 
       {/* Stats Section */}
       <WeekStats assignments={allAssignments} cookColors={cookColors} />
+
+      {/* Nutrition Summary */}
+      {nutritionDashboard && (
+        <MacroDashboard dashboard={nutritionDashboard} variant="full" />
+      )}
 
       {/* Schedule Section */}
       <WeekSchedule

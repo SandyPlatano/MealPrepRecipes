@@ -78,6 +78,7 @@ export default async function FinalizePage({ searchParams }: FinalizePageProps) 
         cookNames={settings?.cook_names || []}
         cookColors={settings?.cook_colors || {}}
         pantryItems={pantryItems}
+        nutritionDashboard={nutritionDashboard}
       />
     </div>
   );
