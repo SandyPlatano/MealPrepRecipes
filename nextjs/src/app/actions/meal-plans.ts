@@ -661,18 +661,24 @@ export async function getWeekPlanWithFullRecipes(weekStart: string) {
   const { user, household, error: authError } = await getCachedUserWithHousehold();
 
   if (authError || !user || !household) {
+    console.error("[getWeekPlanWithFullRecipes] Auth error:", authError?.message || "No household found");
     return { error: authError?.message || "No household found", data: null };
   }
 
   const supabase = await createClient();
 
   // Get meal plan for the week
-  const { data: mealPlan } = await supabase
+  const { data: mealPlan, error: mealPlanError } = await supabase
     .from("meal_plans")
     .select("*")
     .eq("household_id", household.household_id)
     .eq("week_start", weekStart)
     .single();
+
+  // Note: .single() returns PGRST116 error if no rows found - this is expected for new weeks
+  if (mealPlanError && mealPlanError.code !== "PGRST116") {
+    console.error("[getWeekPlanWithFullRecipes] Meal plan error:", mealPlanError);
+  }
 
   // Initialize empty assignments for each day
   const assignments: Record<DayOfWeek, MealAssignmentWithRecipe[]> = {
@@ -687,7 +693,7 @@ export async function getWeekPlanWithFullRecipes(weekStart: string) {
 
   if (mealPlan) {
     // Get assignments with full recipe details including ingredients
-    const { data: assignmentData } = await supabase
+    const { data: assignmentData, error: assignmentError } = await supabase
       .from("meal_assignments")
       .select(
         `
@@ -696,6 +702,11 @@ export async function getWeekPlanWithFullRecipes(weekStart: string) {
       `
       )
       .eq("meal_plan_id", mealPlan.id);
+
+    if (assignmentError) {
+      console.error("[getWeekPlanWithFullRecipes] Assignment error:", assignmentError);
+      return { error: assignmentError.message, data: null };
+    }
 
     if (assignmentData) {
       for (const assignment of assignmentData) {
