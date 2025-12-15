@@ -256,7 +256,7 @@ export async function updateRecipeRating(id: string, rating: number) {
 
 // Toggle favorite status
 export async function toggleFavorite(recipeId: string) {
-  const { user, error: authError } = await getCachedUserWithHousehold();
+  const { user, error: authError } = await getCachedUser();
 
   if (authError || !user) {
     return { error: "Not authenticated", isFavorite: false };
@@ -304,7 +304,7 @@ export async function toggleFavorite(recipeId: string) {
 
 // Get user's favorite recipe IDs
 export async function getFavorites() {
-  const { user, error: authError } = await getCachedUserWithHousehold();
+  const { user, error: authError } = await getCachedUser();
 
   if (authError || !user) {
     return { error: "Not authenticated", data: [] };
