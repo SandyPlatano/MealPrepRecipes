@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/cron/process-nutrition-queue",
-      "schedule": "*/2 * * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
