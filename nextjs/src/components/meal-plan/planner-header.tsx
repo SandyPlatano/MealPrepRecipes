@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -293,18 +294,29 @@ export function PlannerHeader({
         </DropdownMenu>
 
         {/* Finalize Plan Button - Primary CTA */}
-        <Button
-          onClick={() => {
-            router.push(`/app/finalize?week=${weekStartStr}`);
-          }}
-          disabled={!hasMeals}
-          size="sm"
-          className="flex-[1_1_auto] sm:flex-none gap-2 sm:min-w-[120px] min-w-[100px] h-10"
-        >
-          <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-          <span className="hidden sm:inline truncate">Finalize Plan</span>
-          <span className="sm:hidden truncate">Finalize</span>
-        </Button>
+        {hasMeals ? (
+          <Button
+            asChild
+            size="sm"
+            className="flex-[1_1_auto] sm:flex-none gap-2 sm:min-w-[120px] min-w-[100px] h-10"
+          >
+            <Link href={`/app/finalize?week=${weekStartStr}`}>
+              <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">Finalize Plan</span>
+              <span className="sm:hidden truncate">Finalize</span>
+            </Link>
+          </Button>
+        ) : (
+          <Button
+            disabled
+            size="sm"
+            className="flex-[1_1_auto] sm:flex-none gap-2 sm:min-w-[120px] min-w-[100px] h-10"
+          >
+            <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+            <span className="hidden sm:inline truncate">Finalize Plan</span>
+            <span className="sm:hidden truncate">Finalize</span>
+          </Button>
+        )}
 
         {!isCurrentWeek && (
           <Button variant="ghost" size="sm" onClick={goToCurrentWeek} className="sm:hidden h-10 flex-shrink-0 min-w-[60px]">
