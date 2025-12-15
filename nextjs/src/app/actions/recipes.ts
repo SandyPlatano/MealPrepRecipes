@@ -377,6 +377,7 @@ export async function markAsCooked(
 
   const { error } = await supabase.from("cooking_history").insert({
     recipe_id: recipeId,
+    user_id: user.id,
     household_id: household?.household_id || null,
     cooked_by: user.id,
     rating: rating || null,

@@ -81,10 +81,12 @@ export function WeekStats({ assignments, cookColors }: WeekStatsProps) {
 
   const sortedMealTypes = Object.entries(mealTypes).sort((a, b) => b[1] - a[1]);
 
+  const hasCooks = sortedCooks.length > 0;
+
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className={cn("grid gap-4", hasCooks && "md:grid-cols-2")}>
       {/* Cook Leaderboard */}
-      {sortedCooks.length > 0 && (
+      {hasCooks && (
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
