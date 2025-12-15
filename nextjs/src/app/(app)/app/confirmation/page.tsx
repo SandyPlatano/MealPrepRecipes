@@ -4,6 +4,7 @@ import {
 } from "@/app/actions/meal-plans";
 import { getSettings } from "@/app/actions/settings";
 import { getPantryItems } from "@/app/actions/pantry";
+import { getWeeklyNutritionDashboard } from "@/app/actions/nutrition";
 import { getWeekStart } from "@/types/meal-plan";
 import { ConfirmationView } from "@/components/confirmation/confirmation-view";
 import { redirect } from "next/navigation";
@@ -37,10 +38,11 @@ export default async function ConfirmationPage({
   }
 
   // Fetch all data in parallel
-  const [planResult, settingsResult, pantryResult] = await Promise.all([
+  const [planResult, settingsResult, pantryResult, nutritionResult] = await Promise.all([
     getWeekPlanWithFullRecipes(weekStartStr),
     getSettings(),
     getPantryItems(),
+    getWeeklyNutritionDashboard(weekStartStr),
   ]);
 
   // Handle errors from the plan result
@@ -76,6 +78,9 @@ export default async function ConfirmationPage({
   const settings = settingsResult.data;
   const pantryItems = pantryResult.data || [];
 
+  // Handle nutrition result (graceful - null if error)
+  const nutritionDashboard = nutritionResult.data;
+
   return (
     <div className="space-y-6">
       <ConfirmationView
@@ -85,6 +90,7 @@ export default async function ConfirmationPage({
         }
         cookColors={settings?.cook_colors || {}}
         pantryItems={pantryItems}
+        nutritionDashboard={nutritionDashboard}
       />
     </div>
   );
