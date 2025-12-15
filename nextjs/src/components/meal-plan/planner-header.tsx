@@ -160,9 +160,9 @@ export function PlannerHeader({
   const quotaExhausted = subscriptionTier === 'pro' && aiQuotaRemaining !== null && aiQuotaRemaining <= 0;
 
   return (
-    <div className="flex flex-col gap-3 pb-4 border-b">
-      {/* Week Navigation - Full width */}
-      <div className="flex items-center gap-2 w-full">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b">
+      {/* Week Navigation - Left side */}
+      <div className="flex items-center gap-2">
         <Button
           variant="outline"
           size="icon"
@@ -179,7 +179,7 @@ export function PlannerHeader({
           <DialogTrigger asChild>
             <Button
               variant="outline"
-              className="flex-1 justify-center font-mono font-semibold h-10 min-w-0"
+              className="justify-center font-mono font-semibold h-10 min-w-0"
             >
               <CalendarIcon className="h-4 w-4 mr-2" />
               <span className="truncate">{formatWeekRange(weekStartDate)}</span>
@@ -220,25 +220,30 @@ export function PlannerHeader({
         </Button>
 
         {!isCurrentWeek && (
-          <Button variant="ghost" size="sm" onClick={goToCurrentWeek} className="hidden sm:inline-flex h-10">
-            This Week
-          </Button>
+          <>
+            <Button variant="ghost" size="sm" onClick={goToCurrentWeek} className="hidden sm:inline-flex h-10">
+              This Week
+            </Button>
+            <Button variant="ghost" size="sm" onClick={goToCurrentWeek} className="sm:hidden h-10">
+              Today
+            </Button>
+          </>
         )}
       </div>
 
-      {/* Actions - Full width */}
-      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full">
+      {/* Actions - Right side */}
+      <div className="flex items-center gap-2">
         {/* Review Button */}
         {hasMeals ? (
           <Button
             asChild
             variant="outline"
             size="sm"
-            className="flex-[1_1_auto] sm:flex-none gap-2 min-w-[80px] h-10"
+            className="gap-2 h-10"
           >
             <Link href={`/app/review?week=${weekStartStr}`}>
               <Eye className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">Review</span>
+              <span>Review</span>
             </Link>
           </Button>
         ) : (
@@ -246,10 +251,10 @@ export function PlannerHeader({
             disabled
             variant="outline"
             size="sm"
-            className="flex-[1_1_auto] sm:flex-none gap-2 min-w-[80px] h-10"
+            className="gap-2 h-10"
           >
             <Eye className="h-4 w-4 flex-shrink-0" />
-            <span className="truncate">Review</span>
+            <span>Review</span>
           </Button>
         )}
 
@@ -258,23 +263,23 @@ export function PlannerHeader({
           <Button
             asChild
             size="sm"
-            className="flex-[1_1_auto] sm:flex-none gap-2 sm:min-w-[120px] min-w-[100px] h-10"
+            className="gap-2 h-10"
           >
             <Link href={`/app/confirmation?week=${weekStartStr}`}>
               <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">Confirm Plan</span>
-              <span className="sm:hidden truncate">Confirm</span>
+              <span className="hidden sm:inline">Confirm Plan</span>
+              <span className="sm:hidden">Confirm</span>
             </Link>
           </Button>
         ) : (
           <Button
             disabled
             size="sm"
-            className="flex-[1_1_auto] sm:flex-none gap-2 sm:min-w-[120px] min-w-[100px] h-10"
+            className="gap-2 h-10"
           >
             <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-            <span className="hidden sm:inline truncate">Confirm Plan</span>
-            <span className="sm:hidden truncate">Confirm</span>
+            <span className="hidden sm:inline">Confirm Plan</span>
+            <span className="sm:hidden">Confirm</span>
           </Button>
         )}
 
@@ -332,12 +337,6 @@ export function PlannerHeader({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        {!isCurrentWeek && (
-          <Button variant="ghost" size="sm" onClick={goToCurrentWeek} className="sm:hidden h-10 flex-shrink-0 min-w-[60px]">
-            Today
-          </Button>
-        )}
       </div>
 
       {/* Template Dialogs */}
