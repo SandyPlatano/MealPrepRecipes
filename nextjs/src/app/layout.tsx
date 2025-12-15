@@ -21,7 +21,7 @@ const caveat = Caveat({
   weight: ["400", "500", "600", "700"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://babewfd.vercel.app";
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://babewfd.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

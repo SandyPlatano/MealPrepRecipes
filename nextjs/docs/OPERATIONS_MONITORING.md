@@ -8,7 +8,7 @@ A health check endpoint is available for uptime monitoring services.
 
 ### Endpoint
 ```
-GET https://babewfd.vercel.app/api/health
+GET https://babewfd.com/api/health
 ```
 
 ### Response Format
@@ -43,7 +43,7 @@ GET https://babewfd.vercel.app/api/health
 
 1. Create account at https://betteruptime.com
 2. Add new monitor:
-   - **URL**: `https://babewfd.vercel.app/api/health`
+   - **URL**: `https://babewfd.com/api/health`
    - **Check interval**: 3 minutes
    - **Request type**: GET
    - **Expected status code**: 200

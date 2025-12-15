@@ -12,8 +12,8 @@ Configure the Customer Portal to match your app branding.
 
 ### Branding Settings:
 - **Business name**: Babe, What's for Dinner?
-- **Privacy policy**: https://babewfd.vercel.app/privacy
-- **Terms of service**: https://babewfd.vercel.app/terms
+- **Privacy policy**: https://babewfd.com/privacy
+- **Terms of service**: https://babewfd.com/terms
 - **Support phone/email**: support@babewhatsfordinner.com
 
 ### Features to Enable:
@@ -51,7 +51,7 @@ NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM=price_xxxxx
 
 ### Webhook Endpoint:
 ```
-https://babewfd.vercel.app/api/stripe/webhook
+https://babewfd.com/api/stripe/webhook
 ```
 
 ### Events to Subscribe:

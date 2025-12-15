@@ -198,8 +198,8 @@ The application uses the following external services that require API keys:
 2. **Create New OAuth Client**
    - Click "Create Credentials" → "OAuth client ID"
    - Configure same redirect URIs as existing client:
-     - `https://babewfd.vercel.app/api/auth/callback/google`
-     - `https://babewfd.vercel.app/api/google/callback`
+     - `https://babewfd.com/api/auth/callback/google`
+     - `https://babewfd.com/api/google/callback`
 
 3. **Update Environment Variables**
    ```bash
