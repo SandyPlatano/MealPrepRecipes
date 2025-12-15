@@ -6,7 +6,6 @@ import { CheckCircle2, AlertCircle } from "lucide-react";
 import { formatWeekRange, type DayOfWeek } from "@/types/meal-plan";
 import { WeekSchedule } from "@/components/finalize/week-schedule";
 import { CheckoutShoppingList } from "@/components/finalize/checkout-shopping-list";
-import { WeekStats } from "@/components/finalize/week-stats";
 import { ConfirmationActions } from "./confirmation-actions";
 import { Confetti } from "@/components/ui/confetti";
 import { MacroDashboard } from "@/components/nutrition/macro-dashboard";
@@ -118,9 +117,6 @@ export function ConfirmationView({
           </div>
         </CardContent>
       </Card>
-
-      {/* Stats Section */}
-      <WeekStats assignments={allAssignments} cookColors={cookColors} />
 
       {/* Nutrition Summary */}
       {nutritionDashboard && (

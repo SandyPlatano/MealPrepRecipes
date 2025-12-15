@@ -5,7 +5,6 @@ import { AlertCircle } from "lucide-react";
 import { formatWeekRange, type DayOfWeek } from "@/types/meal-plan";
 import { WeekSchedule } from "./week-schedule";
 import { CheckoutShoppingList } from "./checkout-shopping-list";
-import { WeekStats } from "./week-stats";
 import { FinalizeActions } from "./finalize-actions";
 import { MacroDashboard } from "@/components/nutrition/macro-dashboard";
 import type { PantryItem } from "@/types/shopping-list";
@@ -95,9 +94,6 @@ export function FinalizeView({
           </div>
         </CardContent>
       </Card>
-
-      {/* Stats Section */}
-      <WeekStats assignments={allAssignments} cookColors={cookColors} />
 
       {/* Nutrition Summary */}
       {nutritionDashboard && (
