@@ -16,6 +16,7 @@ import type {
   DailyMacroSummary,
   WeeklyMacroDashboard,
 } from "@/types/nutrition";
+import { MACRO_GOAL_PRESETS } from "@/types/nutrition";
 import {
   calculateDailyMacroSummary,
   calculateWeeklyMacroDashboard,

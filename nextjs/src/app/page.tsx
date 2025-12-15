@@ -83,6 +83,12 @@ export default function Home() {
 
           {/* Mobile Navigation */}
           <div className="md:hidden flex items-center gap-2">
+            <Link
+              href="/login"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Log in
+            </Link>
             <Link href="/signup">
               <Button size="sm">Sign Up</Button>
             </Link>
