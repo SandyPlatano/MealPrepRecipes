@@ -8,3 +8,10 @@
 {"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-15 11:35:10.016"}
 {"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-15 11:47:36.243"}
 {"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-15 11:47:36.244"}
+{"arguments":{"url":"https://www.babewfd.com/app?week=2025-12-15"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-15 11:50:08.966","tool":"puppeteer_navigate"}
+{"0":"n","1":"p","2":"x","level":"info","message":"Launching browser with config:","service":"mcp-puppeteer","timestamp":"2025-12-15 11:50:08.967"}
+{"level":"info","message":"Browser launched successfully","service":"mcp-puppeteer","timestamp":"2025-12-15 11:50:10.060"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-15 11:50:10.061","url":"https://www.babewfd.com/app?week=2025-12-15"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-15 11:50:11.667","url":"https://www.babewfd.com/app?week=2025-12-15"}
+{"arguments":{"name":"plan-page"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-15 11:50:16.968","tool":"puppeteer_screenshot"}
+{"arguments":{},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-15 11:50:24.011","tool":"puppeteer_connect_active_tab"}
