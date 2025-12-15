@@ -21,11 +21,65 @@ const caveat = Caveat({
   weight: ["400", "500", "600", "700"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://babewfd.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Babe, What's for Dinner?",
-  description: "Finally, an answer. Meal planning for couples and families.",
-  keywords: ["meal planning", "recipes", "dinner", "cooking", "family meals"],
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Babe, What's for Dinner? | Meal Planning Made Simple",
+    template: "%s | Babe, What's for Dinner?",
+  },
+  description:
+    "Finally, an answer. Plan meals, save recipes, and generate shopping lists. AI-powered meal suggestions for couples and families.",
+  keywords: [
+    "meal planning",
+    "recipes",
+    "dinner",
+    "cooking",
+    "family meals",
+    "shopping list",
+    "meal prep",
+    "weekly menu",
+    "recipe organizer",
+  ],
+  authors: [{ name: "Babe, What's for Dinner?" }],
+  creator: "Babe, What's for Dinner?",
   manifest: "/manifest.json",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteUrl,
+    siteName: "Babe, What's for Dinner?",
+    title: "Babe, What's for Dinner? | Meal Planning Made Simple",
+    description:
+      "Finally, an answer. Plan meals, save recipes, and generate shopping lists. AI-powered meal suggestions for couples and families.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Babe, What's for Dinner? - Meal Planning App",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Babe, What's for Dinner? | Meal Planning Made Simple",
+    description:
+      "Finally, an answer. Plan meals, save recipes, and generate shopping lists.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

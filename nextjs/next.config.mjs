@@ -8,8 +8,41 @@ const nextConfig = {
     // Allow production builds to complete even with type errors
     ignoreBuildErrors: true,
   },
+  // Image optimization for external domains
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.supabase.co",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+    ],
+  },
   async headers() {
     return [
+      {
+        // Cache static assets for 1 year
+        source: "/icons/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        // Cache fonts for 1 year
+        source: "/fonts/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
       {
         // Apply security headers to all routes
         source: "/:path*",
