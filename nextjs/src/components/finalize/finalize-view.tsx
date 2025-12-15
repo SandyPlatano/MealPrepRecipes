@@ -114,11 +114,7 @@ export function FinalizeView({
       />
 
       {/* Actions - Sticky at bottom */}
-      <FinalizeActions
-        weekStart={weekStart}
-        assignments={allAssignments}
-        weekStartStr={weekStartStr}
-      />
+      <FinalizeActions weekStartStr={weekStartStr} />
     </div>
   );
 }

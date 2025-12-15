@@ -16,3 +16,7 @@
 {"arguments":{"name":"plan-page"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-15 11:50:16.968","tool":"puppeteer_screenshot"}
 {"arguments":{},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-15 11:50:24.011","tool":"puppeteer_connect_active_tab"}
 {"level":"info","message":"Puppeteer MCP Server closing","service":"mcp-puppeteer","timestamp":"2025-12-15 12:38:59.622"}
+{"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-15 12:52:41.381"}
+{"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-15 12:52:41.382"}
+{"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-15 13:11:47.480"}
+{"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-15 13:11:47.481"}

@@ -1,0 +1,332 @@
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Mail,
+  Calendar,
+  Download,
+  ArrowRight,
+  Loader2,
+} from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { formatWeekRange } from "@/types/meal-plan";
+import type { DayOfWeek } from "@/types/meal-plan";
+
+interface Recipe {
+  id: string;
+  title: string;
+  recipe_type: string;
+  prep_time: string | null;
+  cook_time: string | null;
+  ingredients: string[];
+  instructions: string[];
+}
+
+interface Assignment {
+  id: string;
+  recipe_id: string;
+  day_of_week: DayOfWeek;
+  cook: string | null;
+  recipe: Recipe;
+}
+
+interface ConfirmationActionsProps {
+  weekStart: Date;
+  assignments: Assignment[];
+  weekStartStr: string;
+}
+
+export function ConfirmationActions({
+  weekStart,
+  assignments,
+  weekStartStr,
+}: ConfirmationActionsProps) {
+  const router = useRouter();
+  const [isSending, setIsSending] = useState(false);
+  const [isAddingToCalendar, setIsAddingToCalendar] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleSendEmail = async () => {
+    if (assignments.length === 0) {
+      toast.error("No meals to send");
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      const response = await fetch("/api/send-shopping-list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          weekRange: formatWeekRange(weekStart),
+          weekStart: weekStartStr,
+          items: assignments.map((a) => ({
+            recipe: a.recipe,
+            cook: a.cook,
+            day: a.day_of_week,
+          })),
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        toast.error(result.error || "Failed to send plan");
+      } else {
+        toast.success("Plan sent to your email!");
+      }
+    } catch {
+      toast.error("Failed to send plan");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleAddToCalendar = async () => {
+    if (assignments.length === 0) {
+      toast.error("No meals to add to calendar");
+      return;
+    }
+
+    setIsAddingToCalendar(true);
+    try {
+      const response = await fetch("/api/google-calendar/create-events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          weekRange: formatWeekRange(weekStart),
+          items: assignments.map((a) => ({
+            recipe: a.recipe,
+            cook: a.cook,
+            day: a.day_of_week,
+          })),
+          userTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        toast.error(result.error || "Failed to add to calendar");
+      } else if (result.eventsCreated > 0) {
+        toast.success(`Created ${result.eventsCreated} calendar events!`);
+      } else {
+        toast.info(
+          "No events created. Check Google Calendar connection in Settings."
+        );
+      }
+    } catch {
+      toast.error("Failed to add to calendar");
+    } finally {
+      setIsAddingToCalendar(false);
+    }
+  };
+
+  const handleDownload = () => {
+    if (assignments.length === 0) {
+      toast.error("No meals to download");
+      return;
+    }
+
+    setIsDownloading(true);
+
+    try {
+      // Generate text file
+      let text = `Meal Plan - ${formatWeekRange(weekStart)}\n`;
+      text += "=".repeat(50) + "\n\n";
+
+      // Group by day
+      const days: DayOfWeek[] = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ];
+
+      const byDay: Record<string, Assignment[]> = {};
+      assignments.forEach((a) => {
+        if (!byDay[a.day_of_week]) {
+          byDay[a.day_of_week] = [];
+        }
+        byDay[a.day_of_week].push(a);
+      });
+
+      days.forEach((day) => {
+        const dayAssignments = byDay[day];
+        if (dayAssignments && dayAssignments.length > 0) {
+          text += `${day}\n`;
+          text += "-".repeat(30) + "\n";
+          dayAssignments.forEach((a) => {
+            text += `• ${a.recipe.title}`;
+            if (a.cook) text += ` (${a.cook})`;
+            text += "\n";
+          });
+          text += "\n";
+        }
+      });
+
+      // Add shopping list
+      text += "\n\nSHOPPING LIST\n";
+      text += "=".repeat(50) + "\n\n";
+
+      const allIngredients = new Set<string>();
+      assignments.forEach((a) => {
+        if (a.recipe.ingredients) {
+          a.recipe.ingredients.forEach((ing) => allIngredients.add(ing));
+        }
+      });
+
+      Array.from(allIngredients).forEach((ing, index) => {
+        text += `${index + 1}. ${ing}\n`;
+      });
+
+      text += "\n\nGenerated by your meal planning app\n";
+
+      // Create and download file
+      const blob = new Blob([text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `meal-plan-${formatWeekRange(weekStart)
+        .replace(/\s/g, "-")
+        .toLowerCase()}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success("Meal plan downloaded!");
+    } catch {
+      toast.error("Failed to download");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleStartNewWeek = () => {
+    const nextWeek = new Date(weekStart);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    const nextWeekStr = nextWeek.toISOString().split("T")[0];
+    router.push(`/app?week=${nextWeekStr}`);
+  };
+
+  return (
+    <Card className="border-t-2 border-primary/20 sticky bottom-0 md:bottom-4 z-10 shadow-lg">
+      <CardContent className="p-3 md:p-4 pb-safe">
+        {/* Desktop Layout */}
+        <div className="hidden md:flex items-center gap-3">
+          {/* Share actions */}
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleSendEmail}
+              disabled={isSending}
+            >
+              {isSending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Mail className="h-4 w-4 mr-2" />
+              )}
+              Send to Email
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={handleAddToCalendar}
+              disabled={isAddingToCalendar}
+            >
+              {isAddingToCalendar ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Calendar className="h-4 w-4 mr-2" />
+              )}
+              Add to Calendar
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={handleDownload}
+              disabled={isDownloading}
+            >
+              {isDownloading ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4 mr-2" />
+              )}
+              Download
+            </Button>
+          </div>
+
+          <div className="flex-1" />
+
+          {/* Primary CTA */}
+          <Button onClick={handleStartNewWeek}>
+            Start Planning Next Week
+            <ArrowRight className="h-4 w-4 ml-2" />
+          </Button>
+        </div>
+
+        {/* Mobile Layout */}
+        <div className="md:hidden flex items-center gap-2">
+          {/* Share actions - icon only */}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleSendEmail}
+            disabled={isSending}
+            className="h-11 w-11 flex-shrink-0"
+          >
+            {isSending ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Mail className="h-5 w-5" />
+            )}
+          </Button>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleAddToCalendar}
+            disabled={isAddingToCalendar}
+            className="h-11 w-11 flex-shrink-0"
+          >
+            {isAddingToCalendar ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Calendar className="h-5 w-5" />
+            )}
+          </Button>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="h-11 w-11 flex-shrink-0"
+          >
+            {isDownloading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Download className="h-5 w-5" />
+            )}
+          </Button>
+
+          <div className="flex-1" />
+
+          {/* Primary CTA */}
+          <Button
+            onClick={handleStartNewWeek}
+            className="h-11 px-4 flex-shrink-0"
+          >
+            <span className="font-medium">Next Week</span>
+            <ArrowRight className="h-5 w-5 ml-2" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

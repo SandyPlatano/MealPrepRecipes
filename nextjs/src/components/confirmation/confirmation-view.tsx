@@ -1,0 +1,119 @@
+"use client";
+
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle2 } from "lucide-react";
+import { formatWeekRange, type DayOfWeek } from "@/types/meal-plan";
+import { WeekSchedule } from "@/components/finalize/week-schedule";
+import { CheckoutShoppingList } from "@/components/finalize/checkout-shopping-list";
+import { WeekStats } from "@/components/finalize/week-stats";
+import { ConfirmationActions } from "./confirmation-actions";
+import { Confetti } from "@/components/ui/confetti";
+import type { PantryItem } from "@/types/shopping-list";
+
+interface Recipe {
+  id: string;
+  title: string;
+  recipe_type: string;
+  prep_time: string | null;
+  cook_time: string | null;
+  ingredients: string[];
+  instructions: string[];
+}
+
+interface Assignment {
+  id: string;
+  recipe_id: string;
+  day_of_week: DayOfWeek;
+  cook: string | null;
+  recipe: Recipe;
+}
+
+interface WeekPlan {
+  meal_plan: Record<string, unknown>;
+  assignments: Record<DayOfWeek, Assignment[]>;
+}
+
+interface ConfirmationViewProps {
+  weekStart: Date;
+  weekPlan: WeekPlan;
+  cookColors: Record<string, string>;
+  pantryItems: PantryItem[];
+}
+
+export function ConfirmationView({
+  weekStart,
+  weekPlan,
+  cookColors,
+  pantryItems,
+}: ConfirmationViewProps) {
+  const weekStartStr = weekStart.toISOString().split("T")[0];
+
+  // Get all assignments as flat array
+  const allAssignments = Object.values(weekPlan.assignments).flat();
+
+  // Calculate stats
+  const totalMeals = allAssignments.length;
+
+  return (
+    <div className="space-y-6 pb-24 md:pb-8">
+      {/* Confetti celebration */}
+      <Confetti active={true} duration={3000} pieces={80} />
+
+      {/* Success Header Card */}
+      <Card className="border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20">
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/50">
+                <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold font-mono text-green-700 dark:text-green-300">
+                  Plan Confirmed!
+                </h2>
+                <p className="text-muted-foreground mt-1">
+                  {formatWeekRange(weekStart)}
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Your meal plan has been saved to History. You can find all your
+                  past plans there, or delete them anytime.
+                </p>
+              </div>
+            </div>
+
+            {/* Stats Badge */}
+            <div className="flex flex-col items-start md:items-end gap-2">
+              <Badge variant="secondary" className="text-sm">
+                {totalMeals} meal{totalMeals !== 1 ? "s" : ""} planned
+              </Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stats Section */}
+      <WeekStats assignments={allAssignments} cookColors={cookColors} />
+
+      {/* Schedule Section */}
+      <WeekSchedule
+        weekStart={weekStart}
+        assignments={weekPlan.assignments}
+        cookColors={cookColors}
+      />
+
+      {/* Shopping List Section */}
+      <CheckoutShoppingList
+        assignments={allAssignments}
+        pantryItems={pantryItems}
+      />
+
+      {/* Actions - Sticky at bottom */}
+      <ConfirmationActions
+        weekStart={weekStart}
+        assignments={allAssignments}
+        weekStartStr={weekStartStr}
+      />
+    </div>
+  );
+}
