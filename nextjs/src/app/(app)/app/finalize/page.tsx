@@ -12,13 +12,14 @@ interface FinalizePageProps {
 export default async function FinalizePage({ searchParams }: FinalizePageProps) {
   const params = await searchParams;
 
-  // Get week start from URL or default to current week
-  // Use T00:00:00 suffix to ensure consistent date parsing across timezones
-  const weekStartDate = params.week
-    ? new Date(params.week + "T00:00:00")
-    : getWeekStart(new Date());
+  // Use the week param directly if provided (already in YYYY-MM-DD format)
+  // Only calculate from current date if no param provided
+  const weekStartStr = params.week
+    ? params.week
+    : getWeekStart(new Date()).toISOString().split("T")[0];
 
-  const weekStartStr = weekStartDate.toISOString().split("T")[0];
+  // Create date for FinalizeView (used for display only)
+  const weekStartDate = new Date(weekStartStr + "T12:00:00Z");
 
   // Fetch all data in parallel
   const [planResult, settingsResult, pantryResult] = await Promise.all([
