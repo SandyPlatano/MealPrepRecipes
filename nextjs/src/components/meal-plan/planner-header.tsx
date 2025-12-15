@@ -29,6 +29,7 @@ import {
   FolderOpen,
   Sparkles,
   Lock,
+  Eye,
 } from "lucide-react";
 import { formatWeekRange, getWeekStart } from "@/types/meal-plan";
 import { SaveTemplateDialog } from "./save-template-dialog";
@@ -227,39 +228,78 @@ export function PlannerHeader({
 
       {/* Actions - Full width */}
       <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full">
-        {/* AI Suggest Button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleAISuggest}
-          disabled={quotaExhausted}
-          className="flex-[1_1_auto] sm:flex-none min-w-[80px] gap-2 h-10 border-coral-500 hover:bg-coral-50 dark:hover:bg-coral-950/20"
-        >
-          <Sparkles className="h-4 w-4 text-coral-500 flex-shrink-0" />
-          <span className="hidden md:inline truncate">
-            {canUseAI
-              ? quotaExhausted
-                ? 'Quota Used'
-                : 'AI Suggest'
-              : 'AI Suggest ✨'}
-          </span>
-          <span className="md:hidden">AI</span>
-          {canUseAI && aiQuotaRemaining !== null && !quotaExhausted && (
-            <span className="hidden sm:inline text-xs text-muted-foreground">
-              ({aiQuotaRemaining} left)
-            </span>
-          )}
-        </Button>
+        {/* Preview Button */}
+        {hasMeals ? (
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="flex-[1_1_auto] sm:flex-none gap-2 min-w-[80px] h-10"
+          >
+            <Link href={`/app/preview?week=${weekStartStr}`}>
+              <Eye className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">Preview</span>
+            </Link>
+          </Button>
+        ) : (
+          <Button
+            disabled
+            variant="outline"
+            size="sm"
+            className="flex-[1_1_auto] sm:flex-none gap-2 min-w-[80px] h-10"
+          >
+            <Eye className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">Preview</span>
+          </Button>
+        )}
 
-        {/* Actions Dropdown */}
+        {/* Confirm Plan Button - Primary CTA */}
+        {hasMeals ? (
+          <Button
+            asChild
+            size="sm"
+            className="flex-[1_1_auto] sm:flex-none gap-2 sm:min-w-[120px] min-w-[100px] h-10"
+          >
+            <Link href={`/app/confirmation?week=${weekStartStr}`}>
+              <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">Confirm Plan</span>
+              <span className="sm:hidden truncate">Confirm</span>
+            </Link>
+          </Button>
+        ) : (
+          <Button
+            disabled
+            size="sm"
+            className="flex-[1_1_auto] sm:flex-none gap-2 sm:min-w-[120px] min-w-[100px] h-10"
+          >
+            <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+            <span className="hidden sm:inline truncate">Confirm Plan</span>
+            <span className="sm:hidden truncate">Confirm</span>
+          </Button>
+        )}
+
+        {/* More Options Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="flex-[1_1_auto] sm:flex-none sm:min-w-[100px] min-w-[80px] h-10">
-              <MoreHorizontal className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="truncate">Actions</span>
+            <Button variant="outline" size="icon" className="h-10 w-10 flex-shrink-0">
+              <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
+            {/* AI Suggest */}
+            <DropdownMenuItem
+              onClick={handleAISuggest}
+              disabled={quotaExhausted}
+              className="text-coral-600 focus:text-coral-600"
+            >
+              <Sparkles className="h-4 w-4 mr-2 text-coral-500" />
+              {canUseAI
+                ? quotaExhausted
+                  ? 'Quota Used'
+                  : `AI Suggest${aiQuotaRemaining !== null ? ` (${aiQuotaRemaining} left)` : ''}`
+                : 'AI Suggest ✨'}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => setTemplateManagerOpen(true)}
             >
@@ -292,31 +332,6 @@ export function PlannerHeader({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        {/* Finalize Plan Button - Primary CTA */}
-        {hasMeals ? (
-          <Button
-            asChild
-            size="sm"
-            className="flex-[1_1_auto] sm:flex-none gap-2 sm:min-w-[120px] min-w-[100px] h-10"
-          >
-            <Link href={`/app/finalize?week=${weekStartStr}`}>
-              <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">Finalize Plan</span>
-              <span className="sm:hidden truncate">Finalize</span>
-            </Link>
-          </Button>
-        ) : (
-          <Button
-            disabled
-            size="sm"
-            className="flex-[1_1_auto] sm:flex-none gap-2 sm:min-w-[120px] min-w-[100px] h-10"
-          >
-            <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-            <span className="hidden sm:inline truncate">Finalize Plan</span>
-            <span className="sm:hidden truncate">Finalize</span>
-          </Button>
-        )}
 
         {!isCurrentWeek && (
           <Button variant="ghost" size="sm" onClick={goToCurrentWeek} className="sm:hidden h-10 flex-shrink-0 min-w-[60px]">
