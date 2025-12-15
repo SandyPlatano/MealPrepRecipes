@@ -693,12 +693,13 @@ export async function getWeekPlanWithFullRecipes(weekStart: string) {
 
   if (mealPlan) {
     // Get assignments with full recipe details including ingredients
+    // Select specific fields instead of (*) to avoid potential RLS issues
     const { data: assignmentData, error: assignmentError } = await supabase
       .from("meal_assignments")
       .select(
         `
         *,
-        recipe:recipes(*)
+        recipe:recipes(id, title, recipe_type, prep_time, cook_time, ingredients, instructions)
       `
       )
       .eq("meal_plan_id", mealPlan.id);
