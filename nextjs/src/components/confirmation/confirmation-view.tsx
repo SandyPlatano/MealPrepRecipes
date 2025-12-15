@@ -9,7 +9,9 @@ import { CheckoutShoppingList } from "@/components/finalize/checkout-shopping-li
 import { WeekStats } from "@/components/finalize/week-stats";
 import { ConfirmationActions } from "./confirmation-actions";
 import { Confetti } from "@/components/ui/confetti";
+import { MacroDashboard } from "@/components/nutrition/macro-dashboard";
 import type { PantryItem } from "@/types/shopping-list";
+import type { WeeklyMacroDashboard } from "@/types/nutrition";
 
 interface Recipe {
   id: string;
@@ -39,6 +41,7 @@ interface ConfirmationViewProps {
   weekPlan: WeekPlan;
   cookColors: Record<string, string>;
   pantryItems: PantryItem[];
+  nutritionDashboard?: WeeklyMacroDashboard | null;
 }
 
 export function ConfirmationView({
@@ -46,6 +49,7 @@ export function ConfirmationView({
   weekPlan,
   cookColors,
   pantryItems,
+  nutritionDashboard,
 }: ConfirmationViewProps) {
   const weekStartStr = weekStart.toISOString().split("T")[0];
 
@@ -94,6 +98,11 @@ export function ConfirmationView({
 
       {/* Stats Section */}
       <WeekStats assignments={allAssignments} cookColors={cookColors} />
+
+      {/* Nutrition Summary */}
+      {nutritionDashboard && (
+        <MacroDashboard dashboard={nutritionDashboard} variant="full" />
+      )}
 
       {/* Schedule Section */}
       <WeekSchedule
