@@ -602,45 +602,54 @@ export async function markMealPlanAsSent(weekStart: string) {
   const { user, household, error: authError } = await getCachedUserWithHousehold();
 
   if (authError || !user || !household) {
+    console.error("[markMealPlanAsSent] Auth error:", authError?.message || "No household found");
     return { error: authError?.message || "No household found" };
   }
 
   const supabase = await createClient();
 
   // First, check if meal plan exists
-  const { data: existingPlan } = await supabase
+  const { data: existingPlans, error: fetchError } = await supabase
     .from("meal_plans")
-    .select("id")
+    .select("id, week_start, sent_at")
     .eq("household_id", household.household_id)
-    .eq("week_start", weekStart)
-    .single();
+    .eq("week_start", weekStart);
 
-  if (!existingPlan) {
-    console.error("[markMealPlanAsSent] No meal plan found for week:", weekStart);
+  if (fetchError) {
+    console.error("[markMealPlanAsSent] Fetch error:", fetchError.message);
+    return { error: fetchError.message };
+  }
+
+  if (!existingPlans || existingPlans.length === 0) {
+    console.error("[markMealPlanAsSent] No meal plan found for week:", weekStart, "household:", household.household_id);
     return { error: "No meal plan found for this week" };
   }
 
+  const existingPlan = existingPlans[0];
+  console.log("[markMealPlanAsSent] Found meal plan:", existingPlan.id, "for week:", weekStart);
+
   // Update the meal plan to mark it as sent
-  const { data: updatedPlan, error } = await supabase
+  const { data: updatedPlans, error } = await supabase
     .from("meal_plans")
     .update({ sent_at: new Date().toISOString() })
     .eq("id", existingPlan.id)
-    .select()
-    .single();
+    .select();
 
   if (error) {
     console.error("[markMealPlanAsSent] Update error:", error.message);
     return { error: error.message };
   }
 
-  if (!updatedPlan) {
+  if (!updatedPlans || updatedPlans.length === 0) {
     console.error("[markMealPlanAsSent] Update returned no data");
     return { error: "Failed to update meal plan" };
   }
 
+  console.log("[markMealPlanAsSent] Successfully updated meal plan:", updatedPlans[0].id, "sent_at:", updatedPlans[0].sent_at);
+
   revalidateTag(`meal-plan-${household.household_id}`);
   revalidatePath("/app/history");
-  return { error: null, data: updatedPlan };
+  return { error: null, data: updatedPlans[0] };
 }
 
 // Get all past meal plans that were sent

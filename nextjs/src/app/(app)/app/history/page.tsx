@@ -9,6 +9,9 @@ import { formatDistanceToNow, format } from "date-fns";
 import Link from "next/link";
 import { Calendar, Heart } from "lucide-react";
 
+// Force dynamic rendering to ensure fresh data
+export const dynamic = "force-dynamic";
+
 export default async function HistoryPage() {
   const [historyResult, plansResult] = await Promise.all([
     getCookingHistory(),

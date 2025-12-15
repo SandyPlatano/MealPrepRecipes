@@ -8,6 +8,9 @@ import { getWeekStart } from "@/types/meal-plan";
 import { ConfirmationView } from "@/components/confirmation/confirmation-view";
 import { redirect } from "next/navigation";
 
+// Force dynamic rendering to ensure fresh data
+export const dynamic = "force-dynamic";
+
 interface ConfirmationPageProps {
   searchParams: Promise<{ week?: string }>;
 }
