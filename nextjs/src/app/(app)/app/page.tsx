@@ -174,7 +174,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </div>
 
         <MealPlannerGrid
-          weekStart={weekStartDate}
+          weekStartStr={weekStartStr}
           weekPlan={weekPlan}
           recipes={recipes}
           cookNames={cookNames}

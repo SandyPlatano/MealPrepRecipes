@@ -54,7 +54,7 @@ import type { SubscriptionTier } from "@/types/subscription";
 import type { RecipeNutrition, WeeklyMacroDashboard, MacroGoals } from "@/types/nutrition";
 
 interface MealPlannerGridProps {
-  weekStart: Date;
+  weekStartStr: string;
   weekPlan: WeekPlanData;
   recipes: Recipe[];
   cookNames: string[];
@@ -77,7 +77,7 @@ interface MealPlannerGridProps {
 }
 
 export function MealPlannerGrid({
-  weekStart,
+  weekStartStr,
   weekPlan,
   recipes,
   cookNames,
@@ -157,15 +157,17 @@ export function MealPlannerGrid({
     return Object.values(assignmentsWithOptimisticCooks).flat();
   }, [assignmentsWithOptimisticCooks]);
 
-  const weekStartStr = weekStart.toISOString().split("T")[0];
+  // Create a Date object for display purposes (e.g., formatWeekRange)
+  // Use 'T00:00:00' to ensure consistent parsing across timezones
+  const weekStartDate = new Date(weekStartStr + "T00:00:00");
 
   // Week navigation handlers
   const navigateWeek = useCallback((direction: "prev" | "next") => {
-    const newDate = new Date(weekStart);
+    const newDate = new Date(weekStartStr + "T00:00:00");
     newDate.setDate(newDate.getDate() + (direction === "next" ? 7 : -7));
     const weekStr = newDate.toISOString().split("T")[0];
     router.push(`/app/plan?week=${weekStr}`);
-  }, [weekStart, router]);
+  }, [weekStartStr, router]);
 
   const goToCurrentWeek = useCallback(() => {
     const currentWeek = getWeekStart(new Date());
@@ -240,7 +242,7 @@ export function MealPlannerGrid({
 
   // Handler for copying last week
   const handleCopyLastWeek = useCallback(async () => {
-    const previousWeekStart = new Date(weekStart);
+    const previousWeekStart = new Date(weekStartStr + "T00:00:00");
     previousWeekStart.setDate(previousWeekStart.getDate() - 7);
     const prevWeekStr = previousWeekStart.toISOString().split("T")[0];
 
@@ -252,7 +254,7 @@ export function MealPlannerGrid({
         toast.success(`Copied ${result.copiedCount} meals from last week`);
       }
     });
-  }, [weekStart, weekStartStr]);
+  }, [weekStartStr]);
 
   // Handler for clearing all meals
   const handleClearAll = useCallback(async () => {
@@ -278,7 +280,7 @@ export function MealPlannerGrid({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          weekRange: formatWeekRange(weekStart),
+          weekRange: formatWeekRange(weekStartDate),
           weekStart: weekStartStr,
           items: allAssignments.map((a) => ({
             recipe: a.recipe,
@@ -299,7 +301,7 @@ export function MealPlannerGrid({
     } finally {
       setIsSending(false);
     }
-  }, [allAssignments, weekStart, weekStartStr]);
+  }, [allAssignments, weekStartDate, weekStartStr]);
 
 
   // Drag handlers
@@ -370,7 +372,7 @@ export function MealPlannerGrid({
           {/* Header */}
           <div ref={headerRef} className={isPending ? "opacity-75 pointer-events-none" : ""}>
             <PlannerHeader
-              weekStart={weekStart}
+              weekStartStr={weekStartStr}
               onCopyLastWeek={handleCopyLastWeek}
               onClearAll={handleClearAll}
               onSendPlan={handleSendPlan}
@@ -399,7 +401,7 @@ export function MealPlannerGrid({
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
                   <div className="text-sm font-semibold min-w-[180px] text-center">
-                    {formatWeekRange(weekStart)}
+                    {formatWeekRange(weekStartDate)}
                   </div>
                   <Button
                     variant="outline"
@@ -422,7 +424,7 @@ export function MealPlannerGrid({
           {/* Vertical Stacked Cards */}
           <div className={`space-y-2 transition-opacity ${isPending ? "opacity-60" : ""}`}>
             {DAYS_OF_WEEK.map((day, index) => {
-              const dayDate = new Date(weekStart);
+              const dayDate = new Date(weekStartDate);
               dayDate.setDate(dayDate.getDate() + index);
 
               return (

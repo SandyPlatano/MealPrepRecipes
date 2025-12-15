@@ -19,6 +19,11 @@
             "date": 1765745402410,
             "name": "/Users/ferm/Documents/GitHub/MealPrepRecipes/logs/mcp-puppeteer-2025-12-14.log",
             "hash": "c0ed4d32e04b874a0e77a7f12a53311490d7eac907efdcc5f27c0a604c8b87c0"
+        },
+        {
+            "date": 1765813423709,
+            "name": "/Users/ferm/Documents/GitHub/MealPrepRecipes/logs/mcp-puppeteer-2025-12-15.log",
+            "hash": "21945a21a1a9ef414800b3b279a55041dd82df88b84845e306a999a68f80162a"
         }
     ],
     "hashType": "sha256"

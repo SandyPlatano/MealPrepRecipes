@@ -37,7 +37,7 @@ import { UpgradeModal } from "@/components/subscriptions/UpgradeModal";
 import type { SubscriptionTier } from "@/types/subscription";
 
 interface PlannerHeaderProps {
-  weekStart: Date;
+  weekStartStr: string;
   onCopyLastWeek: () => Promise<void>;
   onClearAll: () => Promise<void>;
   onSendPlan: () => Promise<void>;
@@ -52,7 +52,7 @@ interface PlannerHeaderProps {
 }
 
 export function PlannerHeader({
-  weekStart,
+  weekStartStr,
   onCopyLastWeek,
   onClearAll,
   hasMeals,
@@ -78,10 +78,13 @@ export function PlannerHeader({
     setIsMounted(true);
   }, []);
 
+  // Create a Date object for display purposes (e.g., formatWeekRange, Calendar)
+  // Use 'T00:00:00' to ensure consistent parsing across timezones
+  const weekStartDate = new Date(weekStartStr + "T00:00:00");
+
   // Defer isCurrentWeek calculation to avoid hydration mismatch
   const isCurrentWeek = isMounted
-    ? weekStart.toISOString().split("T")[0] ===
-      getWeekStart(new Date()).toISOString().split("T")[0]
+    ? weekStartStr === getWeekStart(new Date()).toISOString().split("T")[0]
     : false;
 
   const navigateWeek = (direction: "prev" | "next") => {
@@ -90,7 +93,7 @@ export function PlannerHeader({
       setUpgradeModalOpen(true);
       return;
     }
-    const newDate = new Date(weekStart);
+    const newDate = new Date(weekStartStr + "T00:00:00");
     newDate.setDate(newDate.getDate() + (direction === "next" ? 7 : -7));
     const weekStr = newDate.toISOString().split("T")[0];
     router.push(`/app/plan?week=${weekStr}`);
@@ -177,7 +180,7 @@ export function PlannerHeader({
               className="flex-1 justify-center font-mono font-semibold h-10 min-w-0"
             >
               <CalendarIcon className="h-4 w-4 mr-2" />
-              <span className="truncate">{formatWeekRange(weekStart)}</span>
+              <span className="truncate">{formatWeekRange(weekStartDate)}</span>
               {!canNavigateWeeks && (
                 <Lock className="h-3 w-3 ml-1 text-muted-foreground" />
               )}
@@ -193,7 +196,7 @@ export function PlannerHeader({
               )}
               <Calendar
                 mode="single"
-                selected={weekStart}
+                selected={weekStartDate}
                 onSelect={handleDateSelect}
                 initialFocus
                 className="w-full"
@@ -292,8 +295,7 @@ export function PlannerHeader({
         {/* Finalize Plan Button - Primary CTA */}
         <Button
           onClick={() => {
-            const weekStr = weekStart.toISOString().split("T")[0];
-            router.push(`/app/finalize?week=${weekStr}`);
+            router.push(`/app/finalize?week=${weekStartStr}`);
           }}
           disabled={!hasMeals}
           size="sm"
@@ -315,20 +317,20 @@ export function PlannerHeader({
       <SaveTemplateDialog
         open={saveTemplateOpen}
         onOpenChange={setSaveTemplateOpen}
-        weekStart={weekStart.toISOString().split("T")[0]}
+        weekStart={weekStartStr}
         mealCount={currentWeekMealCount}
       />
       <TemplateManagerDialog
         open={templateManagerOpen}
         onOpenChange={setTemplateManagerOpen}
-        weekStart={weekStart.toISOString().split("T")[0]}
+        weekStart={weekStartStr}
       />
 
       {/* AI Suggestion Modal */}
       <AISuggestionModal
         open={aiModalOpen}
         onOpenChange={setAiModalOpen}
-        weekStart={weekStart.toISOString().split("T")[0]}
+        weekStart={weekStartStr}
         existingMealDays={existingMealDays}
       />
 

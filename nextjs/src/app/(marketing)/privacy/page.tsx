@@ -28,6 +28,14 @@ export default function PrivacyPage() {
         database so you can access your recipes from any device.
       </p>
 
+      <h3>Payment Information</h3>
+      <p>
+        If you subscribe to a paid plan, payment processing is handled entirely
+        by Stripe. We never see or store your full credit card number. We only
+        receive confirmation of your subscription status and a customer ID from
+        Stripe.
+      </p>
+
       <h3>Usage Data</h3>
       <p>
         We collect basic usage information like which features you use, when you
@@ -42,12 +50,30 @@ export default function PrivacyPage() {
         roommates.
       </p>
 
+      <h3>AI-Generated Data</h3>
+      <p>
+        For Pro and Premium subscribers, we use AI to extract nutrition
+        information from your recipes and provide meal suggestions. This data is
+        processed by Anthropic&apos;s Claude API and stored in your account.
+        Nutrition estimates are AI-generated and may not be 100% accurate.
+      </p>
+
+      <h3>Calendar Data</h3>
+      <p>
+        If you connect Google Calendar, we only access your calendar to create
+        meal plan events. We don&apos;t read your existing calendar events or
+        share your calendar data.
+      </p>
+
       <h2>How We Use Your Information</h2>
       <ul>
         <li>To provide and maintain the service</li>
         <li>To let you save and sync recipes across devices</li>
         <li>To enable household sharing features</li>
         <li>To send you shopping lists (if you ask us to)</li>
+        <li>To process payments and manage subscriptions</li>
+        <li>To provide AI-powered features (nutrition tracking, meal suggestions)</li>
+        <li>To sync your meal plans with Google Calendar (if connected)</li>
         <li>To improve the app based on usage patterns</li>
         <li>To fix bugs and troubleshoot issues</li>
       </ul>
@@ -66,11 +92,23 @@ export default function PrivacyPage() {
           <strong>Vercel:</strong> Our hosting provider
         </li>
         <li>
-          <strong>Anthropic:</strong> For AI-powered recipe parsing (recipe text
-          only, not linked to your account)
+          <strong>Anthropic:</strong> For AI-powered recipe parsing, nutrition
+          extraction, and meal suggestions (recipe content only, processed
+          securely)
+        </li>
+        <li>
+          <strong>Stripe:</strong> For secure payment processing (PCI-compliant)
         </li>
         <li>
           <strong>Resend:</strong> For sending shopping list emails
+        </li>
+        <li>
+          <strong>Google:</strong> For calendar integration (only if you connect
+          your Google account)
+        </li>
+        <li>
+          <strong>Sentry:</strong> For error tracking and monitoring to improve
+          app stability
         </li>
       </ul>
 
@@ -79,7 +117,8 @@ export default function PrivacyPage() {
         We use industry-standard security practices including encrypted
         connections (HTTPS), secure password hashing, and row-level security in
         our database. Your recipes are only visible to you and household members
-        you explicitly invite.
+        you explicitly invite. Payment data is handled by Stripe and never
+        touches our servers.
       </p>
 
       <h2>Your Rights</h2>
@@ -89,7 +128,18 @@ export default function PrivacyPage() {
         <li>Export your recipes anytime</li>
         <li>Delete your account and all associated data</li>
         <li>Leave any household you&apos;ve joined</li>
+        <li>Cancel your subscription at any time</li>
+        <li>Disconnect Google Calendar integration</li>
+        <li>Request a copy of your data (contact us)</li>
       </ul>
+
+      <h2>Data Retention</h2>
+      <p>
+        We retain your data for as long as your account is active. If you delete
+        your account, all your data is permanently deleted within 30 days,
+        except for anonymized analytics data. Stripe may retain payment records
+        as required by law.
+      </p>
 
       <h2>Cookies</h2>
       <p>
@@ -101,6 +151,13 @@ export default function PrivacyPage() {
       <p>
         This service is not intended for children under 13. We don&apos;t
         knowingly collect information from children under 13.
+      </p>
+
+      <h2>International Data Transfers</h2>
+      <p>
+        Your data may be processed in the United States where our service
+        providers are located. By using the service, you consent to this
+        transfer.
       </p>
 
       <h2>Changes to This Policy</h2>
