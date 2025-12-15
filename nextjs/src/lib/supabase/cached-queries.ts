@@ -31,18 +31,28 @@ export const getCachedUserWithHousehold = cache(async () => {
     .eq("user_id", user.id)
     .single();
 
-  // Fetch subscription data
-  const { data: subscription, error: subscriptionError } = await supabase
-    .from("subscriptions")
-    .select("*")
-    .eq("user_id", user.id)
-    .single();
+  // Fetch subscription data (graceful - don't fail if table doesn't exist)
+  let subscription = null;
+  try {
+    const { data: subData, error: subError } = await supabase
+      .from("subscriptions")
+      .select("*")
+      .eq("user_id", user.id)
+      .single();
+
+    // Only use subscription data if query succeeded
+    if (!subError) {
+      subscription = subData;
+    }
+  } catch {
+    // Table may not exist in schema cache - that's okay
+  }
 
   return {
     user,
     household: membership,
     subscription,
-    error: householdError || subscriptionError,
+    error: householdError, // Only fail on household error, not subscription
   };
 });
 
