@@ -7,13 +7,13 @@ import { AppNav } from "@/components/navigation/app-nav";
 import { MobileMenu } from "@/components/navigation/mobile-menu";
 import { SettingsButton } from "@/components/navigation/settings-button";
 
-// Navigation: Plan, List, Recipes, Nutrition, History
+// Navigation: Plan, List, Recipes, Nutrition, Favorites
 const navItems = [
   { href: "/app", iconKey: "plan" as const, label: "Plan" },
   { href: "/app/shop", iconKey: "shop" as const, label: "List" },
   { href: "/app/recipes", iconKey: "recipes" as const, label: "Recipes" },
   { href: "/app/nutrition", iconKey: "nutrition" as const, label: "Nutrition" },
-  { href: "/app/history", iconKey: "history" as const, label: "History" },
+  { href: "/app/history", iconKey: "favorites" as const, label: "Favorites" },
 ];
 const settingsItem = { href: "/app/settings", iconKey: "settings" as const, label: "Settings" };
 

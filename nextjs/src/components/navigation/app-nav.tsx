@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   Calendar,
   BookOpen,
-  History,
+  Heart,
   Settings,
   ShoppingCart,
   Package,
@@ -14,14 +14,14 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-type IconKey = "plan" | "recipes" | "shop" | "pantry" | "history" | "settings" | "nutrition";
+type IconKey = "plan" | "recipes" | "shop" | "pantry" | "favorites" | "settings" | "nutrition";
 
 const iconMap: Record<IconKey, LucideIcon> = {
   plan: Calendar,
   recipes: BookOpen,
   shop: ShoppingCart,
   pantry: Package,
-  history: History,
+  favorites: Heart,
   settings: Settings,
   nutrition: Activity,
 };

@@ -285,6 +285,7 @@ export async function toggleFavorite(recipeId: string) {
     }
 
     revalidatePath("/app/recipes");
+    revalidatePath("/app/history");
     return { error: null, isFavorite: false };
   } else {
     // Add favorite
@@ -298,6 +299,7 @@ export async function toggleFavorite(recipeId: string) {
     }
 
     revalidatePath("/app/recipes");
+    revalidatePath("/app/history");
     return { error: null, isFavorite: true };
   }
 }
@@ -322,6 +324,40 @@ export async function getFavorites() {
   }
 
   return { error: null, data: data.map((f) => f.recipe_id) };
+}
+
+// Get user's favorite recipes with full recipe details
+export async function getFavoriteRecipes() {
+  const { user, error: authError } = await getCachedUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated", data: [] };
+  }
+
+  const supabase = await createClient();
+
+  // Join favorites with recipes to get full recipe data
+  const { data, error } = await supabase
+    .from("favorites")
+    .select(`
+      recipe_id,
+      created_at,
+      recipe:recipes(*)
+    `)
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    return { error: error.message, data: [] };
+  }
+
+  // Transform to include favorited_at timestamp
+  const favorites = data.map((f) => ({
+    ...f.recipe,
+    favorited_at: f.created_at,
+  }));
+
+  return { error: null, data: favorites as (Recipe & { favorited_at: string })[] };
 }
 
 // Mark recipe as cooked (add to history)
