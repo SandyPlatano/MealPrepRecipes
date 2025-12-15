@@ -15,3 +15,4 @@
 {"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-15 11:50:11.667","url":"https://www.babewfd.com/app?week=2025-12-15"}
 {"arguments":{"name":"plan-page"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-15 11:50:16.968","tool":"puppeteer_screenshot"}
 {"arguments":{},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-15 11:50:24.011","tool":"puppeteer_connect_active_tab"}
+{"level":"info","message":"Puppeteer MCP Server closing","service":"mcp-puppeteer","timestamp":"2025-12-15 12:38:59.622"}
