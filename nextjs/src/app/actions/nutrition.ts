@@ -468,14 +468,9 @@ export async function getDailyNutritionSummary(date: string): Promise<{
 
     const supabase = await createClient();
 
-    // Get macro goals
-    const { data: goals } = await getMacroGoals();
-    if (!goals) {
-      return {
-        data: null,
-        error: "Macro goals not set. Please set your goals in settings.",
-      };
-    }
+    // Get macro goals (use maintenance preset as fallback if not set)
+    const { data: userGoals } = await getMacroGoals();
+    const goals = userGoals || MACRO_GOAL_PRESETS.maintenance;
 
     // Call database function to calculate daily nutrition
     const { data, error } = await supabase.rpc("calculate_daily_nutrition", {
@@ -537,14 +532,9 @@ export async function getWeeklyNutritionDashboard(weekStart: string): Promise<{
     }
     // authError might be from household/subscription lookup, which is OK for nutrition tracking
 
-    // Get macro goals
-    const { data: goals } = await getMacroGoals();
-    if (!goals) {
-      return {
-        data: null,
-        error: "Macro goals not set. Please set your goals in settings.",
-      };
-    }
+    // Get macro goals (use maintenance preset as fallback if not set)
+    const { data: userGoals } = await getMacroGoals();
+    const goals = userGoals || MACRO_GOAL_PRESETS.maintenance;
 
     // Get all 7 days of the week
     const weekDays = getWeekDays(weekStart);
