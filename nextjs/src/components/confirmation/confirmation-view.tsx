@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, AlertCircle } from "lucide-react";
 import { formatWeekRange, type DayOfWeek } from "@/types/meal-plan";
 import { WeekSchedule } from "@/components/finalize/week-schedule";
 import { CheckoutShoppingList } from "@/components/finalize/checkout-shopping-list";
@@ -42,6 +42,8 @@ interface ConfirmationViewProps {
   cookColors: Record<string, string>;
   pantryItems: PantryItem[];
   nutritionDashboard?: WeeklyMacroDashboard | null;
+  saveSuccessful: boolean;
+  saveError?: string | null;
 }
 
 export function ConfirmationView({
@@ -50,6 +52,8 @@ export function ConfirmationView({
   cookColors,
   pantryItems,
   nutritionDashboard,
+  saveSuccessful,
+  saveError,
 }: ConfirmationViewProps) {
   const weekStartStr = weekStart.toISOString().split("T")[0];
 

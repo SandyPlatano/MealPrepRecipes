@@ -31,10 +31,15 @@ export default async function ConfirmationPage({
   const weekStartDate = new Date(weekStartStr + "T12:00:00Z");
 
   // Mark the meal plan as sent (saves to history) - do this first
+  console.log("[Confirmation] Attempting to mark plan as sent for week:", weekStartStr);
   const markResult = await markMealPlanAsSent(weekStartStr);
+  const saveSuccessful = !markResult.error;
+
   if (markResult.error) {
     console.error("[Confirmation] Error marking plan as sent:", markResult.error);
     // Continue anyway to show the confirmation page - the plan data still exists
+  } else {
+    console.log("[Confirmation] Successfully marked plan as sent:", markResult.data);
   }
 
   // Fetch all data in parallel
@@ -91,6 +96,8 @@ export default async function ConfirmationPage({
         cookColors={settings?.cook_colors || {}}
         pantryItems={pantryItems}
         nutritionDashboard={nutritionDashboard}
+        saveSuccessful={saveSuccessful}
+        saveError={markResult.error}
       />
     </div>
   );

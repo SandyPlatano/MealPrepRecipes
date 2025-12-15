@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { formatWeekRange, type DayOfWeek } from "@/types/meal-plan";
 import { WeekSchedule } from "./week-schedule";
 import { CheckoutShoppingList } from "./checkout-shopping-list";
@@ -82,13 +82,8 @@ export function FinalizeView({
               </div>
             </div>
 
-            {/* Status Badge */}
-            {allCooksAssigned ? (
-              <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                <CheckCircle2 className="h-5 w-5" />
-                <span className="font-medium">Ready to send!</span>
-              </div>
-            ) : (
+            {/* Status Badge - only show warning if meals need a cook */}
+            {!allCooksAssigned && (
               <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
                 <AlertCircle className="h-5 w-5" />
                 <span className="font-medium">
