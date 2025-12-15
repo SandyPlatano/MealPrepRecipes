@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import {
   Calendar,
   BookOpen,
-  Sparkles,
   History,
   Settings,
   ShoppingCart,
@@ -15,12 +14,11 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-type IconKey = "plan" | "recipes" | "discover" | "shop" | "pantry" | "history" | "settings" | "nutrition";
+type IconKey = "plan" | "recipes" | "shop" | "pantry" | "history" | "settings" | "nutrition";
 
 const iconMap: Record<IconKey, LucideIcon> = {
   plan: Calendar,
   recipes: BookOpen,
-  discover: Sparkles,
   shop: ShoppingCart,
   pantry: Package,
   history: History,
@@ -74,7 +72,6 @@ export function AppNav({
         "/app/history",
         "/app/pantry",
         "/app/nutrition",
-        "/app/discover",
       ];
       if (excludedRoutes.some(route => pathname === route || pathname.startsWith(`${route}/`))) {
         return false;

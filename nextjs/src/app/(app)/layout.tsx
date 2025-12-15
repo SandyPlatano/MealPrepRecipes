@@ -7,10 +7,9 @@ import { AppNav } from "@/components/navigation/app-nav";
 import { MobileMenu } from "@/components/navigation/mobile-menu";
 import { SettingsButton } from "@/components/navigation/settings-button";
 
-// Navigation: Plan, Discover, List, Recipes, Nutrition, History
+// Navigation: Plan, List, Recipes, Nutrition, History
 const navItems = [
   { href: "/app", iconKey: "plan" as const, label: "Plan" },
-  { href: "/app/discover", iconKey: "discover" as const, label: "Discover" },
   { href: "/app/shop", iconKey: "shop" as const, label: "List" },
   { href: "/app/recipes", iconKey: "recipes" as const, label: "Recipes" },
   { href: "/app/nutrition", iconKey: "nutrition" as const, label: "Nutrition" },
@@ -72,7 +71,7 @@ export default async function AppLayout({
 
       {/* Mobile Bottom Navigation */}
       <AppNav
-        items={navItems.filter(item => item.href !== "/app/discover")}
+        items={navItems}
         includeSettings
         settingsItem={settingsItem}
         variant="mobile"

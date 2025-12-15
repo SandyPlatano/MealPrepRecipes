@@ -15,7 +15,6 @@ import {
   Menu,
   Calendar,
   BookOpen,
-  Sparkles,
   ShoppingCart,
   History,
   Settings,
@@ -24,12 +23,11 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type IconKey = "plan" | "recipes" | "discover" | "shop" | "history" | "settings" | "nutrition";
+type IconKey = "plan" | "recipes" | "shop" | "history" | "settings" | "nutrition";
 
 const iconMap: Record<IconKey, LucideIcon> = {
   plan: Calendar,
   recipes: BookOpen,
-  discover: Sparkles,
   shop: ShoppingCart,
   history: History,
   settings: Settings,
