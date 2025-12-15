@@ -658,11 +658,20 @@ export async function getSentMealPlans() {
 
 // Get week plan with full recipe details (including ingredients) for finalize page
 export async function getWeekPlanWithFullRecipes(weekStart: string) {
-  const { user, household, error: authError } = await getCachedUserWithHousehold();
+  // Match the auth pattern of getWeekPlan for consistency
+  const { user: authUser, error: authError } = await getCachedUser();
 
-  if (authError || !user || !household) {
-    console.error("[getWeekPlanWithFullRecipes] Auth error:", authError?.message || "No household found");
-    return { error: authError?.message || "No household found", data: null };
+  if (authError || !authUser) {
+    console.error("[getWeekPlanWithFullRecipes] Auth error:", authError?.message || "Not authenticated");
+    return { error: "Not authenticated", data: null };
+  }
+
+  // Get household separately (required for meal planning)
+  const { household } = await getCachedUserWithHousehold();
+
+  if (!household) {
+    console.error("[getWeekPlanWithFullRecipes] No household found");
+    return { error: "Please create or join a household to use meal planning", data: null };
   }
 
   const supabase = await createClient();
