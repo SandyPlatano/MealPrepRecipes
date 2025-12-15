@@ -607,20 +607,40 @@ export async function markMealPlanAsSent(weekStart: string) {
 
   const supabase = await createClient();
 
+  // First, check if meal plan exists
+  const { data: existingPlan } = await supabase
+    .from("meal_plans")
+    .select("id")
+    .eq("household_id", household.household_id)
+    .eq("week_start", weekStart)
+    .single();
+
+  if (!existingPlan) {
+    console.error("[markMealPlanAsSent] No meal plan found for week:", weekStart);
+    return { error: "No meal plan found for this week" };
+  }
+
   // Update the meal plan to mark it as sent
-  const { error } = await supabase
+  const { data: updatedPlan, error } = await supabase
     .from("meal_plans")
     .update({ sent_at: new Date().toISOString() })
-    .eq("household_id", household.household_id)
-    .eq("week_start", weekStart);
+    .eq("id", existingPlan.id)
+    .select()
+    .single();
 
   if (error) {
+    console.error("[markMealPlanAsSent] Update error:", error.message);
     return { error: error.message };
+  }
+
+  if (!updatedPlan) {
+    console.error("[markMealPlanAsSent] Update returned no data");
+    return { error: "Failed to update meal plan" };
   }
 
   revalidateTag(`meal-plan-${household.household_id}`);
   revalidatePath("/app/history");
-  return { error: null };
+  return { error: null, data: updatedPlan };
 }
 
 // Get all past meal plans that were sent

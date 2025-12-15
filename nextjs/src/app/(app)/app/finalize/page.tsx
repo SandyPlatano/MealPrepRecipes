@@ -1,6 +1,7 @@
 import { getWeekPlanWithFullRecipes } from "@/app/actions/meal-plans";
 import { getSettings } from "@/app/actions/settings";
 import { getPantryItems } from "@/app/actions/pantry";
+import { getWeeklyNutritionDashboard } from "@/app/actions/nutrition";
 import { getWeekStart } from "@/types/meal-plan";
 import { FinalizeView } from "@/components/finalize/finalize-view";
 import { redirect } from "next/navigation";
@@ -22,10 +23,11 @@ export default async function FinalizePage({ searchParams }: FinalizePageProps) 
   const weekStartDate = new Date(weekStartStr + "T12:00:00Z");
 
   // Fetch all data in parallel
-  const [planResult, settingsResult, pantryResult] = await Promise.all([
+  const [planResult, settingsResult, pantryResult, nutritionResult] = await Promise.all([
     getWeekPlanWithFullRecipes(weekStartStr),
     getSettings(),
     getPantryItems(),
+    getWeeklyNutritionDashboard(weekStartStr),
   ]);
 
   // Handle errors from the plan result
@@ -57,6 +59,9 @@ export default async function FinalizePage({ searchParams }: FinalizePageProps) 
 
   const settings = settingsResult.data;
   const pantryItems = pantryResult.data || [];
+
+  // Handle nutrition result (graceful - null if error or goals not set)
+  const nutritionDashboard = nutritionResult.data;
 
   return (
     <div className="space-y-6">

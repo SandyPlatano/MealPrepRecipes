@@ -27,7 +27,11 @@ export default async function ConfirmationPage({
   const weekStartDate = new Date(weekStartStr + "T12:00:00Z");
 
   // Mark the meal plan as sent (saves to history) - do this first
-  await markMealPlanAsSent(weekStartStr);
+  const markResult = await markMealPlanAsSent(weekStartStr);
+  if (markResult.error) {
+    console.error("[Confirmation] Error marking plan as sent:", markResult.error);
+    // Continue anyway to show the confirmation page - the plan data still exists
+  }
 
   // Fetch all data in parallel
   const [planResult, settingsResult, pantryResult] = await Promise.all([
