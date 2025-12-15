@@ -66,7 +66,7 @@ export default async function FinalizePage({ searchParams }: FinalizePageProps) 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-mono font-bold">Preview Your Plan</h1>
+        <h1 className="text-3xl font-mono font-bold">Review Your Plan</h1>
         <p className="text-muted-foreground mt-1">
           Review your week, send the list, and get cooking.
         </p>

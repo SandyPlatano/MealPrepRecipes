@@ -228,7 +228,7 @@ export function PlannerHeader({
 
       {/* Actions - Full width */}
       <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full">
-        {/* Preview Button */}
+        {/* Review Button */}
         {hasMeals ? (
           <Button
             asChild
@@ -236,9 +236,9 @@ export function PlannerHeader({
             size="sm"
             className="flex-[1_1_auto] sm:flex-none gap-2 min-w-[80px] h-10"
           >
-            <Link href={`/app/preview?week=${weekStartStr}`}>
+            <Link href={`/app/review?week=${weekStartStr}`}>
               <Eye className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">Preview</span>
+              <span className="truncate">Review</span>
             </Link>
           </Button>
         ) : (
@@ -249,7 +249,7 @@ export function PlannerHeader({
             className="flex-[1_1_auto] sm:flex-none gap-2 min-w-[80px] h-10"
           >
             <Eye className="h-4 w-4 flex-shrink-0" />
-            <span className="truncate">Preview</span>
+            <span className="truncate">Review</span>
           </Button>
         )}
 
