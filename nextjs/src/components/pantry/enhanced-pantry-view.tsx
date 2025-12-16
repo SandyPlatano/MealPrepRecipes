@@ -17,7 +17,7 @@ import {
   TabsList,
   TabsTrigger
 } from '@/components/ui/tabs';
-import { Plus, Trash2, Cookie, PackageX, Camera, History, Sparkles, Barcode } from 'lucide-react';
+import { Plus, Trash2, Cookie, PackageX, Camera, History, Barcode } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   addToPantry,
@@ -45,11 +45,10 @@ import { ShoppingCart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 // Import our scanning components
-import PantryScanner from './pantry-scanner';
 import ScanReview from './scan-review';
 import ScanHistory from './scan-history';
-import BarcodeScanner from './barcode-scanner';
 import BarcodeResultReview from './barcode-result-review';
+import { ScanFab } from './scan-fab';
 import { PantryScan } from '@/app/actions/pantry-scan';
 import { ScannedProduct } from '@/types/barcode';
 
@@ -96,7 +95,6 @@ export function EnhancedPantryView({
   } | null>(null);
 
   // Barcode scanner states
-  const [scanMode, setScanMode] = useState<'photo' | 'barcode'>('photo');
   const [barcodeProduct, setBarcodeProduct] = useState<ScannedProduct | null>(null);
   const [showBarcodeReview, setShowBarcodeReview] = useState(false);
   const [manualEntryBarcode, setManualEntryBarcode] = useState<string | null>(null);
@@ -214,25 +212,6 @@ export function EnhancedPantryView({
     setManualEntryBarcode(null);
   };
 
-  const getScannerBadge = () => {
-    if (subscriptionTier === 'premium') {
-      return (
-        <Badge variant="default" className="bg-gradient-to-r from-purple-500 to-pink-500">
-          <Sparkles className="h-3 w-3 mr-1" />
-          Premium
-        </Badge>
-      );
-    } else if (subscriptionTier === 'pro') {
-      return (
-        <Badge variant="secondary">
-          <Camera className="h-3 w-3 mr-1" />
-          Pro
-        </Badge>
-      );
-    }
-    return null;
-  };
-
   // Show barcode result review
   if (showBarcodeReview && barcodeProduct) {
     return (
@@ -271,19 +250,14 @@ export function EnhancedPantryView({
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="items">
             <Cookie className="h-4 w-4 mr-2" />
             Pantry Items
           </TabsTrigger>
-          <TabsTrigger value="scan" className="flex items-center gap-2">
-            <Camera className="h-4 w-4" />
-            Smart Scan
-            {getScannerBadge()}
-          </TabsTrigger>
           <TabsTrigger value="history">
             <History className="h-4 w-4 mr-2" />
-            History
+            Scan History
           </TabsTrigger>
         </TabsList>
 
@@ -377,18 +351,9 @@ export function EnhancedPantryView({
                   <div>
                     <p className="text-lg font-medium">Your pantry is empty</p>
                     <p className="text-sm text-muted-foreground mt-2">
-                      Add items you always have on hand or use the Smart Scan feature to detect items from a photo.
+                      Add items above, or tap the <Plus className="h-4 w-4 inline" /> button to scan items from photos or barcodes.
                     </p>
                   </div>
-                  {subscriptionTier !== 'free' && (
-                    <Button
-                      variant="outline"
-                      onClick={() => setActiveTab('scan')}
-                    >
-                      <Camera className="h-4 w-4 mr-2" />
-                      Try Smart Scan
-                    </Button>
-                  )}
                 </div>
               </CardContent>
             </Card>
@@ -406,156 +371,90 @@ export function EnhancedPantryView({
           )}
         </TabsContent>
 
-        <TabsContent value="scan" className="space-y-6">
-          {/* Scan Mode Toggle */}
-          <div className="flex justify-center">
-            <div className="inline-flex rounded-lg border p-1 bg-muted/50">
-              <Button
-                variant={scanMode === 'photo' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setScanMode('photo')}
-                className="gap-2"
-              >
-                <Camera className="h-4 w-4" />
-                Photo Scan
-              </Button>
-              <Button
-                variant={scanMode === 'barcode' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setScanMode('barcode')}
-                className="gap-2"
-              >
-                <Barcode className="h-4 w-4" />
-                Barcode
-              </Button>
-            </div>
-          </div>
-
-          {/* Conditional Scanner Rendering */}
-          {scanMode === 'photo' ? (
-            <PantryScanner
-              onScanComplete={handleScanComplete}
-              subscriptionTier={subscriptionTier}
-            />
-          ) : (
-            <BarcodeScanner
-              onScanComplete={handleBarcodeScanComplete}
-              onNotFound={handleBarcodeNotFound}
-              subscriptionTier={subscriptionTier}
-            />
-          )}
-
-          {/* Manual Entry Fallback for Not Found Barcodes */}
-          {scanMode === 'barcode' && manualEntryBarcode && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Product Not Found</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Barcode <span className="font-mono">{manualEntryBarcode}</span> was not found in the database.
-                  Add it manually:
-                </p>
-                <form
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.currentTarget);
-                    const name = formData.get('name') as string;
-                    const category = formData.get('category') as string;
-                    if (name?.trim()) {
-                      const result = await addToPantry(name.trim(), category || 'Other', 'barcode');
-                      if (result.error) {
-                        toast.error(result.error);
-                      } else {
-                        toast.success(`Added "${name}" to pantry`);
-                        setManualEntryBarcode(null);
-                        window.location.reload();
-                      }
-                    }
-                  }}
-                  className="flex gap-2"
-                >
-                  <Input
-                    name="name"
-                    placeholder="Enter product name..."
-                    className="flex-1"
-                    autoFocus
-                  />
-                  <Select name="category" defaultValue="Other">
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {INGREDIENT_CATEGORIES.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button type="submit">
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </form>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setManualEntryBarcode(null)}
-                >
-                  Cancel
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Feature Cards */}
-          {subscriptionTier !== 'free' && (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-2xl font-bold">{scanMode === 'photo' ? '🎯' : '📊'}</div>
-                  <h3 className="font-semibold mt-2">
-                    {scanMode === 'photo' ? 'Accurate Detection' : 'Nutrition Info'}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {scanMode === 'photo'
-                      ? 'AI-powered recognition with 80%+ accuracy'
-                      : 'View calories, protein, carbs & more'}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-2xl font-bold">♻️</div>
-                  <h3 className="font-semibold mt-2">Reduce Waste</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Never buy duplicates of what you already have
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-2xl font-bold">{scanMode === 'photo' ? '🍳' : '⚡'}</div>
-                  <h3 className="font-semibold mt-2">
-                    {scanMode === 'photo' ? 'Recipe Suggestions' : 'Quick Add'}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {scanMode === 'photo'
-                      ? 'Get recipes based on what\'s in your pantry'
-                      : 'Scan barcodes to instantly add products'}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-        </TabsContent>
-
         <TabsContent value="history" className="space-y-6">
           <ScanHistory onReuseScan={handleReuseScan} />
         </TabsContent>
       </Tabs>
+
+      {/* Manual Entry Dialog for Not Found Barcodes */}
+      {manualEntryBarcode && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => setManualEntryBarcode(null)}
+          />
+          <Card className="relative z-50 w-full max-w-md mx-4 mb-4 sm:mb-0">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Product Not Found</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Barcode <span className="font-mono bg-muted px-1.5 py-0.5 rounded">{manualEntryBarcode}</span> was not found.
+                Add it manually:
+              </p>
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  const name = formData.get('name') as string;
+                  const category = formData.get('category') as string;
+                  if (name?.trim()) {
+                    const result = await addToPantry(name.trim(), category || 'Other', 'barcode');
+                    if (result.error) {
+                      toast.error(result.error);
+                    } else {
+                      toast.success(`Added "${name}" to pantry`);
+                      setManualEntryBarcode(null);
+                      window.location.reload();
+                    }
+                  }
+                }}
+                className="space-y-3"
+              >
+                <Input
+                  name="name"
+                  placeholder="Enter product name..."
+                  autoFocus
+                />
+                <Select name="category" defaultValue="Other">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {INGREDIENT_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setManualEntryBarcode(null)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" className="flex-1">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Item
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Floating Action Button for Scanning */}
+      <ScanFab
+        subscriptionTier={subscriptionTier}
+        onPhotoScanComplete={handleScanComplete}
+        onBarcodeScanComplete={handleBarcodeScanComplete}
+        onBarcodeNotFound={handleBarcodeNotFound}
+      />
     </div>
   );
 }
