@@ -76,8 +76,17 @@ interface WeekProgressSectionProps {
   totalMeals: number;
 }
 
+interface CalculatedNutritionProgress {
+  calories: MacroProgress;
+  protein: MacroProgress;
+  carbs: MacroProgress;
+  fat: MacroProgress;
+  recipesWithNutrition: number;
+}
+
 interface NutritionSummarySectionProps {
-  dashboard: WeeklyMacroDashboard;
+  dashboard?: WeeklyMacroDashboard | null;
+  calculatedProgress?: CalculatedNutritionProgress | null;
   goals: MacroGoals;
 }
 
@@ -296,8 +305,14 @@ function MacroProgressCompact({
 
 function NutritionSummarySection({
   dashboard,
+  calculatedProgress,
   goals,
 }: NutritionSummarySectionProps) {
+  // Prefer calculated progress (always fresh from client-side) over server dashboard
+  const progress = calculatedProgress || dashboard?.overall_progress;
+
+  if (!progress) return null;
+
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-md">
       <CardHeader className="pb-3">
@@ -319,29 +334,29 @@ function NutritionSummarySection({
         <div className="space-y-3">
           <MacroProgressCompact
             label="Avg Calories"
-            actual={dashboard.overall_progress.calories.actual}
+            actual={progress.calories.actual}
             target={goals.calories}
-            progress={dashboard.overall_progress.calories}
+            progress={progress.calories}
           />
           <MacroProgressCompact
             label="Avg Protein"
-            actual={dashboard.overall_progress.protein.actual}
+            actual={progress.protein.actual}
             target={goals.protein_g}
-            progress={dashboard.overall_progress.protein}
+            progress={progress.protein}
             unit="g"
           />
           <MacroProgressCompact
             label="Avg Carbs"
-            actual={dashboard.overall_progress.carbs.actual}
+            actual={progress.carbs.actual}
             target={goals.carbs_g}
-            progress={dashboard.overall_progress.carbs}
+            progress={progress.carbs}
             unit="g"
           />
           <MacroProgressCompact
             label="Avg Fat"
-            actual={dashboard.overall_progress.fat.actual}
+            actual={progress.fat.actual}
             target={goals.fat_g}
-            progress={dashboard.overall_progress.fat}
+            progress={progress.fat}
             unit="g"
           />
         </div>
@@ -418,6 +433,7 @@ export function PlannerSummary({
   assignments,
   cookColors = {},
   nutritionEnabled = false,
+  nutritionData = null,
   weeklyNutritionDashboard = null,
   macroGoals = null,
   repetitionWarnings = [],
@@ -445,9 +461,69 @@ export function PlannerSummary({
     return { breakdown, unassigned };
   }, [assignments]);
 
+  // Calculate weekly nutrition from assignments + nutritionData (client-side)
+  // This ensures immediate updates when recipes are added/removed
+  const calculatedNutritionProgress = useMemo(() => {
+    if (!nutritionData || nutritionData.size === 0 || !macroGoals) return null;
+
+    // Sum nutrition for all assigned recipes
+    let totalCalories = 0;
+    let totalProtein = 0;
+    let totalCarbs = 0;
+    let totalFat = 0;
+    let recipesWithNutrition = 0;
+
+    assignments.forEach((assignment) => {
+      const nutrition = nutritionData.get(assignment.recipe_id);
+      if (nutrition) {
+        totalCalories += nutrition.calories || 0;
+        totalProtein += nutrition.protein_g || 0;
+        totalCarbs += nutrition.carbs_g || 0;
+        totalFat += nutrition.fat_g || 0;
+        if (nutrition.calories || nutrition.protein_g) {
+          recipesWithNutrition++;
+        }
+      }
+    });
+
+    // Calculate daily averages (total / 7 days)
+    const avgCalories = totalCalories / 7;
+    const avgProtein = totalProtein / 7;
+    const avgCarbs = totalCarbs / 7;
+    const avgFat = totalFat / 7;
+
+    // Calculate progress for each macro
+    const calcProgress = (actual: number, target: number): MacroProgress => {
+      if (actual === 0 && recipesWithNutrition === 0) {
+        return { actual: null, percentage: 0, color: "red" };
+      }
+      const percentage = (actual / target) * 100;
+      const diff = Math.abs(percentage - 100);
+      let color: "red" | "yellow" | "green";
+      if (diff <= 10) {
+        color = "green";
+      } else if (percentage < 100) {
+        color = diff <= 20 ? "yellow" : "red";
+      } else {
+        color = diff <= 20 ? "yellow" : "red";
+      }
+      return { actual, percentage, color };
+    };
+
+    return {
+      calories: calcProgress(avgCalories, macroGoals.calories),
+      protein: calcProgress(avgProtein, macroGoals.protein_g),
+      carbs: calcProgress(avgCarbs, macroGoals.carbs_g),
+      fat: calcProgress(avgFat, macroGoals.fat_g),
+      recipesWithNutrition,
+    };
+  }, [assignments, nutritionData, macroGoals]);
+
   const totalMeals = assignments.length;
-  const showNutrition =
-    nutritionEnabled && weeklyNutritionDashboard && macroGoals;
+
+  // Show nutrition if enabled and we have either server data or client-calculated data
+  const hasNutritionData = weeklyNutritionDashboard || calculatedNutritionProgress;
+  const showNutrition = nutritionEnabled && macroGoals && hasNutritionData;
 
   // Show empty state if no meals planned
   if (totalMeals === 0) {
@@ -474,9 +550,10 @@ export function PlannerSummary({
         />
 
         {/* Section 2: Nutrition (conditional) */}
-        {showNutrition && (
+        {showNutrition && macroGoals && (
           <NutritionSummarySection
             dashboard={weeklyNutritionDashboard}
+            calculatedProgress={calculatedNutritionProgress}
             goals={macroGoals}
           />
         )}

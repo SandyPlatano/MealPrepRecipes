@@ -16,12 +16,12 @@ import {
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { PlannerHeader } from "./planner-header";
 import { PlannerSummary } from "./planner-summary";
 import { MealCellOverlay } from "./meal-cell";
 import { PlannerDayRow } from "./planner-day-row";
+import { DayNavigation } from "./day-navigation";
 import {
   addMealAssignment,
   removeMealAssignment,
@@ -155,6 +155,15 @@ export function MealPlannerGrid({
   // Get all assignments as a flat array (with optimistic values)
   const allAssignments = useMemo(() => {
     return Object.values(assignmentsWithOptimisticCooks).flat();
+  }, [assignmentsWithOptimisticCooks]);
+
+  // Calculate meal counts per day for the navigation
+  const mealCounts = useMemo(() => {
+    const counts: Record<DayOfWeek, number> = {} as Record<DayOfWeek, number>;
+    for (const day of DAYS_OF_WEEK) {
+      counts[day] = assignmentsWithOptimisticCooks[day]?.length || 0;
+    }
+    return counts;
   }, [assignmentsWithOptimisticCooks]);
 
   // Create a Date object for display purposes (e.g., formatWeekRange)
@@ -387,39 +396,16 @@ export function MealPlannerGrid({
             />
           </div>
 
-          {/* Sticky Week Navigation */}
-          {showStickyNav && (
-            <div className="hidden md:block fixed top-16 left-0 right-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b shadow-sm">
-              <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => navigateWeek("prev")}
-                    disabled={!canNavigateWeeks}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <div className="text-sm font-semibold min-w-[180px] text-center">
-                    {formatWeekRange(weekStartDate)}
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => navigateWeek("next")}
-                    disabled={!canNavigateWeeks}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-                {!isCurrentWeek && (
-                  <Button variant="ghost" size="sm" onClick={goToCurrentWeek}>
-                    Go to This Week
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
+          {/* Sticky Day Navigation */}
+          <DayNavigation
+            weekStartDate={weekStartDate}
+            weekStartStr={weekStartStr}
+            mealCounts={mealCounts}
+            onNavigateWeek={navigateWeek}
+            onGoToCurrentWeek={goToCurrentWeek}
+            canNavigateWeeks={canNavigateWeeks}
+            isVisible={showStickyNav}
+          />
 
           {/* Vertical Stacked Cards */}
           <div className={`space-y-2 transition-opacity ${isPending ? "opacity-60" : ""}`}>
