@@ -20,8 +20,7 @@ import {
 import { formatNutritionValue } from "@/lib/nutrition/calculations";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { isLocalhostServer } from "@/lib/utils/is-localhost-server";
-import { headers } from "next/headers";
+import { isCurrentUserAdmin } from "@/lib/auth/admin";
 
 export const metadata: Metadata = {
   title: "Nutrition History | Meal Planner",
@@ -38,8 +37,7 @@ function getCurrentWeekStart(): string {
 }
 
 export default async function NutritionPage() {
-  const headersList = await headers();
-  const showCosts = isLocalhostServer(headersList);
+  const showCosts = await isCurrentUserAdmin();
 
   return (
     <div className="container max-w-7xl space-y-8 py-8">

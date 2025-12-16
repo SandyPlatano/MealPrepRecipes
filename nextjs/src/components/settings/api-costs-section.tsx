@@ -6,9 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Loader2, DollarSign } from "lucide-react";
 import { format } from "date-fns";
-import { isLocalhost } from "@/lib/utils/is-localhost";
 
-export function ApiCostsSection() {
+interface ApiCostsSectionProps {
+  isAdmin?: boolean;
+}
+
+export function ApiCostsSection({ isAdmin = false }: ApiCostsSectionProps) {
   const [costData, setCostData] = useState<{
     totalCost: number;
     totalRecipes: number;
@@ -24,11 +27,10 @@ export function ApiCostsSection() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const showSection = isLocalhost();
 
   useEffect(() => {
-    // Only fetch if we're on localhost
-    if (!showSection) return;
+    // Only fetch if user is admin
+    if (!isAdmin) return;
 
     async function fetchCosts() {
       setLoading(true);
@@ -42,10 +44,10 @@ export function ApiCostsSection() {
       setLoading(false);
     }
     fetchCosts();
-  }, [showSection]);
+  }, [isAdmin]);
 
-  // Only show on localhost - moved after hooks
-  if (!showSection) {
+  // Only show for admin users
+  if (!isAdmin) {
     return null;
   }
 
@@ -54,10 +56,10 @@ export function ApiCostsSection() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <DollarSign className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-          API Costs (Development Only)
+          API Costs (Admin Only)
         </CardTitle>
         <CardDescription>
-          Track nutrition extraction costs - visible only on localhost
+          Track nutrition extraction costs - visible only to admins
         </CardDescription>
       </CardHeader>
       <CardContent>

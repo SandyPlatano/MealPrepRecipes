@@ -54,7 +54,6 @@ const formatTimeForDB = (time: string | null | undefined): string | null => {
 interface SettingsFormProps {
   profile: {
     id: string;
-    name: string | null;
     first_name?: string | null;
     last_name?: string | null;
     email: string | null;
@@ -87,6 +86,7 @@ interface SettingsFormProps {
   userSubstitutions?: UserSubstitution[];
   defaultSubstitutions?: Substitution[];
   username?: string | null;
+  isAdmin?: boolean;
 }
 
 export function SettingsForm({
@@ -98,6 +98,7 @@ export function SettingsForm({
   userSubstitutions = [],
   defaultSubstitutions = [],
   username = null,
+  isAdmin = false,
 }: SettingsFormProps) {
   const { theme, setTheme } = useTheme();
   const [firstName, setFirstName] = useState(profile.first_name || "");
@@ -925,8 +926,8 @@ export function SettingsForm({
         </CardContent>
       </Card>
 
-      {/* API Costs (Localhost Only) */}
-      <ApiCostsSection />
+      {/* API Costs (Admin Only) */}
+      <ApiCostsSection isAdmin={isAdmin} />
 
       {/* Save Button */}
       <Button onClick={handleSave} disabled={isSaving} className="w-full">

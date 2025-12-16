@@ -1,19 +1,22 @@
 import { getProfile, getSettings, getHouseholdInfo } from "@/app/actions/settings";
 import { getUserSubstitutions, getDefaultSubstitutions } from "@/lib/substitutions";
 import { SettingsForm } from "@/components/settings/settings-form";
+import { isCurrentUserAdmin } from "@/lib/auth/admin";
 
 export default async function SettingsPage() {
-  const [profileResult, settingsResult, householdResult, userSubstitutions, defaultSubstitutions] = await Promise.all([
+  const [profileResult, settingsResult, householdResult, userSubstitutions, defaultSubstitutions, isAdmin] = await Promise.all([
     getProfile(),
     getSettings(),
     getHouseholdInfo(),
     getUserSubstitutions(),
     getDefaultSubstitutions(),
+    isCurrentUserAdmin(),
   ]);
 
   const profile = profileResult.data || {
     id: "",
-    name: null,
+    first_name: null,
+    last_name: null,
     email: null,
     username: null,
   };
@@ -50,6 +53,7 @@ export default async function SettingsPage() {
         userSubstitutions={userSubstitutions}
         defaultSubstitutions={defaultSubstitutions}
         username={profile.username || null}
+        isAdmin={isAdmin}
       />
     </div>
   );
