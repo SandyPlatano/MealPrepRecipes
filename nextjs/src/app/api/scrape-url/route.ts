@@ -128,34 +128,73 @@ export async function POST(request: NextRequest) {
 
     const html = await response.text();
 
-    // Basic text extraction - remove scripts and styles
-    let text = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
-    text = text.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
+    // Clean scripts and styles from HTML
+    let cleanedHtml = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
+    cleanedHtml = cleanedHtml.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
+    cleanedHtml = cleanedHtml.replace(/<!--[\s\S]*?-->/g, ""); // Remove comments
 
-    // Try to find common recipe sections
+    // Try to find common recipe sections with improved patterns
     const recipePatterns = [
+      // Look for recipe schema markup first (most accurate)
+      /<script[^>]*type="application\/ld\+json"[^>]*>[\s\S]*?"@type"\s*:\s*"Recipe"[\s\S]*?<\/script>/i,
+      // Main recipe containers
       /<article[^>]*>[\s\S]*?<\/article>/i,
-      /<div[^>]*class="[^"]*recipe[^"]*"[^>]*>[\s\S]*?<\/div>/i,
-      /<main[^>]*>[\s\S]*?<\/main>/i,
+      /<div[^>]*id="[^"]*recipe[^"]*"[^>]*>[\s\S]{100,}<\/div>/i,
+      /<div[^>]*class="[^"]*recipe[^"]*"[^>]*>[\s\S]{100,}<\/div>/i,
+      // Common recipe site patterns
+      /<div[^>]*class="[^"]*recipe-content[^"]*"[^>]*>[\s\S]{100,}<\/div>/i,
+      /<div[^>]*class="[^"]*recipe-body[^"]*"[^>]*>[\s\S]{100,}<\/div>/i,
+      /<section[^>]*class="[^"]*recipe[^"]*"[^>]*>[\s\S]{100,}<\/section>/i,
+      /<main[^>]*>[\s\S]{100,}<\/main>/i,
     ];
 
+    let recipeHtml = cleanedHtml;
     for (const pattern of recipePatterns) {
-      const match = html.match(pattern);
+      const match = cleanedHtml.match(pattern);
       if (match) {
-        text = match[0];
+        recipeHtml = match[0];
         break;
       }
     }
 
-    // Remove HTML tags
+    // Preserve structure while converting HTML to readable text
+    // This maintains ingredient lists and instruction formatting
+    let text = recipeHtml;
+
+    // Convert common recipe structure elements to preserved text
+    text = text.replace(/<li[^>]*>/gi, "\n• ");
+    text = text.replace(/<\/li>/gi, "");
+    text = text.replace(/<br\s*\/?>/gi, "\n");
+    text = text.replace(/<p[^>]*>/gi, "\n");
+    text = text.replace(/<\/p>/gi, "");
+    text = text.replace(/<div[^>]*>/gi, "\n");
+    text = text.replace(/<\/div>/gi, "");
+    text = text.replace(/<h[1-6][^>]*>/gi, "\n");
+    text = text.replace(/<\/h[1-6]>/gi, "\n");
+    text = text.replace(/<span[^>]*>/gi, "");
+    text = text.replace(/<\/span>/gi, "");
+    text = text.replace(/<strong[^>]*>/gi, "");
+    text = text.replace(/<\/strong>/gi, "");
+    text = text.replace(/<em[^>]*>/gi, "");
+    text = text.replace(/<\/em>/gi, "");
+    text = text.replace(/<ul[^>]*>/gi, "\n");
+    text = text.replace(/<\/ul>/gi, "\n");
+    text = text.replace(/<ol[^>]*>/gi, "\n");
+    text = text.replace(/<\/ol>/gi, "\n");
+
+    // Remove remaining HTML tags
     text = text.replace(/<[^>]+>/g, " ");
 
-    // Clean up whitespace
-    text = text.replace(/\s+/g, " ").trim();
+    // Clean up whitespace while preserving structure
+    text = text.replace(/\n\s+/g, "\n"); // Remove trailing spaces after newlines
+    text = text.replace(/\s+\n/g, "\n"); // Remove leading spaces before newlines
+    text = text.replace(/\n+/g, "\n"); // Remove multiple newlines
+    text = text.replace(/[ \t]+/g, " "); // Collapse multiple spaces
+    text = text.trim();
 
     return NextResponse.json({
-      html: html.substring(0, 15000), // Limit HTML size
-      text: text.substring(0, 10000), // Limit text size
+      html: recipeHtml.substring(0, 20000), // Increased limit for better recipe extraction
+      text: text.substring(0, 15000), // Increased limit to preserve formatting
       url,
     });
   } catch (error) {

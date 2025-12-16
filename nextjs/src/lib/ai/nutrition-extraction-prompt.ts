@@ -274,7 +274,7 @@ export function validateNutritionRanges(
   }
 
   // Calorie calculation check (approximate)
-  if (nutrition.calories && nutrition.protein_g && nutrition.carbs_g && nutrition.fat_g) {
+  if (nutrition.calories && nutrition.calories > 0 && nutrition.protein_g !== null && nutrition.protein_g !== undefined && nutrition.carbs_g !== null && nutrition.carbs_g !== undefined && nutrition.fat_g !== null && nutrition.fat_g !== undefined) {
     const estimatedCalories =
       nutrition.protein_g * 4 +
       nutrition.carbs_g * 4 +
@@ -290,14 +290,19 @@ export function validateNutritionRanges(
     }
   }
 
-  // Fiber validation
-  if (nutrition.fiber_g && nutrition.carbs_g && nutrition.fiber_g > nutrition.carbs_g) {
+  // Fiber validation (explicit null checks to handle 0 values correctly)
+  if (nutrition.fiber_g !== null && nutrition.fiber_g !== undefined && nutrition.carbs_g !== null && nutrition.carbs_g !== undefined && nutrition.fiber_g > nutrition.carbs_g) {
     warnings.push('Fiber cannot exceed total carbs');
   }
 
-  // Sugar validation
-  if (nutrition.sugar_g && nutrition.carbs_g && nutrition.sugar_g > nutrition.carbs_g) {
+  // Sugar validation (explicit null checks to handle 0 values correctly)
+  if (nutrition.sugar_g !== null && nutrition.sugar_g !== undefined && nutrition.carbs_g !== null && nutrition.carbs_g !== undefined && nutrition.sugar_g > nutrition.carbs_g) {
     warnings.push('Sugar cannot exceed total carbs');
+  }
+
+  // Composite carb validation (sugar + fiber cannot exceed total carbs)
+  if (nutrition.sugar_g !== null && nutrition.sugar_g !== undefined && nutrition.fiber_g !== null && nutrition.fiber_g !== undefined && nutrition.carbs_g !== null && nutrition.carbs_g !== undefined && (nutrition.sugar_g + nutrition.fiber_g > nutrition.carbs_g)) {
+    warnings.push('Sugar and fiber combined cannot exceed total carbs');
   }
 
   // Sodium validation

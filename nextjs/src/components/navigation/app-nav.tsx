@@ -151,16 +151,16 @@ export function AppNav({
           <Link key={item.href} href={item.href}>
             <span
               className={cn(
-                "inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm font-medium border transition-all",
-                "hover:border-primary/40 hover:text-foreground hover:shadow-[0_8px_30px_-15px_rgba(99,102,241,0.45)] hover:bg-primary/5",
+                "inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm font-medium border transition-all duration-200",
+                "hover:border-primary/40 hover:text-foreground hover:shadow-[0_8px_30px_-15px_rgba(99,102,241,0.45)] hover:bg-primary/5 active:scale-95",
                 active
-                  ? "border-primary/50 bg-primary/10 text-primary"
+                  ? "border-primary/50 bg-primary/10 text-primary shadow-sm"
                   : "border-transparent text-muted-foreground"
               )}
             >
               <Icon
                 className={cn(
-                  "h-4 w-4",
+                  "h-4 w-4 transition-all",
                   active && "drop-shadow-[0_6px_24px_rgba(99,102,241,0.45)]"
                 )}
               />

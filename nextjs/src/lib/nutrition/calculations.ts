@@ -18,6 +18,7 @@ import type {
 /**
  * Sum multiple nutrition data objects
  * Handles null/undefined values gracefully
+ * Note: Zero values (0) are treated as valid data, not missing data
  */
 export function sumNutrition(items: (NutritionData | null | undefined)[]): NutritionData {
   const result: NutritionData = {
@@ -35,32 +36,33 @@ export function sumNutrition(items: (NutritionData | null | undefined)[]): Nutri
   items.forEach((item) => {
     if (!item) return;
 
+    // Use explicit null/undefined checks (0 is treated as valid data)
     if (item.calories !== null && item.calories !== undefined) {
-      result.calories = (result.calories || 0) + item.calories;
+      result.calories += item.calories;
       hasData = true;
     }
     if (item.protein_g !== null && item.protein_g !== undefined) {
-      result.protein_g = (result.protein_g || 0) + item.protein_g;
+      result.protein_g += item.protein_g;
       hasData = true;
     }
     if (item.carbs_g !== null && item.carbs_g !== undefined) {
-      result.carbs_g = (result.carbs_g || 0) + item.carbs_g;
+      result.carbs_g += item.carbs_g;
       hasData = true;
     }
     if (item.fat_g !== null && item.fat_g !== undefined) {
-      result.fat_g = (result.fat_g || 0) + item.fat_g;
+      result.fat_g += item.fat_g;
       hasData = true;
     }
     if (item.fiber_g !== null && item.fiber_g !== undefined) {
-      result.fiber_g = (result.fiber_g || 0) + item.fiber_g;
+      result.fiber_g += item.fiber_g;
       hasData = true;
     }
     if (item.sugar_g !== null && item.sugar_g !== undefined) {
-      result.sugar_g = (result.sugar_g || 0) + item.sugar_g;
+      result.sugar_g += item.sugar_g;
       hasData = true;
     }
     if (item.sodium_mg !== null && item.sodium_mg !== undefined) {
-      result.sodium_mg = (result.sodium_mg || 0) + item.sodium_mg;
+      result.sodium_mg += item.sodium_mg;
       hasData = true;
     }
   });
@@ -83,23 +85,91 @@ export function sumNutrition(items: (NutritionData | null | undefined)[]): Nutri
 
 /**
  * Calculate average nutrition from multiple data points
+ * Averages are calculated per-field, not per-item
+ * (i.e., if 3 items have calories but only 2 have carbs, carbs are averaged over 2 items)
  */
 export function averageNutrition(items: (NutritionData | null | undefined)[]): NutritionData {
-  const sum = sumNutrition(items);
-  const validItems = items.filter(item => item !== null && item !== undefined);
-
-  if (validItems.length === 0) {
-    return sum; // All nulls
+  if (items.length === 0) {
+    return {
+      calories: null,
+      protein_g: null,
+      carbs_g: null,
+      fat_g: null,
+      fiber_g: null,
+      sugar_g: null,
+      sodium_mg: null,
+    };
   }
 
+  // Count valid (non-null, non-undefined) values per field
+  let calorieSum = 0,
+    calorieCount = 0;
+  let proteinSum = 0,
+    proteinCount = 0;
+  let carbsSum = 0,
+    carbsCount = 0;
+  let fatSum = 0,
+    fatCount = 0;
+  let fiberSum = 0,
+    fiberCount = 0;
+  let sugarSum = 0,
+    sugarCount = 0;
+  let sodiumSum = 0,
+    sodiumCount = 0;
+
+  items.forEach((item) => {
+    if (!item) return;
+
+    if (item.calories !== null && item.calories !== undefined) {
+      calorieSum += item.calories;
+      calorieCount++;
+    }
+    if (item.protein_g !== null && item.protein_g !== undefined) {
+      proteinSum += item.protein_g;
+      proteinCount++;
+    }
+    if (item.carbs_g !== null && item.carbs_g !== undefined) {
+      carbsSum += item.carbs_g;
+      carbsCount++;
+    }
+    if (item.fat_g !== null && item.fat_g !== undefined) {
+      fatSum += item.fat_g;
+      fatCount++;
+    }
+    if (item.fiber_g !== null && item.fiber_g !== undefined) {
+      fiberSum += item.fiber_g;
+      fiberCount++;
+    }
+    if (item.sugar_g !== null && item.sugar_g !== undefined) {
+      sugarSum += item.sugar_g;
+      sugarCount++;
+    }
+    if (item.sodium_mg !== null && item.sodium_mg !== undefined) {
+      sodiumSum += item.sodium_mg;
+      sodiumCount++;
+    }
+  });
+
   return {
-    calories: sum.calories ? Math.round(sum.calories / validItems.length) : null,
-    protein_g: sum.protein_g ? Math.round((sum.protein_g / validItems.length) * 10) / 10 : null,
-    carbs_g: sum.carbs_g ? Math.round((sum.carbs_g / validItems.length) * 10) / 10 : null,
-    fat_g: sum.fat_g ? Math.round((sum.fat_g / validItems.length) * 10) / 10 : null,
-    fiber_g: sum.fiber_g ? Math.round((sum.fiber_g / validItems.length) * 10) / 10 : null,
-    sugar_g: sum.sugar_g ? Math.round((sum.sugar_g / validItems.length) * 10) / 10 : null,
-    sodium_mg: sum.sodium_mg ? Math.round(sum.sodium_mg / validItems.length) : null,
+    calories: calorieCount > 0 ? Math.round(calorieSum / calorieCount) : null,
+    protein_g:
+      proteinCount > 0
+        ? Math.round((proteinSum / proteinCount) * 10) / 10
+        : null,
+    carbs_g:
+      carbsCount > 0
+        ? Math.round((carbsSum / carbsCount) * 10) / 10
+        : null,
+    fat_g: fatCount > 0 ? Math.round((fatSum / fatCount) * 10) / 10 : null,
+    fiber_g:
+      fiberCount > 0
+        ? Math.round((fiberSum / fiberCount) * 10) / 10
+        : null,
+    sugar_g:
+      sugarCount > 0
+        ? Math.round((sugarSum / sugarCount) * 10) / 10
+        : null,
+    sodium_mg: sodiumCount > 0 ? Math.round(sodiumSum / sodiumCount) : null,
   };
 }
 
@@ -119,6 +189,24 @@ export function scaleNutrition(
   if (baseServings === 0) {
     console.warn('Cannot scale nutrition: baseServings is 0');
     return nutrition;
+  }
+
+  if (targetServings < 0) {
+    console.warn('Cannot scale nutrition: targetServings cannot be negative');
+    return nutrition;
+  }
+
+  if (targetServings === 0) {
+    // Return zero nutrition for 0 servings
+    return {
+      calories: 0,
+      protein_g: 0,
+      carbs_g: 0,
+      fat_g: 0,
+      fiber_g: 0,
+      sugar_g: 0,
+      sodium_mg: 0,
+    };
   }
 
   const scale = targetServings / baseServings;

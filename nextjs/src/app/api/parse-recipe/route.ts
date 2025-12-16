@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit } from "@/lib/rate-limit-redis";
+import { extractRecipeSchema, schemaToRecipeFormat } from "@/lib/recipe-schema-extractor";
 
 export const dynamic = "force-dynamic";
 
@@ -179,6 +180,17 @@ Determine recipeType based on content:
 - Side Dish: salads, vegetables, rice, sides
 - Snack: appetizers, dips, small bites`;
 
+    // Check for JSON-LD recipe schema (most accurate extraction source)
+    let schemaInfo = "";
+    let schema = null;
+    if (htmlContent) {
+      schema = extractRecipeSchema(htmlContent);
+      if (schema) {
+        const schemaData = schemaToRecipeFormat(schema);
+        schemaInfo = `\n\nRECIPE SCHEMA INFORMATION FOUND (from website structured data):\nThis website includes structured recipe data that may help ensure accuracy:\n${JSON.stringify(schemaData, null, 2)}`;
+      }
+    }
+
     // Determine which prompt to use
     let prompt: string;
     if (htmlContent) {
@@ -193,7 +205,7 @@ IMPORTANT INSTRUCTIONS FOR ACCURACY:
 4. Extract ALL steps exactly as written - preserve all details and measurements
 5. Look for timing information (prep time, cook time, bake time)
 6. Look for serving size information
-7. Look for any notes, tips, or special instructions
+7. Look for any notes, tips, or special instructions${schemaInfo}
 
 HTML content:
 ${htmlContent.substring(0, 12000)} ${htmlContent.length > 12000 ? "... (truncated)" : ""}
@@ -227,32 +239,41 @@ Return ONLY valid JSON, no markdown formatting, no explanation.`;
     } else {
       prompt = `${skillInstructions}
 
-Parse the following recipe text and extract structured information.
+Parse the following recipe text and extract structured information. Preserve all details exactly as written in the source.
+
+IMPORTANT INSTRUCTIONS FOR ACCURACY:
+1. Extract ALL ingredients exactly as listed in the text - do NOT modify, combine, or simplify
+2. Extract ALL steps exactly as written - preserve all details and measurements
+3. Look for timing information (prep time, cook time, bake time)
+4. Look for serving size information
+5. Look for any notes, tips, or special instructions
 
 Recipe text:
 ${text}
 
 Return a JSON object with this exact structure:
 {
-  "title": "Recipe name",
+  "title": "Recipe name - extract exactly as shown in source",
   "recipeType": "Dinner|Baking|Breakfast|Dessert|Snack|Side Dish",
   "category": "For Dinner: Chicken|Beef|Pork|Fish|Seafood|Vegetarian|Vegan|Mixed. For Baking: Cookies|Cakes|Bread|Pastries|Pies|Muffins|Other Baked Goods. For Breakfast: Eggs|Pancakes|Oatmeal|Smoothie|Other. For Dessert: Frozen|Chocolate|Fruit|Custard|Other",
-  "prepTime": "e.g., 15 minutes",
-  "cookTime": "e.g., 30 minutes (or 'bakeTime' for baking)",
-  "servings": "e.g., 4 or 'Makes 24 cookies'",
+  "prepTime": "e.g., 15 minutes - extract exactly as shown",
+  "cookTime": "e.g., 30 minutes - extract exactly as shown",
+  "servings": "e.g., 4 or 'Makes 24 cookies' - extract exactly as shown",
   "baseServings": 4,
-  "ingredients": ["2 lbs chicken breast", "1 cup flour", ...],
-  "instructions": ["Step 1", "Step 2", ...],
+  "ingredients": ["ingredient with exact quantity from source", "another ingredient exactly as listed", ...],
+  "instructions": ["Step 1 - exactly as written in source", "Step 2 - exactly as written in source", ...],
   "tags": ["chicken", "Italian", "meal prep friendly", ...],
-  "notes": "Any tips or modifications, or 'None'"
+  "notes": "Any tips, modifications, or special instructions from the source, or 'None'"
 }
 
-IMPORTANT:
+CRITICAL REQUIREMENTS:
+- Ingredients array: MUST include all ingredients exactly as listed with their quantities
+- Instructions array: MUST include all steps exactly as written in order
 - Include protein type as the FIRST tag (required)
-- Extract ingredients with quantities in format: "[Quantity] [Unit] [Ingredient]"
-- Make instructions clear, sequential, and actionable
-- Include notes if available, otherwise "None"
-- Extract baseServings as a NUMBER (e.g., 4, 6, 12) - extract the numeric value from servings text
+- Extract baseServings as a NUMBER (e.g., 4, 6, 12)
+- Preserve all special formatting or grouping from the original
+- If an ingredient or step appears in the source text, it MUST appear in your extraction
+- Do NOT add, remove, or modify any ingredients or steps
 
 Return ONLY valid JSON, no markdown formatting, no explanation.`;
     }
