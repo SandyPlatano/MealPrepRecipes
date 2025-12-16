@@ -20,7 +20,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles, Apple } from "lucide-react";
+import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles } from "lucide-react";
 import type { RecipeWithFavoriteAndNutrition, RecipeType } from "@/types/recipe";
 
 interface RecipeGridProps {
@@ -30,11 +30,6 @@ interface RecipeGridProps {
   customDietaryRestrictions?: string[];
   onDiscoverClick?: () => void;
 }
-
-// Nutrition filter types
-type CalorieFilter = "any" | "under400" | "under600" | "under800";
-type ProteinFilter = "any" | "20plus" | "30plus" | "40plus";
-type NutritionBadgeFilter = "high_protein" | "light" | "low_carb" | "fiber_rich" | "heart_healthy";
 
 const recipeTypes: RecipeType[] = [
   "Dinner",
@@ -55,11 +50,6 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("recent");
-
-  // Nutrition filters
-  const [calorieFilter, setCalorieFilter] = useState<CalorieFilter>("any");
-  const [proteinFilter, setProteinFilter] = useState<ProteinFilter>("any");
-  const [nutritionBadges, setNutritionBadges] = useState<Set<NutritionBadgeFilter>>(new Set());
 
   // Extract unique proteins and tags from recipes
   const { proteins, tags } = useMemo(() => {
@@ -99,8 +89,8 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
         return false;
       }
 
-      // Protein filter
-      if (proteinFilter !== "all" && recipe.protein_type !== proteinFilter) {
+      // Protein type filter
+      if (proteinTypeFilter !== "all" && recipe.protein_type !== proteinTypeFilter) {
         return false;
       }
 
@@ -138,17 +128,17 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
     });
 
     return sorted;
-  }, [initialRecipes, search, typeFilter, proteinFilter, tagFilter, favoritesOnly, sortBy, recipeCookCounts]);
+  }, [initialRecipes, search, typeFilter, proteinTypeFilter, tagFilter, favoritesOnly, sortBy, recipeCookCounts]);
 
   const hasActiveFilters =
     typeFilter !== "all" ||
-    proteinFilter !== "all" ||
+    proteinTypeFilter !== "all" ||
     tagFilter !== "all" ||
     favoritesOnly;
 
   const clearFilters = () => {
     setTypeFilter("all");
-    setProteinFilter("all");
+    setProteinTypeFilter("all");
     setTagFilter("all");
     setFavoritesOnly(false);
   };
@@ -241,7 +231,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
             {proteins.length > 0 && (
               <div className="space-y-1.5">
                 <label className="text-sm font-medium">Protein</label>
-                <Select value={proteinFilter} onValueChange={setProteinFilter}>
+                <Select value={proteinTypeFilter} onValueChange={setProteinTypeFilter}>
                   <SelectTrigger className="w-[140px]">
                     <SelectValue />
                   </SelectTrigger>
@@ -298,10 +288,10 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
                   </button>
                 </Badge>
               )}
-              {proteinFilter !== "all" && (
+              {proteinTypeFilter !== "all" && (
                 <Badge variant="secondary" className="gap-1">
-                  {proteinFilter}
-                  <button onClick={() => setProteinFilter("all")}>
+                  {proteinTypeFilter}
+                  <button onClick={() => setProteinTypeFilter("all")}>
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>

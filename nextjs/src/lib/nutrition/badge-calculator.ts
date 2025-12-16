@@ -62,77 +62,49 @@ export interface CustomBadge {
 }
 
 // =====================================================
-// SYSTEM BADGE DEFINITIONS
+// EXAMPLE BADGE DEFINITIONS (for documentation)
 // =====================================================
 
 /**
- * Pre-defined system badges
- * These are available to all users and cannot be modified
+ * Example badge definitions to show users how badges work
+ * These are NOT automatically applied - users must create their own
  */
-export const SYSTEM_BADGES: BadgeDefinition[] = [
+export const EXAMPLE_BADGES: BadgeDefinition[] = [
   {
-    key: 'light',
-    label: 'Light',
-    color: 'green',
-    description: 'Under 400 calories per serving',
-    isSystem: true,
-    conditions: [
-      { nutrient: 'calories', operator: 'lt', value: 400 },
-    ],
-  },
-  {
-    key: 'high_protein',
+    key: 'example_high_protein',
     label: 'High Protein',
     color: 'blue',
     description: 'Over 30g protein per serving',
-    isSystem: true,
+    isSystem: false,
     conditions: [
       { nutrient: 'protein_g', operator: 'gt', value: 30 },
     ],
   },
   {
-    key: 'low_carb',
-    label: 'Low Carb',
-    color: 'orange',
-    description: 'Under 20g carbs per serving',
-    isSystem: true,
-    conditions: [
-      { nutrient: 'carbs_g', operator: 'lt', value: 20 },
-    ],
-  },
-  {
-    key: 'fiber_rich',
-    label: 'Fiber-Rich',
+    key: 'example_low_calorie',
+    label: 'Light Meal',
     color: 'green',
-    description: 'Over 8g fiber per serving',
-    isSystem: true,
+    description: 'Under 400 calories per serving',
+    isSystem: false,
     conditions: [
-      { nutrient: 'fiber_g', operator: 'gt', value: 8 },
+      { nutrient: 'calories', operator: 'lt', value: 400 },
     ],
   },
   {
-    key: 'heart_healthy',
-    label: 'Heart-Healthy',
-    color: 'red',
-    description: 'Low sodium (under 500mg) and low fat (under 15g)',
-    isSystem: true,
+    key: 'example_kid_friendly',
+    label: 'Kid Friendly',
+    color: 'orange',
+    description: 'Under 500 calories and under 15g sugar',
+    isSystem: false,
     conditions: [
-      { nutrient: 'sodium_mg', operator: 'lt', value: 500 },
-      { nutrient: 'fat_g', operator: 'lt', value: 15 },
-    ],
-  },
-  {
-    key: 'balanced',
-    label: 'Balanced',
-    color: 'purple',
-    description: 'Well-balanced macros (400-600 cal, 20-40g protein)',
-    isSystem: true,
-    conditions: [
-      { nutrient: 'calories', operator: 'between', value: 400, value2: 600 },
-      { nutrient: 'protein_g', operator: 'between', value: 20, value2: 40 },
+      { nutrient: 'calories', operator: 'lt', value: 500 },
+      { nutrient: 'sugar_g', operator: 'lt', value: 15 },
     ],
   },
 ];
+
+// Keep SYSTEM_BADGES as empty array for backwards compatibility
+export const SYSTEM_BADGES: BadgeDefinition[] = [];
 
 // =====================================================
 // BADGE CALCULATION LOGIC

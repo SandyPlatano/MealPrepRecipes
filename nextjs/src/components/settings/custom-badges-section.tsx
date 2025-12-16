@@ -47,7 +47,7 @@ import {
   type BadgeCondition,
   type BadgeColor,
   type CustomBadge,
-  SYSTEM_BADGES,
+  EXAMPLE_BADGES,
   AVAILABLE_NUTRIENTS,
   AVAILABLE_OPERATORS,
   AVAILABLE_BADGE_COLORS,
@@ -69,7 +69,7 @@ interface CustomBadgesSectionProps {
 export function CustomBadgesSection({ className }: CustomBadgesSectionProps) {
   const [customBadges, setCustomBadges] = useState<CustomBadge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showSystemBadges, setShowSystemBadges] = useState(false);
+  const [showExamples, setShowExamples] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingBadge, setEditingBadge] = useState<CustomBadge | null>(null);
 
@@ -166,32 +166,43 @@ export function CustomBadgesSection({ className }: CustomBadgesSectionProps) {
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* System Badges (Collapsible) */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">System Badges ({SYSTEM_BADGES.length})</Label>
+        {/* How It Works Info */}
+        <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <Info className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="space-y-2">
+              <p className="text-sm font-medium">How badges work</p>
+              <p className="text-sm text-muted-foreground">
+                Create custom badges to automatically label recipes based on their nutrition data.
+                Badges appear on recipe cards when a recipe meets all the conditions you set.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Each badge can have up to 4 conditions using nutrients like calories, protein, carbs, fat, fiber, sugar, or sodium.
+              </p>
+            </div>
+          </div>
+
+          {/* Example Badges Toggle */}
+          <div className="pt-2 border-t">
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setShowSystemBadges(!showSystemBadges)}
+              className="w-full justify-between"
+              onClick={() => setShowExamples(!showExamples)}
             >
-              {showSystemBadges ? "Hide" : "Show"}
+              <span className="text-xs">See example badges</span>
+              <span className="text-xs text-muted-foreground">{showExamples ? "Hide" : "Show"}</span>
             </Button>
-          </div>
 
-          {showSystemBadges && (
-            <div className="space-y-2 rounded-lg border p-3">
-              <p className="text-xs text-muted-foreground mb-2">
-                Default badges that apply automatically to all recipes
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {SYSTEM_BADGES.map((badge) => {
+            {showExamples && (
+              <div className="mt-3 space-y-2">
+                {EXAMPLE_BADGES.map((badge) => {
                   const colors = getBadgeColorClasses(badge.color);
                   return (
-                    <div key={badge.key} className="group relative">
+                    <div key={badge.key} className="flex items-center gap-3 text-sm">
                       <span
                         className={cn(
-                          "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium",
+                          "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium shrink-0",
                           colors.bg,
                           colors.text,
                           colors.border
@@ -199,16 +210,18 @@ export function CustomBadgesSection({ className }: CustomBadgesSectionProps) {
                       >
                         {badge.label}
                       </span>
-                      <div className="absolute left-0 top-full z-10 mt-1 hidden w-48 rounded-md border bg-popover p-2 text-xs shadow-md group-hover:block">
-                        <p className="font-medium">{badge.label}</p>
-                        <p className="text-muted-foreground">{badge.description}</p>
-                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {badge.description}
+                      </span>
                     </div>
                   );
                 })}
+                <p className="text-xs text-muted-foreground italic pt-1">
+                  These are just examples — create your own badges below!
+                </p>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Custom Badges */}
