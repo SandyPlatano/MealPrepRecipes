@@ -61,7 +61,8 @@ export async function getPantryLookup(): Promise<{
 // Add an item to pantry
 export async function addToPantry(
   ingredient: string,
-  category?: string
+  category?: string,
+  source?: 'manual' | 'scan' | 'barcode'
 ): Promise<{ error: string | null }> {
   const supabase = await createClient();
   const {
@@ -91,6 +92,7 @@ export async function addToPantry(
       ingredient: ingredient.trim(),
       normalized_ingredient: normalizedIngredient,
       category: category || "Other",
+      source: source || 'manual',
       last_restocked: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     },
@@ -104,6 +106,7 @@ export async function addToPantry(
   }
 
   revalidatePath("/app/shop");
+  revalidatePath("/app/pantry");
   return { error: null };
 }
 

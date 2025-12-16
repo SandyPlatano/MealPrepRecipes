@@ -76,6 +76,11 @@ export interface RecipeWithFavorite extends Recipe {
   is_favorite: boolean;
 }
 
+// Recipe with favorite status and nutrition data for browse page
+export interface RecipeWithFavoriteAndNutrition extends RecipeWithFavorite {
+  nutrition?: RecipeNutrition | null;
+}
+
 // Filters for recipe list
 export interface RecipeFilters {
   search?: string;

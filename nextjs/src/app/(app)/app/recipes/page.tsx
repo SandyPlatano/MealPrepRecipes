@@ -1,12 +1,13 @@
 import { Suspense } from "react";
 import { getRecipes, getFavorites, getRecipeCookCounts } from "@/app/actions/recipes";
 import { getSettings } from "@/app/actions/settings";
+import { getBulkRecipeNutrition } from "@/app/actions/nutrition";
 import { createClient } from "@/lib/supabase/server";
 import { RecipesPageClient } from "@/components/recipes/recipes-page-client";
 
 export default async function RecipesPage() {
   const supabase = await createClient();
-  
+
   const [recipesResult, favoritesResult, settingsResult, cookCountsResult] = await Promise.all([
     getRecipes(),
     getFavorites(),
@@ -20,10 +21,16 @@ export default async function RecipesPage() {
   const customDietaryRestrictions = settingsResult.data?.custom_dietary_restrictions || [];
   const recipeCookCounts = cookCountsResult.data || {};
 
-  // Add favorite status to recipes
+  // Fetch nutrition data for all recipes
+  const recipeIds = recipes.map((r) => r.id);
+  const nutritionResult = await getBulkRecipeNutrition(recipeIds);
+  const nutritionMap = nutritionResult.data || {};
+
+  // Add favorite status and nutrition to recipes
   const recipesWithFavorites = recipes.map((recipe) => ({
     ...recipe,
     is_favorite: favoriteIds.has(recipe.id),
+    nutrition: nutritionMap[recipe.id] || null,
   }));
 
   // Get recently cooked recipes (last 30 days)

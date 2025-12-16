@@ -23,7 +23,7 @@ export interface PantryItem {
   normalized_ingredient: string;
   category?: string | null;
   last_restocked?: string | null;
-  source?: 'manual' | 'scan' | null;
+  source?: 'manual' | 'scan' | 'barcode' | null;
   created_at: string;
   updated_at: string;
 }

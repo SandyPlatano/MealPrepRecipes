@@ -15,16 +15,26 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles } from "lucide-react";
-import type { RecipeWithFavorite, RecipeType } from "@/types/recipe";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles, Apple } from "lucide-react";
+import type { RecipeWithFavoriteAndNutrition, RecipeType } from "@/types/recipe";
 
 interface RecipeGridProps {
-  recipes: RecipeWithFavorite[];
+  recipes: RecipeWithFavoriteAndNutrition[];
   recipeCookCounts?: Record<string, number>; // recipe_id -> count
   userAllergenAlerts?: string[];
   customDietaryRestrictions?: string[];
   onDiscoverClick?: () => void;
 }
+
+// Nutrition filter types
+type CalorieFilter = "any" | "under400" | "under600" | "under800";
+type ProteinFilter = "any" | "20plus" | "30plus" | "40plus";
+type NutritionBadgeFilter = "high_protein" | "light" | "low_carb" | "fiber_rich" | "heart_healthy";
 
 const recipeTypes: RecipeType[] = [
   "Dinner",
@@ -40,11 +50,16 @@ type SortOption = "recent" | "most-cooked" | "highest-rated" | "alphabetical";
 export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, userAllergenAlerts = [], customDietaryRestrictions = [], onDiscoverClick }: RecipeGridProps) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<RecipeType | "all">("all");
-  const [proteinFilter, setProteinFilter] = useState<string>("all");
+  const [proteinTypeFilter, setProteinTypeFilter] = useState<string>("all");
   const [tagFilter, setTagFilter] = useState<string>("all");
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("recent");
+
+  // Nutrition filters
+  const [calorieFilter, setCalorieFilter] = useState<CalorieFilter>("any");
+  const [proteinFilter, setProteinFilter] = useState<ProteinFilter>("any");
+  const [nutritionBadges, setNutritionBadges] = useState<Set<NutritionBadgeFilter>>(new Set());
 
   // Extract unique proteins and tags from recipes
   const { proteins, tags } = useMemo(() => {

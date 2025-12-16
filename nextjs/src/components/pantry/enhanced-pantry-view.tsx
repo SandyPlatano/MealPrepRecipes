@@ -17,7 +17,7 @@ import {
   TabsList,
   TabsTrigger
 } from '@/components/ui/tabs';
-import { Plus, Trash2, Cookie, PackageX, Camera, History, Sparkles } from 'lucide-react';
+import { Plus, Trash2, Cookie, PackageX, Camera, History, Sparkles, Barcode } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   addToPantry,
@@ -44,11 +44,14 @@ import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-// Import our new scanning components
+// Import our scanning components
 import PantryScanner from './pantry-scanner';
 import ScanReview from './scan-review';
 import ScanHistory from './scan-history';
+import BarcodeScanner from './barcode-scanner';
+import BarcodeResultReview from './barcode-result-review';
 import { PantryScan } from '@/app/actions/pantry-scan';
+import { ScannedProduct } from '@/types/barcode';
 
 interface DetectedItem {
   ingredient: string;
@@ -91,6 +94,12 @@ export function EnhancedPantryView({
     detectedItems: DetectedItem[];
     suggestedRecipes: SuggestedRecipe[];
   } | null>(null);
+
+  // Barcode scanner states
+  const [scanMode, setScanMode] = useState<'photo' | 'barcode'>('photo');
+  const [barcodeProduct, setBarcodeProduct] = useState<ScannedProduct | null>(null);
+  const [showBarcodeReview, setShowBarcodeReview] = useState(false);
+  const [manualEntryBarcode, setManualEntryBarcode] = useState<string | null>(null);
 
   // Group items by category for display
   const groupedItems = initialItems.reduce(
@@ -171,6 +180,40 @@ export function EnhancedPantryView({
     setActiveTab('items');
   };
 
+  // Barcode handlers
+  const handleBarcodeScanComplete = (product: ScannedProduct) => {
+    setBarcodeProduct(product);
+    setShowBarcodeReview(true);
+    setManualEntryBarcode(null);
+  };
+
+  const handleBarcodeNotFound = (barcode: string) => {
+    // Store barcode for manual entry prefill
+    setManualEntryBarcode(barcode);
+    setBarcodeProduct(null);
+    setShowBarcodeReview(false);
+  };
+
+  const handleBarcodeConfirm = async (item: { ingredient: string; category: string }) => {
+    const result = await addToPantry(item.ingredient, item.category, 'barcode');
+
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success(`Added "${item.ingredient}" to pantry`);
+      setShowBarcodeReview(false);
+      setBarcodeProduct(null);
+      // Refresh to show updated pantry
+      window.location.reload();
+    }
+  };
+
+  const handleBarcodeScanAnother = () => {
+    setShowBarcodeReview(false);
+    setBarcodeProduct(null);
+    setManualEntryBarcode(null);
+  };
+
   const getScannerBadge = () => {
     if (subscriptionTier === 'premium') {
       return (
@@ -190,6 +233,24 @@ export function EnhancedPantryView({
     return null;
   };
 
+  // Show barcode result review
+  if (showBarcodeReview && barcodeProduct) {
+    return (
+      <div className="space-y-6">
+        <BarcodeResultReview
+          product={barcodeProduct}
+          onConfirm={handleBarcodeConfirm}
+          onCancel={() => {
+            setShowBarcodeReview(false);
+            setBarcodeProduct(null);
+          }}
+          onScanAnother={handleBarcodeScanAnother}
+        />
+      </div>
+    );
+  }
+
+  // Show photo scan review
   if (showScanReview && scanData) {
     return (
       <div className="space-y-6">
@@ -346,19 +407,120 @@ export function EnhancedPantryView({
         </TabsContent>
 
         <TabsContent value="scan" className="space-y-6">
-          <PantryScanner
-            onScanComplete={handleScanComplete}
-            subscriptionTier={subscriptionTier}
-          />
+          {/* Scan Mode Toggle */}
+          <div className="flex justify-center">
+            <div className="inline-flex rounded-lg border p-1 bg-muted/50">
+              <Button
+                variant={scanMode === 'photo' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setScanMode('photo')}
+                className="gap-2"
+              >
+                <Camera className="h-4 w-4" />
+                Photo Scan
+              </Button>
+              <Button
+                variant={scanMode === 'barcode' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setScanMode('barcode')}
+                className="gap-2"
+              >
+                <Barcode className="h-4 w-4" />
+                Barcode
+              </Button>
+            </div>
+          </div>
 
+          {/* Conditional Scanner Rendering */}
+          {scanMode === 'photo' ? (
+            <PantryScanner
+              onScanComplete={handleScanComplete}
+              subscriptionTier={subscriptionTier}
+            />
+          ) : (
+            <BarcodeScanner
+              onScanComplete={handleBarcodeScanComplete}
+              onNotFound={handleBarcodeNotFound}
+              subscriptionTier={subscriptionTier}
+            />
+          )}
+
+          {/* Manual Entry Fallback for Not Found Barcodes */}
+          {scanMode === 'barcode' && manualEntryBarcode && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Product Not Found</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Barcode <span className="font-mono">{manualEntryBarcode}</span> was not found in the database.
+                  Add it manually:
+                </p>
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.currentTarget);
+                    const name = formData.get('name') as string;
+                    const category = formData.get('category') as string;
+                    if (name?.trim()) {
+                      const result = await addToPantry(name.trim(), category || 'Other', 'barcode');
+                      if (result.error) {
+                        toast.error(result.error);
+                      } else {
+                        toast.success(`Added "${name}" to pantry`);
+                        setManualEntryBarcode(null);
+                        window.location.reload();
+                      }
+                    }
+                  }}
+                  className="flex gap-2"
+                >
+                  <Input
+                    name="name"
+                    placeholder="Enter product name..."
+                    className="flex-1"
+                    autoFocus
+                  />
+                  <Select name="category" defaultValue="Other">
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {INGREDIENT_CATEGORIES.map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button type="submit">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </form>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setManualEntryBarcode(null)}
+                >
+                  Cancel
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Feature Cards */}
           {subscriptionTier !== 'free' && (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               <Card>
                 <CardContent className="pt-6">
-                  <div className="text-2xl font-bold">🎯</div>
-                  <h3 className="font-semibold mt-2">Accurate Detection</h3>
+                  <div className="text-2xl font-bold">{scanMode === 'photo' ? '🎯' : '📊'}</div>
+                  <h3 className="font-semibold mt-2">
+                    {scanMode === 'photo' ? 'Accurate Detection' : 'Nutrition Info'}
+                  </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    AI-powered recognition with 80%+ accuracy
+                    {scanMode === 'photo'
+                      ? 'AI-powered recognition with 80%+ accuracy'
+                      : 'View calories, protein, carbs & more'}
                   </p>
                 </CardContent>
               </Card>
@@ -375,10 +537,14 @@ export function EnhancedPantryView({
 
               <Card>
                 <CardContent className="pt-6">
-                  <div className="text-2xl font-bold">🍳</div>
-                  <h3 className="font-semibold mt-2">Recipe Suggestions</h3>
+                  <div className="text-2xl font-bold">{scanMode === 'photo' ? '🍳' : '⚡'}</div>
+                  <h3 className="font-semibold mt-2">
+                    {scanMode === 'photo' ? 'Recipe Suggestions' : 'Quick Add'}
+                  </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Get recipes based on what&apos;s in your pantry
+                    {scanMode === 'photo'
+                      ? 'Get recipes based on what\'s in your pantry'
+                      : 'Scan barcodes to instantly add products'}
                   </p>
                 </CardContent>
               </Card>
@@ -448,6 +614,12 @@ function PantryItemRow({ item, onRemove }: PantryItemRowProps) {
         <Badge variant="outline" className="text-xs">
           <Camera className="h-3 w-3 mr-1" />
           Scanned
+        </Badge>
+      )}
+      {item.source === 'barcode' && (
+        <Badge variant="outline" className="text-xs">
+          <Barcode className="h-3 w-3 mr-1" />
+          Barcode
         </Badge>
       )}
       {item.last_restocked && (

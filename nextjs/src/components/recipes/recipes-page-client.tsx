@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { RecipeGrid } from "./recipe-grid";
 import { DiscoverDialog } from "./discover-dialog";
-import type { RecipeWithFavorite } from "@/types/recipe";
+import type { RecipeWithFavoriteAndNutrition, RecipeWithFavorite } from "@/types/recipe";
 
 interface RecipesPageClientProps {
-  recipes: RecipeWithFavorite[];
+  recipes: RecipeWithFavoriteAndNutrition[];
   recipeCookCounts: Record<string, number>;
   recentlyCookedIds: string[];
   userAllergenAlerts?: string[];
@@ -22,6 +22,9 @@ export function RecipesPageClient({
 }: RecipesPageClientProps) {
   const [discoverOpen, setDiscoverOpen] = useState(false);
 
+  // Cast for discover dialog which doesn't need nutrition data
+  const recipesForDiscover = recipes as RecipeWithFavorite[];
+
   return (
     <>
       <RecipeGrid
@@ -35,7 +38,7 @@ export function RecipesPageClient({
       <DiscoverDialog
         open={discoverOpen}
         onOpenChange={setDiscoverOpen}
-        recipes={recipes}
+        recipes={recipesForDiscover}
         recipeCookCounts={recipeCookCounts}
         recentlyCookedIds={recentlyCookedIds}
       />
