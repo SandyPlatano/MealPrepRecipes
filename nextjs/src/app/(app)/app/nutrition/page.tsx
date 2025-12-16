@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { MacroDashboard } from "@/components/nutrition/macro-dashboard";
+import { NutritionTipCard } from "@/components/nutrition/nutrition-tip-card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Calendar, AlertCircle, HelpCircle, DollarSign } from "lucide-react";
 import {
@@ -17,7 +18,7 @@ import {
   isNutritionTrackingEnabled,
   getWeeklyNutritionDashboard,
 } from "@/app/actions/nutrition";
-import { formatNutritionValue } from "@/lib/nutrition/calculations";
+import { formatNutritionValue, calculateCurrentStreak } from "@/lib/nutrition/calculations";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { isCurrentUserAdmin } from "@/lib/auth/admin";
@@ -155,6 +156,15 @@ async function CurrentWeekDashboard() {
     );
   }
 
+  // Calculate the current streak from the dashboard data
+  const currentStreak = calculateCurrentStreak(dashboardResult.data.days);
+
+  // Find today's summary for the tip card
+  const today = new Date().toISOString().split("T")[0];
+  const todaysSummary = dashboardResult.data.days.find(
+    (day) => day.date === today
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -173,7 +183,16 @@ async function CurrentWeekDashboard() {
         </Badge>
       </div>
 
-      <MacroDashboard dashboard={dashboardResult.data} variant="full" />
+      {/* Today's Nutrition Tip */}
+      {todaysSummary && (
+        <NutritionTipCard todaysSummary={todaysSummary} />
+      )}
+
+      <MacroDashboard
+        dashboard={dashboardResult.data}
+        variant="full"
+        currentStreak={currentStreak}
+      />
     </div>
   );
 }

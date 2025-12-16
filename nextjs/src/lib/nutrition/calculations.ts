@@ -583,3 +583,94 @@ export function isMacroDistributionBalanced(nutrition: NutritionData): boolean {
     dist.fat_pct <= 35
   );
 }
+
+// =====================================================
+// STREAK CALCULATIONS
+// =====================================================
+
+/**
+ * Count how many macros are on target (green) for a day
+ * Returns 0-4 based on calories, protein, carbs, fat
+ */
+export function countMacrosOnTarget(
+  nutrition: NutritionData,
+  goals: MacroGoals
+): number {
+  const progress = calculateAllMacroProgress(nutrition, goals);
+  let count = 0;
+
+  if (progress.calories.color === 'green') count++;
+  if (progress.protein.color === 'green') count++;
+  if (progress.carbs.color === 'green') count++;
+  if (progress.fat.color === 'green') count++;
+
+  return count;
+}
+
+/**
+ * Check if a day counts toward the streak
+ * A day counts if at least 3 of 4 macros are on target (within ±10%)
+ */
+export function isDayStreakWorthy(
+  nutrition: NutritionData,
+  goals: MacroGoals,
+  hasMeals: boolean = true
+): boolean {
+  if (!hasMeals) return false;
+  return countMacrosOnTarget(nutrition, goals) >= 3;
+}
+
+/**
+ * Calculate current streak from daily summaries
+ * Counts consecutive days (from today backward) where user hit 3+ macros
+ * Stops counting when a day is missed or has no meals
+ */
+export function calculateCurrentStreak(
+  dailySummaries: DailyMacroSummary[]
+): number {
+  // Sort by date descending (most recent first)
+  const sorted = [...dailySummaries].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let streak = 0;
+
+  for (const day of sorted) {
+    const dayDate = new Date(day.date);
+    dayDate.setHours(0, 0, 0, 0);
+
+    // Skip future days
+    if (dayDate > today) continue;
+
+    // Check if this day counts toward streak
+    const hasMeals = day.meal_count > 0;
+    const isStreakWorthy = hasMeals && countMacrosOnTargetFromSummary(day) >= 3;
+
+    if (isStreakWorthy) {
+      streak++;
+    } else {
+      // Break the streak at first non-qualifying day
+      break;
+    }
+  }
+
+  return streak;
+}
+
+/**
+ * Count macros on target from a DailyMacroSummary
+ * Uses the pre-calculated progress data
+ */
+export function countMacrosOnTargetFromSummary(day: DailyMacroSummary): number {
+  let count = 0;
+
+  if (day.progress.calories.color === 'green') count++;
+  if (day.progress.protein.color === 'green') count++;
+  if (day.progress.carbs.color === 'green') count++;
+  if (day.progress.fat.color === 'green') count++;
+
+  return count;
+}

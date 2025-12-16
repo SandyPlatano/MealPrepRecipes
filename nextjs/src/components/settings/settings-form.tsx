@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { GoogleCalendarButton } from "./google-calendar-button";
 import { MacroGoalsSection } from "./macro-goals-section";
+import { CustomBadgesSection } from "./custom-badges-section";
 import { SubstitutionsSection } from "./substitutions-section";
 import { ApiCostsSection } from "./api-costs-section";
 import { UsernameSection } from "./username-section";
@@ -788,6 +789,9 @@ export function SettingsForm({
           await toggleNutritionTracking(enabled);
         }}
       />
+
+      {/* Custom Nutrition Badges */}
+      <CustomBadgesSection />
 
       {/* Ingredient Substitutions */}
       <SubstitutionsSection

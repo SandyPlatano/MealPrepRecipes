@@ -3,27 +3,36 @@
 /**
  * Macro Dashboard Component
  * Weekly nutrition overview with daily breakdown and progress tracking
+ * Includes weekly progress indicator (dots) and streak counter
  */
 
 import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { MacroProgressRing, MacroProgressBar } from "./macro-progress-ring";
-import type { WeeklyMacroDashboard, DailyMacroSummary } from "@/types/nutrition";
+import type { WeeklyMacroDashboard, DailyMacroSummary, MacroGoals } from "@/types/nutrition";
 import { cn } from "@/lib/utils";
-import { TrendingUp, TrendingDown, Minus, AlertCircle } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, AlertCircle, Flame } from "lucide-react";
 
 interface MacroDashboardProps {
   dashboard: WeeklyMacroDashboard;
   variant?: "full" | "compact";
   className?: string;
+  currentStreak?: number;
 }
 
 export function MacroDashboard({
   dashboard,
   variant = "full",
   className,
+  currentStreak = 0,
 }: MacroDashboardProps) {
   // Calculate average data completeness
   const avgCompleteness = useMemo(() => {
@@ -50,6 +59,12 @@ export function MacroDashboard({
           </AlertDescription>
         </Alert>
       )}
+
+      {/* Weekly Progress Indicator + Streak */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <WeeklyProgressIndicator days={dashboard.days} />
+        {currentStreak > 0 && <StreakCounter streak={currentStreak} />}
+      </div>
 
       {/* Overall Weekly Progress */}
       <Card>
@@ -332,6 +347,246 @@ function WeeklyStat({
         {value !== null && value !== undefined ? Math.round(value).toLocaleString() : "—"}
       </div>
       <div className="text-xs text-muted-foreground">{unit}</div>
+    </div>
+  );
+}
+
+// =====================================================
+// WEEKLY PROGRESS INDICATOR
+// =====================================================
+
+type DayStatus = "all-target" | "most-target" | "few-target" | "future" | "no-meals";
+
+/**
+ * Calculate how many macros are on target for a day
+ * Returns 0-4 based on calories, protein, carbs, fat being within ±10%
+ */
+function countMacrosOnTarget(day: DailyMacroSummary): number {
+  if (day.meal_count === 0) return 0;
+
+  let count = 0;
+  const progress = day.progress;
+
+  if (progress.calories.color === "green") count++;
+  if (progress.protein.color === "green") count++;
+  if (progress.carbs.color === "green") count++;
+  if (progress.fat.color === "green") count++;
+
+  return count;
+}
+
+/**
+ * Determine the status of a day for the progress indicator
+ */
+function getDayStatus(day: DailyMacroSummary): DayStatus {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dayDate = new Date(day.date);
+  dayDate.setHours(0, 0, 0, 0);
+
+  // Future day
+  if (dayDate > today) {
+    return "future";
+  }
+
+  // No meals planned
+  if (day.meal_count === 0) {
+    return "no-meals";
+  }
+
+  const onTarget = countMacrosOnTarget(day);
+
+  if (onTarget === 4) return "all-target";
+  if (onTarget === 3) return "most-target";
+  return "few-target";
+}
+
+/**
+ * Weekly Progress Indicator
+ * Clean dot-based visualization showing daily macro adherence
+ * ● All on target | ◐ 3 of 4 | ○ 2 or fewer | · Future/No meals
+ */
+function WeeklyProgressIndicator({ days }: { days: DailyMacroSummary[] }) {
+  const daysOnTarget = days.filter(
+    (day) => getDayStatus(day) === "all-target" || getDayStatus(day) === "most-target"
+  ).length;
+
+  const trackedDays = days.filter(
+    (day) => getDayStatus(day) !== "future" && getDayStatus(day) !== "no-meals"
+  ).length;
+
+  return (
+    <div className="space-y-2">
+      <div className="text-sm text-muted-foreground">
+        This Week:{" "}
+        <span className="font-medium text-foreground">
+          {daysOnTarget} of {trackedDays} days on target
+        </span>
+      </div>
+      <div className="flex items-center gap-1">
+        {days.map((day) => {
+          const status = getDayStatus(day);
+          return (
+            <TooltipProvider key={day.date}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className="text-[10px] text-muted-foreground">
+                      {day.day_of_week.slice(0, 3)}
+                    </span>
+                    <DayDot status={status} />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <DayTooltipContent day={day} status={status} />
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Individual day dot in the progress indicator
+ */
+function DayDot({ status }: { status: DayStatus }) {
+  switch (status) {
+    case "all-target":
+      // Filled circle - brand coral
+      return (
+        <div className="h-4 w-4 rounded-full bg-brand-coral" />
+      );
+    case "most-target":
+      // Half-filled circle
+      return (
+        <div className="relative h-4 w-4 rounded-full border-2 border-brand-coral overflow-hidden">
+          <div className="absolute inset-0 w-1/2 bg-brand-coral" />
+        </div>
+      );
+    case "few-target":
+      // Hollow circle
+      return (
+        <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/50" />
+      );
+    case "future":
+    case "no-meals":
+    default:
+      // Dim dot
+      return (
+        <div className="h-4 w-4 rounded-full bg-muted" />
+      );
+  }
+}
+
+/**
+ * Tooltip content for day dots
+ */
+function DayTooltipContent({
+  day,
+  status,
+}: {
+  day: DailyMacroSummary;
+  status: DayStatus;
+}) {
+  const macrosOnTarget = countMacrosOnTarget(day);
+
+  if (status === "future") {
+    return <p className="text-sm">Not yet tracked</p>;
+  }
+
+  if (status === "no-meals") {
+    return <p className="text-sm">No meals planned</p>;
+  }
+
+  return (
+    <div className="space-y-1 text-sm">
+      <p className="font-medium">{day.day_of_week}</p>
+      <p className="text-muted-foreground">
+        {macrosOnTarget} of 4 macros on target
+      </p>
+      <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
+        <MacroStatusLine
+          label="Calories"
+          isOnTarget={day.progress.calories.color === "green"}
+        />
+        <MacroStatusLine
+          label="Protein"
+          isOnTarget={day.progress.protein.color === "green"}
+        />
+        <MacroStatusLine
+          label="Carbs"
+          isOnTarget={day.progress.carbs.color === "green"}
+        />
+        <MacroStatusLine
+          label="Fat"
+          isOnTarget={day.progress.fat.color === "green"}
+        />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Single macro status line in tooltip
+ */
+function MacroStatusLine({
+  label,
+  isOnTarget,
+}: {
+  label: string;
+  isOnTarget: boolean;
+}) {
+  return (
+    <span className={cn(isOnTarget ? "text-green-600" : "text-muted-foreground")}>
+      {isOnTarget ? "✓" : "○"} {label}
+    </span>
+  );
+}
+
+// =====================================================
+// STREAK COUNTER
+// =====================================================
+
+/**
+ * Streak Counter Component
+ * Shows consecutive days hitting nutrition goals
+ */
+function StreakCounter({ streak }: { streak: number }) {
+  const getMessage = () => {
+    if (streak >= 14) return "You're unstoppable!";
+    if (streak >= 7) return "Perfect week achieved!";
+    if (streak >= 5) return "Keep it up!";
+    if (streak >= 3) return "Nice momentum!";
+    return "Building your streak!";
+  };
+
+  const isMilestone = streak === 7 || streak === 14 || streak === 21 || streak === 30;
+
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-2 rounded-lg border px-3 py-2",
+        isMilestone
+          ? "border-brand-coral/50 bg-brand-coral/10"
+          : "border-border bg-muted/30"
+      )}
+    >
+      <Flame
+        className={cn(
+          "h-5 w-5",
+          streak >= 7 ? "text-brand-coral" : "text-orange-500"
+        )}
+      />
+      <div>
+        <div className="flex items-baseline gap-1">
+          <span className="text-lg font-bold tabular-nums">{streak}</span>
+          <span className="text-sm text-muted-foreground">Day Streak</span>
+        </div>
+        <p className="text-xs text-muted-foreground">{getMessage()}</p>
+      </div>
     </div>
   );
 }
