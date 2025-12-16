@@ -39,11 +39,11 @@ export default async function AppLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header with navigation */}
-      <header className="border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
+      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm transition-shadow duration-200">
         <div className="container mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
-          <Link href="/app" className="hover:opacity-80 transition-opacity">
+          <Link href="/app" className="hover:opacity-80 transition-opacity flex-shrink-0">
             <BrandLogoCompact />
           </Link>
 
@@ -64,21 +64,20 @@ export default async function AppLayout({
         </div>
       </header>
 
-      {/* Main content with page transition */}
-      <main className="container mx-auto px-4 py-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+      {/* Main content with page transition - flex-1 to fill space */}
+      <main className="flex-1 container mx-auto w-full px-4 py-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
         {children}
       </main>
 
-      {/* Mobile Bottom Navigation */}
-      <AppNav
-        items={navItems}
-        includeSettings
-        settingsItem={settingsItem}
-        variant="mobile"
-      />
-
-      {/* Spacer for mobile bottom nav */}
-      <div className="md:hidden h-16 pb-safe" />
+      {/* Mobile Bottom Navigation - fixed above safe area */}
+      <div className="md:hidden">
+        <AppNav
+          items={navItems}
+          includeSettings
+          settingsItem={settingsItem}
+          variant="mobile"
+        />
+      </div>
     </div>
   );
 }

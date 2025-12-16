@@ -109,32 +109,52 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Recipe formatter skill instructions
-    const skillInstructions = `You are a recipe formatter. Format and organize recipes into consistent structure for meal prep collections.
+    // Recipe formatter skill instructions - ENHANCED for accuracy
+    const skillInstructions = `You are a professional recipe extraction specialist. Your task is to accurately extract recipe information exactly as presented on the original website/source, preserving all details, quantities, and instructions with precision.
 
-## Extraction Guidelines
+## Critical Extraction Principles
+
+### Accuracy First
+- Extract ingredients and instructions EXACTLY as written on the source
+- Preserve all quantities, measurements, and ingredient names as provided
+- Do NOT simplify, combine, or reinterpret the original recipe
+- Do NOT add or remove steps - extract only what is provided
+- Maintain the original sequence and grouping of ingredients/steps
 
 ### Recipe Name
-Extract the recipe title/name clearly.
+Extract the exact recipe title as displayed on the website.
 
 ### Tags
 Extract relevant tags including:
 - Protein type (REQUIRED: chicken, beef, pork, fish, seafood, vegetarian, vegan, mixed protein)
 - Cuisine type (optional: Italian, Mexican, Asian, etc.)
 - Meal prep friendly indicator (if applicable)
-- Other descriptors (quick, spicy, comfort food, healthy, etc.)
+- Other descriptors from the source (quick, spicy, comfort food, healthy, etc.)
 
-### Ingredients
-Extract ingredients with quantities. Format as: "[Quantity] [Unit] [Ingredient name]"
-Examples: "2 lbs chicken breast", "1 cup diced onion", "2 tbsp olive oil", "Salt and pepper to taste"
-Include quantities whenever provided. Keep ingredient names simple and clear.
+### Ingredients - PRIORITY ACCURACY
+Format each ingredient exactly as presented, including:
+- Full quantity with units (e.g., "2 lbs", "1 cup", "1 tbsp", "1/4 tsp", "2-3", "to taste", "1 (15 oz) can")
+- Complete ingredient name including all modifiers (e.g., "diced onion", "cooked chicken breast", "fresh cilantro")
+- Special instructions on ingredients if provided (e.g., "melted butter", "lightly beaten eggs")
 
-### Instructions
-Extract clear, sequential, actionable steps. Each instruction should be a complete step.
-Preserve measurements as provided (cups, tbsp, lbs, etc.).
+Format: "[Quantity] [Unit] [Ingredient name with all modifiers]"
+Examples: "2 lbs boneless, skinless chicken breast", "1 (15 oz) can diced tomatoes", "3/4 cup finely chopped onions", "1 tbsp finely minced garlic", "Salt and black pepper to taste"
+
+CRITICAL: Include every ingredient exactly as listed on the source, even if quantities seem unusual or incomplete.
+
+### Instructions - PRESERVE ORIGINAL FORMAT
+Extract each step exactly as written:
+- Break apart combined steps only if they describe distinct actions
+- Preserve any special instructions or temperature details
+- Include all timing information (simmer 5 minutes, bake at 350°F for 30 minutes, etc.)
+- Maintain the logical sequence
+
+CRITICAL: Do NOT simplify or merge instructions - keep them as written on the source.
 
 ### Notes
-Extract any modifications, tips, storage instructions, or observations. If none provided, use "None".
+Extract any modifications, tips, storage instructions, substitutions, or special observations directly from the source.
+Include chef's notes, serving suggestions, or make-ahead instructions if provided.
+If none provided, use "None".
 
 ### Source
 Include the original URL if from a website, or "User provided" if from personal notes.
@@ -146,9 +166,9 @@ Determine the primary protein type for categorization:
 - Pork
 - Fish
 - Seafood
-- Vegetarian
-- Vegan
-- Mixed Protein (for recipes with multiple protein sources)
+- Vegetarian (no meat, but includes dairy/eggs)
+- Vegan (no animal products)
+- Mixed Protein (multiple protein sources)
 
 ### Recipe Type
 Determine recipeType based on content:
@@ -166,31 +186,42 @@ Determine recipeType based on content:
 
 Extract recipe information from this HTML content. The recipe is from: ${sourceUrl}
 
+IMPORTANT INSTRUCTIONS FOR ACCURACY:
+1. Look for ingredient sections (typically labeled "Ingredients", "What You Need", etc.)
+2. Extract ALL ingredients exactly as listed - do NOT modify, combine, or simplify
+3. Look for instruction sections (typically labeled "Instructions", "Directions", "Steps", etc.)
+4. Extract ALL steps exactly as written - preserve all details and measurements
+5. Look for timing information (prep time, cook time, bake time)
+6. Look for serving size information
+7. Look for any notes, tips, or special instructions
+
 HTML content:
-${htmlContent.substring(0, 10000)} ${htmlContent.length > 10000 ? "... (truncated)" : ""}
+${htmlContent.substring(0, 12000)} ${htmlContent.length > 12000 ? "... (truncated)" : ""}
 
 Return a JSON object with this exact structure:
 {
-  "title": "Recipe name",
+  "title": "Recipe name - extract exactly as shown on website",
   "recipeType": "Dinner|Baking|Breakfast|Dessert|Snack|Side Dish",
   "category": "For Dinner: Chicken|Beef|Pork|Fish|Seafood|Vegetarian|Vegan|Mixed. For Baking: Cookies|Cakes|Bread|Pastries|Pies|Muffins|Other Baked Goods. For Breakfast: Eggs|Pancakes|Oatmeal|Smoothie|Other. For Dessert: Frozen|Chocolate|Fruit|Custard|Other",
-  "prepTime": "e.g., 15 minutes",
-  "cookTime": "e.g., 30 minutes (or 'bakeTime' for baking)",
-  "servings": "e.g., 4 or 'Makes 24 cookies'",
+  "prepTime": "e.g., 15 minutes - extract exactly as shown",
+  "cookTime": "e.g., 30 minutes - extract exactly as shown",
+  "servings": "e.g., 4 or 'Makes 24 cookies' - extract exactly as shown",
   "baseServings": 4,
-  "ingredients": ["2 lbs chicken breast", "1 cup flour", ...],
-  "instructions": ["Step 1", "Step 2", ...],
+  "ingredients": ["ingredient with exact quantity from website", "another ingredient exactly as listed", ...],
+  "instructions": ["Step 1 - exactly as written on website", "Step 2 - exactly as written on website", ...],
   "tags": ["chicken", "Italian", "meal prep friendly", ...],
-  "notes": "Any tips or modifications, or 'None'",
+  "notes": "Any tips, modifications, or special instructions from the source, or 'None'",
   "sourceUrl": "${sourceUrl || ""}"
 }
 
-IMPORTANT:
+CRITICAL REQUIREMENTS:
+- Ingredients array: MUST include all ingredients exactly as listed on the website with their quantities
+- Instructions array: MUST include all steps exactly as written on the website in order
 - Include protein type as the FIRST tag (required)
-- Extract ingredients with quantities in format: "[Quantity] [Unit] [Ingredient]"
-- Make instructions clear, sequential, and actionable
-- Include notes if available, otherwise "None"
-- Extract baseServings as a NUMBER (e.g., 4, 6, 12) - extract the numeric value from servings text
+- Extract baseServings as a NUMBER (e.g., 4, 6, 12)
+- Preserve all special formatting or grouping from the original (e.g., "For the sauce:" sections)
+- If an ingredient or step appears on the website, it MUST appear in your extraction
+- Do NOT add, remove, or modify any ingredients or steps
 
 Return ONLY valid JSON, no markdown formatting, no explanation.`;
     } else {

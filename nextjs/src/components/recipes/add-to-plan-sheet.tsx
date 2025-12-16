@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, ChevronDown, Clock, User, X } from "lucide-react";
@@ -38,6 +39,13 @@ export function AddToPlanSheet({
   const [cookNames, setCookNames] = useState<string[]>([]);
   const [cookColors, setCookColors] = useState<Record<string, string>>({});
   const [isAdding, setIsAdding] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Track mount state for portal (SSR compatibility)
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   // Load cook names from user settings (localStorage)
   useEffect(() => {
@@ -100,14 +108,16 @@ export function AddToPlanSheet({
     }
   };
 
-  if (!isOpen || !recipe) return null;
+  // Don't render if not mounted (SSR), not open, or no recipe
+  if (!mounted || !isOpen || !recipe) return null;
 
-  return (
+  // Use portal to render at body level (avoids stacking context issues)
+  return createPortal(
     <>
       {/* Backdrop with blur */}
       <div
         className={cn(
-          "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm",
+          "fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm",
           "animate-in fade-in duration-200"
         )}
         onClick={onClose}
@@ -116,7 +126,7 @@ export function AddToPlanSheet({
       {/* Sheet */}
       <div
         className={cn(
-          "fixed inset-x-0 bottom-0 z-50",
+          "fixed inset-x-0 bottom-0 z-[101]",
           "h-[70vh] max-h-[70vh]",
           "bg-background rounded-t-2xl shadow-2xl",
           "animate-in slide-in-from-bottom duration-300 ease-out",
@@ -273,6 +283,7 @@ export function AddToPlanSheet({
           </Button>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }

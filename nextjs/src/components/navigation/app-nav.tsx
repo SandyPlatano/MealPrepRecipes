@@ -108,8 +108,8 @@ export function AppNav({
       ? [...items, settingsItem]
       : items;
     return (
-      <nav className="fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 md:hidden pb-safe">
-        <div className="flex items-center justify-around py-1">
+      <nav className="fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 md:hidden shadow-lg shadow-background/50 pb-safe transition-all duration-200">
+        <div className="flex items-center justify-around py-1 px-2">
           {mobileItems.map((item) => {
             const active = isActive(item.href);
             const Icon = iconMap[item.iconKey];
@@ -118,21 +118,21 @@ export function AppNav({
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-1 px-3 py-2 min-h-[44px] min-w-[44px] transition-all rounded-lg active:scale-95 active:bg-primary/10",
+                  "flex flex-col items-center gap-0.5 px-3 py-2 min-h-[48px] min-w-[48px] transition-all rounded-lg active:scale-95",
                   active
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "text-primary bg-primary/5"
+                    : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
                 )}
               >
                 <Icon
                   className={cn(
-                    "h-6 w-6",
+                    "h-6 w-6 transition-all",
                     active && "drop-shadow-[0_4px_16px_rgba(99,102,241,0.45)]"
                   )}
                 />
-                <span className="text-[10px] font-medium leading-tight">{item.label}</span>
+                <span className="text-[10px] font-medium leading-tight text-center">{item.label}</span>
                 {active && (
-                  <span className="h-1 w-6 rounded-full bg-primary/80 animate-[pulse_1.6s_ease-in-out_infinite]" />
+                  <span className="h-1 w-5 rounded-full bg-primary/80 animate-[pulse_1.6s_ease-in-out_infinite] mt-0.5" />
                 )}
               </Link>
             );
