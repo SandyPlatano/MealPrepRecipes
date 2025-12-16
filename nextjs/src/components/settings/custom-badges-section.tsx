@@ -548,7 +548,7 @@ function ConditionRow({
         <SelectTrigger className="w-[120px]">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="z-[10001]">
           {AVAILABLE_NUTRIENTS.map((n) => (
             <SelectItem key={n.key} value={n.key}>
               {n.label}
@@ -565,7 +565,7 @@ function ConditionRow({
         <SelectTrigger className="w-[130px]">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="z-[10001]">
           {AVAILABLE_OPERATORS.map((op) => (
             <SelectItem key={op.key} value={op.key}>
               {op.label}
