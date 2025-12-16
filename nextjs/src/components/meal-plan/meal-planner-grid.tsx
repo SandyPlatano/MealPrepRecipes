@@ -21,7 +21,6 @@ import { PlannerHeader } from "./planner-header";
 import { PlannerSummary } from "./planner-summary";
 import { MealCellOverlay } from "./meal-cell";
 import { PlannerDayRow } from "./planner-day-row";
-import { DayNavigation } from "./day-navigation";
 import {
   addMealAssignment,
   removeMealAssignment,
@@ -105,8 +104,6 @@ export function MealPlannerGrid({
   const [activeAssignment, setActiveAssignment] = useState<MealAssignmentWithRecipe | null>(null);
   const [, setOverDay] = useState<DayOfWeek | null>(null);
   const [isSending, setIsSending] = useState(false);
-  const [showStickyNav, setShowStickyNav] = useState(false);
-  const headerRef = useRef<HTMLDivElement>(null);
 
   // Optimistic state for cook assignments (instant UI feedback)
   const [optimisticCooks, setOptimisticCooks] = useState<Record<string, string | null>>({});
@@ -121,19 +118,6 @@ export function MealPlannerGrid({
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-
-  // Scroll listener for sticky week nav
-  useEffect(() => {
-    const handleScroll = () => {
-      if (headerRef.current) {
-        const headerBottom = headerRef.current.getBoundingClientRect().bottom;
-        setShowStickyNav(headerBottom < 80);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Apply optimistic cook values to assignments for instant UI feedback
   const assignmentsWithOptimisticCooks = useMemo(() => {
@@ -157,43 +141,9 @@ export function MealPlannerGrid({
     return Object.values(assignmentsWithOptimisticCooks).flat();
   }, [assignmentsWithOptimisticCooks]);
 
-  // Calculate meal counts per day for the navigation
-  const mealCounts = useMemo(() => {
-    const counts: Record<DayOfWeek, number> = {} as Record<DayOfWeek, number>;
-    for (const day of DAYS_OF_WEEK) {
-      counts[day] = assignmentsWithOptimisticCooks[day]?.length || 0;
-    }
-    return counts;
-  }, [assignmentsWithOptimisticCooks]);
-
   // Create a Date object for display purposes (e.g., formatWeekRange)
   // Use 'T00:00:00' to ensure consistent parsing across timezones
   const weekStartDate = new Date(weekStartStr + "T00:00:00");
-
-  // Week navigation handlers
-  const navigateWeek = useCallback((direction: "prev" | "next") => {
-    const newDate = new Date(weekStartStr + "T00:00:00");
-    newDate.setDate(newDate.getDate() + (direction === "next" ? 7 : -7));
-    const weekStr = newDate.toISOString().split("T")[0];
-    router.push(`/app/plan?week=${weekStr}`);
-  }, [weekStartStr, router]);
-
-  const goToCurrentWeek = useCallback(() => {
-    const currentWeek = getWeekStart(new Date());
-    const weekStr = currentWeek.toISOString().split("T")[0];
-    router.push(`/app/plan?week=${weekStr}`);
-  }, [router]);
-
-  // Track mounted state to avoid hydration mismatch with date calculations
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Defer isCurrentWeek calculation to avoid hydration mismatch
-  const isCurrentWeek = isMounted
-    ? weekStartStr === getWeekStart(new Date()).toISOString().split("T")[0]
-    : false;
 
   // Handler for adding a meal
   const handleAddMeal = useCallback(
@@ -379,7 +329,7 @@ export function MealPlannerGrid({
         
         <div className="space-y-4">
           {/* Header */}
-          <div ref={headerRef} className={isPending ? "opacity-75 pointer-events-none" : ""}>
+          <div className={isPending ? "opacity-75 pointer-events-none" : ""}>
             <PlannerHeader
               weekStartStr={weekStartStr}
               onCopyLastWeek={handleCopyLastWeek}
@@ -395,17 +345,6 @@ export function MealPlannerGrid({
               canNavigateWeeks={canNavigateWeeks}
             />
           </div>
-
-          {/* Sticky Day Navigation */}
-          <DayNavigation
-            weekStartDate={weekStartDate}
-            weekStartStr={weekStartStr}
-            mealCounts={mealCounts}
-            onNavigateWeek={navigateWeek}
-            onGoToCurrentWeek={goToCurrentWeek}
-            canNavigateWeeks={canNavigateWeeks}
-            isVisible={showStickyNav}
-          />
 
           {/* Vertical Stacked Cards */}
           <div className={`space-y-2 transition-opacity ${isPending ? "opacity-60" : ""}`}>
