@@ -38,31 +38,31 @@ export function sumNutrition(items: (NutritionData | null | undefined)[]): Nutri
 
     // Use explicit null/undefined checks (0 is treated as valid data)
     if (item.calories !== null && item.calories !== undefined) {
-      result.calories += item.calories;
+      result.calories = (result.calories ?? 0) + item.calories;
       hasData = true;
     }
     if (item.protein_g !== null && item.protein_g !== undefined) {
-      result.protein_g += item.protein_g;
+      result.protein_g = (result.protein_g ?? 0) + item.protein_g;
       hasData = true;
     }
     if (item.carbs_g !== null && item.carbs_g !== undefined) {
-      result.carbs_g += item.carbs_g;
+      result.carbs_g = (result.carbs_g ?? 0) + item.carbs_g;
       hasData = true;
     }
     if (item.fat_g !== null && item.fat_g !== undefined) {
-      result.fat_g += item.fat_g;
+      result.fat_g = (result.fat_g ?? 0) + item.fat_g;
       hasData = true;
     }
     if (item.fiber_g !== null && item.fiber_g !== undefined) {
-      result.fiber_g += item.fiber_g;
+      result.fiber_g = (result.fiber_g ?? 0) + item.fiber_g;
       hasData = true;
     }
     if (item.sugar_g !== null && item.sugar_g !== undefined) {
-      result.sugar_g += item.sugar_g;
+      result.sugar_g = (result.sugar_g ?? 0) + item.sugar_g;
       hasData = true;
     }
     if (item.sodium_mg !== null && item.sodium_mg !== undefined) {
-      result.sodium_mg += item.sodium_mg;
+      result.sodium_mg = (result.sodium_mg ?? 0) + item.sodium_mg;
       hasData = true;
     }
   });

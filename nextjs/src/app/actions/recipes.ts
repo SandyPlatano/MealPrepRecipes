@@ -352,12 +352,16 @@ export async function getFavoriteRecipes() {
   }
 
   // Transform to include favorited_at timestamp
-  const favorites = data.map((f) => ({
-    ...f.recipe,
-    favorited_at: f.created_at,
-  }));
+  // Supabase returns recipe as a single object for this foreign key relation
+  const favorites = data
+    .filter((f): f is typeof f & { recipe: Record<string, unknown> } =>
+      f.recipe !== null && typeof f.recipe === 'object' && !Array.isArray(f.recipe))
+    .map((f) => ({
+      ...(f.recipe as unknown as Recipe),
+      favorited_at: f.created_at,
+    }));
 
-  return { error: null, data: favorites as (Recipe & { favorited_at: string })[] };
+  return { error: null, data: favorites };
 }
 
 // Mark recipe as cooked (add to history)

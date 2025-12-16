@@ -201,7 +201,7 @@ export function NutritionFactsCard({
                 )}
               </div>
               <span className="text-3xl font-bold tabular-nums">
-                {scaledNutrition?.calories !== null ? Math.round(scaledNutrition.calories!) : "—"}
+                {scaledNutrition && scaledNutrition.calories != null ? Math.round(scaledNutrition.calories) : "—"}
               </span>
             </div>
             {/* Show per-serving breakdown when viewing multiple servings */}

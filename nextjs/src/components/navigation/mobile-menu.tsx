@@ -23,13 +23,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type IconKey = "plan" | "recipes" | "shop" | "history" | "settings" | "nutrition";
+type IconKey = "plan" | "recipes" | "shop" | "history" | "favorites" | "settings" | "nutrition";
 
 const iconMap: Record<IconKey, LucideIcon> = {
   plan: Calendar,
   recipes: BookOpen,
   shop: ShoppingCart,
   history: History,
+  favorites: History,
   settings: Settings,
   nutrition: Activity,
 };
