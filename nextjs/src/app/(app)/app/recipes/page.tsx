@@ -2,17 +2,19 @@ import { Suspense } from "react";
 import { getRecipes, getFavorites, getRecipeCookCounts } from "@/app/actions/recipes";
 import { getSettings } from "@/app/actions/settings";
 import { getBulkRecipeNutrition } from "@/app/actions/nutrition";
+import { getActiveCustomBadges } from "@/app/actions/custom-badges";
 import { createClient } from "@/lib/supabase/server";
 import { RecipesPageClient } from "@/components/recipes/recipes-page-client";
 
 export default async function RecipesPage() {
   const supabase = await createClient();
 
-  const [recipesResult, favoritesResult, settingsResult, cookCountsResult] = await Promise.all([
+  const [recipesResult, favoritesResult, settingsResult, cookCountsResult, customBadgesResult] = await Promise.all([
     getRecipes(),
     getFavorites(),
     getSettings(),
     getRecipeCookCounts(),
+    getActiveCustomBadges(),
   ]);
 
   const recipes = recipesResult.data || [];
@@ -20,6 +22,7 @@ export default async function RecipesPage() {
   const userAllergenAlerts = settingsResult.data?.allergen_alerts || [];
   const customDietaryRestrictions = settingsResult.data?.custom_dietary_restrictions || [];
   const recipeCookCounts = cookCountsResult.data || {};
+  const customBadges = customBadgesResult.data || [];
 
   // Fetch nutrition data for all recipes
   const recipeIds = recipes.map((r) => r.id);
@@ -62,6 +65,7 @@ export default async function RecipesPage() {
           recentlyCookedIds={recentlyCookedIds}
           userAllergenAlerts={userAllergenAlerts}
           customDietaryRestrictions={customDietaryRestrictions}
+          customBadges={customBadges}
         />
       </Suspense>
     </div>

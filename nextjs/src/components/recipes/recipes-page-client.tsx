@@ -4,6 +4,7 @@ import { useState } from "react";
 import { RecipeGrid } from "./recipe-grid";
 import { DiscoverDialog } from "./discover-dialog";
 import type { RecipeWithFavoriteAndNutrition, RecipeWithFavorite } from "@/types/recipe";
+import type { CustomBadge } from "@/lib/nutrition/badge-calculator";
 
 interface RecipesPageClientProps {
   recipes: RecipeWithFavoriteAndNutrition[];
@@ -11,6 +12,7 @@ interface RecipesPageClientProps {
   recentlyCookedIds: string[];
   userAllergenAlerts?: string[];
   customDietaryRestrictions?: string[];
+  customBadges?: CustomBadge[];
 }
 
 export function RecipesPageClient({
@@ -19,6 +21,7 @@ export function RecipesPageClient({
   recentlyCookedIds,
   userAllergenAlerts = [],
   customDietaryRestrictions = [],
+  customBadges = [],
 }: RecipesPageClientProps) {
   const [discoverOpen, setDiscoverOpen] = useState(false);
 
@@ -32,6 +35,7 @@ export function RecipesPageClient({
         recipeCookCounts={recipeCookCounts}
         userAllergenAlerts={userAllergenAlerts}
         customDietaryRestrictions={customDietaryRestrictions}
+        customBadges={customBadges}
         onDiscoverClick={() => setDiscoverOpen(true)}
       />
 

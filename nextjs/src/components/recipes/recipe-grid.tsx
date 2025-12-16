@@ -22,12 +22,14 @@ import {
 } from "@/components/ui/popover";
 import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles } from "lucide-react";
 import type { RecipeWithFavoriteAndNutrition, RecipeType } from "@/types/recipe";
+import type { CustomBadge } from "@/lib/nutrition/badge-calculator";
 
 interface RecipeGridProps {
   recipes: RecipeWithFavoriteAndNutrition[];
   recipeCookCounts?: Record<string, number>; // recipe_id -> count
   userAllergenAlerts?: string[];
   customDietaryRestrictions?: string[];
+  customBadges?: CustomBadge[];
   onDiscoverClick?: () => void;
 }
 
@@ -42,7 +44,7 @@ const recipeTypes: RecipeType[] = [
 
 type SortOption = "recent" | "most-cooked" | "highest-rated" | "alphabetical";
 
-export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, userAllergenAlerts = [], customDietaryRestrictions = [], onDiscoverClick }: RecipeGridProps) {
+export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, userAllergenAlerts = [], customDietaryRestrictions = [], customBadges = [], onDiscoverClick }: RecipeGridProps) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<RecipeType | "all">("all");
   const [proteinTypeFilter, setProteinTypeFilter] = useState<string>("all");
@@ -359,6 +361,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
                   recipe={recipe}
                   userAllergenAlerts={userAllergenAlerts}
                   customDietaryRestrictions={customDietaryRestrictions}
+                  customBadges={customBadges}
                   animationIndex={index}
                 />
               ))}

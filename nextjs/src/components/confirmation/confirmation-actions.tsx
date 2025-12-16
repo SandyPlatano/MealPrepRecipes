@@ -270,60 +270,56 @@ export function ConfirmationActions({
           </Button>
         </div>
 
-        {/* Mobile Layout */}
-        <div className="md:hidden flex items-center gap-2">
-          {/* Share actions - icon only */}
+        {/* Mobile Layout - 4 even buttons in a grid */}
+        <div className="md:hidden grid grid-cols-4 gap-2">
           <Button
             variant="outline"
-            size="icon"
             onClick={handleSendEmail}
             disabled={isSending}
-            className="h-11 w-11 flex-shrink-0"
+            className="h-12 flex flex-col items-center justify-center gap-1 px-1"
           >
             {isSending ? (
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <Mail className="h-5 w-5" />
             )}
+            <span className="text-[10px] font-medium">Email</span>
           </Button>
 
           <Button
             variant="outline"
-            size="icon"
-            onClick={handleAddToCalendar}
-            disabled={isAddingToCalendar}
-            className="h-11 w-11 flex-shrink-0"
-          >
-            {isAddingToCalendar ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <Calendar className="h-5 w-5" />
-            )}
-          </Button>
-
-          <Button
-            variant="outline"
-            size="icon"
             onClick={handleDownload}
             disabled={isDownloading}
-            className="h-11 w-11 flex-shrink-0"
+            className="h-12 flex flex-col items-center justify-center gap-1 px-1"
           >
             {isDownloading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <Download className="h-5 w-5" />
             )}
+            <span className="text-[10px] font-medium">Download</span>
           </Button>
 
-          <div className="flex-1" />
+          <Button
+            variant="outline"
+            onClick={handleAddToCalendar}
+            disabled={isAddingToCalendar}
+            className="h-12 flex flex-col items-center justify-center gap-1 px-1"
+          >
+            {isAddingToCalendar ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Calendar className="h-5 w-5" />
+            )}
+            <span className="text-[10px] font-medium">Calendar</span>
+          </Button>
 
-          {/* Primary CTA */}
           <Button
             onClick={handleStartNewWeek}
-            className="h-11 px-4 flex-shrink-0"
+            className="h-12 flex flex-col items-center justify-center gap-1 px-1"
           >
-            <span className="font-medium">Next Week</span>
-            <ArrowRight className="h-5 w-5 ml-2" />
+            <ArrowRight className="h-5 w-5" />
+            <span className="text-[10px] font-medium">Next</span>
           </Button>
         </div>
       </CardContent>

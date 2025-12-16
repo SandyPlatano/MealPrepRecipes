@@ -52,7 +52,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
-import type { RecipeWithFavorite, RecipeType } from "@/types/recipe";
+import type { RecipeWithFavorite, RecipeWithFavoriteAndNutrition, RecipeType } from "@/types/recipe";
 import type { DayOfWeek } from "@/types/meal-plan";
 import { useCart } from "@/components/cart";
 import { AddToPlanSheet } from "./add-to-plan-sheet";
@@ -64,6 +64,8 @@ import { ShareRecipeDialog } from "@/components/social/share-recipe-dialog";
 import Image from "next/image";
 import { detectAllergens, mergeAllergens, getAllergenDisplayName, hasUserAllergens, hasCustomRestrictions } from "@/lib/allergen-detector";
 import { triggerHaptic } from "@/lib/haptics";
+import { calculateCustomBadges, getBadgeColorClasses, type CustomBadge } from "@/lib/nutrition/badge-calculator";
+import { cn } from "@/lib/utils";
 
 // Get icon based on recipe type
 function getRecipeIcon(recipeType: RecipeType) {
@@ -86,17 +88,21 @@ function getRecipeIcon(recipeType: RecipeType) {
 
 
 interface RecipeCardProps {
-  recipe: RecipeWithFavorite;
+  recipe: RecipeWithFavoriteAndNutrition;
   lastMadeDate?: string | null;
   userAllergenAlerts?: string[];
   customDietaryRestrictions?: string[];
+  customBadges?: CustomBadge[];
   /** Animation delay index for staggered animations (multiplied by 50ms) */
   animationIndex?: number;
 }
 
-export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userAllergenAlerts = [], customDietaryRestrictions = [], animationIndex }: RecipeCardProps) {
+export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userAllergenAlerts = [], customDietaryRestrictions = [], customBadges = [], animationIndex }: RecipeCardProps) {
   const [isFavorite, setIsFavorite] = useState(recipe.is_favorite);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Calculate which nutrition badges apply to this recipe
+  const nutritionBadges = calculateCustomBadges(recipe.nutrition || null, customBadges);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [showCookedDialog, setShowCookedDialog] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
@@ -305,7 +311,30 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
               </div>
             </div>
           )}
-          
+
+          {/* Nutrition Badges */}
+          {nutritionBadges.length > 0 && (
+            <div className="px-4 py-2 flex flex-wrap gap-1.5 border-b">
+              {nutritionBadges.map((badge) => {
+                const colors = getBadgeColorClasses(badge.color);
+                return (
+                  <span
+                    key={badge.key}
+                    className={cn(
+                      "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium",
+                      colors.bg,
+                      colors.text,
+                      colors.border
+                    )}
+                    title={badge.description}
+                  >
+                    {badge.label}
+                  </span>
+                );
+              })}
+            </div>
+          )}
+
           <CardHeader>
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
