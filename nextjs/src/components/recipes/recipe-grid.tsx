@@ -79,6 +79,27 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
     };
   }, [initialRecipes]);
 
+  // Helper function to check if recipe matches nutrition badge criteria
+  const matchesNutritionBadge = (recipe: RecipeWithFavoriteAndNutrition, badge: NutritionBadgeFilter): boolean => {
+    const n = recipe.nutrition;
+    if (!n) return false;
+
+    switch (badge) {
+      case "light":
+        return (n.calories ?? Infinity) < 400;
+      case "high_protein":
+        return (n.protein_g ?? 0) >= 30;
+      case "low_carb":
+        return (n.carbs_g ?? Infinity) < 20;
+      case "fiber_rich":
+        return (n.fiber_g ?? 0) >= 8;
+      case "heart_healthy":
+        return (n.sodium_mg ?? Infinity) < 500 && (n.fat_g ?? Infinity) < 15;
+      default:
+        return false;
+    }
+  };
+
   // Filter and sort recipes
   const filteredRecipes = useMemo(() => {
     const filtered = initialRecipes.filter((recipe) => {
@@ -99,8 +120,8 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
         return false;
       }
 
-      // Protein filter
-      if (proteinFilter !== "all" && recipe.protein_type !== proteinFilter) {
+      // Protein type filter (e.g., Chicken, Beef, etc.)
+      if (proteinTypeFilter !== "all" && recipe.protein_type !== proteinTypeFilter) {
         return false;
       }
 
@@ -112,6 +133,47 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
       // Favorites filter
       if (favoritesOnly && !recipe.is_favorite) {
         return false;
+      }
+
+      // Calorie filter
+      if (calorieFilter !== "any") {
+        const calories = recipe.nutrition?.calories;
+        if (!calories) return false;
+        switch (calorieFilter) {
+          case "under400":
+            if (calories >= 400) return false;
+            break;
+          case "under600":
+            if (calories >= 600) return false;
+            break;
+          case "under800":
+            if (calories >= 800) return false;
+            break;
+        }
+      }
+
+      // Protein amount filter
+      if (proteinFilter !== "any") {
+        const protein = recipe.nutrition?.protein_g;
+        if (!protein) return false;
+        switch (proteinFilter) {
+          case "20plus":
+            if (protein < 20) return false;
+            break;
+          case "30plus":
+            if (protein < 30) return false;
+            break;
+          case "40plus":
+            if (protein < 40) return false;
+            break;
+        }
+      }
+
+      // Nutrition badge filters (any match passes)
+      if (nutritionBadges.size > 0) {
+        const badgeArray = Array.from(nutritionBadges);
+        const matchesAnyBadge = badgeArray.some((badge) => matchesNutritionBadge(recipe, badge));
+        if (!matchesAnyBadge) return false;
       }
 
       return true;
@@ -138,19 +200,50 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
     });
 
     return sorted;
-  }, [initialRecipes, search, typeFilter, proteinFilter, tagFilter, favoritesOnly, sortBy, recipeCookCounts]);
+  }, [initialRecipes, search, typeFilter, proteinTypeFilter, tagFilter, favoritesOnly, sortBy, recipeCookCounts, calorieFilter, proteinFilter, nutritionBadges, matchesNutritionBadge]);
 
   const hasActiveFilters =
     typeFilter !== "all" ||
-    proteinFilter !== "all" ||
+    proteinTypeFilter !== "all" ||
     tagFilter !== "all" ||
-    favoritesOnly;
+    favoritesOnly ||
+    calorieFilter !== "any" ||
+    proteinFilter !== "any" ||
+    nutritionBadges.size > 0;
+
+  const hasNutritionFilters =
+    calorieFilter !== "any" ||
+    proteinFilter !== "any" ||
+    nutritionBadges.size > 0;
 
   const clearFilters = () => {
     setTypeFilter("all");
-    setProteinFilter("all");
+    setProteinTypeFilter("all");
     setTagFilter("all");
     setFavoritesOnly(false);
+    setCalorieFilter("any");
+    setProteinFilter("any");
+    setNutritionBadges(new Set());
+  };
+
+  const toggleNutritionBadge = (badge: NutritionBadgeFilter) => {
+    setNutritionBadges((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(badge)) {
+        newSet.delete(badge);
+      } else {
+        newSet.add(badge);
+      }
+      return newSet;
+    });
+  };
+
+  const nutritionBadgeLabels: Record<NutritionBadgeFilter, string> = {
+    light: "Light (<400 cal)",
+    high_protein: "High Protein (30g+)",
+    low_carb: "Low Carb (<20g)",
+    fiber_rich: "Fiber Rich (8g+)",
+    heart_healthy: "Heart Healthy",
   };
 
   return (
@@ -187,6 +280,90 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
             <SelectItem value="alphabetical">Alphabetical</SelectItem>
           </SelectContent>
         </Select>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={hasNutritionFilters ? "secondary" : "outline"}
+              className="relative h-11 w-full sm:w-auto"
+            >
+              <Apple className="h-4 w-4 mr-2" />
+              <span>Nutrition</span>
+              {hasNutritionFilters && (
+                <span className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full" />
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-4" align="end">
+            <div className="space-y-4">
+              <h4 className="font-medium text-sm">Nutrition Filters</h4>
+
+              {/* Calorie Filter */}
+              <div className="space-y-1.5">
+                <label className="text-sm text-muted-foreground">Calories</label>
+                <Select value={calorieFilter} onValueChange={(v) => setCalorieFilter(v as CalorieFilter)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any</SelectItem>
+                    <SelectItem value="under400">Under 400</SelectItem>
+                    <SelectItem value="under600">Under 600</SelectItem>
+                    <SelectItem value="under800">Under 800</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Protein Filter */}
+              <div className="space-y-1.5">
+                <label className="text-sm text-muted-foreground">Protein</label>
+                <Select value={proteinFilter} onValueChange={(v) => setProteinFilter(v as ProteinFilter)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any</SelectItem>
+                    <SelectItem value="20plus">20g+</SelectItem>
+                    <SelectItem value="30plus">30g+</SelectItem>
+                    <SelectItem value="40plus">40g+</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Quick Badge Filters */}
+              <div className="space-y-1.5">
+                <label className="text-sm text-muted-foreground">Quick Filters</label>
+                <div className="flex flex-wrap gap-2">
+                  {(Object.keys(nutritionBadgeLabels) as NutritionBadgeFilter[]).map((badge) => (
+                    <Button
+                      key={badge}
+                      variant={nutritionBadges.has(badge) ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => toggleNutritionBadge(badge)}
+                      className="text-xs"
+                    >
+                      {nutritionBadgeLabels[badge]}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {hasNutritionFilters && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setCalorieFilter("any");
+                    setProteinFilter("any");
+                    setNutritionBadges(new Set());
+                  }}
+                  className="w-full text-xs"
+                >
+                  Clear nutrition filters
+                </Button>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
         <Button
           variant={showFilters ? "secondary" : "outline"}
           onClick={() => setShowFilters(!showFilters)}
@@ -194,12 +371,12 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
         >
           <SlidersHorizontal className="h-4 w-4 sm:mr-0 mr-2" />
           <span className="sm:hidden">Filters</span>
-          {hasActiveFilters && (
+          {hasActiveFilters && !hasNutritionFilters && (
             <span className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full" />
           )}
         </Button>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="h-11 w-full sm:w-auto"
           onClick={onDiscoverClick}
         >
@@ -240,13 +417,13 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
 
             {proteins.length > 0 && (
               <div className="space-y-1.5">
-                <label className="text-sm font-medium">Protein</label>
-                <Select value={proteinFilter} onValueChange={setProteinFilter}>
+                <label className="text-sm font-medium">Protein Type</label>
+                <Select value={proteinTypeFilter} onValueChange={setProteinTypeFilter}>
                   <SelectTrigger className="w-[140px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Proteins</SelectItem>
+                    <SelectItem value="all">All Types</SelectItem>
                     {proteins.map((protein) => (
                       <SelectItem key={protein} value={protein}>
                         {protein}
@@ -288,7 +465,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
           </div>
 
           {hasActiveFilters && (
-            <div className="flex items-center gap-2 pt-2 border-t">
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t">
               <span className="text-sm text-muted-foreground">Active filters:</span>
               {typeFilter !== "all" && (
                 <Badge variant="secondary" className="gap-1">
@@ -298,10 +475,10 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
                   </button>
                 </Badge>
               )}
-              {proteinFilter !== "all" && (
+              {proteinTypeFilter !== "all" && (
                 <Badge variant="secondary" className="gap-1">
-                  {proteinFilter}
-                  <button onClick={() => setProteinFilter("all")}>
+                  {proteinTypeFilter}
+                  <button onClick={() => setProteinTypeFilter("all")}>
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -322,6 +499,30 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
                   </button>
                 </Badge>
               )}
+              {calorieFilter !== "any" && (
+                <Badge variant="secondary" className="gap-1">
+                  {calorieFilter === "under400" ? "<400 cal" : calorieFilter === "under600" ? "<600 cal" : "<800 cal"}
+                  <button onClick={() => setCalorieFilter("any")}>
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {proteinFilter !== "any" && (
+                <Badge variant="secondary" className="gap-1">
+                  {proteinFilter === "20plus" ? "20g+ protein" : proteinFilter === "30plus" ? "30g+ protein" : "40g+ protein"}
+                  <button onClick={() => setProteinFilter("any")}>
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {Array.from(nutritionBadges).map((badge) => (
+                <Badge key={badge} variant="secondary" className="gap-1">
+                  {nutritionBadgeLabels[badge]}
+                  <button onClick={() => toggleNutritionBadge(badge)}>
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
               <Button
                 variant="ghost"
                 size="sm"
