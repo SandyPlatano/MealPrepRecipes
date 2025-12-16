@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect, useRef, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo, useCallback, useTransition } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -35,7 +34,6 @@ import {
   type MealAssignmentWithRecipe,
   DAYS_OF_WEEK,
   formatWeekRange,
-  getWeekStart,
 } from "@/types/meal-plan";
 
 interface Recipe {
@@ -99,7 +97,6 @@ export function MealPlannerGrid({
   macroGoals = null,
   canNavigateWeeks = false,
 }: MealPlannerGridProps) {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [activeAssignment, setActiveAssignment] = useState<MealAssignmentWithRecipe | null>(null);
   const [, setOverDay] = useState<DayOfWeek | null>(null);

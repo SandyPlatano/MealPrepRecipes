@@ -101,11 +101,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
   const assignmentIds = assignments.map((a) => a.id);
 
   return (
-    <div
-      id={`day-row-${day}`}
-      data-day={day}
-      className={`flex items-start gap-2 sm:gap-3 transition-opacity ${isPending ? "opacity-60" : ""}`}
-    >
+    <div className={`flex items-start gap-2 sm:gap-3 transition-opacity ${isPending ? "opacity-60" : ""}`}>
       {/* Day Badge - Floats on the left */}
       <div
         className={cn(
