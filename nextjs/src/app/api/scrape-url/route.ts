@@ -128,10 +128,24 @@ export async function POST(request: NextRequest) {
 
     const html = await response.text();
 
+    // CRITICAL: Extract and preserve JSON-LD scripts BEFORE removing other scripts
+    // JSON-LD contains structured recipe data (ingredients, instructions) that parse-recipe needs
+    const jsonLdScripts: string[] = [];
+    const jsonLdPattern = /<script[^>]*type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>/gi;
+    let jsonLdMatch;
+    while ((jsonLdMatch = jsonLdPattern.exec(html)) !== null) {
+      jsonLdScripts.push(jsonLdMatch[0]);
+    }
+
     // Clean scripts and styles from HTML
     let cleanedHtml = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
     cleanedHtml = cleanedHtml.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
     cleanedHtml = cleanedHtml.replace(/<!--[\s\S]*?-->/g, ""); // Remove comments
+
+    // Re-inject preserved JSON-LD scripts so parse-recipe can extract schema
+    if (jsonLdScripts.length > 0) {
+      cleanedHtml = jsonLdScripts.join("\n") + "\n" + cleanedHtml;
+    }
 
     // Try to find common recipe sections with improved patterns
     const recipePatterns = [
