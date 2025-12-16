@@ -1,17 +1,16 @@
 import { createClient } from '@/lib/supabase/server';
 import type { Subscription, SubscriptionTier } from '@/types/subscription';
 import { getQuotaForTier } from '@/types/subscription';
+import { FEATURE_FLAGS } from '@/lib/config/features';
 
 /**
- * Check if running on localhost/development (enables premium features for testing)
+ * Check if development premium override is enabled.
+ * Uses explicit feature flag instead of auto-detecting localhost.
+ *
+ * To enable in development, set DEVELOPMENT_PREMIUM_OVERRIDE=true in .env.local
  */
-function isLocalhost(): boolean {
-  return !!(
-    process.env.NODE_ENV === 'development' ||
-    process.env.NEXT_PUBLIC_APP_URL?.includes('localhost') ||
-    process.env.NEXT_PUBLIC_APP_URL?.includes('127.0.0.1') ||
-    process.env.NEXT_PUBLIC_APP_URL?.includes('0.0.0.0')
-  );
+function isDevelopmentPremiumEnabled(): boolean {
+  return FEATURE_FLAGS.DEVELOPMENT_PREMIUM_OVERRIDE;
 }
 
 /**
@@ -38,14 +37,14 @@ export async function getSubscriptionStatus(
 
 /**
  * Check if user has an active subscription of a specific tier or higher
- * In development/localhost, always returns true for testing
+ * When DEVELOPMENT_PREMIUM_OVERRIDE is enabled, always returns true
  */
 export async function hasActiveSubscription(
   userId: string,
   requiredTier: SubscriptionTier = 'pro'
 ): Promise<boolean> {
-  // Enable premium features on localhost for development
-  if (isLocalhost()) {
+  // Enable premium features when development override is explicitly set
+  if (isDevelopmentPremiumEnabled()) {
     return true;
   }
 
@@ -70,11 +69,11 @@ export async function hasActiveSubscription(
 
 /**
  * Get the current tier for a user (defaults to 'free' if no subscription)
- * In development/localhost, automatically returns 'premium' for testing
+ * When DEVELOPMENT_PREMIUM_OVERRIDE is enabled, returns 'premium'
  */
 export async function getUserTier(userId: string): Promise<SubscriptionTier> {
-  // Enable premium features on localhost for development
-  if (isLocalhost()) {
+  // Enable premium features when development override is explicitly set
+  if (isDevelopmentPremiumEnabled()) {
     return 'premium';
   }
 
