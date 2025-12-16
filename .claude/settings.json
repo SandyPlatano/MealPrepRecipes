@@ -5,10 +5,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/ferm/Documents/GitHub/MealPrepRecipes/.claude/hooks/auto-commit.sh"
-          },
-          {
-            "type": "command",
             "command": "/Users/ferm/.claude/hooks/claude-done-notification.sh"
           }
         ]
