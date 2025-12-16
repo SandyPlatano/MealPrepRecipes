@@ -38,7 +38,8 @@ export interface RecipeAuthor {
   id: string;
   username: string;
   avatar_url: string | null;
-  name?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
 }
 
 export interface OriginalAuthor {
@@ -114,7 +115,6 @@ export interface ReviewWithAuthor extends Review {
 export interface UserProfile {
   id: string;
   username: string;
-  name: string | null;
   first_name: string | null;
   last_name: string | null;
   bio: string | null;

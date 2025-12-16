@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${profile.name || `@${profile.username}`} | MealPrepRecipes`,
+    title: `${[profile.first_name, profile.last_name].filter(Boolean).join(" ") || `@${profile.username}`} | MealPrepRecipes`,
     description: profile.bio || `Check out ${profile.username}'s public recipes on MealPrepRecipes`,
   };
 }
@@ -52,7 +52,7 @@ export default async function PublicUserProfilePage({ params }: Props) {
     ? await getUserPublicRecipes(profile.id, { limit: 12 })
     : { data: [] };
 
-  const displayName = profile.name || `@${profile.username}`;
+  const displayName = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || `@${profile.username}`;
 
   return (
     <div className="min-h-screen bg-background">

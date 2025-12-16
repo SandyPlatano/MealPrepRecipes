@@ -134,7 +134,7 @@ export async function getCookingHistory(limit?: number) {
       `
       *,
       recipe:recipes(id, title, recipe_type, category, protein_type),
-      cooked_by_profile:profiles!cooking_history_cooked_by_fkey(name)
+      cooked_by_profile:profiles!cooking_history_cooked_by_fkey(first_name, last_name)
     `
     )
     .eq("household_id", membership.household_id)
@@ -169,7 +169,7 @@ export async function getRecipeHistory(recipeId: string) {
     .select(
       `
       *,
-      cooked_by_profile:profiles!cooking_history_cooked_by_fkey(name)
+      cooked_by_profile:profiles!cooking_history_cooked_by_fkey(first_name, last_name)
     `
     )
     .eq("recipe_id", recipeId)

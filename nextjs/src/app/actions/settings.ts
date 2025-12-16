@@ -43,8 +43,6 @@ export async function updateProfile(firstName: string, lastName: string) {
     .update({
       first_name: firstName,
       last_name: lastName,
-      // Keep name field updated for backwards compatibility
-      name: `${firstName} ${lastName}`.trim(),
     })
     .eq("id", user.id);
 
@@ -359,7 +357,8 @@ export async function getHouseholdInfo() {
       user_id,
       role,
       profiles (
-        name,
+        first_name,
+        last_name,
         email
       )
     `

@@ -24,7 +24,7 @@ export function UserProfileCard({
   variant = "default",
 }: UserProfileCardProps) {
   const isOwnProfile = currentUserId === profile.id;
-  const displayName = profile.name || `@${profile.username}`;
+  const displayName = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || `@${profile.username}`;
 
   if (variant === "compact") {
     return (

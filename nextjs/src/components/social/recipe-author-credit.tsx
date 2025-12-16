@@ -95,7 +95,7 @@ export function RecipeAuthorInfo({
         </Avatar>
       )}
       <span className="text-sm">
-        {author.name || `@${author.username}`}
+        {[author.first_name, author.last_name].filter(Boolean).join(" ") || `@${author.username}`}
       </span>
     </div>
   );

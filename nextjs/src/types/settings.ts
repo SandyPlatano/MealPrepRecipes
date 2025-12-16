@@ -45,7 +45,8 @@ export interface UserSettingsFormData {
 
 export interface UserProfile {
   id: string;
-  name: string | null;
+  first_name: string | null;
+  last_name: string | null;
   email: string | null;
   avatar_url: string | null;
   created_at: string;
@@ -53,5 +54,6 @@ export interface UserProfile {
 }
 
 export interface ProfileFormData {
-  name: string;
+  first_name: string;
+  last_name: string;
 }

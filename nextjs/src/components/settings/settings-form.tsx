@@ -82,7 +82,7 @@ interface SettingsFormProps {
   members: Array<{
     user_id: string;
     role: string;
-    profiles: { name: string | null; email: string | null } | null;
+    profiles: { first_name: string | null; last_name: string | null; email: string | null } | null;
   }>;
   userSubstitutions?: UserSubstitution[];
   defaultSubstitutions?: Substitution[];
@@ -641,7 +641,7 @@ export function SettingsForm({
                     className="flex items-center justify-between text-sm p-2 rounded bg-muted/50"
                   >
                     <span>
-                      {member.profiles?.name || member.profiles?.email || "Unknown"}
+                      {[member.profiles?.first_name, member.profiles?.last_name].filter(Boolean).join(" ") || member.profiles?.email || "Unknown"}
                     </span>
                     <span className="text-xs text-muted-foreground capitalize">
                       {member.role}

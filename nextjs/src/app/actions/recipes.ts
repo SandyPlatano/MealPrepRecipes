@@ -408,7 +408,7 @@ export async function getRecipeHistory(recipeId: string) {
     .from("cooking_history")
     .select(`
       *,
-      cooked_by_profile:profiles!cooking_history_cooked_by_fkey(name)
+      cooked_by_profile:profiles!cooking_history_cooked_by_fkey(first_name, last_name)
     `)
     .eq("household_id", household?.household_id)
     .eq("recipe_id", recipeId)
