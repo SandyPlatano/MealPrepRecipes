@@ -137,20 +137,14 @@ export async function POST(request: NextRequest) {
       jsonLdScripts.push(jsonLdMatch[0]);
     }
 
-    // Clean scripts and styles from HTML
+    // Clean scripts and styles from HTML (JSON-LD already preserved above)
     let cleanedHtml = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
     cleanedHtml = cleanedHtml.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
     cleanedHtml = cleanedHtml.replace(/<!--[\s\S]*?-->/g, ""); // Remove comments
 
-    // Re-inject preserved JSON-LD scripts so parse-recipe can extract schema
-    if (jsonLdScripts.length > 0) {
-      cleanedHtml = jsonLdScripts.join("\n") + "\n" + cleanedHtml;
-    }
-
     // Try to find common recipe sections with improved patterns
+    // Note: JSON-LD is extracted separately above and prepended to final result
     const recipePatterns = [
-      // Look for recipe schema markup first (most accurate)
-      /<script[^>]*type="application\/ld\+json"[^>]*>[\s\S]*?"@type"\s*:\s*"Recipe"[\s\S]*?<\/script>/i,
       // Main recipe containers
       /<article[^>]*>[\s\S]*?<\/article>/i,
       /<div[^>]*id="[^"]*recipe[^"]*"[^>]*>[\s\S]{100,}<\/div>/i,
@@ -162,14 +156,21 @@ export async function POST(request: NextRequest) {
       /<main[^>]*>[\s\S]{100,}<\/main>/i,
     ];
 
-    let recipeHtml = cleanedHtml;
+    // Find recipe content section (but preserve JSON-LD scripts)
+    let recipeContent = cleanedHtml;
     for (const pattern of recipePatterns) {
       const match = cleanedHtml.match(pattern);
       if (match) {
-        recipeHtml = match[0];
+        recipeContent = match[0];
         break;
       }
     }
+
+    // CRITICAL: Always prepend JSON-LD scripts to the result
+    // They contain structured recipe data needed by parse-recipe
+    const recipeHtml = jsonLdScripts.length > 0
+      ? jsonLdScripts.join("\n") + "\n" + recipeContent
+      : recipeContent;
 
     // Preserve structure while converting HTML to readable text
     // This maintains ingredient lists and instruction formatting
