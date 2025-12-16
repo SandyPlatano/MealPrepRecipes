@@ -6,6 +6,7 @@ import { BrandLogoCompact } from "@/components/brand/logo";
 import { AppNav } from "@/components/navigation/app-nav";
 import { MobileMenu } from "@/components/navigation/mobile-menu";
 import { SettingsButton } from "@/components/navigation/settings-button";
+import { ScrollHeader } from "@/components/navigation/scroll-header";
 
 // Navigation: Plan, List, Recipes, Nutrition, Favorites
 const navItems = [
@@ -40,8 +41,8 @@ export default async function AppLayout({
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header with navigation */}
-      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm transition-shadow duration-200">
+      {/* Header with scroll detection */}
+      <ScrollHeader>
         <div className="container mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
           <Link href="/app" className="hover:opacity-80 transition-opacity flex-shrink-0">
             <BrandLogoCompact />
@@ -62,7 +63,7 @@ export default async function AppLayout({
             />
           </div>
         </div>
-      </header>
+      </ScrollHeader>
 
       {/* Main content with page transition - flex-1 to fill space */}
       <main className="flex-1 container mx-auto w-full px-4 py-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
