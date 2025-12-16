@@ -342,7 +342,7 @@ Return ONLY valid JSON, no markdown formatting, no explanation.`;
 
     const parsed = JSON.parse(jsonText);
 
-    // Format response - prefer schema data when available and complete
+    // Format response - PREFER schema data when available (it's more accurate than AI extraction)
     const hasCompleteSchema =
       schemaData &&
       schemaData.ingredients.length > 0 &&
@@ -352,27 +352,26 @@ Return ONLY valid JSON, no markdown formatting, no explanation.`;
       title: parsed.title || schemaData?.title || "Untitled Recipe",
       recipe_type: parsed.recipeType || "Dinner",
       category: parsed.category || schemaData?.category || "Other",
-      prep_time: parsed.prepTime || schemaData?.prepTime || "15 minutes",
+      prep_time: schemaData?.prepTime || parsed.prepTime || "15 minutes",
       cook_time:
+        schemaData?.cookTime ||
         parsed.cookTime ||
         parsed.bakeTime ||
-        schemaData?.cookTime ||
         "30 minutes",
-      servings: parsed.servings || schemaData?.servings || "4",
+      servings: schemaData?.servings || parsed.servings || "4",
       base_servings: parsed.baseServings || null,
-      // Use schema ingredients/instructions if AI extraction seems incomplete
-      ingredients:
-        Array.isArray(parsed.ingredients) && parsed.ingredients.length > 0
+      // CRITICAL: Use schema ingredients/instructions when available - they are more accurate
+      // than AI extraction from HTML (schema is structured data from the website)
+      ingredients: hasCompleteSchema
+        ? schemaData!.ingredients
+        : Array.isArray(parsed.ingredients)
           ? parsed.ingredients
-          : hasCompleteSchema
-            ? schemaData!.ingredients
-            : [],
-      instructions:
-        Array.isArray(parsed.instructions) && parsed.instructions.length > 0
+          : [],
+      instructions: hasCompleteSchema
+        ? schemaData!.instructions
+        : Array.isArray(parsed.instructions)
           ? parsed.instructions
-          : hasCompleteSchema
-            ? schemaData!.instructions
-            : [],
+          : [],
       tags: Array.isArray(parsed.tags) ? parsed.tags : [],
       notes: parsed.notes || "None",
       source_url: sourceUrl || undefined,

@@ -184,11 +184,11 @@ export default async function HistoryPage() {
                           addSuffix: true,
                         })})
                       </span>
-                      {entry.cooked_by_profile?.name && (
+                      {(entry.cooked_by_profile?.first_name || entry.cooked_by_profile?.last_name) && (
                         <div className="flex items-center gap-1.5">
                           <ChefHat className="h-4 w-4 text-muted-foreground" />
                           <span className="text-muted-foreground">
-                            {entry.cooked_by_profile.name}
+                            {[entry.cooked_by_profile.first_name, entry.cooked_by_profile.last_name].filter(Boolean).join(" ")}
                           </span>
                         </div>
                       )}

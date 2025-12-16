@@ -96,7 +96,7 @@ export default async function PublicUserProfilePage({ params }: Props) {
               <div className="flex-1 space-y-4">
                 <div>
                   <h1 className="text-2xl font-bold">{displayName}</h1>
-                  {profile.name && (
+                  {(profile.first_name || profile.last_name) && (
                     <p className="text-muted-foreground">@{profile.username}</p>
                   )}
                 </div>

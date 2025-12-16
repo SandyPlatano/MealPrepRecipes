@@ -29,7 +29,7 @@ export default async function SettingsPage() {
   const members = (householdResult.data?.members || []) as unknown as Array<{
     user_id: string;
     role: string;
-    profiles: { name: string | null; email: string | null } | null;
+    profiles: { first_name: string | null; last_name: string | null; email: string | null } | null;
   }>;
 
   return (

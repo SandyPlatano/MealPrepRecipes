@@ -94,7 +94,7 @@ export default function UserProfilePage() {
 
   const isOwnProfile = currentUser?.id === profile.id;
   const canViewFull = profile.public_profile || isOwnProfile;
-  const displayName = profile.name || `@${profile.username}`;
+  const displayName = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || `@${profile.username}`;
 
   return (
     <div className="space-y-6">
@@ -114,7 +114,7 @@ export default function UserProfilePage() {
             <div className="flex-1 space-y-4">
               <div>
                 <h1 className="text-2xl font-bold">{displayName}</h1>
-                {profile.name && (
+                {(profile.first_name || profile.last_name) && (
                   <p className="text-muted-foreground">@{profile.username}</p>
                 )}
               </div>

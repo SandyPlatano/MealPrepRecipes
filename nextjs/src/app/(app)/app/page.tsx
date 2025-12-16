@@ -159,7 +159,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     <>
       <OnboardingWrapper
         shouldShow={needsOnboarding}
-        currentName={profile?.first_name && profile?.last_name ? `${profile.first_name} ${profile.last_name}` : profile?.name || ""}
+        currentName={[profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || ""}
         currentCookNames={settingsResult.data?.cook_names || []}
         currentCookColors={settingsResult.data?.cook_colors || {}}
       />

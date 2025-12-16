@@ -92,7 +92,7 @@ interface CookingHistoryEntry {
   notes: string | null;
   modifications: string | null;
   photo_url: string | null;
-  cooked_by_profile?: { name: string | null } | null;
+  cooked_by_profile?: { first_name: string | null; last_name: string | null } | null;
 }
 
 // Get icon based on recipe type
@@ -739,9 +739,9 @@ export function RecipeDetail({
                               }
                             )}
                           </span>
-                          {entry.cooked_by_profile?.name && (
+                          {(entry.cooked_by_profile?.first_name || entry.cooked_by_profile?.last_name) && (
                             <span className="text-xs text-muted-foreground">
-                              by {entry.cooked_by_profile.name}
+                              by {[entry.cooked_by_profile.first_name, entry.cooked_by_profile.last_name].filter(Boolean).join(" ")}
                             </span>
                           )}
                         </div>

@@ -83,7 +83,7 @@ export function UserProfileCard({
               >
                 {displayName}
               </Link>
-              {profile.name && (
+              {(profile.first_name || profile.last_name) && (
                 <p className="text-muted-foreground">@{profile.username}</p>
               )}
             </div>

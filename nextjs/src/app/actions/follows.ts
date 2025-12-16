@@ -386,7 +386,6 @@ export async function getUserByUsername(
   const profile: UserProfile = {
     id: data.id,
     username: data.username,
-    name: [data.first_name, data.last_name].filter(Boolean).join(" ") || null,
     first_name: data.first_name,
     last_name: data.last_name,
     bio: data.bio,

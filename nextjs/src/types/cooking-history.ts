@@ -21,7 +21,8 @@ export interface CookingHistoryWithRecipe extends CookingHistoryEntry {
     protein_type: string | null;
   } | null;
   cooked_by_profile: {
-    name: string | null;
+    first_name: string | null;
+    last_name: string | null;
   } | null;
 }
 

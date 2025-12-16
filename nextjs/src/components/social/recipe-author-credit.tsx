@@ -73,7 +73,8 @@ interface RecipeAuthorInfoProps {
     id: string;
     username: string;
     avatar_url?: string | null;
-    name?: string | null;
+    first_name?: string | null;
+    last_name?: string | null;
   };
   showAvatar?: boolean;
   linkToProfile?: boolean;
