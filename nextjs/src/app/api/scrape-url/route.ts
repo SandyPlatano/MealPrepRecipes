@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
     // CRITICAL: Extract and preserve JSON-LD scripts BEFORE removing other scripts
     // JSON-LD contains structured recipe data (ingredients, instructions) that parse-recipe needs
     const jsonLdScripts: string[] = [];
-    const jsonLdPattern = /<script[^>]*type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>/gi;
+    const jsonLdPattern = /<script[^>]*type=["']?application\/ld\+json["']?[^>]*>[\s\S]*?<\/script>/gi;
     let jsonLdMatch;
     while ((jsonLdMatch = jsonLdPattern.exec(html)) !== null) {
       jsonLdScripts.push(jsonLdMatch[0]);

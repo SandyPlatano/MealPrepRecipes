@@ -71,7 +71,7 @@ export interface RecipeSchema {
 export function extractRecipeSchema(html: string): RecipeSchema | null {
   try {
     // Find all JSON-LD script tags
-    const jsonLdPattern = /<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi;
+    const jsonLdPattern = /<script[^>]*type=["']?application\/ld\+json["']?[^>]*>([\s\S]*?)<\/script>/gi;
     let match;
 
     while ((match = jsonLdPattern.exec(html)) !== null) {
