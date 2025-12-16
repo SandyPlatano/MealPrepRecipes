@@ -166,24 +166,24 @@ export function NutritionFactsCard({
                   variant="outline"
                   size="icon"
                   className="h-8 w-8"
-                  onClick={() => setSelectedServings(Math.min(servings, selectedServings + 0.5))}
-                  disabled={selectedServings >= servings}
+                  onClick={() => setSelectedServings(Math.min(20, selectedServings + 0.5))}
+                  disabled={selectedServings >= 20}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
             </div>
             {/* Quick select buttons */}
-            <div className="flex gap-2 mt-2">
-              {[1, Math.ceil(servings / 2), servings].filter((v, i, a) => a.indexOf(v) === i).map((num) => (
+            <div className="flex gap-1.5 mt-2 flex-wrap">
+              {[1, 2, servings, 10, 20].filter((v, i, a) => a.indexOf(v) === i && v <= 20).sort((a, b) => a - b).slice(0, 5).map((num) => (
                 <Button
                   key={num}
                   variant={selectedServings === num ? "default" : "outline"}
                   size="sm"
-                  className="h-7 text-xs flex-1"
+                  className="h-7 text-xs px-2"
                   onClick={() => setSelectedServings(num)}
                 >
-                  {num === 1 ? "1 serving" : num === servings ? `All ${num}` : `${num} servings`}
+                  {num}
                 </Button>
               ))}
             </div>

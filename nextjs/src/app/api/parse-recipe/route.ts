@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit } from "@/lib/rate-limit-redis";
-import { extractRecipeSchema, schemaToRecipeFormat } from "@/lib/recipe-schema-extractor";
+import {
+  extractRecipeSchema,
+  schemaToRecipeFormat,
+  type NormalizedRecipeSchema,
+} from "@/lib/recipe-schema-extractor";
 
 export const dynamic = "force-dynamic";
 
@@ -182,12 +186,27 @@ Determine recipeType based on content:
 
     // Check for JSON-LD recipe schema (most accurate extraction source)
     let schemaInfo = "";
-    let schema = null;
+    let schemaData: NormalizedRecipeSchema | null = null;
+
     if (htmlContent) {
-      schema = extractRecipeSchema(htmlContent);
+      const schema = extractRecipeSchema(htmlContent);
       if (schema) {
-        const schemaData = schemaToRecipeFormat(schema);
-        schemaInfo = `\n\nRECIPE SCHEMA INFORMATION FOUND (from website structured data):\nThis website includes structured recipe data that may help ensure accuracy:\n${JSON.stringify(schemaData, null, 2)}`;
+        schemaData = schemaToRecipeFormat(schema);
+
+        // Check if schema has complete critical data
+        const hasCompleteIngredients = schemaData.ingredients.length > 0;
+        const hasCompleteInstructions = schemaData.instructions.length > 0;
+
+        if (hasCompleteIngredients && hasCompleteInstructions) {
+          schemaInfo = `\n\n**IMPORTANT: STRUCTURED RECIPE DATA FOUND**
+This website includes complete JSON-LD recipe data. USE THIS DATA DIRECTLY for ingredients and instructions:
+${JSON.stringify(schemaData, null, 2)}
+
+CRITICAL: The ingredients and instructions above come directly from the website's structured data and should be used exactly as provided. Only use the HTML content to extract additional context like notes, tips, or missing metadata.`;
+        } else {
+          schemaInfo = `\n\nPARTIAL RECIPE SCHEMA FOUND (verify against HTML):
+${JSON.stringify(schemaData, null, 2)}`;
+        }
       }
     }
 
@@ -323,22 +342,44 @@ Return ONLY valid JSON, no markdown formatting, no explanation.`;
 
     const parsed = JSON.parse(jsonText);
 
-    // Format response
+    // Format response - prefer schema data when available and complete
+    const hasCompleteSchema =
+      schemaData &&
+      schemaData.ingredients.length > 0 &&
+      schemaData.instructions.length > 0;
+
     const result = {
-      title: parsed.title || "Untitled Recipe",
+      title: parsed.title || schemaData?.title || "Untitled Recipe",
       recipe_type: parsed.recipeType || "Dinner",
-      category: parsed.category || "Other",
-      prep_time: parsed.prepTime || "15 minutes",
-      cook_time: parsed.cookTime || parsed.bakeTime || "30 minutes",
-      servings: parsed.servings || "4",
+      category: parsed.category || schemaData?.category || "Other",
+      prep_time: parsed.prepTime || schemaData?.prepTime || "15 minutes",
+      cook_time:
+        parsed.cookTime ||
+        parsed.bakeTime ||
+        schemaData?.cookTime ||
+        "30 minutes",
+      servings: parsed.servings || schemaData?.servings || "4",
       base_servings: parsed.baseServings || null,
-      ingredients: Array.isArray(parsed.ingredients) ? parsed.ingredients : [],
-      instructions: Array.isArray(parsed.instructions)
-        ? parsed.instructions
-        : [],
+      // Use schema ingredients/instructions if AI extraction seems incomplete
+      ingredients:
+        Array.isArray(parsed.ingredients) && parsed.ingredients.length > 0
+          ? parsed.ingredients
+          : hasCompleteSchema
+            ? schemaData!.ingredients
+            : [],
+      instructions:
+        Array.isArray(parsed.instructions) && parsed.instructions.length > 0
+          ? parsed.instructions
+          : hasCompleteSchema
+            ? schemaData!.instructions
+            : [],
       tags: Array.isArray(parsed.tags) ? parsed.tags : [],
       notes: parsed.notes || "None",
       source_url: sourceUrl || undefined,
+      // New fields from schema
+      image_url: schemaData?.image || undefined,
+      cuisine: schemaData?.cuisine || undefined,
+      schema_nutrition: schemaData?.nutrition || undefined,
     };
 
     return NextResponse.json(result);

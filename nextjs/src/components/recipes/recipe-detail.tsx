@@ -258,7 +258,7 @@ export function RecipeDetail({
   };
 
   const incrementServings = () => {
-    setCurrentServings((prev) => prev + 1);
+    setCurrentServings((prev) => Math.min(20, prev + 1));
   };
 
   const decrementServings = () => {
@@ -267,7 +267,7 @@ export function RecipeDetail({
 
   const setServingsPreset = (multiplier: number) => {
     if (recipe.base_servings) {
-      setCurrentServings(recipe.base_servings * multiplier);
+      setCurrentServings(Math.min(20, recipe.base_servings * multiplier));
     }
   };
 
@@ -562,6 +562,7 @@ export function RecipeDetail({
                       size="icon"
                       className="h-8 w-8"
                       onClick={incrementServings}
+                      disabled={currentServings >= 20}
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
