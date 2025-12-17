@@ -18,7 +18,7 @@ export const HINT_CONTENT: Record<HintId, HintContent> = {
   [HINT_IDS.MEAL_PLANNER_INTRO]: {
     title: "Plan Your Week",
     description:
-      "Drag recipes onto days to plan meals. Assign cooks to balance responsibilities.",
+      "Click 'Add Meal' to select recipes for each day. Assign cooks to balance responsibilities.",
   },
   [HINT_IDS.RECIPES_INTRO]: {
     title: "Find Recipes Fast",

@@ -220,6 +220,7 @@ function analyzeTodaysNutrition(summary: DailyMacroSummary): TipConfig {
 
 /**
  * Find the most significant nutrition gap
+ * Uses new status system: 'achieved' | 'remaining' | 'exceeded'
  */
 function findNutritionGaps(
   progress: {
@@ -230,54 +231,54 @@ function findNutritionGaps(
   },
   goals: MacroGoals
 ): { type: GapType; amount: number } {
-  // Check if all macros are on target (green)
-  const allOnTarget =
-    progress.calories.color === "green" &&
-    progress.protein.color === "green" &&
-    progress.carbs.color === "green" &&
-    progress.fat.color === "green";
+  // Check if all macros are achieved (within ±10%)
+  const allAchieved =
+    progress.calories.status === "achieved" &&
+    progress.protein.status === "achieved" &&
+    progress.carbs.status === "achieved" &&
+    progress.fat.status === "achieved";
 
-  if (allOnTarget) {
+  if (allAchieved) {
     return { type: "all_good", amount: 0 };
   }
 
   // Calculate actual gaps
   const gaps: Array<{ type: GapType; amount: number; priority: number }> = [];
 
-  // Under protein is highest priority (health impact)
-  if (progress.protein.status === "under" && progress.protein.actual !== null) {
+  // Under protein is highest priority (health impact) - use remaining status
+  if (progress.protein.status === "remaining" && progress.protein.actual !== null) {
     const shortfall = goals.protein_g - progress.protein.actual;
     if (shortfall > 10) {
       gaps.push({ type: "under_protein", amount: shortfall, priority: 1 });
     }
   }
 
-  // Over carbs (common diet concern)
-  if (progress.carbs.status === "over" && progress.carbs.actual !== null) {
+  // Over carbs (common diet concern) - use exceeded status
+  if (progress.carbs.status === "exceeded" && progress.carbs.actual !== null) {
     const excess = progress.carbs.actual - goals.carbs_g;
     if (excess > 20) {
       gaps.push({ type: "over_carbs", amount: excess, priority: 2 });
     }
   }
 
-  // Over calories
-  if (progress.calories.status === "over" && progress.calories.actual !== null) {
+  // Over calories - use exceeded status
+  if (progress.calories.status === "exceeded" && progress.calories.actual !== null) {
     const excess = progress.calories.actual - goals.calories;
     if (excess > 100) {
       gaps.push({ type: "over_calories", amount: excess, priority: 3 });
     }
   }
 
-  // Under calories
-  if (progress.calories.status === "under" && progress.calories.actual !== null) {
+  // Under calories - use remaining status
+  if (progress.calories.status === "remaining" && progress.calories.actual !== null) {
     const shortfall = goals.calories - progress.calories.actual;
     if (shortfall > 200) {
       gaps.push({ type: "under_calories", amount: shortfall, priority: 4 });
     }
   }
 
-  // Over fat
-  if (progress.fat.status === "over" && progress.fat.actual !== null) {
+  // Over fat - use exceeded status
+  if (progress.fat.status === "exceeded" && progress.fat.actual !== null) {
     const excess = progress.fat.actual - goals.fat_g;
     if (excess > 10) {
       gaps.push({ type: "over_fat", amount: excess, priority: 5 });

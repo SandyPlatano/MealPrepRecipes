@@ -228,7 +228,7 @@ export function scaleNutrition(
 
 /**
  * Calculate progress for a single macro nutrient
- * Returns percentage, status, and color
+ * Returns percentage, remaining amount, and soft non-judgmental color
  */
 export function calculateMacroProgress(
   actual: number | null | undefined,
@@ -241,27 +241,31 @@ export function calculateMacroProgress(
       actual: null,
       target,
       percentage: 0,
-      status: 'under',
-      color: 'red',
+      remaining: target,
+      status: 'remaining',
+      color: 'muted',
     };
   }
 
   const percentage = (actual / target) * 100;
-  const diff = Math.abs(percentage - 100);
+  const remaining = Math.max(0, target - actual);
 
-  let status: 'under' | 'on_target' | 'over';
-  let color: 'red' | 'yellow' | 'green';
+  // Non-judgmental status: achieved (within ±10%), exceeded, or remaining
+  let status: 'remaining' | 'achieved' | 'exceeded';
+  let color: 'sage' | 'muted' | 'coral';
 
-  // ±10% tolerance for "on target"
-  if (diff <= 10) {
-    status = 'on_target';
-    color = 'green';
-  } else if (percentage < 100) {
-    status = 'under';
-    color = diff <= 20 ? 'yellow' : 'red';
+  if (percentage >= 90 && percentage <= 110) {
+    // Within ±10% of target = achieved
+    status = 'achieved';
+    color = 'sage';
+  } else if (percentage > 110) {
+    // Exceeded target (soft coral, not harsh red)
+    status = 'exceeded';
+    color = 'coral';
   } else {
-    status = 'over';
-    color = diff <= 20 ? 'yellow' : 'red';
+    // Still working toward goal
+    status = 'remaining';
+    color = 'muted';
   }
 
   return {
@@ -269,6 +273,7 @@ export function calculateMacroProgress(
     actual,
     target,
     percentage: Math.round(percentage),
+    remaining: Math.round(remaining),
     status,
     color,
   };
@@ -305,16 +310,16 @@ export function calculateAllMacroProgress(
 }
 
 /**
- * Check if a day is "on target" (all macros within ±10%)
+ * Check if a day is "on target" (all macros achieved within ±10%)
  */
 export function isDayOnTarget(nutrition: NutritionData, goals: MacroGoals): boolean {
   const progress = calculateAllMacroProgress(nutrition, goals);
 
   return (
-    progress.calories.status === 'on_target' &&
-    progress.protein.status === 'on_target' &&
-    progress.carbs.status === 'on_target' &&
-    progress.fat.status === 'on_target'
+    progress.calories.status === 'achieved' &&
+    progress.protein.status === 'achieved' &&
+    progress.carbs.status === 'achieved' &&
+    progress.fat.status === 'achieved'
   );
 }
 
@@ -441,62 +446,65 @@ export function formatProgressPercentage(percentage: number): string {
 }
 
 /**
- * Get user-friendly status text
+ * Get user-friendly status text (non-judgmental)
  */
 export function getStatusText(status: MacroProgress['status']): string {
   switch (status) {
-    case 'on_target':
-      return 'On Target';
-    case 'under':
-      return 'Under Target';
-    case 'over':
-      return 'Over Target';
+    case 'achieved':
+      return 'Achieved';
+    case 'remaining':
+      return 'In Progress';
+    case 'exceeded':
+      return 'Exceeded';
   }
 }
 
 // =====================================================
-// COLOR HELPERS
+// COLOR HELPERS (Soft, non-judgmental brand colors)
 // =====================================================
 
 /**
  * Get Tailwind CSS color classes for progress status
+ * Uses soft brand colors instead of traffic light colors
  */
 export function getProgressColor(status: MacroProgress['status']): string {
   switch (status) {
-    case 'on_target':
-      return 'text-green-600 dark:text-green-400';
-    case 'under':
-      return 'text-yellow-600 dark:text-yellow-400';
-    case 'over':
-      return 'text-red-600 dark:text-red-400';
+    case 'achieved':
+      return 'text-brand-sage';
+    case 'remaining':
+      return 'text-muted-foreground';
+    case 'exceeded':
+      return 'text-brand-coral/80';
   }
 }
 
 /**
  * Get background color for progress bar
+ * Uses soft brand colors for a non-judgmental feel
  */
 export function getProgressBgColor(color: MacroProgress['color']): string {
   switch (color) {
-    case 'green':
-      return 'bg-green-500';
-    case 'yellow':
-      return 'bg-yellow-500';
-    case 'red':
-      return 'bg-red-500';
+    case 'sage':
+      return 'bg-brand-sage';
+    case 'muted':
+      return 'bg-muted-foreground/40';
+    case 'coral':
+      return 'bg-brand-coral/60';
   }
 }
 
 /**
- * Get background color for progress ring
+ * Get stroke color for progress ring
+ * Uses soft brand colors
  */
 export function getProgressRingColor(color: MacroProgress['color']): string {
   switch (color) {
-    case 'green':
-      return 'stroke-green-500';
-    case 'yellow':
-      return 'stroke-yellow-500';
-    case 'red':
-      return 'stroke-red-500';
+    case 'sage':
+      return 'stroke-brand-sage';
+    case 'muted':
+      return 'stroke-muted-foreground/60';
+    case 'coral':
+      return 'stroke-brand-coral/80';
   }
 }
 
@@ -589,7 +597,7 @@ export function isMacroDistributionBalanced(nutrition: NutritionData): boolean {
 // =====================================================
 
 /**
- * Count how many macros are on target (green) for a day
+ * Count how many macros are achieved (within ±10%) for a day
  * Returns 0-4 based on calories, protein, carbs, fat
  */
 export function countMacrosOnTarget(
@@ -599,10 +607,10 @@ export function countMacrosOnTarget(
   const progress = calculateAllMacroProgress(nutrition, goals);
   let count = 0;
 
-  if (progress.calories.color === 'green') count++;
-  if (progress.protein.color === 'green') count++;
-  if (progress.carbs.color === 'green') count++;
-  if (progress.fat.color === 'green') count++;
+  if (progress.calories.status === 'achieved') count++;
+  if (progress.protein.status === 'achieved') count++;
+  if (progress.carbs.status === 'achieved') count++;
+  if (progress.fat.status === 'achieved') count++;
 
   return count;
 }
@@ -661,16 +669,16 @@ export function calculateCurrentStreak(
 }
 
 /**
- * Count macros on target from a DailyMacroSummary
+ * Count macros achieved from a DailyMacroSummary
  * Uses the pre-calculated progress data
  */
 export function countMacrosOnTargetFromSummary(day: DailyMacroSummary): number {
   let count = 0;
 
-  if (day.progress.calories.color === 'green') count++;
-  if (day.progress.protein.color === 'green') count++;
-  if (day.progress.carbs.color === 'green') count++;
-  if (day.progress.fat.color === 'green') count++;
+  if (day.progress.calories.status === 'achieved') count++;
+  if (day.progress.protein.status === 'achieved') count++;
+  if (day.progress.carbs.status === 'achieved') count++;
+  if (day.progress.fat.status === 'achieved') count++;
 
   return count;
 }

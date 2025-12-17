@@ -198,8 +198,9 @@ export interface MacroProgress {
   actual: number | null;
   target: number;
   percentage: number; // 0-100+
-  status: 'under' | 'on_target' | 'over'; // ±10% tolerance
-  color: 'red' | 'yellow' | 'green';
+  remaining: number; // How much left to hit target (0 if achieved/exceeded)
+  status: 'remaining' | 'achieved' | 'exceeded'; // Non-judgmental terminology
+  color: 'sage' | 'muted' | 'coral'; // Soft brand colors, not traffic lights
 }
 
 /**
@@ -332,8 +333,8 @@ export function hasNutritionData(nutrition?: NutritionData | null): boolean {
 }
 
 /**
- * Calculate macro progress
- * Returns percentage and status (under/on_target/over)
+ * Calculate macro progress with non-judgmental soft colors
+ * Returns percentage, remaining amount, and soft status
  */
 export function calculateMacroProgress(
   actual: number | null | undefined,
@@ -346,26 +347,31 @@ export function calculateMacroProgress(
       actual: null,
       target,
       percentage: 0,
-      status: 'under',
-      color: 'red',
+      remaining: target,
+      status: 'remaining',
+      color: 'muted',
     };
   }
 
   const percentage = (actual / target) * 100;
-  const diff = Math.abs(percentage - 100);
+  const remaining = Math.max(0, target - actual);
 
-  let status: 'under' | 'on_target' | 'over';
-  let color: 'red' | 'yellow' | 'green';
+  // Non-judgmental status: achieved (within ±10%), exceeded, or remaining
+  let status: 'remaining' | 'achieved' | 'exceeded';
+  let color: 'sage' | 'muted' | 'coral';
 
-  if (diff <= 10) {
-    status = 'on_target';
-    color = 'green';
-  } else if (percentage < 100) {
-    status = 'under';
-    color = diff <= 20 ? 'yellow' : 'red';
+  if (percentage >= 90 && percentage <= 110) {
+    // Within ±10% of target = achieved
+    status = 'achieved';
+    color = 'sage';
+  } else if (percentage > 110) {
+    // Exceeded target (soft coral, not harsh red)
+    status = 'exceeded';
+    color = 'coral';
   } else {
-    status = 'over';
-    color = diff <= 20 ? 'yellow' : 'red';
+    // Still working toward goal
+    status = 'remaining';
+    color = 'muted';
   }
 
   return {
@@ -373,6 +379,7 @@ export function calculateMacroProgress(
     actual,
     target,
     percentage: Math.round(percentage),
+    remaining: Math.round(remaining),
     status,
     color,
   };
@@ -442,29 +449,30 @@ export function formatNutritionValue(
 
 /**
  * Get color for progress status
- * Returns Tailwind CSS color class
+ * Returns Tailwind CSS color class - soft, non-judgmental colors
  */
 export function getProgressColor(status: MacroProgress['status']): string {
   switch (status) {
-    case 'on_target':
-      return 'text-green-600 dark:text-green-400';
-    case 'under':
-      return 'text-yellow-600 dark:text-yellow-400';
-    case 'over':
-      return 'text-red-600 dark:text-red-400';
+    case 'achieved':
+      return 'text-brand-sage';
+    case 'remaining':
+      return 'text-muted-foreground';
+    case 'exceeded':
+      return 'text-brand-coral/80';
   }
 }
 
 /**
  * Get background color for progress bar
+ * Uses soft brand colors instead of traffic light colors
  */
 export function getProgressBgColor(color: MacroProgress['color']): string {
   switch (color) {
-    case 'green':
-      return 'bg-green-500';
-    case 'yellow':
-      return 'bg-yellow-500';
-    case 'red':
-      return 'bg-red-500';
+    case 'sage':
+      return 'bg-brand-sage';
+    case 'muted':
+      return 'bg-muted-foreground/40';
+    case 'coral':
+      return 'bg-brand-coral/60';
   }
 }

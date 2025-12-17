@@ -268,6 +268,7 @@ function DayRow({
 
 /**
  * Single macro stat display
+ * Uses soft brand colors (sage/muted/coral) instead of traffic lights
  */
 interface MacroStatProps {
   label: string;
@@ -275,51 +276,62 @@ interface MacroStatProps {
   target: number;
   progress: {
     percentage: number;
-    color: "green" | "yellow" | "red";
+    remaining: number;
+    color: "sage" | "muted" | "coral";
+    status: "achieved" | "remaining" | "exceeded";
   };
   unit?: string;
+  showRemaining?: boolean;
 }
 
-function MacroStat({ label, actual, target, progress, unit = "kcal" }: MacroStatProps) {
-  const trend =
-    actual && actual > target * 1.1
-      ? "over"
-      : actual && actual < target * 0.9
-      ? "under"
-      : "on-target";
+function MacroStat({ label, actual, target, progress, unit = "kcal", showRemaining = false }: MacroStatProps) {
+  // Show remaining amount for "remaining" status, achieved checkmark for achieved
+  const statusIcon =
+    progress.status === "achieved" ? "✓" :
+    progress.status === "exceeded" ? "↑" : null;
 
-  const TrendIcon =
-    trend === "over" ? TrendingUp : trend === "under" ? TrendingDown : Minus;
-
-  const trendColor =
-    trend === "over"
-      ? "text-red-500"
-      : trend === "under"
-      ? "text-yellow-500"
-      : "text-green-500";
+  const statusColor =
+    progress.status === "achieved"
+      ? "text-brand-sage"
+      : progress.status === "exceeded"
+      ? "text-brand-coral/80"
+      : "text-muted-foreground";
 
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>{label}</span>
-        <TrendIcon className={cn("h-3 w-3", trendColor)} />
+        {statusIcon && <span className={cn("text-sm", statusColor)}>{statusIcon}</span>}
       </div>
       <div className="flex items-baseline gap-1">
-        <span className="text-lg font-bold tabular-nums">
-          {actual !== null && actual !== undefined ? Math.round(actual) : "—"}
-        </span>
-        <span className="text-xs text-muted-foreground">
-          / {target}
-          {unit}
-        </span>
+        {showRemaining && progress.remaining > 0 ? (
+          <>
+            <span className="text-lg font-bold tabular-nums">
+              {progress.remaining}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {unit} left
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="text-lg font-bold tabular-nums">
+              {actual !== null && actual !== undefined ? Math.round(actual) : "—"}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              / {target}
+              {unit}
+            </span>
+          </>
+        )}
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
         <div
           className={cn(
             "h-full transition-all",
-            progress.color === "green" && "bg-green-500",
-            progress.color === "yellow" && "bg-yellow-500",
-            progress.color === "red" && "bg-red-500"
+            progress.color === "sage" && "bg-brand-sage",
+            progress.color === "coral" && "bg-brand-coral/60",
+            progress.color === "muted" && "bg-muted-foreground/40"
           )}
           style={{ width: `${Math.min(progress.percentage, 100)}%` }}
         />
@@ -358,7 +370,7 @@ function WeeklyStat({
 type DayStatus = "all-target" | "most-target" | "few-target" | "future" | "no-meals";
 
 /**
- * Calculate how many macros are on target for a day
+ * Calculate how many macros are achieved for a day
  * Returns 0-4 based on calories, protein, carbs, fat being within ±10%
  */
 function countMacrosOnTarget(day: DailyMacroSummary): number {
@@ -367,10 +379,10 @@ function countMacrosOnTarget(day: DailyMacroSummary): number {
   let count = 0;
   const progress = day.progress;
 
-  if (progress.calories.color === "green") count++;
-  if (progress.protein.color === "green") count++;
-  if (progress.carbs.color === "green") count++;
-  if (progress.fat.color === "green") count++;
+  if (progress.calories.status === "achieved") count++;
+  if (progress.protein.status === "achieved") count++;
+  if (progress.carbs.status === "achieved") count++;
+  if (progress.fat.status === "achieved") count++;
 
   return count;
 }
@@ -505,24 +517,24 @@ function DayTooltipContent({
     <div className="space-y-1 text-sm">
       <p className="font-medium">{day.day_of_week}</p>
       <p className="text-muted-foreground">
-        {macrosOnTarget} of 4 macros on target
+        {macrosOnTarget} of 4 macros achieved
       </p>
       <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
         <MacroStatusLine
           label="Calories"
-          isOnTarget={day.progress.calories.color === "green"}
+          isAchieved={day.progress.calories.status === "achieved"}
         />
         <MacroStatusLine
           label="Protein"
-          isOnTarget={day.progress.protein.color === "green"}
+          isAchieved={day.progress.protein.status === "achieved"}
         />
         <MacroStatusLine
           label="Carbs"
-          isOnTarget={day.progress.carbs.color === "green"}
+          isAchieved={day.progress.carbs.status === "achieved"}
         />
         <MacroStatusLine
           label="Fat"
-          isOnTarget={day.progress.fat.color === "green"}
+          isAchieved={day.progress.fat.status === "achieved"}
         />
       </div>
     </div>
@@ -531,17 +543,18 @@ function DayTooltipContent({
 
 /**
  * Single macro status line in tooltip
+ * Uses soft brand colors
  */
 function MacroStatusLine({
   label,
-  isOnTarget,
+  isAchieved,
 }: {
   label: string;
-  isOnTarget: boolean;
+  isAchieved: boolean;
 }) {
   return (
-    <span className={cn(isOnTarget ? "text-green-600" : "text-muted-foreground")}>
-      {isOnTarget ? "✓" : "○"} {label}
+    <span className={cn(isAchieved ? "text-brand-sage" : "text-muted-foreground")}>
+      {isAchieved ? "✓" : "○"} {label}
     </span>
   );
 }

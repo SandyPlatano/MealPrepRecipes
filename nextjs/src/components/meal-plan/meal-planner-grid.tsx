@@ -1,24 +1,10 @@
 "use client";
 
 import { useState, useMemo, useCallback, useTransition } from "react";
-import {
-  DndContext,
-  DragOverlay,
-  closestCorners,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragStartEvent,
-  type DragEndEvent,
-  type DragOverEvent,
-} from "@dnd-kit/core";
-import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Loader2 } from "lucide-react";
 import { PlannerHeader } from "./planner-header";
 import { PlannerSummary } from "./planner-summary";
-import { MealCellOverlay } from "./meal-cell";
 import { PlannerDayRow } from "./planner-day-row";
 import {
   addMealAssignment,
@@ -98,23 +84,10 @@ export function MealPlannerGrid({
   canNavigateWeeks = false,
 }: MealPlannerGridProps) {
   const [isPending, startTransition] = useTransition();
-  const [activeAssignment, setActiveAssignment] = useState<MealAssignmentWithRecipe | null>(null);
-  const [, setOverDay] = useState<DayOfWeek | null>(null);
   const [isSending, setIsSending] = useState(false);
 
   // Optimistic state for cook assignments (instant UI feedback)
   const [optimisticCooks, setOptimisticCooks] = useState<Record<string, string | null>>({});
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
 
   // Apply optimistic cook values to assignments for instant UI feedback
   const assignmentsWithOptimisticCooks = useMemo(() => {
@@ -259,64 +232,11 @@ export function MealPlannerGrid({
     }
   }, [allAssignments, weekStartDate, weekStartStr]);
 
-
-  // Drag handlers
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-    const assignment = allAssignments.find((a) => a.id === active.id);
-    if (assignment) {
-      setActiveAssignment(assignment);
-    }
-  };
-
-  const handleDragOver = (event: DragOverEvent) => {
-    const { over } = event;
-    if (over?.data.current?.type === "day") {
-      setOverDay(over.data.current.day as DayOfWeek);
-    } else {
-      setOverDay(null);
-    }
-  };
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveAssignment(null);
-    setOverDay(null);
-
-    if (!over) return;
-
-    // If dropped on a day column
-    if (over.data.current?.type === "day") {
-      const newDay = over.data.current.day as DayOfWeek;
-      const assignment = allAssignments.find((a) => a.id === active.id);
-
-      if (assignment && assignment.day_of_week !== newDay) {
-        startTransition(async () => {
-          const result = await updateMealAssignment(assignment.id, {
-            day_of_week: newDay,
-          });
-          if (result.error) {
-            toast.error(result.error);
-          } else {
-            toast.success(`Moved to ${newDay}`);
-          }
-        });
-      }
-    }
-  };
-
   const hasMeals = allAssignments.length > 0;
 
   return (
     <TooltipProvider>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-      >
-        {/* Loading Indicator */}
+      {/* Loading Indicator */}
         {isPending && (
           <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -384,14 +304,6 @@ export function MealPlannerGrid({
             macroGoals={macroGoals}
           />
         </div>
-
-        {/* Drag Overlay */}
-        <DragOverlay>
-          {activeAssignment && (
-            <MealCellOverlay assignment={activeAssignment} />
-          )}
-        </DragOverlay>
-      </DndContext>
     </TooltipProvider>
   );
 }

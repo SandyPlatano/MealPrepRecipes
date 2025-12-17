@@ -1,11 +1,6 @@
 "use client";
 
 import { useState, useTransition, memo, useEffect } from "react";
-import { useDroppable } from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -47,7 +42,6 @@ interface PlannerDayRowProps {
   onAddMeal: (recipeId: string, day: DayOfWeek, cook?: string) => Promise<void>;
   onUpdateCook: (assignmentId: string, cook: string | null) => Promise<void>;
   onRemoveMeal: (assignmentId: string) => Promise<void>;
-  isOver?: boolean;
   nutritionData?: Map<string, RecipeNutrition> | null;
 }
 
@@ -67,7 +61,6 @@ export const PlannerDayRow = memo(function PlannerDayRow({
   onAddMeal,
   onUpdateCook,
   onRemoveMeal,
-  isOver = false,
   nutritionData = null,
 }: PlannerDayRowProps) {
   const [isPending, startTransition] = useTransition();
@@ -79,14 +72,6 @@ export const PlannerDayRow = memo(function PlannerDayRow({
     setIsMounted(true);
   }, []);
 
-  const { setNodeRef } = useDroppable({
-    id: `day-${day}`,
-    data: {
-      type: "day",
-      day,
-    },
-  });
-
   // Only compute "today" on client to avoid server/client mismatch
   const today = isMounted ? new Date() : new Date(date);
   today.setHours(0, 0, 0, 0);
@@ -97,8 +82,6 @@ export const PlannerDayRow = memo(function PlannerDayRow({
   const dayAbbrev = day.slice(0, 3).toUpperCase();
   // Use a consistent format that doesn't depend on locale
   const monthAbbrev = date.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
-
-  const assignmentIds = assignments.map((a) => a.id);
 
   return (
     <div className={`flex items-start gap-2 sm:gap-3 transition-opacity ${isPending ? "opacity-60" : ""}`}>
@@ -128,42 +111,35 @@ export const PlannerDayRow = memo(function PlannerDayRow({
 
       {/* Card with Recipes */}
       <Card
-        ref={setNodeRef}
         className={cn(
           "flex-1 transition-all min-h-[100px]",
           isToday && "ring-2 ring-primary",
-          isPast && "opacity-70",
-          isOver && "ring-2 ring-primary bg-primary/5"
+          isPast && "opacity-70"
         )}
       >
         <CardContent className="p-2.5 space-y-1.5">
-          <SortableContext
-            items={assignmentIds}
-            strategy={verticalListSortingStrategy}
-          >
-            {assignments.length === 0 ? (
-              <div className="text-xs text-muted-foreground text-center py-4">
-                {isPast ? "No meals planned" : "No meals yet"}
-              </div>
-            ) : (
-              assignments.map((assignment) => (
-                <RecipeRow
-                  key={assignment.id}
-                  assignment={assignment}
-                  cookNames={cookNames}
-                  cookColors={cookColors}
-                  onUpdateCook={onUpdateCook}
-                  onRemove={onRemoveMeal}
-                  onSwap={() => {
-                    // First remove the current recipe, then open modal to add new one
-                    onRemoveMeal(assignment.id);
-                    setModalOpen(true);
-                  }}
-                  nutrition={nutritionData?.get(assignment.recipe_id) || null}
-                />
-              ))
-            )}
-          </SortableContext>
+          {assignments.length === 0 ? (
+            <div className="text-xs text-muted-foreground text-center py-4">
+              {isPast ? "No meals planned" : "No meals yet"}
+            </div>
+          ) : (
+            assignments.map((assignment) => (
+              <RecipeRow
+                key={assignment.id}
+                assignment={assignment}
+                cookNames={cookNames}
+                cookColors={cookColors}
+                onUpdateCook={onUpdateCook}
+                onRemove={onRemoveMeal}
+                onSwap={() => {
+                  // First remove the current recipe, then open modal to add new one
+                  onRemoveMeal(assignment.id);
+                  setModalOpen(true);
+                }}
+                nutrition={nutritionData?.get(assignment.recipe_id) || null}
+              />
+            ))
+          )}
 
           {/* Add Meal Button */}
           {!isPast && (

@@ -1,11 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useDroppable } from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -41,7 +36,6 @@ interface PlannerDayColumnProps {
   onUpdateCook: (assignmentId: string, cook: string | null) => Promise<void>;
   onRemoveMeal: (assignmentId: string) => Promise<void>;
   onClearDay: (day: DayOfWeek) => Promise<void>;
-  isOver?: boolean;
 }
 
 export function PlannerDayColumn({
@@ -58,7 +52,6 @@ export function PlannerDayColumn({
   onUpdateCook,
   onRemoveMeal,
   onClearDay,
-  isOver = false,
 }: PlannerDayColumnProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
@@ -68,14 +61,6 @@ export function PlannerDayColumn({
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  const { setNodeRef } = useDroppable({
-    id: `day-${day}`,
-    data: {
-      type: "day",
-      day,
-    },
-  });
 
   // Only compute "today" on client to avoid server/client mismatch
   const today = isMounted ? new Date() : new Date(date);
@@ -97,16 +82,12 @@ export function PlannerDayColumn({
     }
   };
 
-  const assignmentIds = assignments.map((a) => a.id);
-
   return (
     <div
-      ref={setNodeRef}
       className={cn(
         "flex flex-col min-h-[300px] bg-card border rounded-lg overflow-hidden transition-all",
         isToday && "ring-2 ring-primary",
-        isPast && "opacity-70",
-        isOver && "ring-2 ring-primary bg-primary/5"
+        isPast && "opacity-70"
       )}
     >
       {/* Day Header */}
@@ -141,20 +122,15 @@ export function PlannerDayColumn({
 
       {/* Meals List */}
       <div className="flex-1 p-2 space-y-2">
-        <SortableContext
-          items={assignmentIds}
-          strategy={verticalListSortingStrategy}
-        >
-          {assignments.map((assignment) => (
-            <MealCell
-              key={assignment.id}
-              assignment={assignment}
-              cookNames={cookNames}
-              onUpdateCook={onUpdateCook}
-              onRemove={onRemoveMeal}
-            />
-          ))}
-        </SortableContext>
+        {assignments.map((assignment) => (
+          <MealCell
+            key={assignment.id}
+            assignment={assignment}
+            cookNames={cookNames}
+            onUpdateCook={onUpdateCook}
+            onRemove={onRemoveMeal}
+          />
+        ))}
 
         {/* Empty State / Add Button */}
         {assignments.length === 0 && !pickerOpen && (

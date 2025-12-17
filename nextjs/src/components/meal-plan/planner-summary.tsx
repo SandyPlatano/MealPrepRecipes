@@ -54,10 +54,10 @@ interface CookBreakdown {
   unassigned: number;
 }
 
-interface MacroProgress {
+interface LocalMacroProgress {
   actual: number | null;
   percentage: number;
-  color: "green" | "yellow" | "red";
+  color: "sage" | "muted" | "coral";
 }
 
 interface DayProgressCirclesProps {
@@ -79,17 +79,17 @@ interface WeekProgressSectionProps {
 interface CalculatedNutritionProgress {
   // Daily averages (total / 7)
   daily: {
-    calories: MacroProgress;
-    protein: MacroProgress;
-    carbs: MacroProgress;
-    fat: MacroProgress;
+    calories: LocalMacroProgress;
+    protein: LocalMacroProgress;
+    carbs: LocalMacroProgress;
+    fat: LocalMacroProgress;
   };
   // Weekly totals
   weekly: {
-    calories: MacroProgress;
-    protein: MacroProgress;
-    carbs: MacroProgress;
-    fat: MacroProgress;
+    calories: LocalMacroProgress;
+    protein: LocalMacroProgress;
+    carbs: LocalMacroProgress;
+    fat: LocalMacroProgress;
   };
   // Raw totals for display
   totals: {
@@ -111,7 +111,7 @@ interface MacroProgressCompactProps {
   label: string;
   actual: number | null;
   target: number;
-  progress: MacroProgress;
+  progress: LocalMacroProgress;
   unit?: string;
 }
 
@@ -291,10 +291,11 @@ function MacroProgressCompact({
 }: MacroProgressCompactProps) {
   const percentage = Math.min(progress.percentage, 100);
 
+  // Use soft brand colors instead of traffic lights
   const barColor = {
-    green: "bg-green-500",
-    yellow: "bg-yellow-500",
-    red: "bg-red-500",
+    sage: "bg-brand-sage",
+    muted: "bg-muted-foreground/40",
+    coral: "bg-brand-coral/60",
   }[progress.color];
 
   return (
@@ -576,20 +577,24 @@ export function PlannerSummary({
     const weeklyCarbsGoal = macroGoals.carbs_g * 7;
     const weeklyFatGoal = macroGoals.fat_g * 7;
 
-    // Calculate progress for each macro
-    const calcProgress = (actual: number, target: number): MacroProgress => {
+    // Calculate progress for each macro using soft brand colors
+    const calcProgress = (actual: number, target: number): LocalMacroProgress => {
       if (actual === 0 && recipesWithNutrition === 0) {
-        return { actual: null, percentage: 0, color: "red" };
+        return { actual: null, percentage: 0, color: "muted" };
       }
       const percentage = (actual / target) * 100;
-      const diff = Math.abs(percentage - 100);
-      let color: "red" | "yellow" | "green";
-      if (diff <= 10) {
-        color = "green";
-      } else if (percentage < 100) {
-        color = diff <= 20 ? "yellow" : "red";
+
+      // Non-judgmental color scheme:
+      // - sage: achieved (within ±10%)
+      // - coral: exceeded (>110%)
+      // - muted: in progress (<90%)
+      let color: "sage" | "muted" | "coral";
+      if (percentage >= 90 && percentage <= 110) {
+        color = "sage";
+      } else if (percentage > 110) {
+        color = "coral";
       } else {
-        color = diff <= 20 ? "yellow" : "red";
+        color = "muted";
       }
       return { actual, percentage, color };
     };

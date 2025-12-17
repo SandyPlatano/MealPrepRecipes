@@ -1,7 +1,7 @@
 "use client";
 
 import { X, Lightbulb } from "lucide-react";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { dismissHint } from "@/app/actions/settings";
 import type { HintId } from "@/lib/hints";
 
@@ -16,16 +16,18 @@ export function ContextualHint({
   title,
   description,
 }: ContextualHintProps) {
+  const [isDismissed, setIsDismissed] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const handleDismiss = () => {
+    setIsDismissed(true); // Hide immediately via local state
     startTransition(async () => {
-      await dismissHint(hintId);
+      await dismissHint(hintId); // Persist to database
     });
   };
 
-  if (isPending) {
-    return null; // Hide immediately on dismiss
+  if (isDismissed || isPending) {
+    return null; // Stay hidden via local state, even after transition completes
   }
 
   return (

@@ -131,26 +131,29 @@ export function MacroProgressRing({
 /**
  * Compact horizontal progress bar variant
  * Alternative to ring for tight spaces
+ * Uses soft brand colors (sage/muted/coral) instead of traffic lights
  */
 interface MacroProgressBarProps {
   progress: MacroProgress;
   showValue?: boolean;
+  showRemaining?: boolean;
   className?: string;
 }
 
 export function MacroProgressBar({
   progress,
   showValue = true,
+  showRemaining = false,
   className,
 }: MacroProgressBarProps) {
   const cappedPercentage = Math.min(progress.percentage, 100);
 
-  // Get color classes
-  const bgColor = progress.color === "green"
-    ? "bg-green-500"
-    : progress.color === "yellow"
-    ? "bg-yellow-500"
-    : "bg-red-500";
+  // Get soft brand color classes
+  const bgColor = progress.color === "sage"
+    ? "bg-brand-sage"
+    : progress.color === "coral"
+    ? "bg-brand-coral/60"
+    : "bg-muted-foreground/40";
 
   return (
     <div className={cn("space-y-1", className)}>
@@ -159,7 +162,9 @@ export function MacroProgressBar({
         <span className="font-medium">{progress.name}</span>
         {showValue && progress.actual !== null && (
           <span className="text-muted-foreground tabular-nums">
-            {Math.round(progress.actual)} / {progress.target}
+            {showRemaining && progress.remaining > 0
+              ? `${progress.remaining} left`
+              : `${Math.round(progress.actual)} / ${progress.target}`}
           </span>
         )}
       </div>

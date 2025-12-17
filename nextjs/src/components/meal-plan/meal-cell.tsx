@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,7 +15,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { GripVertical, X, Clock, ChefHat } from "lucide-react";
+import { X, Clock, ChefHat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { MealAssignmentWithRecipe } from "@/types/meal-plan";
 import type { RecipeNutrition } from "@/types/nutrition";
@@ -27,7 +25,6 @@ interface MealCellProps {
   cookNames: string[];
   onUpdateCook: (assignmentId: string, cook: string | null) => Promise<void>;
   onRemove: (assignmentId: string) => Promise<void>;
-  isDragging?: boolean;
   nutrition?: RecipeNutrition | null;
 }
 
@@ -36,31 +33,10 @@ export function MealCell({
   cookNames,
   onUpdateCook,
   onRemove,
-  isDragging = false,
   nutrition = null,
 }: MealCellProps) {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
-
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging: isSortableDragging,
-  } = useSortable({
-    id: assignment.id,
-    data: {
-      type: "meal",
-      assignment,
-    },
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
 
   const handleCookChange = async (value: string) => {
     setIsUpdating(true);
@@ -183,24 +159,12 @@ export function MealCell({
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
       className={cn(
         "group relative bg-card border rounded-lg p-3 transition-all",
         "hover:shadow-md hover:border-primary/30",
-        (isDragging || isSortableDragging) && "opacity-50 shadow-lg scale-105",
         isRemoving && "opacity-50"
       )}
     >
-      {/* Drag Handle */}
-      <div
-        {...attributes}
-        {...listeners}
-        className="absolute left-1 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <GripVertical className="h-4 w-4 text-muted-foreground" />
-      </div>
-
       {/* Remove Button */}
       <Button
         variant="ghost"
@@ -213,7 +177,7 @@ export function MealCell({
       </Button>
 
       {/* Content */}
-      <div className="pl-4 pr-6">
+      <div className="pr-6">
         {/* Recipe Title */}
         <Tooltip>
           <TooltipTrigger asChild>
@@ -278,28 +242,6 @@ export function MealCell({
           </Select>
         </div>
       </div>
-    </div>
-  );
-}
-
-// Overlay version for drag preview
-export function MealCellOverlay({
-  assignment,
-}: {
-  assignment: MealAssignmentWithRecipe;
-}) {
-  return (
-    <div className="bg-card border-2 border-primary rounded-lg p-3 shadow-xl opacity-90 w-48">
-      <p className="font-medium text-sm truncate">{assignment.recipe.title}</p>
-      <p className="text-xs text-muted-foreground">
-        {assignment.recipe.recipe_type}
-      </p>
-      {assignment.cook && (
-        <p className="text-xs mt-1 flex items-center gap-1">
-          <ChefHat className="h-3 w-3" />
-          {assignment.cook}
-        </p>
-      )}
     </div>
   );
 }
