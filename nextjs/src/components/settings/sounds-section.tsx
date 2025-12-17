@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { updateSoundPreferences } from "@/app/actions/user-preferences";
 import type { SoundPreferences, SoundPreset } from "@/types/user-preferences-v2";
 import { SOUND_OPTIONS } from "@/types/user-preferences-v2";
+import { playSound as playSoundEffect } from "@/lib/sounds";
 import { Volume2, VolumeX, Play, Bell, Trophy, MessageSquare } from "lucide-react";
 
 interface SoundsSectionProps {
@@ -53,14 +54,8 @@ export function SoundsSection({
       return;
     }
 
-    // In a real implementation, this would play actual sound files
-    // For now, we'll just show a toast
-    toast.info(`Playing: ${sound}`);
-
-    // Example implementation:
-    // const audio = new Audio(`/sounds/${sound}.mp3`);
-    // audio.volume = preferences.volume / 100;
-    // audio.play();
+    // Play the actual sound using Web Audio API
+    playSoundEffect(sound, preferences.volume);
   };
 
   const handleVolumeChange = (value: string) => {
