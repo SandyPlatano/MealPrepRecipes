@@ -36,7 +36,6 @@ import type {
   CookModeNavigationMode,
 } from "@/types/settings";
 import { COOK_MODE_PRESETS, getMatchingPreset } from "@/lib/cook-mode-presets";
-import { CookModePresetCard } from "./cook-mode-preset-card";
 import { CookModeSettingsPreview } from "./cook-mode-settings-preview";
 
 interface CookModeSettingsSheetProps {
@@ -196,20 +195,6 @@ export function CookModeSettingsSheet({
             <CookModeSettingsPreview settings={localSettings} />
           </div>
 
-          {/* Quick Presets */}
-          <SettingsSection icon={<Wand2 className="h-4 w-4" />} title="Quick Presets">
-            <div className="grid grid-cols-2 gap-3 -ml-6">
-              {COOK_MODE_PRESETS.map((preset) => (
-                <CookModePresetCard
-                  key={preset.key}
-                  preset={preset}
-                  isSelected={currentPreset === preset.key}
-                  onSelect={() => applyPreset(preset.key)}
-                />
-              ))}
-            </div>
-          </SettingsSection>
-
           {/* Display Options */}
           <SettingsSection icon={<Type className="h-4 w-4" />} title="Display">
             {/* Font Size */}
@@ -354,6 +339,27 @@ export function CookModeSettingsSheet({
               ))}
             </div>
           </SettingsSection>
+
+          {/* Quick Presets - Compact at bottom */}
+          <div className="pt-4 border-t">
+            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-3">
+              <Wand2 className="h-3.5 w-3.5" />
+              Quick Presets
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {COOK_MODE_PRESETS.map((preset) => (
+                <Button
+                  key={preset.key}
+                  variant={currentPreset === preset.key ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => applyPreset(preset.key)}
+                  className="h-8 text-xs"
+                >
+                  {preset.name}
+                </Button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </>

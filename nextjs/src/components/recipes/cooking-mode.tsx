@@ -291,7 +291,7 @@ export function CookingMode({
   }
 
   return (
-    <div className={cn("min-h-screen bg-background p-4", fontSizeClass)}>
+    <div className={cn("min-h-screen bg-background p-4 lg:p-8", fontSizeClass)}>
       {/* Settings Sheet */}
       <CookModeSettingsSheet
         isOpen={settingsOpen}
@@ -301,7 +301,7 @@ export function CookingMode({
       />
 
       {/* Header */}
-      <div className="max-w-4xl mx-auto mb-6">
+      <div className="max-w-6xl mx-auto mb-8">
         <div className="flex items-center justify-between mb-4">
           <Button variant="ghost" onClick={() => router.back()}>
             <X className="h-5 w-5" />
@@ -330,18 +330,18 @@ export function CookingMode({
             </Button>
           </div>
         </div>
-        <h1 className="text-3xl font-mono font-bold">{recipe.title}</h1>
+        <h1 className="text-3xl lg:text-4xl font-mono font-bold">{recipe.title}</h1>
 
         {/* Progress bar - conditional */}
         {settings.visibility.showProgress && (
           <>
-            <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden">
+            <div className="mt-3 h-2.5 bg-muted rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-muted-foreground mt-2">
               Step {currentStep + 1} of {recipe.instructions.length}
             </p>
           </>
@@ -350,8 +350,8 @@ export function CookingMode({
 
       <div
         className={cn(
-          "max-w-4xl mx-auto grid gap-6",
-          settings.visibility.showIngredients && "md:grid-cols-[1fr_300px]"
+          "max-w-6xl mx-auto grid gap-8",
+          settings.visibility.showIngredients && "lg:grid-cols-[1fr_350px]"
         )}
       >
         {/* Main Content */}
@@ -359,10 +359,10 @@ export function CookingMode({
           {settings.navigation.mode === "step-by-step" ? (
             <>
               {/* Step-by-Step View */}
-              <Card className="p-8">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-sm font-medium text-muted-foreground">
+              <Card className="p-6 lg:p-10">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm lg:text-base font-medium text-muted-foreground">
                       STEP {currentStep + 1}
                     </span>
                     {currentStep === recipe.instructions.length - 1 && (
@@ -372,7 +372,7 @@ export function CookingMode({
                       </Badge>
                     )}
                   </div>
-                  <div className={cn("prose dark:prose-invert max-w-none", proseSizeClass)}>
+                  <div className={cn("prose dark:prose-invert max-w-none prose-p:leading-relaxed", proseSizeClass)}>
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {recipe.instructions[currentStep]}
                     </ReactMarkdown>
@@ -385,19 +385,18 @@ export function CookingMode({
                       {(() => {
                         const detectedTimers = detectTimers(recipe.instructions[currentStep]);
                         return detectedTimers.length > 0 ? (
-                          <div className="flex flex-wrap gap-2 mt-6 pt-6 border-t">
-                            <span className="text-sm text-muted-foreground mr-2">
+                          <div className="flex flex-wrap gap-3 mt-8 pt-6 border-t">
+                            <span className="text-muted-foreground mr-2">
                               Detected timers:
                             </span>
                             {detectedTimers.map((timer, idx) => (
                               <Button
                                 key={idx}
                                 variant="default"
-                                size="sm"
                                 onClick={() => startTimer(timer.minutes)}
-                                className="gap-1"
+                                className="gap-2"
                               >
-                                <Timer className="h-3 w-3" />
+                                <Timer className="h-4 w-4" />
                                 {timer.displayText}
                               </Button>
                             ))}
@@ -406,13 +405,12 @@ export function CookingMode({
                       })()}
 
                       {/* Quick Timer Buttons */}
-                      <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
-                        <span className="text-sm text-muted-foreground mr-2">Quick timers:</span>
+                      <div className="flex flex-wrap gap-3 mt-6 pt-6 border-t">
+                        <span className="text-muted-foreground mr-2">Quick timers:</span>
                         {[5, 10, 15, 20, 30].map((mins) => (
                           <Button
                             key={mins}
                             variant="outline"
-                            size="sm"
                             onClick={() => startTimer(mins)}
                           >
                             {mins} min
@@ -425,13 +423,13 @@ export function CookingMode({
               </Card>
 
               {/* Navigation */}
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <Button
                   variant="outline"
                   size="lg"
                   onClick={handlePrevStep}
                   disabled={currentStep === 0}
-                  className="flex-1"
+                  className="flex-1 h-14"
                 >
                   <ChevronLeft className="h-5 w-5 mr-2" />
                   Previous
@@ -440,7 +438,7 @@ export function CookingMode({
                   size="lg"
                   onClick={handleNextStep}
                   disabled={currentStep === recipe.instructions.length - 1}
-                  className="flex-1"
+                  className="flex-1 h-14"
                 >
                   Next
                   <ChevronRight className="h-5 w-5 ml-2" />
@@ -518,9 +516,9 @@ export function CookingMode({
 
             {/* Ingredients Checklist */}
             <Card className="p-6">
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">Ingredients</span>
+                  <span className="text-lg font-semibold">Ingredients</span>
                   {allIngredientsChecked && (
                     <Badge variant="default" className="gap-1">
                       <Check className="h-3 w-3" />
@@ -528,22 +526,21 @@ export function CookingMode({
                     </Badge>
                   )}
                 </div>
-                <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                <div className="space-y-3 max-h-[500px] overflow-y-auto">
                   {displayIngredients.map((ingredient, index) => (
-                    <div key={index} className="flex items-start gap-2">
+                    <div key={index} className="flex items-start gap-3">
                       <Checkbox
                         id={`ingredient-${index}`}
                         checked={checkedIngredients[index]}
                         onCheckedChange={() => toggleIngredient(index)}
-                        className="mt-1"
+                        className="mt-0.5 h-5 w-5"
                       />
                       <label
                         htmlFor={`ingredient-${index}`}
-                        className={`text-sm leading-relaxed cursor-pointer flex-1 ${
-                          checkedIngredients[index]
-                            ? "line-through text-muted-foreground"
-                            : ""
-                        }`}
+                        className={cn(
+                          "leading-relaxed cursor-pointer flex-1",
+                          checkedIngredients[index] && "line-through text-muted-foreground"
+                        )}
                       >
                         {ingredient}
                       </label>
