@@ -8,4 +8,5 @@ export { OsButton } from "./os-button";
 export { Taskbar } from "./taskbar";
 export { DesktopIcon, DesktopIconGrid } from "./desktop-icon";
 export { StartMenu } from "./start-menu";
-export { Tootsie, TootsieExpression } from "./tootsie";
+export { Tootsie } from "./tootsie";
+export type { TootsieExpression } from "./tootsie";
