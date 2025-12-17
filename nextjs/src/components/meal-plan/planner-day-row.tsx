@@ -132,9 +132,23 @@ export const PlannerDayRow = memo(function PlannerDayRow({
           isPast && "opacity-70"
         )}
       >
-        <CardContent className="p-3 md:p-4 space-y-3 md:space-y-4">
+        <CardContent
+          className={cn(
+            // Base spacing
+            "space-y-3 md:space-y-4",
+            // Density-based padding
+            viewSettings?.density === "compact" && "p-2 space-y-2",
+            viewSettings?.density === "comfortable" && "p-3 md:p-4",
+            viewSettings?.density === "spacious" && "p-4 md:p-6 space-y-4 md:space-y-6",
+            // Default if no viewSettings
+            !viewSettings?.density && "p-3 md:p-4"
+          )}
+        >
           {assignments.length === 0 ? (
-            <div className="text-sm text-muted-foreground text-center py-6 md:py-8">
+            <div className={cn(
+              "text-sm text-muted-foreground text-center",
+              viewSettings?.density === "compact" ? "py-4 md:py-6" : "py-6 md:py-8"
+            )}>
               {isPast ? "No meals planned" : "No meals yet"}
             </div>
           ) : (
@@ -144,13 +158,21 @@ export const PlannerDayRow = memo(function PlannerDayRow({
               if (typeMeals.length === 0) return null;
 
               return (
-                <div key={mealType ?? "other"} className="space-y-2 md:space-y-3">
-                  <MealSlotHeader
-                    mealType={mealType}
-                    mealCount={typeMeals.length}
-                    customEmoji={mealTypeSettings?.[(mealType ?? "other") as MealTypeKey]?.emoji}
-                    customColor={mealTypeSettings?.[(mealType ?? "other") as MealTypeKey]?.color}
-                  />
+                <div
+                  key={mealType ?? "other"}
+                  className={cn(
+                    viewSettings?.density === "compact" ? "space-y-1.5" : "space-y-2 md:space-y-3"
+                  )}
+                >
+                  {/* Conditionally render meal type header based on settings */}
+                  {viewSettings?.showMealTypeHeaders !== false && (
+                    <MealSlotHeader
+                      mealType={mealType}
+                      mealCount={typeMeals.length}
+                      customEmoji={mealTypeSettings?.[(mealType ?? "other") as MealTypeKey]?.emoji}
+                      customColor={mealTypeSettings?.[(mealType ?? "other") as MealTypeKey]?.color}
+                    />
+                  )}
                   {typeMeals.map((assignment) => (
                     <RecipeRow
                       key={assignment.id}
@@ -167,6 +189,9 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                       }}
                       nutrition={nutritionData?.get(assignment.recipe_id) || null}
                       mealTypeSettings={mealTypeSettings}
+                      showNutrition={viewSettings?.showNutritionBadges !== false}
+                      showPrepTime={viewSettings?.showPrepTime !== false}
+                      compact={viewSettings?.density === "compact"}
                     />
                   ))}
                 </div>
@@ -228,6 +253,9 @@ interface RecipeRowProps {
   onSwap: () => void;
   nutrition?: RecipeNutrition | null;
   mealTypeSettings?: MealTypeCustomization;
+  showNutrition?: boolean;
+  showPrepTime?: boolean;
+  compact?: boolean;
 }
 
 function RecipeRow({
@@ -240,6 +268,9 @@ function RecipeRow({
   onSwap,
   nutrition = null,
   mealTypeSettings,
+  showNutrition = true,
+  showPrepTime = true,
+  compact = false,
 }: RecipeRowProps) {
 
   // Default colors for cooks (fallback)
@@ -310,10 +341,12 @@ function RecipeRow({
   return (
     <div
       className={cn(
-        "group flex flex-col gap-3 p-3 rounded-lg border bg-card/50 transition-all border-l-4",
+        "group flex flex-col gap-3 rounded-lg border bg-card/50 transition-all border-l-4",
         "hover:bg-card hover:shadow-sm hover:border-primary/30",
         // Large desktop: single row layout
-        "xl:flex-row xl:items-center xl:gap-4 xl:p-3",
+        "xl:flex-row xl:items-center xl:gap-4",
+        // Compact mode: tighter padding
+        compact ? "p-2 gap-2 xl:p-2 xl:gap-3" : "p-3 xl:p-3",
         isRemoving && "opacity-50"
       )}
       style={{
@@ -323,30 +356,36 @@ function RecipeRow({
       {/* Recipe Title & Meta - Always on top row */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm md:text-base truncate" title={assignment.recipe.title}>
+          <p className={cn(
+            "font-medium truncate",
+            compact ? "text-sm" : "text-sm md:text-base"
+          )} title={assignment.recipe.title}>
             {assignment.recipe.title}
           </p>
-          <div className="flex items-center gap-2 mt-1 flex-wrap">
-            {assignment.recipe.prep_time && (
-              <span className="text-xs text-muted-foreground">
-                {assignment.recipe.prep_time}
-              </span>
-            )}
-            {nutrition && (
-              <>
-                {nutrition.calories && (
-                  <Badge variant="outline" className="text-[11px] font-mono px-1.5 py-0.5 h-5">
-                    {Math.round(nutrition.calories)} cal
-                  </Badge>
-                )}
-                {nutrition.protein_g && (
-                  <Badge variant="outline" className="text-[11px] font-mono px-1.5 py-0.5 h-5">
-                    {Math.round(nutrition.protein_g)}g protein
-                  </Badge>
-                )}
-              </>
-            )}
-          </div>
+          {/* Only show meta row if there's something to display */}
+          {(showPrepTime && assignment.recipe.prep_time) || (showNutrition && nutrition) ? (
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              {showPrepTime && assignment.recipe.prep_time && (
+                <span className="text-xs text-muted-foreground">
+                  {assignment.recipe.prep_time}
+                </span>
+              )}
+              {showNutrition && nutrition && (
+                <>
+                  {nutrition.calories && (
+                    <Badge variant="outline" className="text-[11px] font-mono px-1.5 py-0.5 h-5">
+                      {Math.round(nutrition.calories)} cal
+                    </Badge>
+                  )}
+                  {nutrition.protein_g && (
+                    <Badge variant="outline" className="text-[11px] font-mono px-1.5 py-0.5 h-5">
+                      {Math.round(nutrition.protein_g)}g protein
+                    </Badge>
+                  )}
+                </>
+              )}
+            </div>
+          ) : null}
         </div>
 
         {/* Action buttons - Always visible with title on mobile, grouped on desktop */}

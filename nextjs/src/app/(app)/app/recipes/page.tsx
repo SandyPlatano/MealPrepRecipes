@@ -4,6 +4,7 @@ import { getSettings } from "@/app/actions/settings";
 import { getBulkRecipeNutrition } from "@/app/actions/nutrition";
 import { getActiveCustomBadges } from "@/app/actions/custom-badges";
 import { getFolders, getFolderCategories } from "@/app/actions/folders";
+import { getSystemSmartFolders, getUserSmartFolders, getCookingHistoryContext } from "@/app/actions/smart-folders";
 import { createClient } from "@/lib/supabase/server";
 import { RecipesPageClient } from "@/components/recipes/recipes-page-client";
 import { ContextualHint } from "@/components/hints/contextual-hint";
