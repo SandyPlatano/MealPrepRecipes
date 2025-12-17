@@ -11,10 +11,11 @@ import {
   ShoppingCart,
   Package,
   Activity,
+  ChefHat,
   type LucideIcon,
 } from "lucide-react";
 
-type IconKey = "plan" | "recipes" | "shop" | "pantry" | "favorites" | "settings" | "nutrition";
+type IconKey = "plan" | "recipes" | "shop" | "pantry" | "favorites" | "settings" | "nutrition" | "prep";
 
 const iconMap: Record<IconKey, LucideIcon> = {
   plan: Calendar,
@@ -24,6 +25,7 @@ const iconMap: Record<IconKey, LucideIcon> = {
   favorites: Heart,
   settings: Settings,
   nutrition: Activity,
+  prep: ChefHat,
 };
 
 type NavItem = {
@@ -72,6 +74,7 @@ export function AppNav({
         "/app/history",
         "/app/pantry",
         "/app/nutrition",
+        "/app/prep",
       ];
       if (excludedRoutes.some(route => pathname === route || pathname.startsWith(`${route}/`))) {
         return false;

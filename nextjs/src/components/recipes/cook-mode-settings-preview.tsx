@@ -26,6 +26,7 @@ const FONT_SIZE_CLASSES = {
   small: "text-sm",
   medium: "text-base",
   large: "text-lg",
+  "extra-large": "text-xl",
 } as const;
 
 export function CookModeSettingsPreview({

@@ -18,3 +18,11 @@ export {
   PrepSessionDetail,
   type PrepSessionDetailProps,
 } from "./prep-session-detail";
+export {
+  WeekVarietyScoreCard,
+  type WeekVarietyScoreCardProps,
+} from "./week-variety-score-card";
+export {
+  NewPrepSessionClient,
+  type NewPrepSessionClientProps,
+} from "./new-prep-session-client";

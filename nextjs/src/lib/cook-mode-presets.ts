@@ -4,6 +4,7 @@
  */
 
 import type { CookModePreset, CookModeSettings } from "@/types/settings";
+import { DEFAULT_COOK_MODE_SETTINGS } from "@/types/settings";
 
 /**
  * Smart presets for cook mode customization
@@ -16,10 +17,12 @@ export const COOK_MODE_PRESETS: CookModePreset[] = [
     description: "Clean view with just instructions. No distractions.",
     icon: "Minus",
     settings: {
-      display: { fontSize: "medium", themeOverride: "system" },
+      display: { fontSize: "medium", themeOverride: "system", highContrast: false },
       visibility: { showIngredients: false, showTimers: false, showProgress: false },
       behavior: { keepScreenAwake: true, timerSounds: false, autoAdvance: false },
       navigation: { mode: "step-by-step" },
+      voice: { ...DEFAULT_COOK_MODE_SETTINGS.voice, enabled: false },
+      gestures: { ...DEFAULT_COOK_MODE_SETTINGS.gestures },
     },
   },
   {
@@ -28,22 +31,26 @@ export const COOK_MODE_PRESETS: CookModePreset[] = [
     description: "Everything visible. All the bells and whistles.",
     icon: "Sparkles",
     settings: {
-      display: { fontSize: "medium", themeOverride: "system" },
+      display: { fontSize: "medium", themeOverride: "system", highContrast: false },
       visibility: { showIngredients: true, showTimers: true, showProgress: true },
       behavior: { keepScreenAwake: true, timerSounds: true, autoAdvance: false },
       navigation: { mode: "step-by-step" },
+      voice: { ...DEFAULT_COOK_MODE_SETTINGS.voice, enabled: true },
+      gestures: { ...DEFAULT_COOK_MODE_SETTINGS.gestures, swipeEnabled: true },
     },
   },
   {
     key: "hands-free",
     name: "Hands-Free",
-    description: "Auto-advance steps when timers end. Perfect for messy hands.",
+    description: "Voice-controlled with auto-advance. Perfect for messy hands.",
     icon: "Hand",
     settings: {
-      display: { fontSize: "large", themeOverride: "system" },
+      display: { fontSize: "large", themeOverride: "system", highContrast: false },
       visibility: { showIngredients: true, showTimers: true, showProgress: true },
       behavior: { keepScreenAwake: true, timerSounds: true, autoAdvance: true },
       navigation: { mode: "step-by-step" },
+      voice: { enabled: true, wakeWord: "hey chef", autoReadSteps: true, readoutSpeed: "normal" },
+      gestures: { swipeEnabled: true, tapToAdvance: true, hapticFeedback: true },
     },
   },
   {
@@ -52,10 +59,12 @@ export const COOK_MODE_PRESETS: CookModePreset[] = [
     description: "Large text, dark theme. Maximum readability in the kitchen.",
     icon: "Focus",
     settings: {
-      display: { fontSize: "large", themeOverride: "dark" },
+      display: { fontSize: "large", themeOverride: "dark", highContrast: true },
       visibility: { showIngredients: false, showTimers: true, showProgress: true },
       behavior: { keepScreenAwake: true, timerSounds: true, autoAdvance: false },
       navigation: { mode: "step-by-step" },
+      voice: { ...DEFAULT_COOK_MODE_SETTINGS.voice, enabled: false },
+      gestures: { ...DEFAULT_COOK_MODE_SETTINGS.gestures, swipeEnabled: true },
     },
   },
 ];

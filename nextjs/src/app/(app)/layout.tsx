@@ -5,9 +5,10 @@ import { AppNav } from "@/components/navigation/app-nav";
 import { AppHeader } from "@/components/navigation/app-header";
 import { QuickCookProvider } from "@/components/quick-cook/quick-cook-provider";
 
-// Navigation: Plan, List, Recipes, Nutrition, Favorites
+// Navigation: Plan, Prep, List, Recipes, Nutrition, Favorites
 const navItems = [
   { href: "/app", iconKey: "plan" as const, label: "Plan" },
+  { href: "/app/prep", iconKey: "prep" as const, label: "Prep" },
   { href: "/app/shop", iconKey: "shop" as const, label: "List" },
   { href: "/app/recipes", iconKey: "recipes" as const, label: "Recipes" },
   { href: "/app/nutrition", iconKey: "nutrition" as const, label: "Nutrition" },

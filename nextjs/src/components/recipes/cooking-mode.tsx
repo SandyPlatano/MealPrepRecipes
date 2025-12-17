@@ -19,11 +19,15 @@ import {
   Settings2,
   Maximize,
   Minimize,
+  Mic,
+  MicOff,
+  Volume2,
 } from "lucide-react";
 import type { Recipe } from "@/types/recipe";
 import { toast } from "sonner";
 import { detectTimers } from "@/lib/timer-detector";
 import { convertIngredientsToSystem, type UnitSystem } from "@/lib/ingredient-scaler";
+import { getHighlightedIngredientIndices } from "@/lib/ingredient-matcher";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { CookModeSettings } from "@/types/settings";
@@ -33,6 +37,9 @@ import { CookModeScrollableView } from "./cook-mode-scrollable-view";
 import { CookModeWizard } from "./cook-mode-wizard";
 import { HINT_IDS } from "@/lib/hints";
 import { cn } from "@/lib/utils";
+import { useVoiceCommands } from "@/hooks/use-voice-commands";
+import { useVoiceReadout } from "@/hooks/use-voice-readout";
+import { useSwipeGesture } from "@/hooks/use-swipe-gesture";
 
 interface CookingModeProps {
   recipe: Recipe;
@@ -43,17 +50,19 @@ interface CookingModeProps {
   basePath?: string;
 }
 
-// Font size CSS class mapping
+// Font size CSS class mapping (including extra-large for kitchen readability)
 const FONT_SIZE_CLASSES = {
   small: "text-sm",
   medium: "text-base",
   large: "text-lg",
+  "extra-large": "text-xl",
 } as const;
 
 const PROSE_SIZE_CLASSES = {
   small: "prose-sm",
   medium: "prose-base",
   large: "prose-lg",
+  "extra-large": "prose-xl",
 } as const;
 
 export function CookingMode({
@@ -87,6 +96,98 @@ export function CookingMode({
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
   const [timerRunning, setTimerRunning] = useState(false);
   const [timerTotal, setTimerTotal] = useState<number>(0);
+
+  // Get current step text for voice readout
+  const currentStepText = recipe.instructions[currentStep] || "";
+
+  // Get highlighted ingredients for current step
+  const highlightedIngredientIndices = getHighlightedIngredientIndices(
+    currentStepText,
+    recipe.ingredients
+  );
+
+  // Voice readout hook
+  const { speak, stop: stopSpeaking, isSpeaking, isSupported: voiceReadoutSupported } = useVoiceReadout({
+    speed: settings.voice.readoutSpeed,
+    enabled: settings.voice.enabled,
+  });
+
+  // Read current step aloud
+  const readCurrentStep = useCallback(() => {
+    speak(currentStepText);
+  }, [speak, currentStepText]);
+
+  // Navigation handlers (need to be defined before voice commands hook)
+  const handlePrevStep = useCallback(() => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  }, [currentStep]);
+
+  const handleNextStep = useCallback(() => {
+    if (currentStep < recipe.instructions.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  }, [currentStep, recipe.instructions.length]);
+
+  const startTimer = useCallback((minutes: number) => {
+    setTimerMinutes(minutes);
+    setTimerSeconds(0);
+    setTimerTotal(minutes * 60);
+    setTimerRunning(true);
+    toast.success(`Timer started for ${minutes} minutes`);
+  }, []);
+
+  const resetTimer = useCallback(() => {
+    setTimerRunning(false);
+    setTimerMinutes(0);
+    setTimerSeconds(0);
+    setTimerTotal(0);
+  }, []);
+
+  // Voice commands hook
+  const {
+    isListening,
+    isAwaitingCommand,
+    lastCommand,
+    error: voiceError,
+    startListening,
+    stopListening,
+  } = useVoiceCommands({
+    onNextStep: handleNextStep,
+    onPrevStep: handlePrevStep,
+    onSetTimer: startTimer,
+    onStopTimer: resetTimer,
+    onRepeat: readCurrentStep,
+    onReadStep: readCurrentStep,
+    enabled: settings.voice.enabled,
+    wakeWord: settings.voice.wakeWord,
+  });
+
+  // Swipe gesture hook for step navigation
+  const { ref: swipeRef, isSwiping } = useSwipeGesture({
+    onSwipeLeft: handleNextStep, // Swipe left = next step
+    onSwipeRight: handlePrevStep, // Swipe right = previous step
+    threshold: 50,
+    enabled: settings.gestures.swipeEnabled,
+    hapticFeedback: settings.gestures.hapticFeedback,
+  });
+
+  // Auto-read step when it changes (if enabled)
+  useEffect(() => {
+    if (settings.voice.enabled && settings.voice.autoReadSteps && voiceReadoutSupported) {
+      readCurrentStep();
+    }
+  }, [currentStep, settings.voice.enabled, settings.voice.autoReadSteps, voiceReadoutSupported, readCurrentStep]);
+
+  // Start/stop voice listening based on settings
+  useEffect(() => {
+    if (settings.voice.enabled && !isListening) {
+      startListening();
+    } else if (!settings.voice.enabled && isListening) {
+      stopListening();
+    }
+  }, [settings.voice.enabled, isListening, startListening, stopListening]);
 
   // Handle theme override
   useEffect(() => {
@@ -233,35 +334,8 @@ export function CookingMode({
     setCheckedIngredients(newChecked);
   };
 
-  const handlePrevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const handleNextStep = () => {
-    if (currentStep < recipe.instructions.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const startTimer = (minutes: number) => {
-    setTimerMinutes(minutes);
-    setTimerSeconds(0);
-    setTimerTotal(minutes * 60);
-    setTimerRunning(true);
-    toast.success(`Timer started for ${minutes} minutes`);
-  };
-
   const toggleTimer = () => {
     setTimerRunning(!timerRunning);
-  };
-
-  const resetTimer = () => {
-    setTimerRunning(false);
-    setTimerMinutes(0);
-    setTimerSeconds(0);
-    setTimerTotal(0);
   };
 
   const allIngredientsChecked = checkedIngredients.every((checked) => checked);
@@ -294,7 +368,13 @@ export function CookingMode({
   }
 
   return (
-    <div className={cn("min-h-screen bg-background p-4 lg:p-8", fontSizeClass)}>
+    <div
+      className={cn(
+        "min-h-screen bg-background p-4 lg:p-8",
+        fontSizeClass,
+        settings.display.highContrast && "contrast-more"
+      )}
+    >
       {/* Settings Sheet */}
       <CookModeSettingsSheet
         isOpen={settingsOpen}
@@ -303,6 +383,27 @@ export function CookingMode({
         onSettingsChange={setSettings}
       />
 
+      {/* Voice Listening Indicator - Fixed position */}
+      {settings.voice.enabled && isListening && (
+        <div
+          className={cn(
+            "fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full shadow-lg transition-all duration-300",
+            isAwaitingCommand
+              ? "bg-primary text-primary-foreground animate-pulse"
+              : "bg-muted text-muted-foreground"
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Mic className={cn("h-4 w-4", isAwaitingCommand && "animate-bounce")} />
+            <span className="text-sm font-medium">
+              {isAwaitingCommand
+                ? "Listening... say a command"
+                : `Say "${settings.voice.wakeWord}"`}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="max-w-6xl mx-auto mb-8">
         <div className="flex items-center justify-between mb-4">
@@ -310,6 +411,32 @@ export function CookingMode({
             <X className="h-5 w-5" />
           </Button>
           <div className="flex items-center gap-2">
+            {/* Voice Status Indicator */}
+            {settings.voice.enabled && (
+              <Button
+                variant={isListening ? "default" : "outline"}
+                size="icon"
+                onClick={isListening ? stopListening : startListening}
+                title={isListening ? "Stop listening" : "Start voice commands"}
+              >
+                {isListening ? (
+                  <Mic className="h-5 w-5" />
+                ) : (
+                  <MicOff className="h-5 w-5" />
+                )}
+              </Button>
+            )}
+            {/* Read Step Button */}
+            {voiceReadoutSupported && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={isSpeaking ? stopSpeaking : readCurrentStep}
+                title={isSpeaking ? "Stop reading" : "Read step aloud"}
+              >
+                <Volume2 className={cn("h-5 w-5", isSpeaking && "text-primary animate-pulse")} />
+              </Button>
+            )}
             <Badge variant="outline">Cooking Mode</Badge>
             <Button
               variant="ghost"
@@ -361,9 +488,10 @@ export function CookingMode({
         <div className="space-y-6">
           {settings.navigation.mode === "step-by-step" ? (
             <>
-              {/* Step-by-Step View */}
-              <Card className="p-6 lg:p-10">
-                <div className="space-y-6">
+              {/* Step-by-Step View with Swipe Support */}
+              <div ref={swipeRef as React.RefObject<HTMLDivElement>}>
+                <Card className={cn("p-6 lg:p-10", isSwiping && "opacity-90 scale-[0.99] transition-transform")}>
+                  <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <span className="text-sm lg:text-base font-medium text-muted-foreground">
                       STEP {currentStep + 1}
@@ -422,8 +550,9 @@ export function CookingMode({
                       </div>
                     </>
                   )}
-                </div>
-              </Card>
+                  </div>
+                </Card>
+              </div>
 
               {/* Navigation */}
               <div className="flex gap-3">
@@ -517,38 +646,55 @@ export function CookingMode({
               </Card>
             )}
 
-            {/* Ingredients Checklist */}
+            {/* Ingredients Checklist with Current Step Highlighting */}
             <Card className="p-6">
               <div className="space-y-5">
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-semibold">Ingredients</span>
-                  {allIngredientsChecked && (
-                    <Badge variant="default" className="gap-1">
-                      <Check className="h-3 w-3" />
-                      All set!
-                    </Badge>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {highlightedIngredientIndices.size > 0 && (
+                      <Badge variant="secondary" className="gap-1 text-xs">
+                        {highlightedIngredientIndices.size} for this step
+                      </Badge>
+                    )}
+                    {allIngredientsChecked && (
+                      <Badge variant="default" className="gap-1">
+                        <Check className="h-3 w-3" />
+                        All set!
+                      </Badge>
+                    )}
+                  </div>
                 </div>
                 <div className="space-y-3 max-h-[500px] overflow-y-auto">
-                  {displayIngredients.map((ingredient, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <Checkbox
-                        id={`ingredient-${index}`}
-                        checked={checkedIngredients[index]}
-                        onCheckedChange={() => toggleIngredient(index)}
-                        className="mt-0.5 h-5 w-5"
-                      />
-                      <label
-                        htmlFor={`ingredient-${index}`}
+                  {displayIngredients.map((ingredient, index) => {
+                    const isHighlighted = highlightedIngredientIndices.has(index);
+                    return (
+                      <div
+                        key={index}
                         className={cn(
-                          "leading-relaxed cursor-pointer flex-1",
-                          checkedIngredients[index] && "line-through text-muted-foreground"
+                          "flex items-start gap-3 rounded-md p-2 -m-2 transition-colors",
+                          isHighlighted && !checkedIngredients[index] && "bg-primary/10 ring-1 ring-primary/20"
                         )}
                       >
-                        {ingredient}
-                      </label>
-                    </div>
-                  ))}
+                        <Checkbox
+                          id={`ingredient-${index}`}
+                          checked={checkedIngredients[index]}
+                          onCheckedChange={() => toggleIngredient(index)}
+                          className="mt-0.5 h-5 w-5"
+                        />
+                        <label
+                          htmlFor={`ingredient-${index}`}
+                          className={cn(
+                            "leading-relaxed cursor-pointer flex-1",
+                            checkedIngredients[index] && "line-through text-muted-foreground",
+                            isHighlighted && !checkedIngredients[index] && "font-medium text-primary"
+                          )}
+                        >
+                          {ingredient}
+                        </label>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </Card>

@@ -35,6 +35,12 @@ export function MetricsSection() {
     <section className="py-16 md:py-24 bg-dark-lighter">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-cream mb-3">
+              Core Features
+            </h2>
+            <p className="text-cream/60">The essentials that make meal planning effortless.</p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
             {features.map((feature, index) => (
               <FeatureCard key={index} {...feature} />

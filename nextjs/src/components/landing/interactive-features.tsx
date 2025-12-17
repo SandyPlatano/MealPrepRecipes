@@ -77,7 +77,7 @@ export function InteractiveFeatures() {
 
         <div className="max-w-5xl mx-auto">
           {/* Desktop: Side-by-side layout */}
-          <div className="hidden lg:grid lg:grid-cols-2 gap-8 items-start">
+          <div className="hidden lg:grid lg:grid-cols-2 gap-8 items-stretch">
             {/* Feature list */}
             <div className="space-y-2">
               {features.map((feature) => (
@@ -113,8 +113,8 @@ export function InteractiveFeatures() {
             </div>
 
             {/* Illustration panel */}
-            <div className="sticky top-24">
-              <div className="bg-dark rounded-2xl p-6 border border-dark-border min-h-[300px] flex items-center justify-center">
+            <div className="flex flex-col">
+              <div className="bg-dark rounded-2xl p-6 border border-dark-border flex-1 flex items-center justify-center">
                 {activeData?.illustration ? (
                   <div className="w-full max-w-sm">
                     <activeData.illustration />

@@ -108,13 +108,17 @@ function calculateSimilarity(str1: string, str2: string): number {
 
   if (tokens1.size === 0 || tokens2.size === 0) return 0;
 
+  // Convert Sets to arrays for iteration (compatible with older TS targets)
+  const tokens1Array = Array.from(tokens1);
+  const tokens2Array = Array.from(tokens2);
+
   let matches = 0;
-  for (const token of tokens1) {
+  for (const token of tokens1Array) {
     if (tokens2.has(token)) {
       matches++;
     }
     // Also check for partial matches (e.g., "garlic" matches "garlicky")
-    for (const token2 of tokens2) {
+    for (const token2 of tokens2Array) {
       if (token !== token2 && (token.includes(token2) || token2.includes(token))) {
         matches += 0.5;
       }
