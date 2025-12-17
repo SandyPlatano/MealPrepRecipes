@@ -28,6 +28,21 @@ const config: Config = {
   				'var(--font-handwritten)',
   				'Caveat',
   				'cursive'
+  			],
+  			// Retro OS fonts
+  			pixel: [
+  				'var(--font-pixel)',
+  				'VT323',
+  				'Press Start 2P',
+  				'Pixelify Sans',
+  				'monospace'
+  			],
+  			system: [
+  				'var(--font-system)',
+  				'IBM Plex Mono',
+  				'JetBrains Mono',
+  				'Consolas',
+  				'monospace'
   			]
   		},
   		colors: {
@@ -105,6 +120,45 @@ const config: Config = {
   				800: 'hsl(142 38% 22%)',
   				900: 'hsl(142 35% 16%)',
   				950: 'hsl(142 30% 10%)'
+  			},
+  			// ═══════════════════════════════════════════════════════════════
+  			// MEAL PREP OS - Retro Computing Design System
+  			// ═══════════════════════════════════════════════════════════════
+  			os: {
+  				// Window chrome colors
+  				chrome: '#c0c0c0',
+  				'chrome-dark': '#2d2d44',
+  				titlebar: '#000080',
+  				'titlebar-gradient': '#1084d0',
+  				'titlebar-inactive': '#808080',
+  				desktop: '#008080',
+  				'desktop-dark': '#1a1a2e',
+  				// Bevel system for 3D effect
+  				raised: '#dfdfdf',
+  				sunken: '#808080',
+  				darkest: '#404040',
+  				lightest: '#ffffff',
+  				// Content areas
+  				content: '#ffffff',
+  				'content-dark': '#16213e',
+  				// Text
+  				text: '#000000',
+  				'text-light': '#ffffff',
+  				'text-disabled': '#808080',
+  				'text-link': '#0000ff'
+  			},
+  			// Food-themed accent colors for Meal Prep OS
+  			food: {
+  				tomato: '#ff6347',
+  				'tomato-dark': '#cc4f39',
+  				avocado: '#568203',
+  				'avocado-light': '#7ab317',
+  				butter: '#f0c674',
+  				'butter-dark': '#d4a84a',
+  				eggplant: '#614051',
+  				'eggplant-light': '#8a5d73',
+  				carrot: '#ed9121',
+  				'carrot-dark': '#c77a1a'
   			}
   		},
   		borderRadius: {
@@ -114,7 +168,13 @@ const config: Config = {
   		},
   		boxShadow: {
   			primary: '0 4px 12px hsl(var(--primary) / 0.4)',
-  			'primary-lg': '0 8px 16px hsl(var(--primary) / 0.5)'
+  			'primary-lg': '0 8px 16px hsl(var(--primary) / 0.5)',
+  			// Meal Prep OS - Retro bevel shadows
+  			'os-bevel': 'inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080',
+  			'os-bevel-pressed': 'inset 1px 1px 0 #808080, inset -1px -1px 0 #dfdfdf',
+  			'os-window': '2px 2px 0 #000000',
+  			'os-inset': 'inset 1px 1px 0 #808080, inset -1px -1px 0 #dfdfdf',
+  			'os-outset': 'inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080, 1px 1px 0 #000000'
   		},
   		keyframes: {
   			'accordion-down': {
@@ -163,6 +223,54 @@ const config: Config = {
   					opacity: '1',
   					transform: 'translateY(0)'
   				}
+  			},
+  			// Meal Prep OS - Retro animations
+  			'os-window-open': {
+  				'0%': {
+  					transform: 'scale(0.1)',
+  					opacity: '0'
+  				},
+  				'50%': {
+  					transform: 'scale(1.02)'
+  				},
+  				'100%': {
+  					transform: 'scale(1)',
+  					opacity: '1'
+  				}
+  			},
+  			'os-window-close': {
+  				'0%': {
+  					transform: 'scale(1)',
+  					opacity: '1'
+  				},
+  				'100%': {
+  					transform: 'scale(0.1)',
+  					opacity: '0'
+  				}
+  			},
+  			'os-loading-blocks': {
+  				'0%': {
+  					backgroundPosition: '0 0'
+  				},
+  				'100%': {
+  					backgroundPosition: '16px 0'
+  				}
+  			},
+  			'os-blink': {
+  				'0%, 100%': {
+  					opacity: '1'
+  				},
+  				'50%': {
+  					opacity: '0'
+  				}
+  			},
+  			'os-bounce': {
+  				'0%, 100%': {
+  					transform: 'translateY(0)'
+  				},
+  				'50%': {
+  					transform: 'translateY(-4px)'
+  				}
   			}
   		},
   		animation: {
@@ -170,7 +278,13 @@ const config: Config = {
   			'accordion-up': 'accordion-up 0.2s ease-out',
   			'shimmer': 'shimmer 1.5s ease-in-out infinite',
   			'checkmark': 'checkmark 0.3s ease-out forwards',
-  			'slide-up-fade': 'slide-up-fade 0.3s ease-out forwards'
+  			'slide-up-fade': 'slide-up-fade 0.3s ease-out forwards',
+  			// Meal Prep OS animations
+  			'os-window-open': 'os-window-open 0.15s ease-out',
+  			'os-window-close': 'os-window-close 0.1s ease-in',
+  			'os-loading': 'os-loading-blocks 0.5s steps(2) infinite',
+  			'os-blink': 'os-blink 1s step-end infinite',
+  			'os-bounce': 'os-bounce 0.5s ease-in-out infinite'
   		},
   		spacing: {
   			'safe': 'env(safe-area-inset-bottom)',

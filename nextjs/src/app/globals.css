@@ -189,3 +189,265 @@ button:not(:disabled):hover {
 .animate-selection-pulse {
   animation: selection-pulse 2s ease-in-out infinite;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MEAL PREP OS - Retro Computing Design System
+   Windows 95/98 aesthetic with modern functionality
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* OS Theme Variables */
+:root {
+  /* Window Chrome */
+  --os-chrome: #c0c0c0;
+  --os-titlebar: #000080;
+  --os-titlebar-gradient: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+  --os-titlebar-inactive: #808080;
+  --os-desktop: #008080;
+
+  /* Bevel System */
+  --os-raised: #dfdfdf;
+  --os-sunken: #808080;
+  --os-darkest: #404040;
+  --os-lightest: #ffffff;
+
+  /* Content */
+  --os-content: #ffffff;
+  --os-selection: #000080;
+  --os-selection-text: #ffffff;
+
+  /* Text */
+  --os-text: #000000;
+  --os-text-light: #ffffff;
+  --os-text-disabled: #808080;
+  --os-text-link: #0000ff;
+
+  /* Food Accents */
+  --os-food-tomato: #ff6347;
+  --os-food-avocado: #568203;
+  --os-food-butter: #f0c674;
+  --os-food-eggplant: #614051;
+  --os-food-carrot: #ed9121;
+}
+
+/* Dark mode (CRT aesthetic) */
+.dark {
+  --os-chrome: #2d2d44;
+  --os-titlebar: #1a1a2e;
+  --os-titlebar-gradient: linear-gradient(90deg, #1a1a2e 0%, #3d3d5c 100%);
+  --os-desktop: #1a1a2e;
+  --os-raised: #4a4a6a;
+  --os-sunken: #15152a;
+  --os-darkest: #0a0a15;
+  --os-lightest: #5a5a7a;
+  --os-content: #16213e;
+  --os-text: #e0e0e0;
+  --os-text-light: #ffffff;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   OS Utility Classes
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Beveled borders - the classic 3D effect */
+.os-border-raised {
+  border: 2px solid;
+  border-color: var(--os-raised) var(--os-darkest) var(--os-darkest) var(--os-raised);
+}
+
+.os-border-sunken {
+  border: 2px solid;
+  border-color: var(--os-darkest) var(--os-raised) var(--os-raised) var(--os-darkest);
+}
+
+.os-border-groove {
+  border: 2px solid;
+  border-color: var(--os-sunken) var(--os-raised) var(--os-raised) var(--os-sunken);
+}
+
+/* Window chrome background */
+.os-chrome {
+  background-color: var(--os-chrome);
+}
+
+/* Titlebar gradient */
+.os-titlebar {
+  background: var(--os-titlebar-gradient);
+  color: var(--os-text-light);
+}
+
+.os-titlebar-inactive {
+  background: var(--os-titlebar-inactive);
+  color: var(--os-text-light);
+}
+
+/* Desktop background */
+.os-desktop {
+  background-color: var(--os-desktop);
+}
+
+/* Content area */
+.os-content {
+  background-color: var(--os-content);
+  color: var(--os-text);
+}
+
+/* Selection styling */
+.os-select::selection,
+.os-select *::selection {
+  background-color: var(--os-selection);
+  color: var(--os-selection-text);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   OS Button Styles
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.os-button {
+  background-color: var(--os-chrome);
+  border: 2px solid;
+  border-color: var(--os-raised) var(--os-darkest) var(--os-darkest) var(--os-raised);
+  padding: 4px 12px;
+  font-family: var(--font-system, 'IBM Plex Mono', monospace);
+  font-size: 12px;
+  color: var(--os-text);
+  cursor: pointer;
+  box-shadow: inset 1px 1px 0 var(--os-lightest);
+}
+
+.os-button:hover {
+  background-color: #d0d0d0;
+}
+
+.os-button:active {
+  border-color: var(--os-darkest) var(--os-raised) var(--os-raised) var(--os-darkest);
+  box-shadow: inset 1px 1px 0 var(--os-sunken);
+  padding: 5px 11px 3px 13px;
+}
+
+.os-button:focus-visible {
+  outline: 1px dotted var(--os-text);
+  outline-offset: -4px;
+}
+
+.os-button:disabled {
+  color: var(--os-text-disabled);
+  cursor: not-allowed;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   OS Input Styles
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.os-input {
+  background-color: var(--os-content);
+  border: 2px solid;
+  border-color: var(--os-sunken) var(--os-raised) var(--os-raised) var(--os-sunken);
+  padding: 2px 4px;
+  font-family: var(--font-system, 'IBM Plex Mono', monospace);
+  font-size: 12px;
+  color: var(--os-text);
+}
+
+.os-input:focus {
+  outline: none;
+  border-color: var(--os-darkest) var(--os-raised) var(--os-raised) var(--os-darkest);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   OS Scrollbar Styles
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.os-scrollbar::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+.os-scrollbar::-webkit-scrollbar-track {
+  background: repeating-conic-gradient(
+    var(--os-chrome) 0% 25%,
+    var(--os-sunken) 0% 50%
+  ) 50%/8px 8px;
+}
+
+.os-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--os-chrome);
+  border: 2px solid;
+  border-color: var(--os-raised) var(--os-darkest) var(--os-darkest) var(--os-raised);
+}
+
+.os-scrollbar::-webkit-scrollbar-button {
+  background-color: var(--os-chrome);
+  border: 2px solid;
+  border-color: var(--os-raised) var(--os-darkest) var(--os-darkest) var(--os-raised);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   OS Progress Bar (Loading Blocks)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.os-progress {
+  height: 20px;
+  background-color: var(--os-content);
+  border: 2px solid;
+  border-color: var(--os-sunken) var(--os-raised) var(--os-raised) var(--os-sunken);
+  padding: 2px;
+}
+
+.os-progress-bar {
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--os-titlebar) 0px,
+    var(--os-titlebar) 8px,
+    transparent 8px,
+    transparent 10px
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   OS Text Styles
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.os-text-pixel {
+  font-family: 'VT323', 'Press Start 2P', monospace;
+  font-smooth: never;
+  -webkit-font-smoothing: none;
+}
+
+.os-text-system {
+  font-family: var(--font-system, 'IBM Plex Mono', monospace);
+  font-size: 12px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   OS Effects
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* CRT scanlines effect */
+.os-scanlines {
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
+  );
+}
+
+/* CRT glow effect */
+.os-crt-glow {
+  text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+}
+
+/* Pixel-perfect rendering */
+.os-pixel-perfect {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Focus dotted outline */
+.os-focus-dotted:focus-visible {
+  outline: 1px dotted var(--os-text);
+  outline-offset: -4px;
+}

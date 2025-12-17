@@ -55,6 +55,18 @@ import { DEFAULT_RECIPE_EXPORT_PREFERENCES } from "@/lib/export/recipe-markdown"
 import { MealTypeCustomizationSettings } from "./meal-type-customization";
 import { PlannerViewSettingsSection } from "./planner-view-settings";
 import type { PlannerViewSettings } from "@/types/settings";
+import type { UserPreferencesV2 } from "@/types/user-preferences-v2";
+import type { CustomFieldDefinition } from "@/types/custom-fields";
+import type { CustomIngredientCategory } from "@/types/custom-ingredient-category";
+import { DisplayPreferencesSection } from "./display-preferences-section";
+import { SoundsSection } from "./sounds-section";
+import { KeyboardShortcutsSection } from "./keyboard-shortcuts-section";
+import { AiPersonalitySection } from "./ai-personality-section";
+import { ServingPresetsSection } from "./serving-presets-section";
+import { CustomMealTypesSection } from "./custom-meal-types-section";
+import { CustomRecipeTypesSection } from "./custom-recipe-types-section";
+import { CustomFieldsSection } from "./custom-fields-section";
+import { CustomIngredientCategoriesSection } from "./custom-ingredient-categories-section";
 
 // Helper to format time as HH:MM:SS for database
 const formatTimeForDB = (time: string | null | undefined): string | null => {
@@ -106,6 +118,9 @@ interface SettingsFormProps {
   isAdmin?: boolean;
   mealTypeSettings?: MealTypeCustomization;
   plannerViewSettings?: PlannerViewSettings;
+  userPreferencesV2?: UserPreferencesV2 | null;
+  customFields?: CustomFieldDefinition[] | null;
+  customIngredientCategories?: CustomIngredientCategory[] | null;
 }
 
 export function SettingsForm({
@@ -120,6 +135,9 @@ export function SettingsForm({
   isAdmin = false,
   mealTypeSettings,
   plannerViewSettings,
+  userPreferencesV2,
+  customFields,
+  customIngredientCategories,
 }: SettingsFormProps) {
   const { theme, setTheme } = useTheme();
   const [firstName, setFirstName] = useState(profile.first_name || "");
@@ -972,6 +990,163 @@ export function SettingsForm({
 
       {/* Planner View Settings */}
       <PlannerViewSettingsSection initialSettings={plannerViewSettings} />
+
+      {/* Custom Meal Types */}
+      {household && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Custom Meal Types</CardTitle>
+            <CardDescription>
+              Define your own meal categories beyond breakfast, lunch, and dinner
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CustomMealTypesSection householdId={household.id} />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Custom Recipe Types */}
+      {household && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Custom Recipe Types</CardTitle>
+            <CardDescription>
+              Organize recipes with your own categories like quick meals, batch cooking, and more
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CustomRecipeTypesSection householdId={household.id} />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Custom Recipe Fields */}
+      {household && customFields && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Custom Recipe Fields</CardTitle>
+            <CardDescription>
+              Add custom metadata fields to your recipes like source, cuisine, dietary tags, and more
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CustomFieldsSection
+              householdId={household.id}
+              initialFields={customFields}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Custom Ingredient Categories */}
+      {household && customIngredientCategories && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Shopping List Categories</CardTitle>
+            <CardDescription>
+              Customize how ingredients are grouped in your shopping lists
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CustomIngredientCategoriesSection
+              householdId={household.id}
+              initialCategories={customIngredientCategories}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Display Preferences */}
+      {userPreferencesV2 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Display Preferences</CardTitle>
+            <CardDescription>
+              Customize how dates, times, and other elements appear throughout the app
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DisplayPreferencesSection
+              userId={profile.id}
+              initialPreferences={userPreferencesV2.display}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Sounds */}
+      {userPreferencesV2 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Sounds & Audio</CardTitle>
+            <CardDescription>
+              Configure sound effects and audio feedback
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SoundsSection
+              userId={profile.id}
+              initialPreferences={userPreferencesV2.sounds}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Keyboard Shortcuts */}
+      {userPreferencesV2 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Keyboard Shortcuts</CardTitle>
+            <CardDescription>
+              Customize hotkeys for faster navigation
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <KeyboardShortcutsSection
+              userId={profile.id}
+              initialPreferences={userPreferencesV2.keyboard}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Serving Size Presets */}
+      {userPreferencesV2 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Serving Size Presets</CardTitle>
+            <CardDescription>
+              Quick-select serving sizes for meal planning
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ServingPresetsSection
+              userId={profile.id}
+              initialPresets={userPreferencesV2.servingSizePresets}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* AI Personality */}
+      {userPreferencesV2 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>AI Personality</CardTitle>
+            <CardDescription>
+              Customize how our AI assistant communicates with you
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AiPersonalitySection
+              userId={profile.id}
+              initialPersonality={userPreferencesV2.aiPersonality}
+              initialCustomPrompt={userPreferencesV2.customAiPrompt}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Household */}
       {household && (

@@ -2,8 +2,12 @@ import { getProfile, getSettings, getHouseholdInfo, getMealTypeCustomization, ge
 import { getUserSubstitutions, getDefaultSubstitutions } from "@/lib/substitutions";
 import { SettingsForm } from "@/components/settings/settings-form";
 import { isCurrentUserAdmin } from "@/lib/auth/admin";
+import { getUserPreferencesV2 } from "@/app/actions/user-preferences";
+import { getCustomFieldDefinitions } from "@/app/actions/custom-fields";
+import { getCustomIngredientCategories } from "@/app/actions/custom-ingredient-categories";
 
 export default async function SettingsPage() {
+  // Stage 1: Fetch primary data in parallel
   const [profileResult, settingsResult, householdResult, userSubstitutions, defaultSubstitutions, isAdmin, mealTypeSettingsResult, plannerViewSettingsResult] = await Promise.all([
     getProfile(),
     getSettings(),
@@ -37,6 +41,13 @@ export default async function SettingsPage() {
     profiles: { first_name: string | null; last_name: string | null; email: string | null } | null;
   }>;
 
+  // Stage 2: Fetch data that depends on IDs from stage 1
+  const [userPreferencesV2Result, customFieldsResult, customCategoriesResult] = await Promise.all([
+    profile.id ? getUserPreferencesV2(profile.id) : Promise.resolve({ error: null, data: null }),
+    household?.id ? getCustomFieldDefinitions(household.id) : Promise.resolve({ error: null, data: null }),
+    household?.id ? getCustomIngredientCategories(household.id) : Promise.resolve({ error: null, data: null }),
+  ]);
+
   return (
     <div className="space-y-8 max-w-3xl mx-auto">
       <div className="text-center">
@@ -58,6 +69,9 @@ export default async function SettingsPage() {
         isAdmin={isAdmin}
         mealTypeSettings={mealTypeSettingsResult.data}
         plannerViewSettings={plannerViewSettingsResult.data}
+        userPreferencesV2={userPreferencesV2Result.data}
+        customFields={customFieldsResult.data}
+        customIngredientCategories={customCategoriesResult.data}
       />
     </div>
   );
