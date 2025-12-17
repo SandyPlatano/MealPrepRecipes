@@ -26,7 +26,7 @@ export function CTASection() {
 
           {/* Subtext */}
           <p className="text-lg md:text-xl text-white/80 max-w-lg mx-auto">
-            Join thousands of households who&apos;ve ended the nightly dinner debate.
+            Plan your meals, auto-generate shopping lists, and cook with confidence.
           </p>
 
           {/* CTA Button */}

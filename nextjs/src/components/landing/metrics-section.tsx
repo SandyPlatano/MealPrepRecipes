@@ -1,42 +1,39 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Globe, Clock, ListChecks } from "lucide-react";
 
-interface Metric {
-  value: number;
-  suffix?: string;
-  label: string;
-  sublabel: string;
+interface Feature {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
 }
 
-const metrics: Metric[] = [
+const features: Feature[] = [
   {
-    value: 12847,
-    label: "recipes imported",
-    sublabel: "and counting",
+    icon: <Globe className="h-8 w-8" />,
+    title: "Import from anywhere",
+    description: "Paste any recipe URL and our AI extracts ingredients & steps automatically",
   },
   {
-    value: 4.2,
-    suffix: " hrs",
-    label: "saved weekly",
-    sublabel: "per household",
+    icon: <Clock className="h-8 w-8" />,
+    title: "Cook Mode",
+    description: "Step-by-step instructions with built-in timers — hands-free cooking",
   },
   {
-    value: 127,
-    suffix: "$",
-    label: "saved monthly",
-    sublabel: "on groceries",
+    icon: <ListChecks className="h-8 w-8" />,
+    title: "One-tap shopping",
+    description: "Your meal plan instantly becomes a categorized shopping list",
   },
 ];
 
 export function MetricsSection() {
   return (
-    <section className="py-20 md:py-24 bg-dark-lighter">
+    <section className="py-16 md:py-20 bg-dark-lighter">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-            {metrics.map((metric, index) => (
-              <MetricItem key={index} {...metric} delay={index * 100} />
+            {features.map((feature, index) => (
+              <FeatureHighlight key={index} {...feature} />
             ))}
           </div>
         </div>
@@ -45,77 +42,16 @@ export function MetricsSection() {
   );
 }
 
-interface MetricItemProps extends Metric {
-  delay?: number;
-}
-
-function MetricItem({ value, suffix, label, sublabel, delay = 0 }: MetricItemProps) {
-  const [displayValue, setDisplayValue] = useState(0);
-  const [hasAnimated, setHasAnimated] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !hasAnimated) {
-            setHasAnimated(true);
-
-            // Delay start of animation
-            setTimeout(() => {
-              const duration = 1500; // ms
-              const steps = 60;
-              const increment = value / steps;
-              let current = 0;
-
-              const timer = setInterval(() => {
-                current += increment;
-                if (current >= value) {
-                  setDisplayValue(value);
-                  clearInterval(timer);
-                } else {
-                  setDisplayValue(current);
-                }
-              }, duration / steps);
-            }, delay);
-          }
-        });
-      },
-      { threshold: 0.3 }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => observer.disconnect();
-  }, [value, delay, hasAnimated]);
-
-  // Format the number based on whether it's a decimal or integer
-  const formatNumber = (num: number) => {
-    if (suffix === "$") {
-      return `$${Math.round(num).toLocaleString()}`;
-    }
-    if (Number.isInteger(value)) {
-      return Math.round(num).toLocaleString();
-    }
-    return num.toFixed(1);
-  };
-
+function FeatureHighlight({ icon, title, description }: Feature) {
   return (
-    <div ref={ref} className="text-center space-y-2">
-      <div className="flex items-baseline justify-center gap-1">
-        <span className="text-4xl md:text-5xl lg:text-6xl font-mono font-bold text-cream">
-          {formatNumber(displayValue)}
-        </span>
-        {suffix && suffix !== "$" && (
-          <span className="text-2xl md:text-3xl font-mono font-bold text-primary">
-            {suffix}
-          </span>
-        )}
+    <div className="text-center space-y-3">
+      <div className="flex justify-center">
+        <div className="p-3 rounded-xl bg-primary/20 text-primary">
+          {icon}
+        </div>
       </div>
-      <p className="text-base md:text-lg font-medium text-cream">{label}</p>
-      <p className="text-sm text-cream/60">{sublabel}</p>
+      <h3 className="text-lg md:text-xl font-semibold text-cream">{title}</h3>
+      <p className="text-sm text-cream/60 max-w-xs mx-auto">{description}</p>
     </div>
   );
 }

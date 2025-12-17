@@ -1,19 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Star, Trophy, Users } from "lucide-react";
+import { ArrowRight, Sparkles, CreditCard, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/brand/logo";
 
-interface TrustIndicator {
+interface ValueProp {
   icon: React.ReactNode;
   label: string;
 }
 
-const trustIndicators: TrustIndicator[] = [
-  { icon: <Trophy className="h-4 w-4" />, label: "4.9 on App Store" },
-  { icon: <Users className="h-4 w-4" />, label: "2,400+ households" },
-  { icon: <Star className="h-4 w-4" />, label: "Free forever tier" },
+const valueProps: ValueProp[] = [
+  { icon: <Sparkles className="h-4 w-4" />, label: "AI-powered recipe import" },
+  { icon: <Zap className="h-4 w-4" />, label: "Auto shopping lists" },
+  { icon: <CreditCard className="h-4 w-4" />, label: "No credit card required" },
 ];
 
 export function HeroSection() {
@@ -63,14 +63,14 @@ export function HeroSection() {
             </Link>
           </div>
 
-          {/* Trust indicators */}
+          {/* Value propositions - real features, not fake stats */}
           <div
             className="pt-8 animate-fade-in-up"
             style={{ animationDelay: "300ms" }}
           >
             <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
-              {trustIndicators.map((indicator, index) => (
-                <TrustBadge key={index} {...indicator} />
+              {valueProps.map((prop, index) => (
+                <ValueBadge key={index} {...prop} />
               ))}
             </div>
           </div>
@@ -80,7 +80,7 @@ export function HeroSection() {
   );
 }
 
-function TrustBadge({ icon, label }: TrustIndicator) {
+function ValueBadge({ icon, label }: ValueProp) {
   return (
     <div className="flex items-center gap-2 text-cream/60">
       <span className="text-primary">{icon}</span>
