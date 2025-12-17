@@ -10,13 +10,13 @@ import {
   type ReactNode,
 } from "react";
 import { toast } from "sonner";
-import { updateSettings } from "@/app/actions/settings";
+import { updateSettings, updatePlannerViewSettings } from "@/app/actions/settings";
 import {
-  updateDisplayPreferences,
-  updateSoundPreferences,
-  updateKeyboardPreferences,
-  updateAiPersonality,
-  updateServingSizePresets,
+  updateDisplayPreferencesAuto as updateDisplayPreferences,
+  updateSoundPreferencesAuto as updateSoundPreferences,
+  updateKeyboardPreferencesAuto as updateKeyboardPreferences,
+  updateAiPersonalityAuto as updateAiPersonality,
+  updateServingSizePresetsAuto as updateServingSizePresets,
 } from "@/app/actions/user-preferences";
 import type { UserSettings, UserProfile, MealTypeCustomization, PlannerViewSettings } from "@/types/settings";
 import type {
@@ -92,6 +92,9 @@ export interface SettingsContextValue extends SettingsState {
   // Serving presets (auto-save)
   updateServingPresets: (presets: ServingSizePreset[]) => void;
 
+  // Planner view settings (auto-save)
+  updatePlannerSettings: (partial: Partial<PlannerViewSettings>) => void;
+
   // Force immediate save
   saveNow: () => Promise<void>;
 }
@@ -131,6 +134,7 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     keyboardPrefs?: Partial<KeyboardPreferences>;
     aiPersonality?: { personality: AiPersonalityType; customPrompt?: string | null };
     servingPresets?: ServingSizePreset[];
+    plannerSettings?: Partial<PlannerViewSettings>;
   }>({});
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -183,6 +187,11 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
       // Serving presets
       if (changes.servingPresets) {
         savePromises.push(updateServingSizePresets(changes.servingPresets));
+      }
+
+      // Planner view settings
+      if (changes.plannerSettings && Object.keys(changes.plannerSettings).length > 0) {
+        savePromises.push(updatePlannerViewSettings(changes.plannerSettings));
       }
 
       const results = await Promise.all(savePromises);
@@ -383,6 +392,27 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     [scheduleSave]
   );
 
+  const updatePlannerSettings = useCallback(
+    (partial: Partial<PlannerViewSettings>) => {
+      // Optimistic update
+      setState((prev) => ({
+        ...prev,
+        plannerViewSettings: prev.plannerViewSettings
+          ? { ...prev.plannerViewSettings, ...partial }
+          : { density: "comfortable", showMealTypeHeaders: true, showNutritionBadges: true, showPrepTime: true, ...partial },
+      }));
+
+      // Queue for save
+      pendingChanges.current.plannerSettings = {
+        ...pendingChanges.current.plannerSettings,
+        ...partial,
+      };
+
+      scheduleSave();
+    },
+    [scheduleSave]
+  );
+
   // ──────────────────────────────────────────────────────────────────────────
   // Context Value
   // ──────────────────────────────────────────────────────────────────────────
@@ -398,6 +428,7 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     updateKeyboardPrefs,
     updateAiPersonalitySettings,
     updateServingPresets,
+    updatePlannerSettings,
     saveNow,
   };
 
@@ -443,6 +474,7 @@ export function createDefaultSettingsState(): SettingsState {
       last_name: null,
       email: null,
       avatar_url: null,
+      username: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     },
