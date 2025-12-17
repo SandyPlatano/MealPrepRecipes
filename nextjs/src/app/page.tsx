@@ -19,17 +19,10 @@ import {
   ArrowRight,
   Check,
   Menu,
-  ChefHat,
   Calendar,
   ShoppingCart,
   Activity,
-  Timer,
-  Users,
-  BookOpen,
-  Package,
   Utensils,
-  Star,
-  TrendingUp,
 } from "lucide-react";
 import { FAQ } from "@/components/landing/faq";
 import { BrandLogoCompact } from "@/components/brand/logo";
@@ -37,6 +30,7 @@ import { HeroSection } from "@/components/landing/hero-section";
 import { TabbedDemo } from "@/components/landing/tabbed-demo";
 import { MetricsSection } from "@/components/landing/metrics-section";
 import { CTASection } from "@/components/landing/cta-section";
+import { InteractiveFeatures } from "@/components/landing/interactive-features";
 
 export default function Home() {
   return (
@@ -135,28 +129,8 @@ export default function Home() {
       {/* Tabbed Demo Section */}
       <TabbedDemo />
 
-      {/* Features Grid - Condensed */}
-      <section className="py-20 bg-dark-lighter">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-cream mb-3">
-              Everything you need
-            </h2>
-            <p className="text-cream/60">
-              From planning to cooking to cleanup.
-            </p>
-          </div>
-
-          <div className="max-w-5xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <FeatureItem icon={<Timer />} title="Cook Mode" description="Step-by-step instructions with built-in timers" />
-            <FeatureItem icon={<Activity />} title="Nutrition" description="Track macros, calories, and weekly trends" />
-            <FeatureItem icon={<Package />} title="Pantry" description="Track what you have, exclude from lists" />
-            <FeatureItem icon={<Users />} title="Household" description="Multiple cooks, shared plans and lists" />
-            <FeatureItem icon={<BookOpen />} title="Folders" description="Organize recipes your way" />
-            <FeatureItem icon={<TrendingUp />} title="AI Suggestions" description="Personalized meal ideas" />
-          </div>
-        </div>
-      </section>
+      {/* Interactive Features */}
+      <InteractiveFeatures />
 
       {/* Metrics - Compact */}
       <MetricsSection />
@@ -258,29 +232,6 @@ function QuickFeature({ icon, label }: { icon: React.ReactNode; label: string })
     <div className="flex items-center justify-center gap-2 text-cream/80">
       <span className="text-primary">{icon}</span>
       <span className="text-sm font-medium">{label}</span>
-    </div>
-  );
-}
-
-// Compact feature item for the grid
-function FeatureItem({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="flex items-start gap-3 p-4 rounded-xl bg-dark-accent border border-dark-border">
-      <div className="p-2 rounded-lg bg-primary/20 text-primary shrink-0">
-        {icon}
-      </div>
-      <div>
-        <h3 className="font-semibold text-cream text-sm">{title}</h3>
-        <p className="text-cream/60 text-xs">{description}</p>
-      </div>
     </div>
   );
 }

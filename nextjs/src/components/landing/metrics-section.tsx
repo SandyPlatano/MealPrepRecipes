@@ -1,39 +1,43 @@
 "use client";
 
-import { Globe, Clock, ListChecks } from "lucide-react";
+import {
+  ImportIllustration,
+  CookModeIllustration,
+  ShoppingIllustration,
+} from "./feature-illustrations";
 
 interface Feature {
-  icon: React.ReactNode;
   title: string;
   description: string;
+  illustration: React.ComponentType;
 }
 
 const features: Feature[] = [
   {
-    icon: <Globe className="h-8 w-8" />,
     title: "Import from anywhere",
     description: "Paste any recipe URL and our AI extracts ingredients & steps automatically",
+    illustration: ImportIllustration,
   },
   {
-    icon: <Clock className="h-8 w-8" />,
     title: "Cook Mode",
     description: "Step-by-step instructions with built-in timers — hands-free cooking",
+    illustration: CookModeIllustration,
   },
   {
-    icon: <ListChecks className="h-8 w-8" />,
     title: "One-tap shopping",
     description: "Your meal plan instantly becomes a categorized shopping list",
+    illustration: ShoppingIllustration,
   },
 ];
 
 export function MetricsSection() {
   return (
-    <section className="py-16 md:py-20 bg-dark-lighter">
+    <section className="py-16 md:py-24 bg-dark-lighter">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
             {features.map((feature, index) => (
-              <FeatureHighlight key={index} {...feature} />
+              <FeatureCard key={index} {...feature} />
             ))}
           </div>
         </div>
@@ -42,16 +46,14 @@ export function MetricsSection() {
   );
 }
 
-function FeatureHighlight({ icon, title, description }: Feature) {
+function FeatureCard({ title, description, illustration: Illustration }: Feature) {
   return (
-    <div className="text-center space-y-3">
-      <div className="flex justify-center">
-        <div className="p-3 rounded-xl bg-primary/20 text-primary">
-          {icon}
-        </div>
+    <div className="space-y-4">
+      <Illustration />
+      <div className="text-center space-y-2">
+        <h3 className="text-lg md:text-xl font-mono font-semibold text-cream">{title}</h3>
+        <p className="text-sm text-cream/60 max-w-xs mx-auto">{description}</p>
       </div>
-      <h3 className="text-lg md:text-xl font-semibold text-cream">{title}</h3>
-      <p className="text-sm text-cream/60 max-w-xs mx-auto">{description}</p>
     </div>
   );
 }
