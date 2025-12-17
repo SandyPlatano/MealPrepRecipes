@@ -638,6 +638,10 @@ Ingredients:
                     {importStatuses.length} complete
                   </span>
                 </div>
+                <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                  <span className="inline-block w-1.5 h-1.5 bg-primary/60 rounded-full animate-pulse" />
+                  Please keep this page open while importing
+                </p>
                 <Progress
                   value={
                     (importStatuses.filter(
