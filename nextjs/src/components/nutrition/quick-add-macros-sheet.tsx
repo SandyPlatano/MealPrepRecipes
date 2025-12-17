@@ -4,30 +4,36 @@
  * Quick Add Macros Sheet
  * Bottom sheet for quickly logging macros without a full recipe
  * Features:
- * - Preset buttons for common items (Snack, Protein Shake, Coffee)
- * - Number inputs with +/- steppers for each macro
- * - Optional note field
- * - Saves as a "quick add" entry
+ * - One-tap preset cards for instant logging
+ * - Pinned presets section for favorites
+ * - Customize option to adjust values before adding
+ * - Custom entry section for manual input
+ * - Preset management link
  */
 
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Plus,
-  Minus,
   ChevronDown,
-  Cookie,
-  GlassWater,
-  Coffee,
-  Pencil,
+  Settings,
   Loader2,
+  Pin,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { addQuickMacros } from "@/app/actions/nutrition";
 import { toast } from "sonner";
+import type { MacroPreset, MacroValues } from "@/types/macro-preset";
+import { addQuickMacros } from "@/app/actions/nutrition";
+import {
+  getMacroPresets,
+  quickAddFromPreset,
+  seedDefaultPresets,
+} from "@/app/actions/macro-presets";
+import { PresetCard, CreatePresetCard } from "./preset-card";
+import { CustomizePresetModal } from "./customize-preset-modal";
+import { PresetEditorSheet } from "./preset-editor-sheet";
 
 interface QuickAddMacrosSheetProps {
   isOpen: boolean;
@@ -35,75 +41,64 @@ interface QuickAddMacrosSheetProps {
   date?: string; // ISO date string, defaults to today
 }
 
-interface MacroValues {
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-}
-
-interface Preset {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  values: MacroValues;
-}
-
-const PRESETS: Preset[] = [
-  {
-    id: "snack",
-    label: "Snack",
-    icon: <Cookie className="h-4 w-4" />,
-    values: { calories: 150, protein: 3, carbs: 20, fat: 7 },
-  },
-  {
-    id: "shake",
-    label: "Protein Shake",
-    icon: <GlassWater className="h-4 w-4" />,
-    values: { calories: 200, protein: 25, carbs: 10, fat: 3 },
-  },
-  {
-    id: "coffee",
-    label: "Coffee",
-    icon: <Coffee className="h-4 w-4" />,
-    values: { calories: 50, protein: 1, carbs: 5, fat: 2 },
-  },
-  {
-    id: "custom",
-    label: "Custom",
-    icon: <Pencil className="h-4 w-4" />,
-    values: { calories: 0, protein: 0, carbs: 0, fat: 0 },
-  },
-];
-
 export function QuickAddMacrosSheet({
   isOpen,
   onClose,
   date,
 }: QuickAddMacrosSheetProps) {
-  const [activePreset, setActivePreset] = useState<string>("custom");
-  const [values, setValues] = useState<MacroValues>({
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
+  // Presets state
+  const [presets, setPresets] = useState<MacroPreset[]>([]);
+  const [isLoadingPresets, setIsLoadingPresets] = useState(true);
+
+  // Custom entry state
+  const [customValues, setCustomValues] = useState<MacroValues>({
+    calories: null,
+    protein_g: null,
+    carbs_g: null,
+    fat_g: null,
   });
-  const [note, setNote] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [customNote, setCustomNote] = useState("");
+  const [isSubmittingCustom, setIsSubmittingCustom] = useState(false);
+
+  // Modal states
+  const [customizePreset, setCustomizePreset] = useState<MacroPreset | null>(null);
+  const [showPresetEditor, setShowPresetEditor] = useState(false);
 
   // Get today's date if not provided
   const targetDate = date || new Date().toISOString().split("T")[0];
 
+  // Load presets
+  const loadPresets = useCallback(async () => {
+    setIsLoadingPresets(true);
+
+    // First, ensure user has presets (seed defaults if needed)
+    await seedDefaultPresets();
+
+    // Then load presets
+    const result = await getMacroPresets(false); // Exclude hidden
+    if (!result.error) {
+      setPresets(result.data);
+    }
+    setIsLoadingPresets(false);
+  }, []);
+
+  // Load presets when sheet opens
+  useEffect(() => {
+    if (isOpen) {
+      loadPresets();
+    }
+  }, [isOpen, loadPresets]);
+
   // Handle escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
+      if (e.key === "Escape" && isOpen && !showPresetEditor && !customizePreset) {
         onClose();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose, isOpen]);
+  }, [onClose, isOpen, showPresetEditor, customizePreset]);
 
   // Prevent body scroll when open
   useEffect(() => {
@@ -120,80 +115,84 @@ export function QuickAddMacrosSheet({
   // Reset state when closed
   useEffect(() => {
     if (!isOpen) {
-      setActivePreset("custom");
-      setValues({ calories: 0, protein: 0, carbs: 0, fat: 0 });
-      setNote("");
+      setCustomValues({ calories: null, protein_g: null, carbs_g: null, fat_g: null });
+      setCustomNote("");
+      setCustomizePreset(null);
     }
   }, [isOpen]);
 
-  const handlePresetSelect = useCallback((preset: Preset) => {
-    setActivePreset(preset.id);
-    setValues(preset.values);
-  }, []);
+  // One-tap add from preset
+  const handleQuickAdd = async (presetId: string) => {
+    const result = await quickAddFromPreset(presetId, targetDate);
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success("Added to log!");
+    }
+  };
 
-  const handleValueChange = useCallback(
-    (macro: keyof MacroValues, newValue: number) => {
-      setValues((prev) => ({
-        ...prev,
-        [macro]: Math.max(0, newValue),
-      }));
-      // Switch to custom when manually editing
-      setActivePreset("custom");
-    },
-    []
-  );
+  // Add customized values
+  const handleCustomizedAdd = async (values: MacroValues, note?: string) => {
+    const result = await addQuickMacros({
+      date: targetDate,
+      nutrition: {
+        calories: values.calories,
+        protein_g: values.protein_g,
+        carbs_g: values.carbs_g,
+        fat_g: values.fat_g,
+      },
+      note,
+      preset: customizePreset?.name,
+    });
 
-  const handleIncrement = useCallback(
-    (macro: keyof MacroValues, step: number) => {
-      setValues((prev) => ({
-        ...prev,
-        [macro]: Math.max(0, prev[macro] + step),
-      }));
-      setActivePreset("custom");
-    },
-    []
-  );
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success("Added to log!");
+      setCustomizePreset(null);
+    }
+  };
 
-  const handleSubmit = async () => {
-    // Validate - at least one macro should be non-zero
+  // Add custom entry
+  const handleCustomSubmit = async () => {
     if (
-      values.calories === 0 &&
-      values.protein === 0 &&
-      values.carbs === 0 &&
-      values.fat === 0
+      customValues.calories === null &&
+      customValues.protein_g === null &&
+      customValues.carbs_g === null &&
+      customValues.fat_g === null
     ) {
-      toast.error("Please enter at least one macro value");
+      toast.error("Enter at least one value");
       return;
     }
 
-    setIsSubmitting(true);
+    setIsSubmittingCustom(true);
     try {
       const result = await addQuickMacros({
         date: targetDate,
         nutrition: {
-          calories: values.calories || null,
-          protein_g: values.protein || null,
-          carbs_g: values.carbs || null,
-          fat_g: values.fat || null,
+          calories: customValues.calories,
+          protein_g: customValues.protein_g,
+          carbs_g: customValues.carbs_g,
+          fat_g: customValues.fat_g,
         },
-        note: note.trim() || undefined,
-        preset: activePreset !== "custom" ? activePreset : undefined,
+        note: customNote.trim() || undefined,
       });
 
       if (result.error) {
         toast.error(result.error);
-        return;
+      } else {
+        toast.success("Added to log!");
+        setCustomValues({ calories: null, protein_g: null, carbs_g: null, fat_g: null });
+        setCustomNote("");
       }
-
-      toast.success("Macros logged successfully!");
-      onClose();
-    } catch (error) {
-      console.error("Error adding quick macros:", error);
-      toast.error("Failed to log macros");
     } finally {
-      setIsSubmitting(false);
+      setIsSubmittingCustom(false);
     }
   };
+
+  // Split presets into pinned and regular
+  const pinnedPresets = presets.filter((p) => p.is_pinned);
+  const regularPresets = presets.filter((p) => !p.is_pinned);
 
   if (!isOpen) return null;
 
@@ -233,172 +232,202 @@ export function QuickAddMacrosSheet({
             <Plus className="h-5 w-5 text-primary" />
             <span className="text-lg font-semibold">Quick Add Macros</span>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-10 w-10 rounded-full"
-            onClick={onClose}
-          >
-            <ChevronDown className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 gap-1.5"
+              onClick={() => setShowPresetEditor(true)}
+            >
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">Manage</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full"
+              onClick={onClose}
+            >
+              <ChevronDown className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-4 pb-6">
-          {/* Preset buttons */}
-          <div className="grid grid-cols-4 gap-2 mb-6">
-            {PRESETS.map((preset) => (
-              <Button
-                key={preset.id}
-                variant={activePreset === preset.id ? "default" : "outline"}
-                size="sm"
-                className={cn(
-                  "h-auto py-3 flex flex-col gap-1",
-                  activePreset === preset.id && "shadow-md"
-                )}
-                onClick={() => handlePresetSelect(preset)}
-              >
-                {preset.icon}
-                <span className="text-xs">{preset.label}</span>
-              </Button>
-            ))}
-          </div>
+          {isLoadingPresets ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <>
+              {/* Pinned presets section */}
+              {pinnedPresets.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Pin className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Pinned
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {pinnedPresets.map((preset) => (
+                      <PresetCard
+                        key={preset.id}
+                        preset={preset}
+                        onQuickAdd={handleQuickAdd}
+                        onCustomize={setCustomizePreset}
+                        showActions={false}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
 
-          {/* Macro inputs */}
-          <div className="space-y-4">
-            <MacroInput
-              label="Calories"
-              value={values.calories}
-              onChange={(v) => handleValueChange("calories", v)}
-              onIncrement={(step) => handleIncrement("calories", step)}
-              unit="kcal"
-              step={50}
-            />
-            <MacroInput
-              label="Protein"
-              value={values.protein}
-              onChange={(v) => handleValueChange("protein", v)}
-              onIncrement={(step) => handleIncrement("protein", step)}
-              unit="g"
-              step={5}
-            />
-            <MacroInput
-              label="Carbs"
-              value={values.carbs}
-              onChange={(v) => handleValueChange("carbs", v)}
-              onIncrement={(step) => handleIncrement("carbs", step)}
-              unit="g"
-              step={5}
-            />
-            <MacroInput
-              label="Fat"
-              value={values.fat}
-              onChange={(v) => handleValueChange("fat", v)}
-              onIncrement={(step) => handleIncrement("fat", step)}
-              unit="g"
-              step={2}
-            />
-          </div>
+              {/* All presets section */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {pinnedPresets.length > 0 ? "All Presets" : "Presets"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {regularPresets.map((preset) => (
+                    <PresetCard
+                      key={preset.id}
+                      preset={preset}
+                      onQuickAdd={handleQuickAdd}
+                      onCustomize={setCustomizePreset}
+                      showActions={false}
+                    />
+                  ))}
+                  <CreatePresetCard onClick={() => setShowPresetEditor(true)} />
+                </div>
+              </div>
 
-          {/* Note field */}
-          <div className="mt-6 space-y-2">
-            <Label htmlFor="note" className="text-sm text-muted-foreground">
-              Note (optional)
-            </Label>
-            <Textarea
-              id="note"
-              placeholder="e.g., Post-workout shake"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="resize-none h-20"
-              maxLength={200}
-            />
-          </div>
+              {/* Custom entry section */}
+              <div className="border-t pt-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Or enter custom values
+                  </span>
+                </div>
 
-          {/* Submit button */}
-          <Button
-            className="w-full mt-6 h-12"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Adding...
-              </>
-            ) : (
-              <>
-                <Plus className="mr-2 h-4 w-4" />
-                Add to Today&apos;s Log
-              </>
-            )}
-          </Button>
+                {/* Compact input row */}
+                <div className="grid grid-cols-4 gap-2 mb-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Cal</Label>
+                    <Input
+                      type="number"
+                      value={customValues.calories ?? ""}
+                      onChange={(e) =>
+                        setCustomValues((prev) => ({
+                          ...prev,
+                          calories: e.target.value === "" ? null : Number(e.target.value),
+                        }))
+                      }
+                      placeholder="0"
+                      className="h-10 text-center"
+                      min={0}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Pro</Label>
+                    <Input
+                      type="number"
+                      value={customValues.protein_g ?? ""}
+                      onChange={(e) =>
+                        setCustomValues((prev) => ({
+                          ...prev,
+                          protein_g: e.target.value === "" ? null : Number(e.target.value),
+                        }))
+                      }
+                      placeholder="0"
+                      className="h-10 text-center"
+                      min={0}
+                      step={0.1}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Carb</Label>
+                    <Input
+                      type="number"
+                      value={customValues.carbs_g ?? ""}
+                      onChange={(e) =>
+                        setCustomValues((prev) => ({
+                          ...prev,
+                          carbs_g: e.target.value === "" ? null : Number(e.target.value),
+                        }))
+                      }
+                      placeholder="0"
+                      className="h-10 text-center"
+                      min={0}
+                      step={0.1}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Fat</Label>
+                    <Input
+                      type="number"
+                      value={customValues.fat_g ?? ""}
+                      onChange={(e) =>
+                        setCustomValues((prev) => ({
+                          ...prev,
+                          fat_g: e.target.value === "" ? null : Number(e.target.value),
+                        }))
+                      }
+                      placeholder="0"
+                      className="h-10 text-center"
+                      min={0}
+                      step={0.1}
+                    />
+                  </div>
+                </div>
+
+                {/* Note and submit */}
+                <div className="flex gap-2">
+                  <Input
+                    value={customNote}
+                    onChange={(e) => setCustomNote(e.target.value)}
+                    placeholder="Note (optional)"
+                    className="flex-1 h-10"
+                    maxLength={200}
+                  />
+                  <Button
+                    onClick={handleCustomSubmit}
+                    disabled={isSubmittingCustom}
+                    className="h-10"
+                  >
+                    {isSubmittingCustom ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
+
+      {/* Customize preset modal */}
+      <CustomizePresetModal
+        preset={customizePreset}
+        isOpen={customizePreset !== null}
+        onClose={() => setCustomizePreset(null)}
+        onSubmit={handleCustomizedAdd}
+      />
+
+      {/* Preset editor sheet */}
+      <PresetEditorSheet
+        isOpen={showPresetEditor}
+        onClose={() => setShowPresetEditor(false)}
+        onPresetsChanged={loadPresets}
+      />
     </>
-  );
-}
-
-/**
- * Individual macro input with +/- steppers
- */
-interface MacroInputProps {
-  label: string;
-  value: number;
-  onChange: (value: number) => void;
-  onIncrement: (step: number) => void;
-  unit: string;
-  step: number;
-}
-
-function MacroInput({
-  label,
-  value,
-  onChange,
-  onIncrement,
-  unit,
-  step,
-}: MacroInputProps) {
-  return (
-    <div className="flex items-center gap-3">
-      <Label className="w-20 text-sm font-medium">{label}</Label>
-
-      <div className="flex-1 flex items-center gap-2">
-        {/* Decrement button */}
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-10 w-10 rounded-full shrink-0"
-          onClick={() => onIncrement(-step)}
-          disabled={value <= 0}
-        >
-          <Minus className="h-4 w-4" />
-        </Button>
-
-        {/* Input */}
-        <div className="relative flex-1">
-          <Input
-            type="number"
-            value={value}
-            onChange={(e) => onChange(parseInt(e.target.value) || 0)}
-            className="h-12 text-center text-lg font-semibold pr-12 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            min={0}
-          />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-            {unit}
-          </span>
-        </div>
-
-        {/* Increment button */}
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-10 w-10 rounded-full shrink-0"
-          onClick={() => onIncrement(step)}
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
   );
 }
