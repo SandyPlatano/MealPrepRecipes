@@ -112,12 +112,16 @@ export default function DietarySettingsPage() {
 
       {/* Nutrition Tracking */}
       <div id="setting-macro-tracking">
-        <MacroGoalsSection
-          initialGoals={settings.macro_goals || undefined}
-          initialEnabled={settings.macro_tracking_enabled ?? false}
-          initialPreset={settings.macro_goal_preset || undefined}
-          onSave={handleMacroSave}
-        />
+        <div id="setting-macro-goals">
+          <div id="setting-macro-preset">
+            <MacroGoalsSection
+              initialGoals={settings.macro_goals || undefined}
+              initialEnabled={settings.macro_tracking_enabled ?? false}
+              initialPreset={settings.macro_goal_preset || undefined}
+              onSave={handleMacroSave}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Units */}

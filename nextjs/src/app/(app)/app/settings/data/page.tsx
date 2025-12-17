@@ -128,6 +128,22 @@ export default function DataSettingsPage() {
           >
             <div className="text-sm text-muted-foreground">Coming soon</div>
           </SettingRow>
+
+          <SettingRow
+            id="setting-category-order"
+            label="Category Order"
+            description="Reorder shopping list categories"
+          >
+            <div className="text-sm text-muted-foreground">Coming soon</div>
+          </SettingRow>
+
+          <SettingRow
+            id="setting-api-costs"
+            label="API Usage"
+            description="View API costs (admin only)"
+          >
+            <div className="text-sm text-muted-foreground">Admin only</div>
+          </SettingRow>
         </SettingSection>
       </AdvancedToggle>
     </div>

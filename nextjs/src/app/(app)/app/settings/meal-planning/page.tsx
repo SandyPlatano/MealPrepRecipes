@@ -112,11 +112,13 @@ export default function MealPlanningSettingsPage() {
 
       {/* Meal Types */}
       <SettingSection title="Meal Types">
-        <div className="py-2">
-          <p className="text-sm text-muted-foreground mb-4">
+        <div id="setting-meal-type-emojis" className="py-2">
+          <p id="setting-meal-type-colors" className="text-sm text-muted-foreground mb-4">
             Customize emojis, colors, and default calendar times for each meal type.
           </p>
-          <MealTypeCustomizationSettings initialSettings={mealTypeSettings || undefined} />
+          <div id="setting-meal-type-times">
+            <MealTypeCustomizationSettings initialSettings={mealTypeSettings || undefined} />
+          </div>
         </div>
       </SettingSection>
 
@@ -137,6 +139,14 @@ export default function MealPlanningSettingsPage() {
       {/* Advanced */}
       <AdvancedToggle>
         <SettingSection title="Advanced Meal Planning">
+          <SettingRow
+            id="setting-default-serving-size"
+            label="Default Serving Size"
+            description="Default number of servings for new recipes"
+          >
+            <div className="text-sm text-muted-foreground">4 servings</div>
+          </SettingRow>
+
           <SettingRow
             id="setting-custom-meal-types"
             label="Custom Meal Types"
@@ -159,6 +169,32 @@ export default function MealPlanningSettingsPage() {
             description="Quick-select serving sizes"
           >
             <div className="text-sm text-muted-foreground">Coming soon</div>
+          </SettingRow>
+        </SettingSection>
+
+        <SettingSection title="Calendar Settings">
+          <SettingRow
+            id="setting-calendar-event-time"
+            label="Default Event Time"
+            description="When calendar events start by default"
+          >
+            <div className="text-sm text-muted-foreground">12:00 PM</div>
+          </SettingRow>
+
+          <SettingRow
+            id="setting-calendar-event-duration"
+            label="Event Duration"
+            description="How long calendar events last"
+          >
+            <div className="text-sm text-muted-foreground">1 hour</div>
+          </SettingRow>
+
+          <SettingRow
+            id="setting-calendar-excluded-days"
+            label="Excluded Days"
+            description="Days to skip when creating events"
+          >
+            <div className="text-sm text-muted-foreground">None</div>
           </SettingRow>
         </SettingSection>
       </AdvancedToggle>

@@ -104,16 +104,15 @@ export default function HouseholdSettingsPage() {
 
       {/* Cooks */}
       <SettingSection title="Cooks">
-        <div className="py-2">
+        <div id="setting-cook-names" className="py-2">
           <p className="text-sm text-muted-foreground mb-4">
             Track who&apos;s cooking each meal with color-coded cook names.
           </p>
 
-          <div className="space-y-3">
+          <div id="setting-cook-colors" className="space-y-3">
             {cookNames.map((name, index) => (
               <div
                 key={index}
-                id={index === 0 ? "setting-cook-names" : undefined}
                 className="flex items-center gap-3"
               >
                 <div

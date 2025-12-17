@@ -230,7 +230,7 @@ export default function ProfileSettingsPage() {
 
       {/* Public Username */}
       <SettingSection title="Public Username">
-        <div className="py-2 space-y-4">
+        <div id="setting-username" className="py-2 space-y-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Globe className="h-4 w-4" />
             <span>Your username appears on public recipes you share</span>
