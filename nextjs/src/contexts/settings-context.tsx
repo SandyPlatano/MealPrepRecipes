@@ -17,6 +17,7 @@ import {
   updateKeyboardPreferencesAuto as updateKeyboardPreferences,
   updateAiPersonalityAuto as updateAiPersonality,
   updateServingSizePresetsAuto as updateServingSizePresets,
+  updateEnergyModePreferencesAuto as updateEnergyModePreferences,
 } from "@/app/actions/user-preferences";
 import type { UserSettings, UserProfile, MealTypeCustomization, PlannerViewSettings } from "@/types/settings";
 import type {
@@ -26,6 +27,7 @@ import type {
   KeyboardPreferences,
   ServingSizePreset,
   AiPersonalityType,
+  EnergyModePreferences,
 } from "@/types/user-preferences-v2";
 import { DEFAULT_USER_PREFERENCES_V2 } from "@/types/user-preferences-v2";
 
@@ -40,6 +42,8 @@ interface HouseholdData {
     id: string;
     name: string;
     created_at: string;
+    permission_mode?: string;
+    household_settings?: Record<string, unknown>;
   } | null;
   role: string;
   members: Array<{
@@ -92,6 +96,9 @@ export interface SettingsContextValue extends SettingsState {
   // Serving presets (auto-save)
   updateServingPresets: (presets: ServingSizePreset[]) => void;
 
+  // Energy mode preferences (auto-save)
+  updateEnergyModePrefs: (partial: Partial<EnergyModePreferences>) => void;
+
   // Planner view settings (auto-save)
   updatePlannerSettings: (partial: Partial<PlannerViewSettings>) => void;
 
@@ -134,6 +141,7 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     keyboardPrefs?: Partial<KeyboardPreferences>;
     aiPersonality?: { personality: AiPersonalityType; customPrompt?: string | null };
     servingPresets?: ServingSizePreset[];
+    energyModePrefs?: Partial<EnergyModePreferences>;
     plannerSettings?: Partial<PlannerViewSettings>;
   }>({});
 
@@ -187,6 +195,11 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
       // Serving presets
       if (changes.servingPresets) {
         savePromises.push(updateServingSizePresets(changes.servingPresets));
+      }
+
+      // Energy mode preferences
+      if (changes.energyModePrefs && Object.keys(changes.energyModePrefs).length > 0) {
+        savePromises.push(updateEnergyModePreferences(changes.energyModePrefs));
       }
 
       // Planner view settings
@@ -392,6 +405,28 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     [scheduleSave]
   );
 
+  const updateEnergyModePrefs = useCallback(
+    (partial: Partial<EnergyModePreferences>) => {
+      // Optimistic update
+      setState((prev) => ({
+        ...prev,
+        preferencesV2: {
+          ...prev.preferencesV2,
+          energyMode: { ...prev.preferencesV2.energyMode, ...partial },
+        },
+      }));
+
+      // Queue for save
+      pendingChanges.current.energyModePrefs = {
+        ...pendingChanges.current.energyModePrefs,
+        ...partial,
+      };
+
+      scheduleSave();
+    },
+    [scheduleSave]
+  );
+
   const updatePlannerSettings = useCallback(
     (partial: Partial<PlannerViewSettings>) => {
       // Optimistic update
@@ -428,6 +463,7 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     updateKeyboardPrefs,
     updateAiPersonalitySettings,
     updateServingPresets,
+    updateEnergyModePrefs,
     updatePlannerSettings,
     saveNow,
   };

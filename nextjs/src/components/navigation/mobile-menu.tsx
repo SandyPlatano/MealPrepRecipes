@@ -19,9 +19,11 @@ import {
   History,
   Settings,
   Activity,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useQuickCook } from "@/components/quick-cook/quick-cook-provider";
 
 type IconKey = "plan" | "recipes" | "shop" | "history" | "favorites" | "settings" | "nutrition";
 
@@ -49,6 +51,7 @@ interface MobileMenuProps {
 
 export function MobileMenu({ navItems, settingsItem, logoutAction }: MobileMenuProps) {
   const pathname = usePathname();
+  const { openQuickCook } = useQuickCook();
 
   // Get all hrefs to check for more specific routes
   const allHrefs = [...navItems.map(item => item.href), settingsItem.href];
@@ -107,6 +110,18 @@ export function MobileMenu({ navItems, settingsItem, logoutAction }: MobileMenuP
               </SheetClose>
             );
           })}
+
+          {/* Quick Cook button - prominent placement */}
+          <SheetClose asChild>
+            <Button
+              onClick={openQuickCook}
+              className="w-full justify-start text-base bg-coral-500 hover:bg-coral-600 text-white mt-2"
+            >
+              <Sparkles className="mr-3 h-4 w-4" />
+              What now?
+            </Button>
+          </SheetClose>
+
           <div className="border-t my-3" />
           <SheetClose asChild>
             <Link href={settingsItem.href}>
