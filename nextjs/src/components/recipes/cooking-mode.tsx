@@ -29,6 +29,7 @@ import remarkGfm from "remark-gfm";
 import type { CookModeSettings } from "@/types/settings";
 import { DEFAULT_COOK_MODE_SETTINGS } from "@/types/settings";
 import { CookModeSettingsSheet } from "./cook-mode-settings-sheet";
+import { CookModeScrollableView } from "./cook-mode-scrollable-view";
 import { cn } from "@/lib/utils";
 
 interface CookingModeProps {
@@ -141,15 +142,41 @@ export function CookingMode({
     return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
-  // Play timer sound
+  // Play timer sound using Web Audio API (no file needed)
   const playTimerSound = useCallback(() => {
     if (!settings.behavior.timerSounds) return;
     try {
-      const audio = new Audio("/sounds/timer-complete.mp3");
-      audio.volume = 0.7;
-      audio.play().catch(() => {
-        // Audio playback failed (user hasn't interacted with page)
-      });
+      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioContextClass) return;
+
+      const audioContext = new AudioContextClass();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      // Pleasant beep sound
+      oscillator.frequency.value = 880; // A5 note
+      oscillator.type = "sine";
+      gainNode.gain.value = 0.3;
+
+      // Play 3 short beeps
+      const now = audioContext.currentTime;
+      oscillator.start(now);
+
+      // Beep pattern: on-off-on-off-on-off
+      gainNode.gain.setValueAtTime(0.3, now);
+      gainNode.gain.setValueAtTime(0, now + 0.15);
+      gainNode.gain.setValueAtTime(0.3, now + 0.3);
+      gainNode.gain.setValueAtTime(0, now + 0.45);
+      gainNode.gain.setValueAtTime(0.3, now + 0.6);
+      gainNode.gain.setValueAtTime(0, now + 0.75);
+
+      oscillator.stop(now + 0.8);
+
+      // Cleanup
+      setTimeout(() => audioContext.close(), 1000);
     } catch {
       // Audio not supported
     }
@@ -299,95 +326,110 @@ export function CookingMode({
       >
         {/* Main Content */}
         <div className="space-y-6">
-          {/* Current Instruction */}
-          <Card className="p-8">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-muted-foreground">
-                  STEP {currentStep + 1}
-                </span>
-                {currentStep === recipe.instructions.length - 1 && (
-                  <Badge variant="default" className="gap-1">
-                    <Check className="h-3 w-3" />
-                    Final Step
-                  </Badge>
-                )}
-              </div>
-              <div className={cn("prose dark:prose-invert max-w-none", proseSizeClass)}>
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {recipe.instructions[currentStep]}
-                </ReactMarkdown>
-              </div>
+          {settings.navigation.mode === "step-by-step" ? (
+            <>
+              {/* Step-by-Step View */}
+              <Card className="p-8">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      STEP {currentStep + 1}
+                    </span>
+                    {currentStep === recipe.instructions.length - 1 && (
+                      <Badge variant="default" className="gap-1">
+                        <Check className="h-3 w-3" />
+                        Final Step
+                      </Badge>
+                    )}
+                  </div>
+                  <div className={cn("prose dark:prose-invert max-w-none", proseSizeClass)}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {recipe.instructions[currentStep]}
+                    </ReactMarkdown>
+                  </div>
 
-              {/* Timer Section - conditional */}
-              {settings.visibility.showTimers && (
-                <>
-                  {/* Auto-detected Timers */}
-                  {(() => {
-                    const detectedTimers = detectTimers(recipe.instructions[currentStep]);
-                    return detectedTimers.length > 0 ? (
-                      <div className="flex flex-wrap gap-2 mt-6 pt-6 border-t">
-                        <span className="text-sm text-muted-foreground mr-2">
-                          Detected timers:
-                        </span>
-                        {detectedTimers.map((timer, idx) => (
+                  {/* Timer Section - conditional */}
+                  {settings.visibility.showTimers && (
+                    <>
+                      {/* Auto-detected Timers */}
+                      {(() => {
+                        const detectedTimers = detectTimers(recipe.instructions[currentStep]);
+                        return detectedTimers.length > 0 ? (
+                          <div className="flex flex-wrap gap-2 mt-6 pt-6 border-t">
+                            <span className="text-sm text-muted-foreground mr-2">
+                              Detected timers:
+                            </span>
+                            {detectedTimers.map((timer, idx) => (
+                              <Button
+                                key={idx}
+                                variant="default"
+                                size="sm"
+                                onClick={() => startTimer(timer.minutes)}
+                                className="gap-1"
+                              >
+                                <Timer className="h-3 w-3" />
+                                {timer.displayText}
+                              </Button>
+                            ))}
+                          </div>
+                        ) : null;
+                      })()}
+
+                      {/* Quick Timer Buttons */}
+                      <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
+                        <span className="text-sm text-muted-foreground mr-2">Quick timers:</span>
+                        {[5, 10, 15, 20, 30].map((mins) => (
                           <Button
-                            key={idx}
-                            variant="default"
+                            key={mins}
+                            variant="outline"
                             size="sm"
-                            onClick={() => startTimer(timer.minutes)}
-                            className="gap-1"
+                            onClick={() => startTimer(mins)}
                           >
-                            <Timer className="h-3 w-3" />
-                            {timer.displayText}
+                            {mins} min
                           </Button>
                         ))}
                       </div>
-                    ) : null;
-                  })()}
+                    </>
+                  )}
+                </div>
+              </Card>
 
-                  {/* Quick Timer Buttons */}
-                  <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
-                    <span className="text-sm text-muted-foreground mr-2">Quick timers:</span>
-                    {[5, 10, 15, 20, 30].map((mins) => (
-                      <Button
-                        key={mins}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => startTimer(mins)}
-                      >
-                        {mins} min
-                      </Button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-          </Card>
+              {/* Navigation */}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={handlePrevStep}
+                  disabled={currentStep === 0}
+                  className="flex-1"
+                >
+                  <ChevronLeft className="h-5 w-5 mr-2" />
+                  Previous
+                </Button>
+                <Button
+                  size="lg"
+                  onClick={handleNextStep}
+                  disabled={currentStep === recipe.instructions.length - 1}
+                  className="flex-1"
+                >
+                  Next
+                  <ChevronRight className="h-5 w-5 ml-2" />
+                </Button>
+              </div>
+            </>
+          ) : (
+            /* Scrollable View */
+            <CookModeScrollableView
+              instructions={recipe.instructions}
+              currentStep={currentStep}
+              onStepChange={setCurrentStep}
+              onStartTimer={startTimer}
+              proseSizeClass={proseSizeClass}
+              showTimers={settings.visibility.showTimers}
+            />
+          )}
 
-          {/* Navigation */}
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={handlePrevStep}
-              disabled={currentStep === 0}
-              className="flex-1"
-            >
-              <ChevronLeft className="h-5 w-5 mr-2" />
-              Previous
-            </Button>
-            <Button
-              size="lg"
-              onClick={handleNextStep}
-              disabled={currentStep === recipe.instructions.length - 1}
-              className="flex-1"
-            >
-              Next
-              <ChevronRight className="h-5 w-5 ml-2" />
-            </Button>
-          </div>
-
+          {/* Done button - visible in both modes when on final step */}
           {currentStep === recipe.instructions.length - 1 && (
             <Button
               size="lg"

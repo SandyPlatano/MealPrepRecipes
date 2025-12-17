@@ -114,6 +114,7 @@ export async function getSettings() {
         google_connected_account,
         dismissed_hints,
         unit_system,
+        preferences,
         recipe_export_preferences,
         created_at,
         updated_at
@@ -140,6 +141,7 @@ export async function getSettings() {
           calendar_excluded_days: [],
           dismissed_hints: [],
           unit_system: "imperial" as const,
+          preferences: {} as Record<string, unknown>,
           google_connected_account: null as string | null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -147,12 +149,13 @@ export async function getSettings() {
       };
     }
 
-    // Add default email_notifications and ensure dismissed_hints and unit_system exist
+    // Add default email_notifications and ensure dismissed_hints, unit_system, and preferences exist
     settings = settingsWithoutEmail ? {
       ...settingsWithoutEmail,
       email_notifications: true,
       dismissed_hints: settingsWithoutEmail.dismissed_hints || [],
       unit_system: settingsWithoutEmail.unit_system || "imperial",
+      preferences: settingsWithoutEmail.preferences || {},
     } : null;
   } else if (selectError) {
     // Other error - return defaults
@@ -173,6 +176,7 @@ export async function getSettings() {
         calendar_excluded_days: [],
         dismissed_hints: [],
         unit_system: "imperial" as const,
+        preferences: {} as Record<string, unknown>,
         google_connected_account: null as string | null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -204,6 +208,9 @@ export async function getSettings() {
     }
     if (!settings.unit_system) {
       settings.unit_system = "imperial";
+    }
+    if (!settings.preferences) {
+      settings.preferences = {};
     }
   }
 
@@ -242,6 +249,7 @@ export async function getSettings() {
           calendar_excluded_days: [],
           dismissed_hints: [],
           unit_system: "imperial" as const,
+          preferences: {} as Record<string, unknown>,
           google_connected_account: null as string | null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
