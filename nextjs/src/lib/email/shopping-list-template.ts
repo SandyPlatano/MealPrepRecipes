@@ -1,3 +1,8 @@
+import {
+  categorizeIngredient,
+  CATEGORY_ORDER,
+} from "@/lib/utils/categorize-ingredient";
+
 interface ShoppingListEmailData {
   weekRange: string;
   items: Array<{
@@ -5,83 +10,6 @@ interface ShoppingListEmailData {
     cook: string | null;
     day: string | null;
   }>;
-}
-
-// Smart categorization based on ingredient keywords
-function categorizeIngredient(ingredient: string): string {
-  const lower = ingredient.toLowerCase();
-
-  // Produce
-  if (
-    /(lettuce|spinach|kale|arugula|cabbage|tomato|pepper|onion|garlic|carrot|celery|cucumber|zucchini|squash|broccoli|cauliflower|potato|sweet potato|apple|banana|orange|lemon|lime|berry|berries|avocado|mushroom|herb|cilantro|parsley|basil|thyme|rosemary|green|salad|fruit|vegetable)/i.test(
-      lower
-    )
-  ) {
-    return "Produce";
-  }
-
-  // Meat & Seafood
-  if (
-    /(chicken|beef|pork|turkey|lamb|fish|salmon|tuna|shrimp|crab|lobster|steak|ground|sausage|bacon|ham|meat|seafood)/i.test(
-      lower
-    )
-  ) {
-    return "Meat & Seafood";
-  }
-
-  // Dairy & Eggs
-  if (
-    /(milk|cream|butter|cheese|yogurt|egg|sour cream|cottage cheese|mozzarella|cheddar|parmesan|dairy)/i.test(
-      lower
-    )
-  ) {
-    return "Dairy & Eggs";
-  }
-
-  // Bakery
-  if (/(bread|bun|roll|bagel|tortilla|pita|croissant|baguette|bakery)/i.test(lower)) {
-    return "Bakery";
-  }
-
-  // Frozen
-  if (/(frozen|ice cream)/i.test(lower)) {
-    return "Frozen";
-  }
-
-  // Beverages
-  if (/(juice|soda|water|coffee|tea|wine|beer|drink|beverage)/i.test(lower)) {
-    return "Beverages";
-  }
-
-  // Condiments
-  if (
-    /(sauce|ketchup|mustard|mayo|mayonnaise|dressing|vinegar|soy sauce|hot sauce|salsa|condiment)/i.test(
-      lower
-    )
-  ) {
-    return "Condiments";
-  }
-
-  // Spices
-  if (
-    /(spice|pepper|salt|cumin|paprika|cinnamon|nutmeg|ginger|turmeric|curry|oregano|bay leaf|seasoning)/i.test(
-      lower
-    )
-  ) {
-    return "Spices";
-  }
-
-  // Pantry (flour, rice, pasta, etc.)
-  if (
-    /(flour|sugar|rice|pasta|noodle|oil|olive oil|vegetable oil|honey|syrup|beans|lentils|chickpeas|oats|cereal|quinoa|stock|broth|can|canned)/i.test(
-      lower
-    )
-  ) {
-    return "Pantry";
-  }
-
-  // Default to Other
-  return "Other";
 }
 
 // Generate the interactive list URL with encoded data
@@ -149,21 +77,9 @@ export function generateShoppingListHTML(data: ShoppingListEmailData): string {
   });
 
   // Sort categories in logical order
-  const categoryOrder = [
-    "Produce",
-    "Meat & Seafood",
-    "Dairy & Eggs",
-    "Bakery",
-    "Pantry",
-    "Frozen",
-    "Beverages",
-    "Condiments",
-    "Spices",
-    "Other",
-  ];
   const sortedCategories = Object.keys(categorized).sort((a, b) => {
-    const aIndex = categoryOrder.indexOf(a);
-    const bIndex = categoryOrder.indexOf(b);
+    const aIndex = CATEGORY_ORDER.indexOf(a as typeof CATEGORY_ORDER[number]);
+    const bIndex = CATEGORY_ORDER.indexOf(b as typeof CATEGORY_ORDER[number]);
     if (aIndex === -1) return 1;
     if (bIndex === -1) return -1;
     return aIndex - bIndex;
@@ -376,21 +292,9 @@ export function generateShoppingListText(data: ShoppingListEmailData): string {
   });
 
   // Sort categories
-  const categoryOrder = [
-    "Produce",
-    "Meat & Seafood",
-    "Dairy & Eggs",
-    "Bakery",
-    "Pantry",
-    "Frozen",
-    "Beverages",
-    "Condiments",
-    "Spices",
-    "Other",
-  ];
   const sortedCategories = Object.keys(categorized).sort((a, b) => {
-    const aIndex = categoryOrder.indexOf(a);
-    const bIndex = categoryOrder.indexOf(b);
+    const aIndex = CATEGORY_ORDER.indexOf(a as typeof CATEGORY_ORDER[number]);
+    const bIndex = CATEGORY_ORDER.indexOf(b as typeof CATEGORY_ORDER[number]);
     if (aIndex === -1) return 1;
     if (bIndex === -1) return -1;
     return aIndex - bIndex;

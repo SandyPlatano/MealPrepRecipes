@@ -66,7 +66,7 @@ export default async function AppLayout({
       </ScrollHeader>
 
       {/* Main content with page transition - flex-1 to fill space */}
-      <main className="flex-1 container mx-auto w-full px-4 py-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <main className="flex-1 container mx-auto w-full px-4 py-8 pb-24 md:pb-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
         {children}
       </main>
 

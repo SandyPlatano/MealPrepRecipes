@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Moon, Sun, Plus, X, Users, Calendar, AlertTriangle, Lightbulb } from "lucide-react";
+import { Moon, Sun, Plus, X, Users, Calendar, AlertTriangle, Lightbulb, Scale, Download } from "lucide-react";
 import { toast } from "sonner";
 import { ALLERGEN_TYPES, getAllergenDisplayName } from "@/lib/allergen-detector";
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +43,8 @@ import {
 } from "@/app/actions/nutrition";
 import type { MacroGoals, MacroGoalPreset } from "@/types/nutrition";
 import type { Substitution, UserSubstitution } from "@/lib/substitutions";
+import type { RecipeExportPreferences } from "@/types/settings";
+import { DEFAULT_RECIPE_EXPORT_PREFERENCES } from "@/lib/export/recipe-markdown";
 
 // Helper to format time as HH:MM:SS for database
 const formatTimeForDB = (time: string | null | undefined): string | null => {
@@ -75,6 +77,8 @@ interface SettingsFormProps {
     macro_goals?: MacroGoals | null;
     macro_tracking_enabled?: boolean;
     macro_goal_preset?: MacroGoalPreset | null;
+    unit_system?: "imperial" | "metric";
+    recipe_export_preferences?: RecipeExportPreferences;
   };
   household: {
     id: string;
@@ -141,6 +145,12 @@ export function SettingsForm({
   const [calendarExcludedDays, setCalendarExcludedDays] = useState<string[]>(
     settings.calendar_excluded_days || []
   );
+  const [unitSystem, setUnitSystem] = useState<"imperial" | "metric">(
+    settings.unit_system || "imperial"
+  );
+  const [exportPreferences, setExportPreferences] = useState<RecipeExportPreferences>(
+    settings.recipe_export_preferences || DEFAULT_RECIPE_EXPORT_PREFERENCES
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isResettingHints, setIsResettingHints] = useState(false);
@@ -159,6 +169,8 @@ export function SettingsForm({
   const calendarEventTimeRef = useRef(calendarEventTime);
   const calendarEventDurationRef = useRef(calendarEventDuration);
   const calendarExcludedDaysRef = useRef(calendarExcludedDays);
+  const unitSystemRef = useRef(unitSystem);
+  const exportPreferencesRef = useRef(exportPreferences);
 
   // Track previous settings to detect changes
   const prevSettingsRef = useRef(settings);
@@ -259,6 +271,12 @@ export function SettingsForm({
   useEffect(() => {
     calendarExcludedDaysRef.current = calendarExcludedDays;
   }, [calendarExcludedDays]);
+  useEffect(() => {
+    unitSystemRef.current = unitSystem;
+  }, [unitSystem]);
+  useEffect(() => {
+    exportPreferencesRef.current = exportPreferences;
+  }, [exportPreferences]);
 
   // Only render theme toggle after mounting to avoid hydration mismatch
   useEffect(() => {
@@ -281,6 +299,8 @@ export function SettingsForm({
         calendar_event_time: formatTimeForDB(calendarEventTimeRef.current),
         calendar_event_duration_minutes: calendarEventDurationRef.current,
         calendar_excluded_days: calendarExcludedDaysRef.current,
+        unit_system: unitSystemRef.current,
+        recipe_export_preferences: exportPreferencesRef.current,
       });
       
       if (settingsResult.error) {
@@ -568,6 +588,104 @@ export function SettingsForm({
           </CardContent>
         </Card>
       )}
+
+      {/* Measurement Units */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Scale className="h-5 w-5" />
+            Measurement Units
+          </CardTitle>
+          <CardDescription>
+            Choose your preferred unit system for recipe ingredients
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-3">
+            <Button
+              variant={unitSystem === "imperial" ? "default" : "outline"}
+              className="flex-1"
+              onClick={() => {
+                setUnitSystem("imperial");
+                autoSaveSettings();
+              }}
+            >
+              <div className="text-left">
+                <div className="font-medium">Imperial (US)</div>
+                <div className="text-xs opacity-70">cups, oz, lb</div>
+              </div>
+            </Button>
+            <Button
+              variant={unitSystem === "metric" ? "default" : "outline"}
+              className="flex-1"
+              onClick={() => {
+                setUnitSystem("metric");
+                autoSaveSettings();
+              }}
+            >
+              <div className="text-left">
+                <div className="font-medium">Metric</div>
+                <div className="text-xs opacity-70">ml, g, kg</div>
+              </div>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Export Preferences */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Download className="h-5 w-5" />
+            Export Preferences
+          </CardTitle>
+          <CardDescription>
+            Choose which sections to include when downloading recipes as Markdown
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              { key: "include_ingredients", label: "Ingredients", alwaysOn: false },
+              { key: "include_instructions", label: "Instructions", alwaysOn: false },
+              { key: "include_nutrition", label: "Nutrition Facts", alwaysOn: false },
+              { key: "include_times", label: "Prep & Cook Time", alwaysOn: false },
+              { key: "include_servings", label: "Servings", alwaysOn: false },
+              { key: "include_tags", label: "Tags & Category", alwaysOn: false },
+              { key: "include_notes", label: "Notes", alwaysOn: false },
+            ].map((item) => (
+              <label
+                key={item.key}
+                htmlFor={`export-${item.key}`}
+                className={`
+                  flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all
+                  ${exportPreferences[item.key as keyof RecipeExportPreferences]
+                    ? 'border-primary/30 bg-primary/5'
+                    : 'border-border bg-card hover:bg-accent/50'
+                  }
+                `}
+              >
+                <Switch
+                  id={`export-${item.key}`}
+                  checked={exportPreferences[item.key as keyof RecipeExportPreferences]}
+                  disabled={item.alwaysOn}
+                  onCheckedChange={(checked) => {
+                    const updated = { ...exportPreferences, [item.key]: checked };
+                    setExportPreferences(updated);
+                    exportPreferencesRef.current = updated;
+                    autoSaveSettings();
+                  }}
+                  className="flex-shrink-0"
+                />
+                <span className="text-sm font-medium flex-1">{item.label}</span>
+              </label>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Title is always included. These preferences apply to individual recipe exports.
+          </p>
+        </CardContent>
+      </Card>
 
       {/* Cook Names */}
       <Card>

@@ -44,6 +44,7 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
   const history = historyResult.data || [];
   const userAllergenAlerts = settingsResult.data?.allergen_alerts || [];
   const customDietaryRestrictions = settingsResult.data?.custom_dietary_restrictions || [];
+  const userUnitSystem = (settingsResult.data?.unit_system as "imperial" | "metric") || "imperial";
 
   // Fetch nutrition data if tracking is enabled
   const nutritionEnabled = nutritionTrackingResult.enabled || false;
@@ -83,6 +84,7 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
         nutritionEnabled={nutritionEnabled}
         substitutions={substitutions}
         currentUserId={user?.id}
+        userUnitSystem={userUnitSystem}
       />
     </div>
   );

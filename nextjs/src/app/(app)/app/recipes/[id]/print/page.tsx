@@ -3,15 +3,18 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, notFound } from "next/navigation";
 import { getRecipe } from "@/app/actions/recipes";
+import { getSettings } from "@/app/actions/settings";
 import { Clock, Users } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Recipe } from "@/types/recipe";
+import { convertIngredientsToSystem, type UnitSystem } from "@/lib/ingredient-scaler";
 
 export default function PrintPage() {
   const params = useParams();
   const id = params.id as string;
   const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [unitSystem, setUnitSystem] = useState<UnitSystem>("imperial");
   const [loading, setLoading] = useState(true);
 
   // Compute date string once on client to avoid hydration mismatch
@@ -21,12 +24,18 @@ export default function PrintPage() {
   }, []);
 
   useEffect(() => {
-    async function fetchRecipe() {
-      const recipeResult = await getRecipe(id);
+    async function fetchData() {
+      const [recipeResult, settingsResult] = await Promise.all([
+        getRecipe(id),
+        getSettings(),
+      ]);
+
       if (recipeResult.error || !recipeResult.data) {
         notFound();
       }
+
       setRecipe(recipeResult.data);
+      setUnitSystem((settingsResult.data?.unit_system as UnitSystem) || "imperial");
       setLoading(false);
 
       // Trigger print dialog after recipe loads
@@ -35,7 +44,7 @@ export default function PrintPage() {
       }, 500);
     }
 
-    fetchRecipe();
+    fetchData();
   }, [id]);
 
   if (loading || !recipe) {
@@ -45,6 +54,9 @@ export default function PrintPage() {
       </div>
     );
   }
+
+  // Convert ingredients to user's preferred unit system
+  const displayIngredients = convertIngredientsToSystem(recipe.ingredients, unitSystem);
 
   return (
     <>
@@ -105,7 +117,7 @@ export default function PrintPage() {
           <section>
             <h2 className="text-2xl font-bold mb-4">Ingredients</h2>
             <ul className="space-y-2">
-              {recipe.ingredients.map((ingredient, index) => (
+              {displayIngredients.map((ingredient, index) => (
                 <li key={index} className="flex items-start gap-2">
                   <span className="mt-1.5 h-2 w-2 rounded-full bg-gray-400 flex-shrink-0" />
                   <span className="text-sm leading-relaxed">{ingredient}</span>

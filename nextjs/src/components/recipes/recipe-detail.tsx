@@ -65,12 +65,13 @@ import {
 } from "@/components/ui/tooltip";
 import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
 import { MarkCookedDialog } from "@/components/recipes/mark-cooked-dialog";
-import { ShareRecipeDialog } from "@/components/social/share-recipe-dialog";
+import { ShareExportSheet } from "@/components/recipes/share-export-sheet";
 import { ReviewList } from "@/components/social/review-list";
 import type { Recipe, RecipeType } from "@/types/recipe";
 import type { RecipeNutrition } from "@/types/nutrition";
 import { formatDistanceToNow } from "date-fns";
-import { scaleIngredients } from "@/lib/ingredient-scaler";
+import { scaleIngredients, convertIngredientsToSystem, type UnitSystem } from "@/lib/ingredient-scaler";
+import { UnitSystemToggle } from "@/components/recipes/unit-system-toggle";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { detectAllergens, mergeAllergens, getAllergenDisplayName, hasUserAllergens, hasCustomRestrictions } from "@/lib/allergen-detector";
@@ -124,6 +125,7 @@ interface RecipeDetailProps {
   nutritionEnabled?: boolean;
   substitutions?: Map<string, Substitution[]>;
   currentUserId?: string;
+  userUnitSystem?: UnitSystem;
 }
 
 export function RecipeDetail({
@@ -136,6 +138,7 @@ export function RecipeDetail({
   nutritionEnabled = false,
   substitutions = new Map(),
   currentUserId,
+  userUnitSystem = "imperial",
 }: RecipeDetailProps) {
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [showCookedDialog, setShowCookedDialog] = useState(false);
@@ -177,6 +180,11 @@ export function RecipeDetail({
   const scaledIngredients = canScale
     ? scaleIngredients(recipe.ingredients, recipe.base_servings!, currentServings)
     : recipe.ingredients;
+
+  // Unit system (local override for per-recipe toggle)
+  const [localUnitSystem, setLocalUnitSystem] = useState<UnitSystem | null>(null);
+  const effectiveUnitSystem = localUnitSystem ?? userUnitSystem;
+  const displayIngredients = convertIngredientsToSystem(scaledIngredients, effectiveUnitSystem);
 
   // Allergen detection
   const detectedAllergens = detectAllergens(recipe.ingredients);
@@ -503,11 +511,22 @@ export function RecipeDetail({
                 </Badge>
               </div>
 
+              {/* Unit toggle for non-scalable recipes */}
+              {!canScale && (
+                <div className="flex gap-2">
+                  <UnitSystemToggle
+                    defaultSystem={effectiveUnitSystem}
+                    onSystemChange={setLocalUnitSystem}
+                    className="text-xs"
+                  />
+                </div>
+              )}
+
               {/* Serving Controls Row */}
               {canScale && (
                 <div className="space-y-3">
                   {/* Quick presets */}
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-2 flex-wrap items-center">
                     <Button
                       variant="outline"
                       size="sm"
@@ -540,6 +559,12 @@ export function RecipeDetail({
                     >
                       Family (4x)
                     </Button>
+                    <div className="w-px h-4 bg-border mx-1" />
+                    <UnitSystemToggle
+                      defaultSystem={effectiveUnitSystem}
+                      onSystemChange={setLocalUnitSystem}
+                      className="text-xs"
+                    />
                   </div>
                   {/* Manual adjuster */}
                   <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2 w-fit">
@@ -578,7 +603,7 @@ export function RecipeDetail({
               )}
 
               <ul className="space-y-2">
-                {scaledIngredients.map((ingredient, index) => {
+                {displayIngredients.map((ingredient, index) => {
                   const ingredientSubs = substitutions.get(recipe.ingredients[index] || ingredient);
                   return (
                     <li key={index} className="flex items-start gap-2 group">
@@ -793,12 +818,11 @@ export function RecipeDetail({
         onSuccess={handleCookedSuccess}
       />
 
-      {/* Share Recipe Dialog */}
-      <ShareRecipeDialog
-        open={showShareDialog}
-        onOpenChange={setShowShareDialog}
-        recipeId={recipe.id}
-        recipeTitle={recipe.title}
+      {/* Share & Export Sheet */}
+      <ShareExportSheet
+        isOpen={showShareDialog}
+        onClose={() => setShowShareDialog(false)}
+        recipe={{ ...recipe, nutrition: localNutrition }}
         isPublic={recipe.is_public || false}
         shareToken={recipe.share_token || null}
         viewCount={recipe.view_count || 0}

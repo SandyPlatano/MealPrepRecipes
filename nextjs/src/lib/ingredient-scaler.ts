@@ -533,3 +533,160 @@ export function mergeShoppingItems(items: MergeableItem[]): MergedItem[] {
   return Array.from(merged.values());
 }
 
+// ============================================================================
+// Unit System Conversion (Metric <-> Imperial)
+// ============================================================================
+
+export type UnitSystem = "imperial" | "metric";
+
+// Define which units belong to which system
+const IMPERIAL_VOLUME_UNITS = ["tsp", "tbsp", "cup", "fl oz", "pint", "quart", "gallon"];
+const METRIC_VOLUME_UNITS = ["ml", "l"];
+const IMPERIAL_WEIGHT_UNITS = ["oz", "lb"];
+const METRIC_WEIGHT_UNITS = ["g", "kg"];
+
+/**
+ * Check if a unit belongs to a specific system
+ */
+function isUnitInSystem(unit: string, system: UnitSystem): boolean {
+  const normalized = normalizeUnit(unit);
+
+  if (system === "imperial") {
+    return IMPERIAL_VOLUME_UNITS.includes(normalized) || IMPERIAL_WEIGHT_UNITS.includes(normalized);
+  } else {
+    return METRIC_VOLUME_UNITS.includes(normalized) || METRIC_WEIGHT_UNITS.includes(normalized);
+  }
+}
+
+/**
+ * Get the target unit for conversion based on system preference
+ * Returns null if unit is already in the target system or can't be converted
+ */
+export function getTargetUnit(unit: string, targetSystem: UnitSystem): string | null {
+  const normalized = normalizeUnit(unit);
+
+  // Check if already in target system
+  if (isUnitInSystem(normalized, targetSystem)) {
+    return null;
+  }
+
+  // Volume units
+  if (VOLUME_TO_ML[normalized]) {
+    // Converting to metric: use ml as base target
+    if (targetSystem === "metric") {
+      return "ml";
+    } else {
+      // Converting to imperial: use cup as base target
+      return "cup";
+    }
+  }
+
+  // Weight units
+  if (WEIGHT_TO_GRAMS[normalized]) {
+    // Converting to metric: use g as base target
+    if (targetSystem === "metric") {
+      return "g";
+    } else {
+      // Converting to imperial: use oz as base target
+      return "oz";
+    }
+  }
+
+  // Unit is not convertible (count units like "clove", "can")
+  return null;
+}
+
+/**
+ * Get preferred display unit within a system based on quantity
+ * For metric: uses ml/l for volume, g/kg for weight based on magnitude
+ * For imperial: uses existing getPreferredUnit logic
+ */
+function getPreferredUnitForSystem(
+  quantity: number,
+  unit: string,
+  system: UnitSystem
+): { quantity: number; unit: string } {
+  const normalized = normalizeUnit(unit);
+
+  if (system === "metric") {
+    // Volume: use ml for small amounts, l for large
+    if (VOLUME_TO_ML[normalized]) {
+      const ml = quantity * VOLUME_TO_ML[normalized];
+      if (ml >= 1000) {
+        return { quantity: ml / 1000, unit: "l" };
+      }
+      return { quantity: ml, unit: "ml" };
+    }
+
+    // Weight: use g for small amounts, kg for large
+    if (WEIGHT_TO_GRAMS[normalized]) {
+      const g = quantity * WEIGHT_TO_GRAMS[normalized];
+      if (g >= 1000) {
+        return { quantity: g / 1000, unit: "kg" };
+      }
+      return { quantity: g, unit: "g" };
+    }
+  } else {
+    // Imperial: use existing getPreferredUnit logic
+    return getPreferredUnit(quantity, unit);
+  }
+
+  return { quantity, unit: normalized };
+}
+
+/**
+ * Convert an ingredient string to the preferred unit system
+ * Returns the original string if conversion is not possible
+ */
+export function convertIngredientToSystem(
+  ingredient: string,
+  targetSystem: UnitSystem
+): string {
+  const parsed = parseIngredient(ingredient);
+
+  // No quantity found (e.g., "Salt to taste") - return original
+  if (parsed.quantity === null) {
+    return ingredient;
+  }
+
+  // No unit found (e.g., "3 eggs") - return original
+  if (!parsed.unit) {
+    return ingredient;
+  }
+
+  // Determine target unit for conversion
+  const targetUnit = getTargetUnit(parsed.unit, targetSystem);
+
+  // Already in correct system or unconvertible - return original
+  if (!targetUnit) {
+    return ingredient;
+  }
+
+  // Perform the conversion
+  const convertedQty = convertUnit(parsed.quantity, parsed.unit, targetUnit);
+
+  // Conversion failed - return original
+  if (convertedQty === null) {
+    return ingredient;
+  }
+
+  // Get the preferred display unit (e.g., 1000ml → 1l, or 48tsp → 1cup)
+  const preferred = getPreferredUnitForSystem(convertedQty, targetUnit, targetSystem);
+
+  // Format the quantity (handles fractions for imperial)
+  const formattedQty = formatQuantity(preferred.quantity);
+
+  // Reconstruct the ingredient string
+  return `${formattedQty} ${preferred.unit} ${parsed.ingredient}`;
+}
+
+/**
+ * Convert all ingredients in a list to the preferred unit system
+ */
+export function convertIngredientsToSystem(
+  ingredients: string[],
+  targetSystem: UnitSystem
+): string[] {
+  return ingredients.map((ing) => convertIngredientToSystem(ing, targetSystem));
+}
+

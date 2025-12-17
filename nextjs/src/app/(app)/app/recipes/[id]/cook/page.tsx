@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getRecipe } from "@/app/actions/recipes";
+import { getSettings, getCookModeSettings } from "@/app/actions/settings";
 import { CookingMode } from "@/components/recipes/cooking-mode";
 
 interface CookPageProps {
@@ -8,14 +9,26 @@ interface CookPageProps {
 
 export default async function CookPage({ params }: CookPageProps) {
   const { id } = await params;
-  const recipeResult = await getRecipe(id);
+  const [recipeResult, settingsResult, cookModeSettingsResult] = await Promise.all([
+    getRecipe(id),
+    getSettings(),
+    getCookModeSettings(),
+  ]);
 
   if (recipeResult.error || !recipeResult.data) {
     notFound();
   }
 
   const recipe = recipeResult.data;
+  const userUnitSystem = (settingsResult.data?.unit_system as "imperial" | "metric") || "imperial";
+  const cookModeSettings = cookModeSettingsResult.data;
 
-  return <CookingMode recipe={recipe} />;
+  return (
+    <CookingMode
+      recipe={recipe}
+      userUnitSystem={userUnitSystem}
+      initialSettings={cookModeSettings}
+    />
+  );
 }
 

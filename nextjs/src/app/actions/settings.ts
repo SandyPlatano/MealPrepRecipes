@@ -85,9 +85,12 @@ export async function getSettings() {
       calendar_excluded_days,
       google_connected_account,
       dismissed_hints,
+      preferences,
       created_at,
       updated_at,
-      email_notifications
+      email_notifications,
+      unit_system,
+      recipe_export_preferences
     `)
     .eq("user_id", user.id)
     .single();
@@ -109,6 +112,9 @@ export async function getSettings() {
         calendar_event_duration_minutes,
         calendar_excluded_days,
         google_connected_account,
+        dismissed_hints,
+        unit_system,
+        recipe_export_preferences,
         created_at,
         updated_at
       `)
@@ -133,15 +139,21 @@ export async function getSettings() {
           calendar_event_duration_minutes: null as number | null,
           calendar_excluded_days: [],
           dismissed_hints: [],
+          unit_system: "imperial" as const,
           google_connected_account: null as string | null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
       };
     }
-    
-    // Add default email_notifications to the result
-    settings = settingsWithoutEmail ? { ...settingsWithoutEmail, email_notifications: true } : null;
+
+    // Add default email_notifications and ensure dismissed_hints and unit_system exist
+    settings = settingsWithoutEmail ? {
+      ...settingsWithoutEmail,
+      email_notifications: true,
+      dismissed_hints: settingsWithoutEmail.dismissed_hints || [],
+      unit_system: settingsWithoutEmail.unit_system || "imperial",
+    } : null;
   } else if (selectError) {
     // Other error - return defaults
     return {
@@ -160,6 +172,7 @@ export async function getSettings() {
         calendar_event_duration_minutes: null as number | null,
         calendar_excluded_days: [],
         dismissed_hints: [],
+        unit_system: "imperial" as const,
         google_connected_account: null as string | null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -188,6 +201,9 @@ export async function getSettings() {
     }
     if (!settings.cook_names || !Array.isArray(settings.cook_names)) {
       settings.cook_names = ["Me"];
+    }
+    if (!settings.unit_system) {
+      settings.unit_system = "imperial";
     }
   }
 
@@ -225,6 +241,7 @@ export async function getSettings() {
           calendar_event_duration_minutes: null as number | null,
           calendar_excluded_days: [],
           dismissed_hints: [],
+          unit_system: "imperial" as const,
           google_connected_account: null as string | null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -262,6 +279,16 @@ export async function updateSettings(settings: {
   calendar_event_time?: string | null;
   calendar_event_duration_minutes?: number | null;
   calendar_excluded_days?: string[] | null;
+  unit_system?: "imperial" | "metric";
+  recipe_export_preferences?: {
+    include_ingredients: boolean;
+    include_instructions: boolean;
+    include_nutrition: boolean;
+    include_tags: boolean;
+    include_times: boolean;
+    include_notes: boolean;
+    include_servings: boolean;
+  };
 }) {
   // Use direct auth check instead of getCachedUserWithHousehold since user might not have a household yet
   const supabase = await createClient();
@@ -311,6 +338,10 @@ export async function updateSettings(settings: {
   if (settings.category_order !== undefined) settingsToSave.category_order = settings.category_order;
   if (settings.calendar_event_time !== undefined) settingsToSave.calendar_event_time = settings.calendar_event_time;
   if (settings.calendar_event_duration_minutes !== undefined) settingsToSave.calendar_event_duration_minutes = settings.calendar_event_duration_minutes;
+  if (settings.unit_system !== undefined) settingsToSave.unit_system = settings.unit_system;
+  if (settings.recipe_export_preferences !== undefined) {
+    settingsToSave.recipe_export_preferences = settings.recipe_export_preferences;
+  }
 
   // Ensure array fields are never null in the final object
   if (!settingsToSave.allergen_alerts || !Array.isArray(settingsToSave.allergen_alerts)) {
@@ -530,3 +561,182 @@ export async function resetAllHints() {
   return { error: null };
 }
 
+// Update show recipe sources preference (stored in preferences JSONB)
+export async function updateShowRecipeSources(showRecipeSources: boolean) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get current preferences
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const currentPreferences = (settings?.preferences as Record<string, unknown>) || {};
+
+  // Merge with new value under ui namespace
+  const updatedPreferences = {
+    ...currentPreferences,
+    ui: {
+      ...((currentPreferences.ui as Record<string, unknown>) || {}),
+      showRecipeSources,
+    },
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app/shop");
+
+  return { error: null };
+}
+
+// ============================================================================
+// Cook Mode Settings
+// ============================================================================
+
+import type {
+  CookModeSettings,
+  UserSettingsPreferences,
+} from "@/types/settings";
+import { DEFAULT_COOK_MODE_SETTINGS } from "@/types/settings";
+
+/**
+ * Get cook mode settings from the preferences JSONB column
+ */
+export async function getCookModeSettings(): Promise<{
+  error: string | null;
+  data: CookModeSettings;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    // Return defaults for non-authenticated users
+    return { error: null, data: DEFAULT_COOK_MODE_SETTINGS };
+  }
+
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!settings?.preferences) {
+    return { error: null, data: DEFAULT_COOK_MODE_SETTINGS };
+  }
+
+  const preferences = settings.preferences as UserSettingsPreferences;
+  const cookMode = preferences.cookMode;
+
+  if (!cookMode) {
+    return { error: null, data: DEFAULT_COOK_MODE_SETTINGS };
+  }
+
+  // Deep merge with defaults to ensure all fields exist
+  return {
+    error: null,
+    data: {
+      display: {
+        ...DEFAULT_COOK_MODE_SETTINGS.display,
+        ...cookMode.display,
+      },
+      visibility: {
+        ...DEFAULT_COOK_MODE_SETTINGS.visibility,
+        ...cookMode.visibility,
+      },
+      behavior: {
+        ...DEFAULT_COOK_MODE_SETTINGS.behavior,
+        ...cookMode.behavior,
+      },
+      navigation: {
+        ...DEFAULT_COOK_MODE_SETTINGS.navigation,
+        ...cookMode.navigation,
+      },
+    },
+  };
+}
+
+/**
+ * Update cook mode settings in the preferences JSONB column
+ * Supports partial updates - only the fields provided will be updated
+ */
+export async function updateCookModeSettings(
+  newSettings: Partial<CookModeSettings>
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get existing preferences
+  const { data: existingData } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const existingPreferences = (existingData?.preferences ||
+    {}) as UserSettingsPreferences;
+  const existingCookMode =
+    existingPreferences.cookMode || DEFAULT_COOK_MODE_SETTINGS;
+
+  // Deep merge the new settings with existing
+  const updatedCookMode: CookModeSettings = {
+    display: {
+      ...existingCookMode.display,
+      ...(newSettings.display || {}),
+    },
+    visibility: {
+      ...existingCookMode.visibility,
+      ...(newSettings.visibility || {}),
+    },
+    behavior: {
+      ...existingCookMode.behavior,
+      ...(newSettings.behavior || {}),
+    },
+    navigation: {
+      ...existingCookMode.navigation,
+      ...(newSettings.navigation || {}),
+    },
+  };
+
+  // Update the preferences JSONB with the new cook mode settings
+  const updatedPreferences: UserSettingsPreferences = {
+    ...existingPreferences,
+    cookMode: updatedCookMode,
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { error: null };
+}

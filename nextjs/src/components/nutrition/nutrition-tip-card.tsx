@@ -37,16 +37,17 @@ export function NutritionTipCard({ todaysSummary, className }: NutritionTipCardP
     return analyzeTodaysNutrition(todaysSummary);
   }, [todaysSummary]);
 
+  // Soft, non-judgmental colors using brand palette
   const variantStyles = {
-    success: "border-green-200 bg-green-50/50 dark:border-green-900 dark:bg-green-950/30",
-    warning: "border-amber-200 bg-amber-50/50 dark:border-amber-900 dark:bg-amber-950/30",
-    info: "border-blue-200 bg-blue-50/50 dark:border-blue-900 dark:bg-blue-950/30",
+    success: "border-brand-sage/30 bg-brand-sage/5",
+    warning: "border-brand-coral/30 bg-brand-coral/5",
+    info: "border-muted-foreground/20 bg-muted/30",
   };
 
   const iconStyles = {
-    success: "text-green-600 dark:text-green-400",
-    warning: "text-amber-600 dark:text-amber-400",
-    info: "text-blue-600 dark:text-blue-400",
+    success: "text-brand-sage",
+    warning: "text-brand-coral/80",
+    info: "text-muted-foreground",
   };
 
   return (
@@ -302,10 +303,11 @@ export function NutritionTipCompact({
     return analyzeTodaysNutrition(todaysSummary);
   }, [todaysSummary]);
 
+  // Soft brand colors matching the main card
   const iconStyles = {
-    success: "text-green-600 dark:text-green-400",
-    warning: "text-amber-600 dark:text-amber-400",
-    info: "text-blue-600 dark:text-blue-400",
+    success: "text-brand-sage",
+    warning: "text-brand-coral/80",
+    info: "text-muted-foreground",
   };
 
   return (

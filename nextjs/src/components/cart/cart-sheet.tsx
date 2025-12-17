@@ -44,7 +44,7 @@ import { DAYS_OF_WEEK, type DayOfWeek, formatWeekRange, getWeekStart } from "@/t
 import { getAssignedItems } from "@/types/cart";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { generateShoppingListText} from "@/lib/email/shopping-list-template";
+import { downloadShoppingListAsMarkdown } from "@/lib/export";
 
 interface CartSheetProps {
   open: boolean;
@@ -137,25 +137,20 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
       return;
     }
 
-    const data = {
-      weekRange: weekRangeStr,
-      items: assignedItems.map((item) => ({
-        recipe: item.recipe,
-        cook: item.cook,
+    // Collect all ingredients from assigned recipes
+    const allIngredients = assignedItems.flatMap((item) =>
+      (item.recipe.ingredients || []).map((ing) => ({
+        ingredient: ing,
+        recipe_title: item.recipe.title,
         day: item.day,
-      })),
-    };
+        cook: item.cook,
+      }))
+    );
 
-    const text = generateShoppingListText(data);
-    const blob = new Blob([text], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `shopping-list-${weekRangeStr.replace(/\s/g, "-")}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    downloadShoppingListAsMarkdown({
+      weekRange: weekRangeStr,
+      items: allIngredients,
+    });
 
     toast.success("Shopping list downloaded!");
   };
@@ -492,7 +487,7 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
                           Download List
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>Download shopping list as text file</TooltipContent>
+                      <TooltipContent>Download shopping list as markdown file</TooltipContent>
                     </Tooltip>
 
                     <Tooltip>

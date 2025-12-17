@@ -60,7 +60,7 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { MarkCookedDialog } from "./mark-cooked-dialog";
-import { ShareRecipeDialog } from "@/components/social/share-recipe-dialog";
+import { ShareExportSheet } from "./share-export-sheet";
 import Image from "next/image";
 import { detectAllergens, mergeAllergens, getAllergenDisplayName, hasUserAllergens, hasCustomRestrictions } from "@/lib/allergen-detector";
 import { triggerHaptic } from "@/lib/haptics";
@@ -606,11 +606,10 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
         onOpenChange={setShowCookedDialog}
       />
 
-      <ShareRecipeDialog
-        open={showShareDialog}
-        onOpenChange={setShowShareDialog}
-        recipeId={recipe.id}
-        recipeTitle={recipe.title}
+      <ShareExportSheet
+        isOpen={showShareDialog}
+        onClose={() => setShowShareDialog(false)}
+        recipe={recipe}
         isPublic={recipe.is_public ?? false}
         shareToken={recipe.share_token ?? null}
         viewCount={recipe.view_count ?? 0}

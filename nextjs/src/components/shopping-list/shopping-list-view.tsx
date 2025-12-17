@@ -19,6 +19,8 @@ import {
   RefreshCw,
   Copy,
   Cookie,
+  BookOpen,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -28,6 +30,7 @@ import {
   clearCheckedItems,
   clearShoppingList,
   generateFromMealPlan,
+  removeItemsByRecipeId,
 } from "@/app/actions/shopping-list";
 import { updateMealAssignment } from "@/app/actions/meal-plans";
 import {
@@ -42,7 +45,7 @@ import {
   groupItemsByCategory,
   sortCategories,
 } from "@/types/shopping-list";
-import { normalizeIngredientName } from "@/lib/ingredient-scaler";
+import { normalizeIngredientName, convertIngredientToSystem, type UnitSystem } from "@/lib/ingredient-scaler";
 import { triggerHaptic } from "@/lib/haptics";
 import {
   AlertDialog,
@@ -74,7 +77,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, ChevronUp, CalendarDays, Mail, ChefHat } from "lucide-react";
 import { GripVertical, RotateCcw, WifiOff, MoreVertical } from "lucide-react";
-import { updateSettings } from "@/app/actions/settings";
+import { updateSettings, updateShowRecipeSources } from "@/app/actions/settings";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import Link from "next/link";
 import {
   DndContext,
   DragOverlay,
@@ -111,6 +122,8 @@ interface ShoppingListViewProps {
   weekStart?: string;
   cookNames?: string[];
   cookColors?: Record<string, string>;
+  userUnitSystem?: UnitSystem;
+  initialShowRecipeSources?: boolean;
 }
 
 export function ShoppingListView({
@@ -121,6 +134,8 @@ export function ShoppingListView({
   weekStart,
   cookNames = [],
   cookColors = {},
+  userUnitSystem = "imperial",
+  initialShowRecipeSources = false,
 }: ShoppingListViewProps) {
   const [newItem, setNewItem] = useState("");
   const [newCategory, setNewCategory] = useState<string>("Other");
@@ -130,6 +145,7 @@ export function ShoppingListView({
     new Set(initialPantryItems.map((p) => p.normalized_ingredient))
   );
   const [showPantryItems, setShowPantryItems] = useState(false);
+  const [showRecipeSources, setShowRecipeSources] = useState(initialShowRecipeSources);
   const [categoryOrder, setCategoryOrder] = useState<string[] | null>(
     initialCategoryOrder
   );
@@ -454,6 +470,22 @@ export function ShoppingListView({
     toast.success("Reset to default order");
   };
 
+  // Toggle recipe sources visibility and persist to settings
+  const handleToggleRecipeSources = async (checked: boolean) => {
+    setShowRecipeSources(checked);
+    await updateShowRecipeSources(checked);
+  };
+
+  // Remove all items from a specific recipe
+  const handleRemoveRecipeItems = async (recipeId: string, recipeTitle: string) => {
+    const result = await removeItemsByRecipeId(recipeId);
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success(`Removed ${result.count} item${result.count !== 1 ? "s" : ""} from ${recipeTitle}`);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Confetti celebration when all items checked */}
@@ -616,6 +648,17 @@ export function ShoppingListView({
             </Button>
           )}
 
+          {/* Show Recipe Sources Toggle */}
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-background">
+            <BookOpen className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm hidden sm:inline">Sources</span>
+            <Switch
+              checked={showRecipeSources}
+              onCheckedChange={handleToggleRecipeSources}
+              className="h-5 w-9"
+            />
+          </div>
+
           {/* Clear All Items */}
           <Button
             variant="outline"
@@ -749,6 +792,7 @@ export function ShoppingListView({
                   category={category}
                   items={groupedItems[category]}
                   onPantryToggle={handlePantryToggle}
+                  userUnitSystem={userUnitSystem}
                 />
               ))}
             </div>
@@ -772,12 +816,18 @@ interface SortableCategorySectionProps {
   category: string;
   items: (ShoppingListItem & { is_in_pantry?: boolean })[];
   onPantryToggle: (ingredient: string, isInPantry: boolean) => void;
+  userUnitSystem: UnitSystem;
+  showRecipeSources: boolean;
+  onRemoveRecipeItems: (recipeId: string, recipeTitle: string) => void;
 }
 
 const SortableCategorySection = memo(function SortableCategorySection({
   category,
   items,
   onPantryToggle,
+  userUnitSystem,
+  showRecipeSources,
+  onRemoveRecipeItems,
 }: SortableCategorySectionProps) {
   const {
     attributes,
@@ -830,6 +880,7 @@ const SortableCategorySection = memo(function SortableCategorySection({
               key={item.id}
               item={item}
               onPantryToggle={onPantryToggle}
+              userUnitSystem={userUnitSystem}
             />
           ))}
         </ul>
@@ -867,9 +918,18 @@ function CategoryCardOverlay({
 interface ShoppingItemRowProps {
   item: ShoppingListItem & { is_in_pantry?: boolean };
   onPantryToggle: (ingredient: string, isInPantry: boolean) => void;
+  userUnitSystem: UnitSystem;
+  showRecipeSources: boolean;
+  onRemoveRecipeItems: (recipeId: string, recipeTitle: string) => void;
 }
 
-const ShoppingItemRow = memo(function ShoppingItemRow({ item, onPantryToggle }: ShoppingItemRowProps) {
+const ShoppingItemRow = memo(function ShoppingItemRow({
+  item,
+  onPantryToggle,
+  userUnitSystem,
+  showRecipeSources,
+  onRemoveRecipeItems,
+}: ShoppingItemRowProps) {
   const [isRemoving, setIsRemoving] = useState(false);
   const [isTogglingPantry, setIsTogglingPantry] = useState(false);
 
@@ -902,9 +962,11 @@ const ShoppingItemRow = memo(function ShoppingItemRow({ item, onPantryToggle }: 
     setIsTogglingPantry(false);
   };
 
-  const displayText = [item.quantity, item.unit, item.ingredient]
+  // Build the full ingredient string and convert to user's preferred unit system
+  const rawText = [item.quantity, item.unit, item.ingredient]
     .filter(Boolean)
     .join(" ");
+  const displayText = convertIngredientToSystem(rawText, userUnitSystem);
 
   return (
     <TooltipProvider>
@@ -921,18 +983,67 @@ const ShoppingItemRow = memo(function ShoppingItemRow({ item, onPantryToggle }: 
         />
         <label
           htmlFor={item.id}
-          className={`flex-1 text-sm cursor-pointer ${
+          className={`flex-1 text-sm cursor-pointer flex items-center gap-2 flex-wrap ${
             item.is_checked ? "line-through text-muted-foreground" : ""
           }`}
         >
-          {displayText}
-          {item.recipe_title && (
-            <span className="text-xs text-muted-foreground ml-2">
+          <span>{displayText}</span>
+
+          {/* Recipe Source Badge - only when toggle is ON */}
+          {showRecipeSources && item.recipe_title && item.recipe_id && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Badge
+                  variant="secondary"
+                  className="cursor-pointer text-xs px-2 py-0.5 hover:bg-secondary/80"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {item.recipe_title}
+                </Badge>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-2" align="start">
+                <div className="flex flex-col gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start text-sm h-8"
+                    asChild
+                  >
+                    <Link href={`/app/recipes/${item.recipe_id}`}>
+                      <ExternalLink className="h-3.5 w-3.5 mr-2" />
+                      View Recipe
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start text-sm h-8 text-destructive hover:text-destructive"
+                    onClick={() => onRemoveRecipeItems(item.recipe_id!, item.recipe_title!)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 mr-2" />
+                    Remove all from recipe
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
+
+          {/* Fallback for manually added items with no recipe */}
+          {showRecipeSources && !item.recipe_id && (
+            <Badge variant="outline" className="text-xs px-2 py-0.5 opacity-60">
+              Manual
+            </Badge>
+          )}
+
+          {/* Simple text display when toggle is OFF */}
+          {!showRecipeSources && item.recipe_title && (
+            <span className="text-xs text-muted-foreground">
               ({item.recipe_title})
             </span>
           )}
+
           {item.is_in_pantry && (
-            <span className="text-xs text-green-600 ml-2">(in pantry)</span>
+            <span className="text-xs text-green-600">(in pantry)</span>
           )}
         </label>
         <Tooltip>

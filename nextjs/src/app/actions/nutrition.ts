@@ -629,14 +629,15 @@ export async function getDailyNutritionSummary(date: string): Promise<{
       return { data: null, error: error.message };
     }
 
+    // Use ?? instead of || to preserve 0 values (0 is valid data, not missing)
     const nutritionData: NutritionData = {
-      calories: data[0]?.total_calories || null,
-      protein_g: data[0]?.total_protein_g || null,
-      carbs_g: data[0]?.total_carbs_g || null,
-      fat_g: data[0]?.total_fat_g || null,
-      fiber_g: data[0]?.total_fiber_g || null,
-      sugar_g: data[0]?.total_sugar_g || null,
-      sodium_mg: data[0]?.total_sodium_mg || null,
+      calories: data[0]?.total_calories ?? null,
+      protein_g: data[0]?.total_protein_g ?? null,
+      carbs_g: data[0]?.total_carbs_g ?? null,
+      fat_g: data[0]?.total_fat_g ?? null,
+      fiber_g: data[0]?.total_fiber_g ?? null,
+      sugar_g: data[0]?.total_sugar_g ?? null,
+      sodium_mg: data[0]?.total_sodium_mg ?? null,
     };
 
     const mealCount = data[0]?.meal_count || 0;
@@ -837,6 +838,156 @@ export async function isNutritionTrackingEnabled(): Promise<{
     };
   }
 }
+
+// =====================================================
+// QUICK ADD MACROS ACTIONS
+// =====================================================
+
+/**
+ * Quick add nutrition entry (without a recipe)
+ * Stores as a standalone entry for the day
+ */
+export async function addQuickMacros(data: {
+  date: string;
+  nutrition: {
+    calories?: number | null;
+    protein_g?: number | null;
+    carbs_g?: number | null;
+    fat_g?: number | null;
+  };
+  note?: string;
+  preset?: string;
+}): Promise<{
+  success: boolean;
+  error: string | null;
+}> {
+  try {
+    const { user } = await getCachedUserWithHousehold();
+    if (!user) {
+      return { success: false, error: "Not authenticated" };
+    }
+
+    const supabase = await createClient();
+
+    // Insert into nutrition_quick_adds table
+    const { error } = await supabase.from("nutrition_quick_adds").insert({
+      user_id: user.id,
+      date: data.date,
+      calories: data.nutrition.calories,
+      protein_g: data.nutrition.protein_g,
+      carbs_g: data.nutrition.carbs_g,
+      fat_g: data.nutrition.fat_g,
+      note: data.note,
+      preset: data.preset,
+    });
+
+    if (error) {
+      console.error("Error adding quick macros:", error);
+      return { success: false, error: error.message };
+    }
+
+    // Revalidate nutrition pages
+    revalidatePath("/app/nutrition");
+    revalidatePath("/app/plan");
+
+    return { success: true, error: null };
+  } catch (error) {
+    console.error("Error in addQuickMacros:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to add quick macros",
+    };
+  }
+}
+
+/**
+ * Get quick add entries for a date
+ */
+export async function getQuickAddsForDate(date: string): Promise<{
+  data: Array<{
+    id: string;
+    calories: number | null;
+    protein_g: number | null;
+    carbs_g: number | null;
+    fat_g: number | null;
+    note: string | null;
+    preset: string | null;
+    created_at: string;
+  }>;
+  error: string | null;
+}> {
+  try {
+    const { user } = await getCachedUserWithHousehold();
+    if (!user) {
+      return { data: [], error: "Not authenticated" };
+    }
+
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("nutrition_quick_adds")
+      .select("id, calories, protein_g, carbs_g, fat_g, note, preset, created_at")
+      .eq("user_id", user.id)
+      .eq("date", date)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching quick adds:", error);
+      return { data: [], error: error.message };
+    }
+
+    return { data: data || [], error: null };
+  } catch (error) {
+    console.error("Error in getQuickAddsForDate:", error);
+    return {
+      data: [],
+      error: error instanceof Error ? error.message : "Failed to fetch quick adds",
+    };
+  }
+}
+
+/**
+ * Delete a quick add entry
+ */
+export async function deleteQuickAdd(id: string): Promise<{
+  success: boolean;
+  error: string | null;
+}> {
+  try {
+    const { user } = await getCachedUserWithHousehold();
+    if (!user) {
+      return { success: false, error: "Not authenticated" };
+    }
+
+    const supabase = await createClient();
+
+    const { error } = await supabase
+      .from("nutrition_quick_adds")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
+
+    if (error) {
+      console.error("Error deleting quick add:", error);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath("/app/nutrition");
+    revalidatePath("/app/plan");
+
+    return { success: true, error: null };
+  } catch (error) {
+    console.error("Error in deleteQuickAdd:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to delete quick add",
+    };
+  }
+}
+
+// =====================================================
+// NUTRITION EXTRACTION COSTS
+// =====================================================
 
 /**
  * Get nutrition extraction cost summary

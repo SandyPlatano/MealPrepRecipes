@@ -53,6 +53,11 @@ export default async function ShopPage() {
   const dismissedHints = settingsResult.data?.dismissed_hints || [];
   const subscriptionTier = aiQuota.data?.tier || 'free';
   const weekOptions = getWeekOptions(currentWeekStart, weeksMealCountsResult.data || []);
+  const userUnitSystem = (settingsResult.data?.unit_system as "imperial" | "metric") || "imperial";
+
+  // Extract show recipe sources preference from JSONB preferences column
+  const preferences = settingsResult.data?.preferences as { ui?: { showRecipeSources?: boolean } } | null;
+  const showRecipeSources = preferences?.ui?.showRecipeSources ?? false;
 
   return (
     <div className="space-y-6">
@@ -102,6 +107,8 @@ export default async function ShopPage() {
         weekStart={currentWeekStart}
         cookNames={cookNames}
         cookColors={cookColors}
+        userUnitSystem={userUnitSystem}
+        initialShowRecipeSources={showRecipeSources}
       />
     </div>
   );
