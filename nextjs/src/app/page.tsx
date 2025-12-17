@@ -31,72 +31,106 @@ import {
   Package,
   Utensils,
   Star,
-  ListChecks,
   TrendingUp,
 } from "lucide-react";
 import { FAQ } from "@/components/landing/faq";
-import { BrandLogo, BrandLogoCompact } from "@/components/brand/logo";
+import { BrandLogoCompact } from "@/components/brand/logo";
+import { HeroSection } from "@/components/landing/hero-section";
+import { FeatureCard, QuickFeatureCard } from "@/components/landing/feature-card";
+import { TestimonialsSection } from "@/components/landing/testimonials-section";
+import { MetricsSection } from "@/components/landing/metrics-section";
+import { CTASection } from "@/components/landing/cta-section";
 
 // Lazy load animated demos for better initial page load
 const RecipeCardDemo = dynamic(
-  () => import("@/components/landing/animated-demo").then((mod) => ({ default: mod.RecipeCardDemo })),
-  { ssr: false, loading: () => <div className="h-96 bg-muted/30 rounded-xl animate-pulse" /> }
+  () =>
+    import("@/components/landing/animated-demo").then((mod) => ({
+      default: mod.RecipeCardDemo,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-96 bg-clay-bg rounded-2xl animate-pulse" />
+    ),
+  }
 );
 
 const MealPlanDemo = dynamic(
-  () => import("@/components/landing/animated-demo").then((mod) => ({ default: mod.MealPlanDemo })),
-  { ssr: false, loading: () => <div className="h-96 bg-muted/30 rounded-xl animate-pulse" /> }
+  () =>
+    import("@/components/landing/animated-demo").then((mod) => ({
+      default: mod.MealPlanDemo,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-96 bg-clay-bg rounded-2xl animate-pulse" />
+    ),
+  }
 );
 
 const ShoppingListDemo = dynamic(
-  () => import("@/components/landing/animated-demo").then((mod) => ({ default: mod.ShoppingListDemo })),
-  { ssr: false, loading: () => <div className="h-96 bg-muted/30 rounded-xl animate-pulse" /> }
+  () =>
+    import("@/components/landing/animated-demo").then((mod) => ({
+      default: mod.ShoppingListDemo,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-96 bg-clay-bg rounded-2xl animate-pulse" />
+    ),
+  }
 );
 
 const RecipeImportDemo = dynamic(
-  () => import("@/components/landing/animated-demo").then((mod) => ({ default: mod.RecipeImportDemo })),
-  { ssr: false, loading: () => <div className="h-96 bg-muted/30 rounded-xl animate-pulse" /> }
+  () =>
+    import("@/components/landing/animated-demo").then((mod) => ({
+      default: mod.RecipeImportDemo,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-96 bg-clay-bg rounded-2xl animate-pulse" />
+    ),
+  }
 );
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
+    <main className="min-h-screen bg-clay-surface">
+      {/* Navigation - Clean & Minimal */}
+      <nav className="border-b border-clay-border sticky top-0 bg-clay-surface/95 backdrop-blur supports-[backdrop-filter]:bg-clay-surface/80 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/">
+          <Link href="/" className="hover:opacity-80 transition-opacity">
             <BrandLogoCompact />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-4">
-            <Link
-              href="/about"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              About
-            </Link>
+          <div className="hidden md:flex items-center gap-6">
             <Link
               href="/pricing"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm font-medium text-clay-muted hover:text-clay-text transition-colors"
             >
               Pricing
             </Link>
             <Link
               href="/login"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm font-medium text-clay-muted hover:text-clay-text transition-colors"
             >
               Log in
             </Link>
             <Link href="/signup">
-              <Button>Sign Up Free</Button>
+              <Button className="shadow-clay-sm hover:shadow-clay-md transition-all">
+                Sign up free
+              </Button>
             </Link>
           </div>
 
           {/* Mobile Navigation */}
           <div className="md:hidden flex items-center gap-2">
             <Link href="/login">
-              <Button size="sm" variant="ghost">Log in</Button>
+              <Button size="sm" variant="ghost">
+                Log in
+              </Button>
             </Link>
             <Link href="/signup">
               <Button size="sm">Sign Up</Button>
@@ -113,22 +147,22 @@ export default function Home() {
                 </SheetHeader>
                 <div className="flex flex-col gap-2 mt-6">
                   <SheetClose asChild>
-                    <Link href="/about">
+                    <Link href="/pricing">
                       <Button
                         variant="ghost"
-                        className="w-full justify-start text-base hover:bg-primary/5"
+                        className="w-full justify-start text-base hover:bg-coral-tint-50"
                       >
-                        About
+                        Pricing
                       </Button>
                     </Link>
                   </SheetClose>
                   <SheetClose asChild>
-                    <Link href="/pricing">
+                    <Link href="/about">
                       <Button
                         variant="ghost"
-                        className="w-full justify-start text-base hover:bg-primary/5"
+                        className="w-full justify-start text-base hover:bg-coral-tint-50"
                       >
-                        Pricing
+                        About
                       </Button>
                     </Link>
                   </SheetClose>
@@ -140,55 +174,28 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="py-20 md:py-28 overflow-hidden">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
-              <Sparkles className="h-4 w-4" />
-              Your complete kitchen command center
-            </div>
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
-              <BrandLogo size="xl" showIcon={false} />
-            </h1>
-            <p className="text-2xl md:text-3xl text-muted-foreground font-light">
-              Finally, an answer to &quot;what&apos;s for dinner?&quot;
-            </p>
-            <p className="text-lg text-muted-foreground max-w-lg mx-auto">
-              Plan meals, track nutrition, generate shopping lists, and cook like a pro.
-              All in one place. For you and your household.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Link href="/signup">
-                <Button size="lg" className="text-lg px-8 py-6">
-                  Start Planning Free
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection />
 
-      {/* Feature Grid - Quick Overview */}
-      <section className="py-16 bg-muted/30">
+      {/* Quick Features Grid */}
+      <section className="py-16 bg-clay-bg">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-            <FeatureQuickCard
+            <QuickFeatureCard
               icon={<Calendar className="h-6 w-6" />}
               title="Weekly Planning"
               description="7-day meal grid with customizable meal types"
             />
-            <FeatureQuickCard
+            <QuickFeatureCard
               icon={<ShoppingCart className="h-6 w-6" />}
               title="Smart Shopping"
               description="Auto-generated lists organized by category"
             />
-            <FeatureQuickCard
+            <QuickFeatureCard
               icon={<Utensils className="h-6 w-6" />}
               title="Cook Mode"
               description="Step-by-step guidance with built-in timers"
             />
-            <FeatureQuickCard
+            <QuickFeatureCard
               icon={<Activity className="h-6 w-6" />}
               title="Nutrition Tracking"
               description="Macros, calories, and weekly trends"
@@ -198,15 +205,15 @@ export default function Home() {
       </section>
 
       {/* Feature Demo 1: Recipe Cards */}
-      <section className="py-24 md:py-32 overflow-hidden">
+      <section id="demo" className="py-24 md:py-32 overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-clay-text mb-6">
               Build your recipe collection
             </h2>
-            <p className="text-lg md:text-xl text-muted-foreground">
-              Save your favorites. Track how often you cook each one.
-              See nutrition info at a glance. One tap to add to your weekly plan.
+            <p className="text-lg md:text-xl text-clay-muted">
+              Save your favorites. Track how often you cook each one. See
+              nutrition info at a glance.
             </p>
           </div>
           <div className="max-w-2xl mx-auto">
@@ -216,15 +223,15 @@ export default function Home() {
       </section>
 
       {/* Feature Demo 2: Meal Planning */}
-      <section className="py-24 md:py-32 bg-muted/30 overflow-hidden">
+      <section className="py-24 md:py-32 bg-clay-bg overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-clay-text mb-6">
               Plan the whole week
             </h2>
-            <p className="text-lg md:text-xl text-muted-foreground">
+            <p className="text-lg md:text-xl text-clay-muted">
               Pick meals for each day. Assign cooks from your household.
-              Everyone knows what&apos;s for dinner and who&apos;s making it.
+              Everyone knows what&apos;s for dinner.
             </p>
           </div>
           <div className="max-w-2xl mx-auto">
@@ -236,13 +243,13 @@ export default function Home() {
       {/* Feature Demo 3: Shopping List */}
       <section className="py-24 md:py-32 overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-clay-text mb-6">
               Shopping lists that write themselves
             </h2>
-            <p className="text-lg md:text-xl text-muted-foreground">
-              Automatically generated from your meal plan. Organized by category.
-              Items from your pantry are excluded. Check things off as you shop.
+            <p className="text-lg md:text-xl text-clay-muted">
+              Automatically generated from your meal plan. Organized by
+              category. Check off items as you shop.
             </p>
           </div>
           <div className="max-w-2xl mx-auto">
@@ -252,58 +259,77 @@ export default function Home() {
       </section>
 
       {/* Cook Mode Feature */}
-      <section className="py-24 md:py-32 bg-muted/30 overflow-hidden">
+      <section className="py-24 md:py-32 bg-clay-bg overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-12 lg:gap-16 items-center">
               <div className="space-y-6">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-coral-tint-50 text-primary text-sm font-medium">
                   <Timer className="h-4 w-4" />
                   Interactive cooking
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold">
+                <h2 className="text-3xl md:text-4xl font-bold text-clay-text">
                   Cook Mode that actually helps
                 </h2>
-                <p className="text-lg text-muted-foreground">
+                <p className="text-lg text-clay-muted leading-relaxed">
                   Full-screen recipe view with step-by-step instructions.
-                  Built-in timers detected from your recipe. Check off ingredients as you go.
+                  Built-in timers detected from your recipe. Check off
+                  ingredients as you go.
                 </p>
                 <ul className="space-y-3">
                   <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-green-500" />
-                    <span>Adjustable font sizes for easy reading</span>
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">
+                      Adjustable font sizes for easy reading
+                    </span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-green-500" />
-                    <span>Unit conversion (imperial/metric)</span>
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">
+                      Unit conversion (imperial/metric)
+                    </span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-green-500" />
-                    <span>Rate and add notes when you&apos;re done</span>
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">
+                      Rate and add notes when you&apos;re done
+                    </span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-green-500" />
-                    <span>Track your cooking history</span>
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">
+                      Track your cooking history
+                    </span>
                   </li>
                 </ul>
               </div>
-              <div className="bg-background rounded-xl border p-6 shadow-lg">
+              <div className="bg-clay-surface rounded-2xl border border-clay-border p-6 md:p-8 shadow-clay-lg">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b pb-4">
-                    <span className="font-bold text-lg">Pasta Carbonara</span>
-                    <span className="text-sm text-muted-foreground">Step 3 of 6</span>
+                  <div className="flex items-center justify-between border-b border-clay-border pb-4">
+                    <span className="font-bold text-lg text-clay-text">
+                      Pasta Carbonara
+                    </span>
+                    <span className="text-sm text-clay-muted">Step 3 of 6</span>
                   </div>
-                  <div className="py-4">
-                    <p className="text-lg leading-relaxed">
+                  <div className="py-6">
+                    <p className="text-lg text-clay-text leading-relaxed">
                       Cook the spaghetti in salted boiling water until al dente,
-                      about <span className="font-mono bg-primary/10 text-primary px-2 py-1 rounded">8-10 minutes</span>.
+                      about{" "}
+                      <span className="font-mono bg-coral-tint-50 text-primary px-2 py-1 rounded">
+                        8-10 minutes
+                      </span>
+                      .
                     </p>
                   </div>
-                  <div className="flex items-center justify-between pt-4 border-t">
-                    <Button variant="outline" size="sm">Previous</Button>
+                  <div className="flex items-center justify-between pt-4 border-t border-clay-border">
+                    <Button variant="outline" size="sm">
+                      Previous
+                    </Button>
                     <div className="flex items-center gap-2">
                       <Timer className="h-4 w-4 text-primary" />
-                      <span className="font-mono text-primary">09:34</span>
+                      <span className="font-mono text-primary font-semibold">
+                        09:34
+                      </span>
                     </div>
                     <Button size="sm">Next Step</Button>
                   </div>
@@ -317,17 +343,17 @@ export default function Home() {
       {/* Feature Demo 4: AI Import */}
       <section className="py-24 md:py-32 overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-12">
+          <div className="max-w-3xl mx-auto text-center mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-6">
               <Sparkles className="h-4 w-4" />
               AI-powered
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-clay-text mb-6">
               Import any recipe instantly
             </h2>
-            <p className="text-lg md:text-xl text-muted-foreground">
-              Paste a URL from any recipe website, or paste raw text.
-              Our AI extracts ingredients, instructions, and cook times automatically.
+            <p className="text-lg md:text-xl text-clay-muted">
+              Paste a URL from any recipe website, or paste raw text. Our AI
+              extracts ingredients, instructions, and cook times automatically.
             </p>
           </div>
           <div className="max-w-2xl mx-auto">
@@ -337,13 +363,13 @@ export default function Home() {
       </section>
 
       {/* More Features Grid */}
-      <section className="py-24 bg-muted/30">
+      <section className="py-24 bg-clay-bg">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-clay-text mb-4">
               Everything you need to run your kitchen
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-clay-muted max-w-2xl mx-auto">
               From planning to cooking to cleanup. Meal Prep OS handles it all.
             </p>
           </div>
@@ -383,147 +409,128 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Social Proof / Value Props */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-12">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Built for real kitchens
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                For couples, families, roommates — anyone tired of the
-                &quot;what do you want?&quot; &quot;I don&apos;t know, what do you want?&quot; loop.
-              </p>
-            </div>
+      {/* Testimonials Section */}
+      <TestimonialsSection />
 
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center space-y-3">
-                <div className="text-4xl font-mono font-bold text-primary">∞</div>
-                <p className="font-medium">Unlimited recipes</p>
-                <p className="text-sm text-muted-foreground">
-                  Save as many as you want
-                </p>
-              </div>
-              <div className="text-center space-y-3">
-                <div className="text-4xl font-mono font-bold text-primary">7</div>
-                <p className="font-medium">Days planned at once</p>
-                <p className="text-sm text-muted-foreground">
-                  One weekly planning session
-                </p>
-              </div>
-              <div className="text-center space-y-3">
-                <div className="text-4xl font-mono font-bold text-primary">0</div>
-                <p className="font-medium">Dinner debates</p>
-                <p className="text-sm text-muted-foreground">
-                  Finally, peace at 5pm
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Metrics Section */}
+      <MetricsSection />
 
       {/* Pricing Section */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-24 md:py-32">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-clay-text mb-4">
               Free to start
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-clay-muted text-lg">
               No credit card required. Upgrade when you need more.
             </p>
           </div>
 
           <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
-            <Card className="border-2">
-              <CardHeader>
-                <CardTitle className="text-2xl">Free</CardTitle>
-                <CardDescription>Everything you need to get started</CardDescription>
+            {/* Free Plan */}
+            <Card className="border-clay-border bg-clay-surface shadow-clay-card hover:shadow-clay-card-hover transition-all duration-200">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-2xl text-clay-text">Free</CardTitle>
+                <CardDescription>
+                  Everything you need to get started
+                </CardDescription>
                 <div className="pt-4">
-                  <span className="text-4xl font-mono font-bold">$0</span>
+                  <span className="text-4xl font-mono font-bold text-clay-text">
+                    $0
+                  </span>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
                 <ul className="space-y-3">
-                  <li className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                    <span>Unlimited recipes</span>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">Unlimited recipes</span>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                    <span>Weekly meal planning</span>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">Weekly meal planning</span>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                    <span>Auto shopping lists</span>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">Auto shopping lists</span>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                    <span>Cook Mode with timers</span>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">
+                      Cook Mode with timers
+                    </span>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                    <span>AI recipe import</span>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">AI recipe import</span>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                    <span>Basic nutrition tracking</span>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">
+                      Basic nutrition tracking
+                    </span>
                   </li>
                 </ul>
                 <Link href="/signup" className="block">
-                  <Button className="w-full" variant="outline">
-                    Get Started
+                  <Button
+                    className="w-full"
+                    variant="outline"
+                    size="lg"
+                  >
+                    Get started
                   </Button>
                 </Link>
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-primary">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-2xl">Pro</CardTitle>
-                  <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full">
-                    Popular
-                  </span>
-                </div>
+            {/* Pro Plan */}
+            <Card className="border-2 border-primary bg-clay-surface shadow-clay-lg relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-bl-lg">
+                Popular
+              </div>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-2xl text-clay-text">Pro</CardTitle>
                 <CardDescription>For serious meal preppers</CardDescription>
                 <div className="pt-4">
-                  <span className="text-4xl font-mono font-bold">$5</span>
-                  <span className="text-muted-foreground">/mo</span>
+                  <span className="text-4xl font-mono font-bold text-clay-text">
+                    $5
+                  </span>
+                  <span className="text-clay-muted">/mo</span>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
                 <ul className="space-y-3">
-                  <li className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                    <span>Everything in Free</span>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">Everything in Free</span>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                    <span>Household sharing (multiple cooks)</span>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">
+                      Household sharing (multiple cooks)
+                    </span>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                    <span>Google Calendar sync</span>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">Google Calendar sync</span>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                    <span>Multi-week planning</span>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">Multi-week planning</span>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                    <span>AI meal suggestions</span>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">AI meal suggestions</span>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                    <span>Pantry AI scanning</span>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-sage-500 shrink-0" />
+                    <span className="text-clay-text">Pantry AI scanning</span>
                   </li>
                 </ul>
                 <Link href="/signup" className="block">
-                  <Button className="w-full">
-                    Start Free Trial
+                  <Button className="w-full shadow-clay-md" size="lg">
+                    Start free trial
                   </Button>
                 </Link>
               </CardContent>
@@ -533,102 +540,126 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <FAQ />
+      <div className="bg-clay-bg">
+        <FAQ />
+      </div>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center space-y-6">
-            <ChefHat className="h-12 w-12 mx-auto" />
-            <h2 className="text-3xl md:text-4xl font-bold">
-              Take control of your kitchen.
-            </h2>
-            <p className="text-primary-foreground/80">
-              Join households who&apos;ve ended the nightly dinner debate.
-            </p>
-            <Link href="/signup">
-              <Button
-                size="lg"
-                variant="secondary"
-                className="text-lg px-8 py-6"
-              >
-                Start Planning Free
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+      <CTASection />
 
       {/* Footer */}
-      <footer className="border-t py-12">
+      <footer className="border-t border-clay-border py-12 bg-clay-surface">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <BrandLogoCompact />
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <Link href="/about" className="hover:text-foreground transition-colors">
-                About
-              </Link>
-              <Link href="/pricing" className="hover:text-foreground transition-colors">
-                Pricing
-              </Link>
-              <Link href="/privacy" className="hover:text-foreground transition-colors">
-                Privacy
-              </Link>
-              <Link href="/terms" className="hover:text-foreground transition-colors">
-                Terms
-              </Link>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+            {/* Product */}
+            <div>
+              <h4 className="font-semibold text-clay-text mb-4">Product</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link
+                    href="/pricing"
+                    className="text-clay-muted hover:text-clay-text transition-colors"
+                  >
+                    Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#demo"
+                    className="text-clay-muted hover:text-clay-text transition-colors"
+                  >
+                    Features
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/signup"
+                    className="text-clay-muted hover:text-clay-text transition-colors"
+                  >
+                    Sign Up
+                  </Link>
+                </li>
+              </ul>
             </div>
-            <p className="text-sm text-muted-foreground">
+
+            {/* Resources */}
+            <div>
+              <h4 className="font-semibold text-clay-text mb-4">Resources</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link
+                    href="/blog"
+                    className="text-clay-muted hover:text-clay-text transition-colors"
+                  >
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/help"
+                    className="text-clay-muted hover:text-clay-text transition-colors"
+                  >
+                    Help Center
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Company */}
+            <div>
+              <h4 className="font-semibold text-clay-text mb-4">Company</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link
+                    href="/about"
+                    className="text-clay-muted hover:text-clay-text transition-colors"
+                  >
+                    About
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/contact"
+                    className="text-clay-muted hover:text-clay-text transition-colors"
+                  >
+                    Contact
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="font-semibold text-clay-text mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link
+                    href="/privacy"
+                    className="text-clay-muted hover:text-clay-text transition-colors"
+                  >
+                    Privacy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/terms"
+                    className="text-clay-muted hover:text-clay-text transition-colors"
+                  >
+                    Terms
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 border-t border-clay-border">
+            <BrandLogoCompact />
+            <p className="text-sm text-clay-muted">
               Made with love (and meal plans)
             </p>
           </div>
         </div>
       </footer>
     </main>
-  );
-}
-
-// Quick feature card for the overview section
-function FeatureQuickCard({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="flex flex-col items-center text-center p-6 rounded-xl bg-background border">
-      <div className="p-3 rounded-lg bg-primary/10 text-primary mb-4">
-        {icon}
-      </div>
-      <h3 className="font-semibold mb-2">{title}</h3>
-      <p className="text-sm text-muted-foreground">{description}</p>
-    </div>
-  );
-}
-
-// Feature card for the detailed features section
-function FeatureCard({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <Card className="border bg-background">
-      <CardContent className="p-6">
-        <div className="p-3 rounded-lg bg-primary/10 text-primary w-fit mb-4">
-          {icon}
-        </div>
-        <h3 className="font-semibold text-lg mb-2">{title}</h3>
-        <p className="text-muted-foreground">{description}</p>
-      </CardContent>
-    </Card>
   );
 }

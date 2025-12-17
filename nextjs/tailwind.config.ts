@@ -161,6 +161,30 @@ const config: Config = {
           'eggplant-light': '#B94AD6',
           carrot: '#EB9D2A',
           'carrot-dark': '#D08A20'
+        },
+        // ═══════════════════════════════════════════════════════════════
+        // Clay.com-inspired neutral palette
+        // Sophisticated, minimal with strategic color use
+        // ═══════════════════════════════════════════════════════════════
+        clay: {
+          bg: '#FAFAFA',           // Off-white background
+          surface: '#FFFFFF',      // Card backgrounds
+          border: '#E5E5E5',       // Subtle borders
+          'border-hover': '#D4D4D4', // Border on hover
+          text: '#171717',         // Primary text
+          muted: '#737373',        // Secondary text
+          subtle: '#A3A3A3',       // Tertiary text
+        },
+        // Brand accent tints for backgrounds
+        'coral-tint': {
+          50: '#FFF7ED',
+          100: '#FFEDD5',
+          200: '#FED7AA',
+        },
+        'sage-tint': {
+          50: '#F0FDF4',
+          100: '#DCFCE7',
+          200: '#BBF7D0',
         }
       },
       borderRadius: {
@@ -177,7 +201,15 @@ const config: Config = {
         'card': '0 4px 20px rgba(0, 0, 0, 0.25)',
         'card-hover': '0 8px 30px rgba(0, 0, 0, 0.35)',
         'button': '0 2px 0 #B33600',
-        'button-hover': '0 3px 0 #B33600'
+        'button-hover': '0 3px 0 #B33600',
+        // Clay.com-inspired shadows (light, subtle)
+        'clay-sm': '0 1px 2px rgba(0, 0, 0, 0.04)',
+        'clay-md': '0 4px 6px rgba(0, 0, 0, 0.07)',
+        'clay-lg': '0 10px 15px rgba(0, 0, 0, 0.1)',
+        'clay-xl': '0 20px 25px rgba(0, 0, 0, 0.12)',
+        'clay-hover': '0 12px 24px rgba(0, 0, 0, 0.12)',
+        'clay-card': '0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)',
+        'clay-card-hover': '0 10px 20px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.05)'
       },
       keyframes: {
         'accordion-down': {
@@ -254,6 +286,27 @@ const config: Config = {
           '50%': { transform: 'rotate(10deg)' },
           '60%': { transform: 'rotate(0deg)' },
           '100%': { transform: 'rotate(0deg)' }
+        },
+        // Clay.com-inspired animations
+        'card-lift': {
+          '0%': { transform: 'translateY(0)', boxShadow: '0 4px 6px rgba(0,0,0,0.07)' },
+          '100%': { transform: 'translateY(-4px)', boxShadow: '0 12px 24px rgba(0,0,0,0.12)' }
+        },
+        'fade-in-up': {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' }
+        },
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' }
+        },
+        'marquee': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' }
+        },
+        'count-up': {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' }
         }
       },
       animation: {
@@ -268,7 +321,13 @@ const config: Config = {
         'bounce-in': 'bounce-in 0.4s ease-out',
         'float': 'float 3s ease-in-out infinite',
         'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
-        'wave': 'wave 2.5s ease-in-out infinite'
+        'wave': 'wave 2.5s ease-in-out infinite',
+        // Clay.com-inspired animations
+        'card-lift': 'card-lift 0.2s ease-out forwards',
+        'fade-in-up': 'fade-in-up 0.5s ease-out forwards',
+        'fade-in': 'fade-in 0.3s ease-out forwards',
+        'marquee': 'marquee 30s linear infinite',
+        'count-up': 'count-up 0.6s ease-out forwards'
       },
       spacing: {
         'safe': 'env(safe-area-inset-bottom)',
