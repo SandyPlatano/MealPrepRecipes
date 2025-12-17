@@ -5,6 +5,8 @@ import { getBulkRecipeNutrition } from "@/app/actions/nutrition";
 import { getActiveCustomBadges } from "@/app/actions/custom-badges";
 import { createClient } from "@/lib/supabase/server";
 import { RecipesPageClient } from "@/components/recipes/recipes-page-client";
+import { ContextualHint } from "@/components/hints/contextual-hint";
+import { HINT_IDS, HINT_CONTENT, isHintDismissed } from "@/lib/hints";
 
 export default async function RecipesPage() {
   const supabase = await createClient();
@@ -21,6 +23,7 @@ export default async function RecipesPage() {
   const favoriteIds = new Set(favoritesResult.data || []);
   const userAllergenAlerts = settingsResult.data?.allergen_alerts || [];
   const customDietaryRestrictions = settingsResult.data?.custom_dietary_restrictions || [];
+  const dismissedHints = settingsResult.data?.dismissed_hints || [];
   const recipeCookCounts = cookCountsResult.data || {};
   const customBadges = customBadgesResult.data || [];
 
@@ -57,6 +60,14 @@ export default async function RecipesPage() {
           Your collection of culinary wins. {recipes.length} recipes and counting.
         </p>
       </div>
+
+      {!isHintDismissed(HINT_IDS.RECIPES_INTRO, dismissedHints) && (
+        <ContextualHint
+          hintId={HINT_IDS.RECIPES_INTRO}
+          title={HINT_CONTENT[HINT_IDS.RECIPES_INTRO].title}
+          description={HINT_CONTENT[HINT_IDS.RECIPES_INTRO].description}
+        />
+      )}
 
       <Suspense fallback={<div>Loading recipes...</div>}>
         <RecipesPageClient

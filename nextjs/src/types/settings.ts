@@ -16,7 +16,10 @@ export interface UserSettings {
   calendar_event_duration_minutes?: number | null;
   calendar_excluded_days?: string[] | null;
 
-  // Nutrition tracking (new)
+  // Onboarding hints
+  dismissed_hints?: string[];
+
+  // Nutrition tracking
   macro_goals?: MacroGoals;
   macro_tracking_enabled?: boolean;
   macro_goal_preset?: MacroGoalPreset | null;

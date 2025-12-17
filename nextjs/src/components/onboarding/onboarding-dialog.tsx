@@ -134,7 +134,7 @@ export function OnboardingDialog({
       router.refresh();
       // Small delay to ensure revalidation completes before redirect
       setTimeout(() => {
-        router.push("/app/recipes/new");
+        router.push("/app/recipes");
       }, 100);
     } catch (error) {
       console.error("Onboarding error:", error);

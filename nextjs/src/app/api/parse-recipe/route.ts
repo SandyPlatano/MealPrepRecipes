@@ -26,11 +26,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Rate limiting: 20 requests per hour per user
+    // Rate limiting: 20 requests per day per user
     const rateLimitResult = await rateLimit({
-      identifier: `parse-recipe-${user.id}`,
+      identifier: `parse-recipe-daily-${user.id}`,
       limit: 20,
-      windowMs: 60 * 60 * 1000, // 1 hour
+      windowMs: 24 * 60 * 60 * 1000, // 24 hours
     });
 
     if (!rateLimitResult.success) {

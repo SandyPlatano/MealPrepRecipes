@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Moon, Sun, Plus, X, Users, Calendar, AlertTriangle } from "lucide-react";
+import { Moon, Sun, Plus, X, Users, Calendar, AlertTriangle, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
 import { ALLERGEN_TYPES, getAllergenDisplayName } from "@/lib/allergen-detector";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,7 @@ import {
   updateSettings,
   updateHouseholdName,
   deleteAccount,
+  resetAllHints,
 } from "@/app/actions/settings";
 import { logout } from "@/app/actions/auth";
 import {
@@ -66,6 +67,7 @@ interface SettingsFormProps {
     email_notifications: boolean;
     allergen_alerts?: string[];
     custom_dietary_restrictions?: string[];
+    dismissed_hints?: string[];
     google_connected_account?: string | null;
     calendar_event_time?: string | null;
     calendar_event_duration_minutes?: number | null;
@@ -141,6 +143,10 @@ export function SettingsForm({
   );
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isResettingHints, setIsResettingHints] = useState(false);
+  const [dismissedHintsCount, setDismissedHintsCount] = useState(
+    settings.dismissed_hints?.length || 0
+  );
   const [mounted, setMounted] = useState(false);
   
   // Use refs to store latest values to avoid dependency issues
@@ -323,6 +329,23 @@ export function SettingsForm({
     } catch {
       toast.error("Failed to delete account. Please try again.");
       setIsDeleting(false);
+    }
+  };
+
+  const handleResetHints = async () => {
+    setIsResettingHints(true);
+    try {
+      const result = await resetAllHints();
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        setDismissedHintsCount(0);
+        toast.success("Feature hints have been reset!");
+      }
+    } catch {
+      toast.error("Failed to reset hints. Please try again.");
+    } finally {
+      setIsResettingHints(false);
     }
   };
 
@@ -902,6 +925,38 @@ export function SettingsForm({
               </div>
             </>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Help & Hints */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Lightbulb className="h-5 w-5" />
+            Help & Hints
+          </CardTitle>
+          <CardDescription>
+            Contextual tips that appear throughout the app
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Show All Hints Again</p>
+              <p className="text-sm text-muted-foreground">
+                {dismissedHintsCount === 0
+                  ? "No hints dismissed"
+                  : `${dismissedHintsCount} hint${dismissedHintsCount === 1 ? "" : "s"} dismissed`}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              onClick={handleResetHints}
+              disabled={dismissedHintsCount === 0 || isResettingHints}
+            >
+              {isResettingHints ? "Resetting..." : "Reset Hints"}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

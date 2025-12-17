@@ -34,6 +34,7 @@ interface RecipeFormProps {
   recipe?: Recipe;
   initialData?: RecipeFormData;
   nutritionEnabled?: boolean;
+  onSaveSuccess?: () => void;
 }
 
 const recipeTypes: RecipeType[] = [
@@ -45,7 +46,7 @@ const recipeTypes: RecipeType[] = [
   "Side Dish",
 ];
 
-export function RecipeForm({ recipe, initialData, nutritionEnabled = false }: RecipeFormProps) {
+export function RecipeForm({ recipe, initialData, nutritionEnabled = false, onSaveSuccess }: RecipeFormProps) {
   const router = useRouter();
   const isEditing = !!recipe;
   const errorRef = useRef<HTMLDivElement>(null);
@@ -237,7 +238,12 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false }: Re
       setError(result.error);
       setLoading(false);
     } else {
-      router.push("/app/recipes");
+      toast.success(isEditing ? "Recipe updated!" : "Recipe saved!");
+      if (onSaveSuccess) {
+        onSaveSuccess();
+      } else {
+        router.push("/app/recipes");
+      }
     }
   };
 

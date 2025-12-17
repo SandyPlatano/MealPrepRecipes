@@ -21,6 +21,8 @@ import { getWeekStart } from "@/types/meal-plan";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingWrapper } from "@/components/onboarding/onboarding-wrapper";
 import { hasActiveSubscription } from "@/lib/stripe/subscription";
+import { ContextualHint } from "@/components/hints/contextual-hint";
+import { HINT_IDS, HINT_CONTENT, isHintDismissed } from "@/lib/hints";
 
 interface HomePageProps {
   searchParams: Promise<{ week?: string }>;
@@ -102,6 +104,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const cookColors = settingsResult.data?.cook_colors || {};
   const userAllergenAlerts = settingsResult.data?.allergen_alerts || [];
   const calendarExcludedDays = settingsResult.data?.calendar_excluded_days || [];
+  const dismissedHints = settingsResult.data?.dismissed_hints || [];
   const googleConnected = !!settingsResult.data?.google_connected_account;
   const favorites = favoritesResult.data || [];
   const recentRecipeIds = (recentlyCooked.data || []).map((r) => r.id);
@@ -147,12 +150,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   }
 
   // Check if user needs onboarding
-  // Only show onboarding if user hasn't completed it yet (no name AND no cook names)
-  // Once they've set their name or cook names, they've completed onboarding
-  const hasCompletedOnboarding = 
-    (profile?.first_name || profile?.last_name || profile?.name) || 
-    (settingsResult.data?.cook_names && settingsResult.data.cook_names.length > 0);
-  
+  // Show onboarding only for truly new users who haven't set up anything yet
+  // Note: cook_names defaults to ["Me"], so we check if it's just that default
+  const cookNames = settingsResult.data?.cook_names || [];
+  const hasCustomCookNames = cookNames.length > 1 || (cookNames.length === 1 && cookNames[0] !== "Me");
+  const hasSetName = !!(profile?.first_name || profile?.last_name);
+  const hasCompletedOnboarding = hasSetName || hasCustomCookNames;
+
   const needsOnboarding = !hasCompletedOnboarding && recipes.length === 0;
 
   return (
@@ -172,6 +176,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             Plan your week. Assign cooks. Send the list. Done.
           </p>
         </div>
+
+        {!isHintDismissed(HINT_IDS.MEAL_PLANNER_INTRO, dismissedHints) && (
+          <ContextualHint
+            hintId={HINT_IDS.MEAL_PLANNER_INTRO}
+            title={HINT_CONTENT[HINT_IDS.MEAL_PLANNER_INTRO].title}
+            description={HINT_CONTENT[HINT_IDS.MEAL_PLANNER_INTRO].description}
+          />
+        )}
 
         <MealPlannerGrid
           weekStartStr={weekStartStr}

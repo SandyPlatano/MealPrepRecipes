@@ -84,6 +84,7 @@ export async function getSettings() {
       calendar_event_duration_minutes,
       calendar_excluded_days,
       google_connected_account,
+      dismissed_hints,
       created_at,
       updated_at,
       email_notifications
@@ -131,6 +132,7 @@ export async function getSettings() {
           calendar_event_time: null as string | null,
           calendar_event_duration_minutes: null as number | null,
           calendar_excluded_days: [],
+          dismissed_hints: [],
           google_connected_account: null as string | null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -157,6 +159,7 @@ export async function getSettings() {
         calendar_event_time: null as string | null,
         calendar_event_duration_minutes: null as number | null,
         calendar_excluded_days: [],
+        dismissed_hints: [],
         google_connected_account: null as string | null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -179,6 +182,9 @@ export async function getSettings() {
     }
     if (!settings.calendar_excluded_days || !Array.isArray(settings.calendar_excluded_days)) {
       settings.calendar_excluded_days = [];
+    }
+    if (!settings.dismissed_hints || !Array.isArray(settings.dismissed_hints)) {
+      settings.dismissed_hints = [];
     }
     if (!settings.cook_names || !Array.isArray(settings.cook_names)) {
       settings.cook_names = ["Me"];
@@ -218,6 +224,7 @@ export async function getSettings() {
           calendar_event_time: null as string | null,
           calendar_event_duration_minutes: null as number | null,
           calendar_excluded_days: [],
+          dismissed_hints: [],
           google_connected_account: null as string | null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -450,5 +457,76 @@ export async function deleteAccount() {
     console.error("Account deletion error:", error);
     return { error: "Failed to delete account. Please try again." };
   }
+}
+
+// Dismiss a contextual hint
+export async function dismissHint(hintId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get current dismissed hints
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("dismissed_hints")
+    .eq("user_id", user.id)
+    .single();
+
+  const currentHints = settings?.dismissed_hints || [];
+
+  // Only add if not already dismissed
+  if (!currentHints.includes(hintId)) {
+    const { error } = await supabase
+      .from("user_settings")
+      .update({ dismissed_hints: [...currentHints, hintId] })
+      .eq("user_id", user.id);
+
+    if (error) {
+      return { error: error.message };
+    }
+  }
+
+  revalidatePath("/app");
+  revalidatePath("/app/recipes");
+  revalidatePath("/app/shop");
+  revalidatePath("/app/pantry");
+
+  return { error: null };
+}
+
+// Reset all dismissed hints (re-enable all hints)
+export async function resetAllHints() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ dismissed_hints: [] })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app");
+  revalidatePath("/app/recipes");
+  revalidatePath("/app/shop");
+  revalidatePath("/app/pantry");
+  revalidatePath("/app/settings");
+
+  return { error: null };
 }
 

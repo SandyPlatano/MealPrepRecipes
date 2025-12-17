@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -58,6 +59,7 @@ export function RecipePickerModal({
   cookColors = {},
   onAdd,
 }: RecipePickerModalProps) {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCook, setSelectedCook] = useState<string>("none");
   const [selectedRecipeIds, setSelectedRecipeIds] = useState<Set<string>>(new Set());
@@ -156,6 +158,29 @@ export function RecipePickerModal({
     setActiveTab("all");
     onOpenChange(false);
   };
+
+  const handleAddFirstRecipe = () => {
+    handleClose();
+    router.push("/app/recipes/new");
+  };
+
+  // Empty state when user has no recipes
+  if (recipes.length === 0) {
+    return (
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogContent className="max-w-md">
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <ChefHat className="h-16 w-16 text-muted-foreground/50 mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No recipes yet</h3>
+            <p className="text-muted-foreground mb-6 max-w-sm">
+              Add your first recipe to start planning meals for the week.
+            </p>
+            <Button onClick={handleAddFirstRecipe}>Add Your First Recipe</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>

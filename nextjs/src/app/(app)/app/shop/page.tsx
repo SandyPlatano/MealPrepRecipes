@@ -11,6 +11,8 @@ import { Cookie } from "lucide-react";
 import { getWeekStart } from "@/types/meal-plan";
 import { createClient } from "@/lib/supabase/server";
 import { hasActiveSubscription } from "@/lib/stripe/subscription";
+import { ContextualHint } from "@/components/hints/contextual-hint";
+import { HINT_IDS, HINT_CONTENT, isHintDismissed } from "@/lib/hints";
 
 export default async function ShopPage() {
   const supabase = await createClient();
@@ -48,6 +50,7 @@ export default async function ShopPage() {
   const weekPlan = weekPlanResult.data || null;
   const cookNames = settingsResult.data?.cook_names || [];
   const cookColors = settingsResult.data?.cook_colors || {};
+  const dismissedHints = settingsResult.data?.dismissed_hints || [];
   const subscriptionTier = aiQuota.data?.tier || 'free';
   const weekOptions = getWeekOptions(currentWeekStart, weeksMealCountsResult.data || []);
 
@@ -74,6 +77,14 @@ export default async function ShopPage() {
           )}
         </Link>
       </div>
+
+      {!isHintDismissed(HINT_IDS.SHOPPING_LIST_INTRO, dismissedHints) && (
+        <ContextualHint
+          hintId={HINT_IDS.SHOPPING_LIST_INTRO}
+          title={HINT_CONTENT[HINT_IDS.SHOPPING_LIST_INTRO].title}
+          description={HINT_CONTENT[HINT_IDS.SHOPPING_LIST_INTRO].description}
+        />
+      )}
 
       {/* Multi-Week Selector (Pro+ feature) */}
       <WeekSelector

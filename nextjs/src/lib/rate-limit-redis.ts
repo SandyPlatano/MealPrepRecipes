@@ -155,18 +155,50 @@ export async function rateLimit(options: RateLimitOptions): Promise<RateLimitRes
  */
 export function getIpAddress(request: Request): string {
   const headers = request.headers;
-  
+
   // Vercel-specific headers
   const forwardedFor = headers.get('x-forwarded-for');
   if (forwardedFor) {
     return forwardedFor.split(',')[0].trim();
   }
-  
+
   const realIp = headers.get('x-real-ip');
   if (realIp) {
     return realIp;
   }
-  
+
   return 'unknown';
+}
+
+/**
+ * Get current rate limit status without consuming a request
+ * Useful for showing users how many requests they have remaining
+ */
+export async function getRateLimitStatus(options: RateLimitOptions): Promise<RateLimitResult> {
+  const { identifier, limit, windowMs } = options;
+
+  // Check in-memory store first
+  const entry = inMemoryStore.get(identifier);
+  const now = Date.now();
+
+  if (!entry || now > entry.resetTime) {
+    // No rate limit consumed yet or window expired
+    return {
+      success: true,
+      limit,
+      remaining: limit,
+      reset: now + windowMs,
+    };
+  }
+
+  // Return current status from in-memory
+  // Note: This may not be perfectly accurate with Redis,
+  // but it's good enough for display purposes
+  return {
+    success: entry.count < limit,
+    limit,
+    remaining: Math.max(0, limit - entry.count),
+    reset: entry.resetTime,
+  };
 }
 

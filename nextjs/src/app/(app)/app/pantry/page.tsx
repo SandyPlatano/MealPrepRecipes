@@ -1,14 +1,22 @@
 import { getPantryItems } from "@/app/actions/pantry";
+import { getSettings } from "@/app/actions/settings";
 import { EnhancedPantryView } from "@/components/pantry/enhanced-pantry-view";
 import { createClient } from "@/lib/supabase/server";
 import { getUserTier } from "@/lib/stripe/subscription";
+import { ContextualHint } from "@/components/hints/contextual-hint";
+import { HINT_IDS, HINT_CONTENT, isHintDismissed } from "@/lib/hints";
 
 export default async function PantryPage() {
   const supabase = await createClient();
 
-  // Get pantry items
-  const pantryResult = await getPantryItems();
+  // Get pantry items and settings in parallel
+  const [pantryResult, settingsResult] = await Promise.all([
+    getPantryItems(),
+    getSettings(),
+  ]);
+
   const pantryItems = pantryResult.data || [];
+  const dismissedHints = settingsResult.data?.dismissed_hints || [];
 
   // Get user's subscription tier (respects localhost for development)
   let subscriptionTier: 'free' | 'pro' | 'premium' = 'free';
@@ -26,6 +34,14 @@ export default async function PantryPage() {
           Track what you already have. Scan your fridge or pantry with AI to automatically detect ingredients.
         </p>
       </div>
+
+      {!isHintDismissed(HINT_IDS.PANTRY_INTRO, dismissedHints) && (
+        <ContextualHint
+          hintId={HINT_IDS.PANTRY_INTRO}
+          title={HINT_CONTENT[HINT_IDS.PANTRY_INTRO].title}
+          description={HINT_CONTENT[HINT_IDS.PANTRY_INTRO].description}
+        />
+      )}
 
       <EnhancedPantryView
         initialItems={pantryItems}
