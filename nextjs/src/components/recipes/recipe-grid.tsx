@@ -20,9 +20,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles } from "lucide-react";
+import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles, Star } from "lucide-react";
 import type { RecipeWithFavoriteAndNutrition, RecipeType } from "@/types/recipe";
 import type { CustomBadge } from "@/lib/nutrition/badge-calculator";
+import type { FolderWithChildren } from "@/types/folder";
 
 interface RecipeGridProps {
   recipes: RecipeWithFavoriteAndNutrition[];
@@ -31,6 +32,10 @@ interface RecipeGridProps {
   customDietaryRestrictions?: string[];
   customBadges?: CustomBadge[];
   onDiscoverClick?: () => void;
+  // Folder filtering
+  folderRecipeIds?: string[] | null; // null = no folder filter, [] = show none, [...ids] = show these
+  folders?: FolderWithChildren[];
+  onAddToFolder?: (recipeId: string) => void;
 }
 
 const recipeTypes: RecipeType[] = [
@@ -44,12 +49,14 @@ const recipeTypes: RecipeType[] = [
 
 type SortOption = "recent" | "most-cooked" | "highest-rated" | "alphabetical";
 
-export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, userAllergenAlerts = [], customDietaryRestrictions = [], customBadges = [], onDiscoverClick }: RecipeGridProps) {
+export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, userAllergenAlerts = [], customDietaryRestrictions = [], customBadges = [], onDiscoverClick, folderRecipeIds = null, folders = [], onAddToFolder }: RecipeGridProps) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<RecipeType | "all">("all");
   const [proteinTypeFilter, setProteinTypeFilter] = useState<string>("all");
   const [tagFilter, setTagFilter] = useState<string>("all");
   const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [ratingFilter, setRatingFilter] = useState<number[]>([]);
+  const [ratedFilter, setRatedFilter] = useState<"all" | "rated" | "unrated">("all");
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("recent");
 
@@ -74,6 +81,13 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
   // Filter and sort recipes
   const filteredRecipes = useMemo(() => {
     const filtered = initialRecipes.filter((recipe) => {
+      // Folder filter (applied first if set)
+      if (folderRecipeIds !== null) {
+        if (!folderRecipeIds.includes(recipe.id)) {
+          return false;
+        }
+      }
+
       // Search filter
       if (search) {
         const searchLower = search.toLowerCase();
@@ -106,6 +120,21 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
         return false;
       }
 
+      // Rating filter (star level checkboxes)
+      if (ratingFilter.length > 0) {
+        if (recipe.rating === null || !ratingFilter.includes(recipe.rating)) {
+          return false;
+        }
+      }
+
+      // Rated/Unrated filter
+      if (ratedFilter === "rated" && recipe.rating === null) {
+        return false;
+      }
+      if (ratedFilter === "unrated" && recipe.rating !== null) {
+        return false;
+      }
+
       return true;
     });
 
@@ -130,19 +159,31 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
     });
 
     return sorted;
-  }, [initialRecipes, search, typeFilter, proteinTypeFilter, tagFilter, favoritesOnly, sortBy, recipeCookCounts]);
+  }, [initialRecipes, search, typeFilter, proteinTypeFilter, tagFilter, favoritesOnly, ratingFilter, ratedFilter, sortBy, recipeCookCounts, folderRecipeIds]);
 
   const hasActiveFilters =
     typeFilter !== "all" ||
     proteinTypeFilter !== "all" ||
     tagFilter !== "all" ||
-    favoritesOnly;
+    favoritesOnly ||
+    ratingFilter.length > 0 ||
+    ratedFilter !== "all";
 
   const clearFilters = () => {
     setTypeFilter("all");
     setProteinTypeFilter("all");
     setTagFilter("all");
     setFavoritesOnly(false);
+    setRatingFilter([]);
+    setRatedFilter("all");
+  };
+
+  const toggleRatingFilter = (rating: number) => {
+    setRatingFilter((prev) =>
+      prev.includes(rating)
+        ? prev.filter((r) => r !== rating)
+        : [...prev, rating]
+    );
   };
 
   return (
@@ -279,6 +320,49 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
             </div>
           </div>
 
+          {/* Rating Filters */}
+          <div className="flex flex-wrap gap-4 pt-3 border-t">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Rating</label>
+              <div className="flex gap-1">
+                {[5, 4, 3, 2, 1].map((rating) => (
+                  <button
+                    key={rating}
+                    onClick={() => toggleRatingFilter(rating)}
+                    className={`flex items-center gap-1 px-2 py-1.5 rounded-md border text-sm transition-colors ${
+                      ratingFilter.includes(rating)
+                        ? "bg-yellow-50 border-yellow-300 text-yellow-700 dark:bg-yellow-950 dark:border-yellow-700 dark:text-yellow-300"
+                        : "border-input hover:bg-accent"
+                    }`}
+                  >
+                    <Star
+                      className={`h-3.5 w-3.5 ${
+                        ratingFilter.includes(rating)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-muted-foreground"
+                      }`}
+                    />
+                    <span>{rating}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Show</label>
+              <Select value={ratedFilter} onValueChange={(value) => setRatedFilter(value as "all" | "rated" | "unrated")}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Recipes</SelectItem>
+                  <SelectItem value="rated">Rated Only</SelectItem>
+                  <SelectItem value="unrated">Unrated Only</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           {hasActiveFilters && (
             <div className="flex items-center gap-2 pt-2 border-t">
               <span className="text-sm text-muted-foreground">Active filters:</span>
@@ -310,6 +394,23 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
                 <Badge variant="secondary" className="gap-1">
                   Favorites
                   <button onClick={() => setFavoritesOnly(false)}>
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {ratingFilter.length > 0 && (
+                <Badge variant="secondary" className="gap-1">
+                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                  {ratingFilter.sort((a, b) => b - a).join(", ")}
+                  <button onClick={() => setRatingFilter([])}>
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {ratedFilter !== "all" && (
+                <Badge variant="secondary" className="gap-1">
+                  {ratedFilter === "rated" ? "Rated" : "Unrated"}
+                  <button onClick={() => setRatedFilter("all")}>
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -363,6 +464,8 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
                   customDietaryRestrictions={customDietaryRestrictions}
                   customBadges={customBadges}
                   animationIndex={index}
+                  folders={folders}
+                  onAddToFolder={onAddToFolder}
                 />
               ))}
             </div>

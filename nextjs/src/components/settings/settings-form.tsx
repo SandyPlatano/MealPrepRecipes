@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Moon, Sun, Plus, X, Users, Calendar, AlertTriangle, Lightbulb, Scale, Download } from "lucide-react";
+import { Moon, Sun, Plus, X, Users, Calendar, AlertTriangle, Lightbulb, Scale, Download, Upload, Package, Database } from "lucide-react";
 import { toast } from "sonner";
 import { ALLERGEN_TYPES, getAllergenDisplayName } from "@/lib/allergen-detector";
 import { Badge } from "@/components/ui/badge";
@@ -41,7 +41,14 @@ import {
   updateMacroGoals,
   toggleNutritionTracking,
 } from "@/app/actions/nutrition";
-import type { MacroGoals, MacroGoalPreset } from "@/types/nutrition";
+import {
+  getRecipesForExport,
+  getExistingRecipeTitles,
+} from "@/app/actions/export";
+import { BulkExportDialog } from "@/components/recipes/export/bulk-export-dialog";
+import { BulkImportDialog } from "@/components/recipes/export/bulk-import-dialog";
+import type { MacroGoals, MacroGoalPreset, RecipeNutrition } from "@/types/nutrition";
+import type { Recipe } from "@/types/recipe";
 import type { Substitution, UserSubstitution } from "@/lib/substitutions";
 import type { RecipeExportPreferences } from "@/types/settings";
 import { DEFAULT_RECIPE_EXPORT_PREFERENCES } from "@/lib/export/recipe-markdown";
@@ -158,6 +165,15 @@ export function SettingsForm({
     settings.dismissed_hints?.length || 0
   );
   const [mounted, setMounted] = useState(false);
+
+  // Data Management state
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [exportRecipes, setExportRecipes] = useState<Recipe[]>([]);
+  const [exportNutritionMap, setExportNutritionMap] = useState<Map<string, RecipeNutrition>>(new Map());
+  const [existingTitles, setExistingTitles] = useState<Set<string>>(new Set());
+  const [isLoadingExportData, setIsLoadingExportData] = useState(false);
+  const [isLoadingImportData, setIsLoadingImportData] = useState(false);
   
   // Use refs to store latest values to avoid dependency issues
   const themeRef = useRef(theme);
@@ -367,6 +383,52 @@ export function SettingsForm({
     } finally {
       setIsResettingHints(false);
     }
+  };
+
+  // Data Management handlers
+  const handleOpenExportDialog = async () => {
+    setIsLoadingExportData(true);
+    try {
+      const result = await getRecipesForExport();
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      setExportRecipes(result.recipes);
+      // Convert nutrition map object to Map
+      const nutritionMap = new Map<string, RecipeNutrition>();
+      for (const [recipeId, nutrition] of Object.entries(result.nutritionMap)) {
+        nutritionMap.set(recipeId, nutrition as unknown as RecipeNutrition);
+      }
+      setExportNutritionMap(nutritionMap);
+      setShowExportDialog(true);
+    } catch {
+      toast.error("Failed to load recipes for export");
+    } finally {
+      setIsLoadingExportData(false);
+    }
+  };
+
+  const handleOpenImportDialog = async () => {
+    setIsLoadingImportData(true);
+    try {
+      const result = await getExistingRecipeTitles();
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      setExistingTitles(new Set(result.titles));
+      setShowImportDialog(true);
+    } catch {
+      toast.error("Failed to load existing recipes");
+    } finally {
+      setIsLoadingImportData(false);
+    }
+  };
+
+  const handleImportSuccess = () => {
+    // Reload page to show new recipes
+    window.location.reload();
   };
 
   const handleSave = async () => {
@@ -683,6 +745,58 @@ export function SettingsForm({
           </div>
           <p className="text-xs text-muted-foreground">
             Title is always included. These preferences apply to individual recipe exports.
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Data Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Database className="h-5 w-5" />
+            Data Management
+          </CardTitle>
+          <CardDescription>
+            Export or import your recipes in bulk
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Button
+              variant="outline"
+              className="h-auto py-4 flex flex-col items-center gap-2"
+              onClick={handleOpenExportDialog}
+              disabled={isLoadingExportData}
+            >
+              <Package className="h-6 w-6 text-muted-foreground" />
+              <div className="text-center">
+                <p className="font-medium">
+                  {isLoadingExportData ? "Loading..." : "Export Recipes"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Download as ZIP archive
+                </p>
+              </div>
+            </Button>
+            <Button
+              variant="outline"
+              className="h-auto py-4 flex flex-col items-center gap-2"
+              onClick={handleOpenImportDialog}
+              disabled={isLoadingImportData}
+            >
+              <Upload className="h-6 w-6 text-muted-foreground" />
+              <div className="text-center">
+                <p className="font-medium">
+                  {isLoadingImportData ? "Loading..." : "Import Recipes"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  From JSON or Paprika files
+                </p>
+              </div>
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground text-center">
+            Use export for backups. Import supports our JSON format and Paprika exports.
           </p>
         </CardContent>
       </Card>
@@ -1172,6 +1286,21 @@ export function SettingsForm({
           </p>
         </CardContent>
       </Card>
+
+      {/* Export/Import Dialogs */}
+      <BulkExportDialog
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
+        recipes={exportRecipes}
+        nutritionMap={exportNutritionMap}
+      />
+      <BulkImportDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        existingTitles={existingTitles}
+        userId={profile.id}
+        onSuccess={handleImportSuccess}
+      />
     </div>
   );
 }

@@ -18,6 +18,7 @@ import {
   type WeekPlanData,
   type DayOfWeek,
   type MealAssignmentWithRecipe,
+  type MealType,
   DAYS_OF_WEEK,
   formatWeekRange,
 } from "@/types/meal-plan";
@@ -115,12 +116,12 @@ export function MealPlannerGrid({
   // Use 'T00:00:00' to ensure consistent parsing across timezones
   const weekStartDate = new Date(weekStartStr + "T00:00:00");
 
-  // Handler for adding a meal
+  // Handler for adding a meal (with optional cook and meal type)
   const handleAddMeal = useCallback(
-    async (recipeId: string, day: DayOfWeek, cook?: string) => {
+    async (recipeId: string, day: DayOfWeek, cook?: string, mealType?: MealType | null) => {
       const recipe = recipes.find((r) => r.id === recipeId);
       startTransition(async () => {
-        const result = await addMealAssignment(weekStartStr, recipeId, day, cook);
+        const result = await addMealAssignment(weekStartStr, recipeId, day, cook, mealType);
         if (result.error) {
           toast.error(result.error);
         } else {
@@ -146,6 +147,19 @@ export function MealPlannerGrid({
             delete next[assignmentId];
             return next;
           });
+          toast.error(result.error);
+        }
+      });
+    },
+    []
+  );
+
+  // Handler for updating a meal type
+  const handleUpdateMealType = useCallback(
+    async (assignmentId: string, mealType: MealType | null) => {
+      startTransition(async () => {
+        const result = await updateMealAssignment(assignmentId, { meal_type: mealType });
+        if (result.error) {
           toast.error(result.error);
         }
       });
@@ -286,6 +300,7 @@ export function MealPlannerGrid({
                   googleConnected={googleConnected}
                   onAddMeal={handleAddMeal}
                   onUpdateCook={handleUpdateCook}
+                  onUpdateMealType={handleUpdateMealType}
                   onRemoveMeal={handleRemoveMeal}
                   nutritionData={nutritionData}
                 />

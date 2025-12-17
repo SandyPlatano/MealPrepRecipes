@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -20,7 +20,9 @@ import {
 } from "@/components/ui/select";
 import { Search, ChefHat } from "lucide-react";
 import { RecipePickerCard } from "./recipe-picker-card";
-import type { DayOfWeek } from "@/types/meal-plan";
+import { MealTypeSelector } from "./meal-type-selector";
+import type { DayOfWeek, MealType } from "@/types/meal-plan";
+import { inferMealType } from "@/lib/meal-type-inference";
 
 interface Recipe {
   id: string;
@@ -44,7 +46,7 @@ interface RecipePickerModalProps {
   cookNames: string[];
   cookColors?: Record<string, string>;
   userAllergenAlerts?: string[];
-  onAdd: (recipeIds: string[], cook: string | null, note?: string) => Promise<void>;
+  onAdd: (recipeIds: string[], cook: string | null, mealType: MealType | null) => Promise<void>;
 }
 
 export function RecipePickerModal({
@@ -62,9 +64,24 @@ export function RecipePickerModal({
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCook, setSelectedCook] = useState<string>("none");
+  const [selectedMealType, setSelectedMealType] = useState<MealType | null>(null);
   const [selectedRecipeIds, setSelectedRecipeIds] = useState<Set<string>>(new Set());
   const [isAdding, setIsAdding] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "favorites" | "recent" | "suggestions">("all");
+
+  // Auto-infer meal type when first recipe is selected
+  useEffect(() => {
+    if (selectedRecipeIds.size === 1) {
+      const recipeId = Array.from(selectedRecipeIds)[0];
+      const recipe = recipes.find((r) => r.id === recipeId);
+      if (recipe) {
+        const inferredType = inferMealType(recipe.recipe_type);
+        if (inferredType) {
+          setSelectedMealType(inferredType);
+        }
+      }
+    }
+  }, [selectedRecipeIds, recipes]);
 
   // Default colors for cooks (fallback)
   const defaultColors = [
@@ -132,15 +149,16 @@ export function RecipePickerModal({
 
   const handleAdd = async () => {
     if (selectedRecipeIds.size === 0) return;
-    
+
     setIsAdding(true);
     try {
       const cook = selectedCook === "none" ? null : selectedCook;
-      await onAdd(Array.from(selectedRecipeIds), cook);
-      
+      await onAdd(Array.from(selectedRecipeIds), cook, selectedMealType);
+
       // Reset state
       setSelectedRecipeIds(new Set());
       setSelectedCook("none");
+      setSelectedMealType(null);
       setSearchQuery("");
       setActiveTab("all");
       onOpenChange(false);
@@ -154,6 +172,7 @@ export function RecipePickerModal({
   const handleClose = () => {
     setSelectedRecipeIds(new Set());
     setSelectedCook("none");
+    setSelectedMealType(null);
     setSearchQuery("");
     setActiveTab("all");
     onOpenChange(false);
@@ -192,7 +211,7 @@ export function RecipePickerModal({
           </DialogTitle>
         </DialogHeader>
 
-        {/* Search & Cook Selector */}
+        {/* Search & Cook/Meal Type Selectors */}
         <div className="px-6 py-4 border-b space-y-3">
           <div className="flex gap-3">
             <div className="relative flex-1">
@@ -204,12 +223,17 @@ export function RecipePickerModal({
                 className="pl-9"
               />
             </div>
-            <Select 
-              value={selectedCook} 
+            <MealTypeSelector
+              value={selectedMealType}
+              onChange={setSelectedMealType}
+              className="w-[160px]"
+            />
+            <Select
+              value={selectedCook}
               onValueChange={(value) => setSelectedCook(value)}
             >
-              <SelectTrigger 
-                className="w-[200px] min-w-0 [&>span]:min-w-0 [&>span]:truncate"
+              <SelectTrigger
+                className="w-[180px] min-w-0 [&>span]:min-w-0 [&>span]:truncate"
                 style={selectedCook && selectedCook !== "none" && getCookColor(selectedCook) ? {
                   borderLeft: `3px solid ${getCookColor(selectedCook)}`,
                 } : undefined}
@@ -291,11 +315,18 @@ export function RecipePickerModal({
                   <p className="text-sm font-semibold">
                     {selectedRecipeIds.size} recipe{selectedRecipeIds.size > 1 ? 's' : ''} selected
                   </p>
-                  {selectedCook !== "none" && (
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Cook: {selectedCook}
-                    </p>
-                  )}
+                  <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                    {selectedMealType && (
+                      <span className="text-xs text-muted-foreground">
+                        {selectedMealType.charAt(0).toUpperCase() + selectedMealType.slice(1)}
+                      </span>
+                    )}
+                    {selectedCook !== "none" && (
+                      <span className="text-xs text-muted-foreground">
+                        • Cook: {selectedCook}
+                      </span>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground">

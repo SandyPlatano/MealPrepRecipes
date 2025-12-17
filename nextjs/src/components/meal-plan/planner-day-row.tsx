@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, memo, useEffect } from "react";
+import { useState, useTransition, memo, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,8 +14,11 @@ import {
 } from "@/components/ui/select";
 import { Plus, Trash2, Eye, Pencil, ChefHat, CalendarOff } from "lucide-react";
 import { RecipePickerModal } from "./recipe-picker-modal";
+import { MealSlotHeader } from "./meal-slot-header";
+import { MealTypeSelector } from "./meal-type-selector";
 import { cn } from "@/lib/utils";
-import type { DayOfWeek, MealAssignmentWithRecipe } from "@/types/meal-plan";
+import type { DayOfWeek, MealAssignmentWithRecipe, MealType } from "@/types/meal-plan";
+import { groupMealsByType, getMealTypeConfig, MEAL_TYPE_ORDER } from "@/types/meal-plan";
 import type { RecipeNutrition } from "@/types/nutrition";
 
 interface Recipe {
@@ -39,8 +42,9 @@ interface PlannerDayRowProps {
   userAllergenAlerts?: string[];
   isCalendarExcluded?: boolean;
   googleConnected?: boolean;
-  onAddMeal: (recipeId: string, day: DayOfWeek, cook?: string) => Promise<void>;
+  onAddMeal: (recipeId: string, day: DayOfWeek, cook?: string, mealType?: MealType | null) => Promise<void>;
   onUpdateCook: (assignmentId: string, cook: string | null) => Promise<void>;
+  onUpdateMealType: (assignmentId: string, mealType: MealType | null) => Promise<void>;
   onRemoveMeal: (assignmentId: string) => Promise<void>;
   nutritionData?: Map<string, RecipeNutrition> | null;
 }
@@ -60,6 +64,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
   googleConnected = false,
   onAddMeal,
   onUpdateCook,
+  onUpdateMealType,
   onRemoveMeal,
   nutritionData = null,
 }: PlannerDayRowProps) {
@@ -71,6 +76,11 @@ export const PlannerDayRow = memo(function PlannerDayRow({
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Group assignments by meal type for organized display
+  const groupedAssignments = useMemo(() => {
+    return groupMealsByType(assignments);
+  }, [assignments]);
 
   // Only compute "today" on client to avoid server/client mismatch
   const today = isMounted ? new Date() : new Date(date);
@@ -117,28 +127,40 @@ export const PlannerDayRow = memo(function PlannerDayRow({
           isPast && "opacity-70"
         )}
       >
-        <CardContent className="p-2.5 space-y-1.5">
+        <CardContent className="p-2.5 space-y-2">
           {assignments.length === 0 ? (
             <div className="text-xs text-muted-foreground text-center py-4">
               {isPast ? "No meals planned" : "No meals yet"}
             </div>
           ) : (
-            assignments.map((assignment) => (
-              <RecipeRow
-                key={assignment.id}
-                assignment={assignment}
-                cookNames={cookNames}
-                cookColors={cookColors}
-                onUpdateCook={onUpdateCook}
-                onRemove={onRemoveMeal}
-                onSwap={() => {
-                  // First remove the current recipe, then open modal to add new one
-                  onRemoveMeal(assignment.id);
-                  setModalOpen(true);
-                }}
-                nutrition={nutritionData?.get(assignment.recipe_id) || null}
-              />
-            ))
+            // Render grouped assignments by meal type
+            MEAL_TYPE_ORDER.map((mealType) => {
+              const typeMeals = groupedAssignments.get(mealType) || [];
+              if (typeMeals.length === 0) return null;
+
+              return (
+                <div key={mealType ?? "other"} className="space-y-1.5">
+                  <MealSlotHeader mealType={mealType} mealCount={typeMeals.length} />
+                  {typeMeals.map((assignment) => (
+                    <RecipeRow
+                      key={assignment.id}
+                      assignment={assignment}
+                      cookNames={cookNames}
+                      cookColors={cookColors}
+                      onUpdateCook={onUpdateCook}
+                      onUpdateMealType={onUpdateMealType}
+                      onRemove={onRemoveMeal}
+                      onSwap={() => {
+                        // First remove the current recipe, then open modal to add new one
+                        onRemoveMeal(assignment.id);
+                        setModalOpen(true);
+                      }}
+                      nutrition={nutritionData?.get(assignment.recipe_id) || null}
+                    />
+                  ))}
+                </div>
+              );
+            })
           )}
 
           {/* Add Meal Button */}
@@ -168,11 +190,11 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                 cookNames={cookNames}
                 cookColors={cookColors}
                 userAllergenAlerts={userAllergenAlerts}
-                onAdd={async (recipeIds, cook) => {
+                onAdd={async (recipeIds, cook, mealType) => {
                   startTransition(async () => {
-                    // Add each recipe with the cook assignment
+                    // Add each recipe with the cook and meal type assignment
                     for (const recipeId of recipeIds) {
-                      await onAddMeal(recipeId, day, cook || undefined);
+                      await onAddMeal(recipeId, day, cook || undefined, mealType);
                     }
                   });
                 }}
@@ -190,6 +212,7 @@ interface RecipeRowProps {
   cookNames: string[];
   cookColors: Record<string, string>;
   onUpdateCook: (assignmentId: string, cook: string | null) => Promise<void>;
+  onUpdateMealType: (assignmentId: string, mealType: MealType | null) => Promise<void>;
   onRemove: (assignmentId: string) => Promise<void>;
   onSwap: () => void;
   nutrition?: RecipeNutrition | null;
@@ -200,11 +223,12 @@ function RecipeRow({
   cookNames,
   cookColors,
   onUpdateCook,
+  onUpdateMealType,
   onRemove,
   onSwap,
   nutrition = null,
 }: RecipeRowProps) {
-  
+
   // Default colors for cooks (fallback)
   const defaultColors = [
     "#3b82f6", // blue
@@ -213,25 +237,30 @@ function RecipeRow({
     "#f59e0b", // amber
     "#ec4899", // pink
   ];
-  
+
   // Get cook color for styling - returns color for swatch and border
   const getCookColor = (cook: string | null): string | null => {
     if (!cook) return null;
-    
+
     // Use saved color if available
     if (cookColors[cook]) {
       return cookColors[cook];
     }
-    
+
     // Fall back to default color
     const index = cookNames.indexOf(cook);
     if (index >= 0) {
       return defaultColors[index % defaultColors.length];
     }
-    
+
     return null;
   };
+
+  // Get meal type config for colored border
+  const mealTypeConfig = getMealTypeConfig(assignment.meal_type);
+
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isUpdatingMealType, setIsUpdatingMealType] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
 
   const handleCookChange = async (value: string) => {
@@ -240,6 +269,15 @@ function RecipeRow({
       await onUpdateCook(assignment.id, value === "none" || value === "" ? null : value);
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleMealTypeChange = async (mealType: MealType | null) => {
+    setIsUpdatingMealType(true);
+    try {
+      await onUpdateMealType(assignment.id, mealType);
+    } finally {
+      setIsUpdatingMealType(false);
     }
   };
 
@@ -255,10 +293,13 @@ function RecipeRow({
   return (
     <div
       className={cn(
-        "group flex flex-col sm:flex-row sm:items-center gap-2 p-2 rounded-md border bg-card/50 transition-all",
+        "group flex flex-col sm:flex-row sm:items-center gap-2 p-2 rounded-md border bg-card/50 transition-all border-l-4",
         "hover:bg-card hover:shadow-sm hover:border-primary/30",
         isRemoving && "opacity-50"
       )}
+      style={{
+        borderLeftColor: mealTypeConfig.accentColor,
+      }}
     >
       {/* Mobile: Row 1 - Title + Delete | Desktop: Title only */}
       <div className="flex items-center gap-2 sm:flex-1 sm:min-w-0">
@@ -336,6 +377,17 @@ function RecipeRow({
         >
           <Trash2 className="h-3.5 w-3.5" />
         </Button>
+
+        {/* Meal Type Selector - hidden on mobile (shown via border color), visible on desktop */}
+        <div className="hidden sm:block sm:w-[110px]">
+          <MealTypeSelector
+            value={assignment.meal_type}
+            onChange={handleMealTypeChange}
+            disabled={isUpdatingMealType}
+            className="h-7 text-xs"
+            compact
+          />
+        </div>
 
         {/* Cook Selector - flex-1 on mobile, fixed width on desktop */}
         <div className="flex-1 sm:flex-none sm:w-[140px] min-w-0">

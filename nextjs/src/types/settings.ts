@@ -145,9 +145,32 @@ export const DEFAULT_COOK_MODE_SETTINGS: CookModeSettings = {
   },
 };
 
+// ============================================================================
+// Meal Type Emoji Settings Types
+// ============================================================================
+
+export type MealTypeKey = "breakfast" | "lunch" | "dinner" | "snack" | "other";
+
+export interface MealTypeEmojiSettings {
+  breakfast: string;
+  lunch: string;
+  dinner: string;
+  snack: string;
+  other: string;
+}
+
+export const DEFAULT_MEAL_TYPE_EMOJIS: MealTypeEmojiSettings = {
+  breakfast: "🌅",
+  lunch: "🥗",
+  dinner: "🍽️",
+  snack: "🍿",
+  other: "📋",
+};
+
 /**
  * Structure for user_settings.preferences JSONB column
  */
 export interface UserSettingsPreferences {
   cookMode?: CookModeSettings;
+  mealTypeEmojis?: MealTypeEmojiSettings;
 }

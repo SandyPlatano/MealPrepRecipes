@@ -88,4 +88,6 @@ export interface RecipeFilters {
   category?: string;
   tags?: string[];
   favorites_only?: boolean;
+  rating_filter?: number[]; // Array of star levels to include [1, 2, 3, 4, 5]
+  rated_filter?: "all" | "rated" | "unrated"; // Filter by rated status
 }

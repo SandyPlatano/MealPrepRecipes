@@ -793,6 +793,8 @@ export function ShoppingListView({
                   items={groupedItems[category]}
                   onPantryToggle={handlePantryToggle}
                   userUnitSystem={userUnitSystem}
+                  showRecipeSources={showRecipeSources}
+                  onRemoveRecipeItems={handleRemoveRecipeItems}
                 />
               ))}
             </div>
@@ -881,6 +883,8 @@ const SortableCategorySection = memo(function SortableCategorySection({
               item={item}
               onPantryToggle={onPantryToggle}
               userUnitSystem={userUnitSystem}
+              showRecipeSources={showRecipeSources}
+              onRemoveRecipeItems={onRemoveRecipeItems}
             />
           ))}
         </ul>

@@ -34,6 +34,8 @@ import {
   Plus,
   Share2,
   AlertTriangle,
+  FolderPlus,
+  Star,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -52,8 +54,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
+import { RatingBadge } from "@/components/ui/rating-badge";
+import { QuickRatingPopover } from "@/components/recipes/quick-rating-popover";
 import type { RecipeWithFavorite, RecipeWithFavoriteAndNutrition, RecipeType } from "@/types/recipe";
 import type { DayOfWeek } from "@/types/meal-plan";
+import type { FolderWithChildren } from "@/types/folder";
 import { useCart } from "@/components/cart";
 import { AddToPlanSheet } from "./add-to-plan-sheet";
 import { toast } from "sonner";
@@ -95,10 +100,15 @@ interface RecipeCardProps {
   customBadges?: CustomBadge[];
   /** Animation delay index for staggered animations (multiplied by 50ms) */
   animationIndex?: number;
+  /** Available folders for "Add to Folder" feature */
+  folders?: FolderWithChildren[];
+  /** Callback when user clicks "Add to Folders" */
+  onAddToFolder?: (recipeId: string) => void;
 }
 
-export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userAllergenAlerts = [], customDietaryRestrictions = [], customBadges = [], animationIndex }: RecipeCardProps) {
+export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userAllergenAlerts = [], customDietaryRestrictions = [], customBadges = [], animationIndex, folders = [], onAddToFolder }: RecipeCardProps) {
   const [isFavorite, setIsFavorite] = useState(recipe.is_favorite);
+  const [currentRating, setCurrentRating] = useState<number | null>(recipe.rating);
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Calculate which nutrition badges apply to this recipe
@@ -370,9 +380,34 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                 </CardDescription>
               </div>
               <div
-                className="flex gap-1 ml-2 shrink-0"
+                className="flex items-center gap-1 ml-2 shrink-0"
                 onClick={(e) => e.stopPropagation()}
               >
+                {/* Rating Badge */}
+                <QuickRatingPopover
+                  recipeId={recipe.id}
+                  currentRating={currentRating}
+                  onRated={setCurrentRating}
+                >
+                  {currentRating ? (
+                    <RatingBadge rating={currentRating} size="sm" />
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground/50 hover:text-yellow-500"
+                        >
+                          <Star className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Rate this recipe</TooltipContent>
+                    </Tooltip>
+                  )}
+                </QuickRatingPopover>
+
+                {/* Favorite Button */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -413,6 +448,16 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                       <Share2 className="h-4 w-4 mr-2" />
                       Share Recipe
                     </DropdownMenuItem>
+                    {onAddToFolder && (
+                      <DropdownMenuItem onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onAddToFolder(recipe.id);
+                      }}>
+                        <FolderPlus className="h-4 w-4 mr-2" />
+                        Add to Folders
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();

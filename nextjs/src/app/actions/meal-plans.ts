@@ -10,6 +10,7 @@ import type {
   WeekPlanData,
   MealPlanTemplate,
   TemplateAssignment,
+  MealType,
 } from "@/types/meal-plan";
 import {
   mergeShoppingItems,
@@ -330,7 +331,8 @@ export async function addMealAssignment(
   weekStart: string,
   recipeId: string,
   dayOfWeek: DayOfWeek,
-  cook?: string
+  cook?: string,
+  mealType?: MealType | null
 ) {
   // Check authentication first
   const { user: authUser, error: authError } = await getCachedUser();
@@ -360,6 +362,7 @@ export async function addMealAssignment(
     recipe_id: recipeId,
     day_of_week: dayOfWeek,
     cook: cook || null,
+    meal_type: mealType ?? null,
   });
 
   if (error) {
@@ -452,10 +455,10 @@ export async function removeMealAssignment(assignmentId: string) {
   return { error: null };
 }
 
-// Update assignment (change day or cook)
+// Update assignment (change day, cook, or meal type)
 export async function updateMealAssignment(
   assignmentId: string,
-  updates: { day_of_week?: DayOfWeek; cook?: string }
+  updates: { day_of_week?: DayOfWeek; cook?: string | null; meal_type?: MealType | null }
 ) {
   // Check authentication first
   const { user: authUser, error: authError } = await getCachedUser();
@@ -878,7 +881,7 @@ export async function createMealPlanTemplate(
   // Get all assignments for this meal plan
   const { data: assignments, error: assignmentsError } = await supabase
     .from("meal_assignments")
-    .select("recipe_id, day_of_week, cook")
+    .select("recipe_id, day_of_week, cook, meal_type")
     .eq("meal_plan_id", mealPlan.id);
 
   if (assignmentsError) {
@@ -891,6 +894,7 @@ export async function createMealPlanTemplate(
       recipe_id: a.recipe_id,
       day_of_week: a.day_of_week as DayOfWeek,
       cook: a.cook,
+      meal_type: a.meal_type as MealType | null,
     })
   );
 
@@ -1041,6 +1045,7 @@ export async function applyMealPlanTemplate(
         recipe_id: a.recipe_id,
         day_of_week: a.day_of_week,
         cook: a.cook,
+        meal_type: a.meal_type ?? null,
       }));
 
       const { error: insertError } = await supabase
@@ -1369,7 +1374,7 @@ export async function createMealPlanTemplateFromPlan(
   // Get all assignments for this plan
   const { data: assignments, error: assignmentsError } = await supabase
     .from("meal_assignments")
-    .select("recipe_id, day_of_week, cook")
+    .select("recipe_id, day_of_week, cook, meal_type")
     .eq("meal_plan_id", planId);
 
   if (assignmentsError) {
@@ -1385,6 +1390,7 @@ export async function createMealPlanTemplateFromPlan(
     recipe_id: a.recipe_id,
     day_of_week: a.day_of_week,
     cook: a.cook,
+    meal_type: a.meal_type as MealType | null,
   }));
 
   const { data: template, error: createError } = await supabase

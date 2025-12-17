@@ -40,6 +40,7 @@ import {
   Link2,
   Eye,
   CheckCircle2,
+  Star,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -65,8 +66,10 @@ import {
 } from "@/components/ui/tooltip";
 import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
 import { MarkCookedDialog } from "@/components/recipes/mark-cooked-dialog";
-import { ShareExportSheet } from "@/components/recipes/share-export-sheet";
+import { RecipeExportDialog } from "@/components/recipes/export/recipe-export-dialog";
 import { ReviewList } from "@/components/social/review-list";
+import { RatingBadge } from "@/components/ui/rating-badge";
+import { QuickRatingPopover } from "@/components/recipes/quick-rating-popover";
 import type { Recipe, RecipeType } from "@/types/recipe";
 import type { RecipeNutrition } from "@/types/nutrition";
 import { formatDistanceToNow } from "date-fns";
@@ -141,8 +144,9 @@ export function RecipeDetail({
   userUnitSystem = "imperial",
 }: RecipeDetailProps) {
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
+  const [currentRating, setCurrentRating] = useState<number | null>(recipe.rating);
   const [showCookedDialog, setShowCookedDialog] = useState(false);
-  const [showShareDialog, setShowShareDialog] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isExtractingNutrition, setIsExtractingNutrition] = useState(false);
@@ -305,7 +309,32 @@ export function RecipeDetail({
               )}
             </div>
             <TooltipProvider>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
+                {/* Rating Badge */}
+                <QuickRatingPopover
+                  recipeId={recipe.id}
+                  currentRating={currentRating}
+                  onRated={setCurrentRating}
+                >
+                  {currentRating ? (
+                    <RatingBadge rating={currentRating} size="md" />
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-muted-foreground/50 hover:text-yellow-500"
+                        >
+                          <Star className="h-5 w-5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Rate this recipe</TooltipContent>
+                    </Tooltip>
+                  )}
+                </QuickRatingPopover>
+
+                {/* Favorite Button */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -339,13 +368,9 @@ export function RecipeDetail({
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Recipe
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setShowShareDialog(true)}>
-                      <Share2 className="h-4 w-4 mr-2" />
-                      Share Recipe
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleExportPDF}>
+                    <DropdownMenuItem onClick={() => setShowExportDialog(true)}>
                       <Download className="h-4 w-4 mr-2" />
-                      Export as PDF
+                      Export & Share
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => setDeleteDialogOpen(true)}
@@ -495,6 +520,10 @@ export function RecipeDetail({
                 </a>
               </Button>
             )}
+            <Button variant="outline" onClick={() => setShowExportDialog(true)}>
+              <Download className="mr-2 h-4 w-4" />
+              Export
+            </Button>
           </div>
 
           <div className="border-t" />
@@ -818,10 +847,10 @@ export function RecipeDetail({
         onSuccess={handleCookedSuccess}
       />
 
-      {/* Share & Export Sheet */}
-      <ShareExportSheet
-        isOpen={showShareDialog}
-        onClose={() => setShowShareDialog(false)}
+      {/* Export & Share Dialog */}
+      <RecipeExportDialog
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
         recipe={{ ...recipe, nutrition: localNutrition }}
         isPublic={recipe.is_public || false}
         shareToken={recipe.share_token || null}

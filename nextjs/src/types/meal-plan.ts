@@ -19,6 +19,66 @@ export const DAYS_OF_WEEK: DayOfWeek[] = [
   "Sunday",
 ];
 
+// Meal type for organizing meals by time of day
+export type MealType = "breakfast" | "lunch" | "dinner" | "snack";
+
+// Display order for meal types (breakfast → lunch → dinner → snack → other)
+export const MEAL_TYPE_ORDER: (MealType | null)[] = [
+  "breakfast",
+  "lunch",
+  "dinner",
+  "snack",
+  null, // "Other" at the end
+];
+
+// Configuration for each meal type (colors, labels, emojis)
+export const MEAL_TYPE_CONFIG: Record<
+  MealType | "other",
+  {
+    label: string;
+    emoji: string;
+    borderColor: string; // Tailwind border color class
+    bgColor: string; // Tailwind background tint class
+    accentColor: string; // Raw color for inline styles
+  }
+> = {
+  breakfast: {
+    label: "Breakfast",
+    emoji: "🌅",
+    borderColor: "border-l-amber-400",
+    bgColor: "bg-amber-50 dark:bg-amber-950/20",
+    accentColor: "#fbbf24", // amber-400
+  },
+  lunch: {
+    label: "Lunch",
+    emoji: "🥗",
+    borderColor: "border-l-emerald-400",
+    bgColor: "bg-emerald-50 dark:bg-emerald-950/20",
+    accentColor: "#34d399", // emerald-400
+  },
+  dinner: {
+    label: "Dinner",
+    emoji: "🍽️",
+    borderColor: "border-l-orange-500",
+    bgColor: "bg-orange-50 dark:bg-orange-950/20",
+    accentColor: "#f97316", // orange-500 (brand coral)
+  },
+  snack: {
+    label: "Snack",
+    emoji: "🍿",
+    borderColor: "border-l-violet-400",
+    bgColor: "bg-violet-50 dark:bg-violet-950/20",
+    accentColor: "#a78bfa", // violet-400
+  },
+  other: {
+    label: "Other",
+    emoji: "📋",
+    borderColor: "border-l-gray-300 dark:border-l-gray-600",
+    bgColor: "bg-gray-50 dark:bg-gray-800/50",
+    accentColor: "#9ca3af", // gray-400
+  },
+};
+
 export interface MealPlan {
   id: string;
   household_id: string;
@@ -33,6 +93,7 @@ export interface MealAssignment {
   recipe_id: string;
   day_of_week: DayOfWeek;
   cook: string | null;
+  meal_type: MealType | null;
   created_at: string;
 }
 
@@ -73,6 +134,7 @@ export interface TemplateAssignment {
   recipe_id: string;
   day_of_week: DayOfWeek;
   cook: string | null;
+  meal_type: MealType | null;
 }
 
 // Helper to get the Monday of a given week
@@ -99,4 +161,42 @@ export function formatWeekRange(weekStart: Date): string {
     return `${startMonth} ${startDay} - ${endDay}`;
   }
   return `${startMonth} ${startDay} - ${endMonth} ${endDay}`;
+}
+
+// Group meals by type and sort within each group by created_at
+export function groupMealsByType<T extends { meal_type: MealType | null; created_at: string }>(
+  meals: T[]
+): Map<MealType | null, T[]> {
+  const grouped = new Map<MealType | null, T[]>();
+
+  // Initialize in display order
+  for (const type of MEAL_TYPE_ORDER) {
+    grouped.set(type, []);
+  }
+
+  // Group meals by type
+  for (const meal of meals) {
+    const type = meal.meal_type;
+    const group = grouped.get(type);
+    if (group) {
+      group.push(meal);
+    } else {
+      // Handle unexpected type by putting in "other" (null)
+      grouped.get(null)?.push(meal);
+    }
+  }
+
+  // Sort within each group by created_at (oldest first)
+  grouped.forEach((typeMeals) => {
+    typeMeals.sort(
+      (a: T, b: T) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+  });
+
+  return grouped;
+}
+
+// Get meal type config, defaulting to "other" for null
+export function getMealTypeConfig(mealType: MealType | null) {
+  return MEAL_TYPE_CONFIG[mealType ?? "other"];
 }

@@ -619,9 +619,10 @@ export async function updateShowRecipeSources(showRecipeSources: boolean) {
 
 import type {
   CookModeSettings,
+  MealTypeEmojiSettings,
   UserSettingsPreferences,
 } from "@/types/settings";
-import { DEFAULT_COOK_MODE_SETTINGS } from "@/types/settings";
+import { DEFAULT_COOK_MODE_SETTINGS, DEFAULT_MEAL_TYPE_EMOJIS } from "@/types/settings";
 
 /**
  * Get cook mode settings from the preferences JSONB column
@@ -745,6 +746,112 @@ export async function updateCookModeSettings(
   if (error) {
     return { error: error.message };
   }
+
+  return { error: null };
+}
+
+// ============================================================================
+// Meal Type Emoji Settings
+// ============================================================================
+
+/**
+ * Get meal type emoji settings from the preferences JSONB column
+ */
+export async function getMealTypeEmojiSettings(): Promise<{
+  error: string | null;
+  data: MealTypeEmojiSettings;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    // Return defaults for non-authenticated users
+    return { error: null, data: DEFAULT_MEAL_TYPE_EMOJIS };
+  }
+
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!settings?.preferences) {
+    return { error: null, data: DEFAULT_MEAL_TYPE_EMOJIS };
+  }
+
+  const preferences = settings.preferences as UserSettingsPreferences;
+  const mealTypeEmojis = preferences.mealTypeEmojis;
+
+  if (!mealTypeEmojis) {
+    return { error: null, data: DEFAULT_MEAL_TYPE_EMOJIS };
+  }
+
+  // Merge with defaults to ensure all fields exist
+  return {
+    error: null,
+    data: {
+      ...DEFAULT_MEAL_TYPE_EMOJIS,
+      ...mealTypeEmojis,
+    },
+  };
+}
+
+/**
+ * Update meal type emoji settings in the preferences JSONB column
+ * Supports partial updates - only the fields provided will be updated
+ */
+export async function updateMealTypeEmojiSettings(
+  newSettings: Partial<MealTypeEmojiSettings>
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get existing preferences
+  const { data: existingData } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const existingPreferences = (existingData?.preferences ||
+    {}) as UserSettingsPreferences;
+  const existingEmojis =
+    existingPreferences.mealTypeEmojis || DEFAULT_MEAL_TYPE_EMOJIS;
+
+  // Merge the new settings with existing
+  const updatedEmojis: MealTypeEmojiSettings = {
+    ...existingEmojis,
+    ...newSettings,
+  };
+
+  // Update the preferences JSONB with the new meal type emoji settings
+  const updatedPreferences: UserSettingsPreferences = {
+    ...existingPreferences,
+    mealTypeEmojis: updatedEmojis,
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  // Revalidate meal planner paths
+  revalidatePath("/app/plan");
+  revalidatePath("/app/settings");
 
   return { error: null };
 }

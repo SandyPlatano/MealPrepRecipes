@@ -3,20 +3,23 @@ import { getRecipes, getFavorites, getRecipeCookCounts } from "@/app/actions/rec
 import { getSettings } from "@/app/actions/settings";
 import { getBulkRecipeNutrition } from "@/app/actions/nutrition";
 import { getActiveCustomBadges } from "@/app/actions/custom-badges";
+import { getFolders } from "@/app/actions/folders";
 import { createClient } from "@/lib/supabase/server";
 import { RecipesPageClient } from "@/components/recipes/recipes-page-client";
 import { ContextualHint } from "@/components/hints/contextual-hint";
 import { HINT_IDS, HINT_CONTENT, isHintDismissed } from "@/lib/hints";
+import type { FolderWithChildren } from "@/types/folder";
 
 export default async function RecipesPage() {
   const supabase = await createClient();
 
-  const [recipesResult, favoritesResult, settingsResult, cookCountsResult, customBadgesResult] = await Promise.all([
+  const [recipesResult, favoritesResult, settingsResult, cookCountsResult, customBadgesResult, foldersResult] = await Promise.all([
     getRecipes(),
     getFavorites(),
     getSettings(),
     getRecipeCookCounts(),
     getActiveCustomBadges(),
+    getFolders(),
   ]);
 
   const recipes = recipesResult.data || [];
@@ -26,6 +29,38 @@ export default async function RecipesPage() {
   const dismissedHints = settingsResult.data?.dismissed_hints || [];
   const recipeCookCounts = cookCountsResult.data || {};
   const customBadges = customBadgesResult.data || [];
+  const folders = foldersResult.data || [];
+
+  // Build folder membership map (folderId -> recipeIds[])
+  const folderMemberships: Record<string, string[]> = {};
+  const buildMembershipMap = (folderList: FolderWithChildren[]) => {
+    for (const folder of folderList) {
+      // We'll populate this with actual data from the database
+      folderMemberships[folder.id] = [];
+      if (folder.children.length > 0) {
+        buildMembershipMap(folder.children);
+      }
+    }
+  };
+  buildMembershipMap(folders);
+
+  // Fetch all folder memberships
+  if (folders.length > 0) {
+    const allFolderIds = Object.keys(folderMemberships);
+    const { data: memberships } = await supabase
+      .from("recipe_folder_members")
+      .select("folder_id, recipe_id")
+      .in("folder_id", allFolderIds);
+
+    if (memberships) {
+      for (const m of memberships) {
+        if (!folderMemberships[m.folder_id]) {
+          folderMemberships[m.folder_id] = [];
+        }
+        folderMemberships[m.folder_id].push(m.recipe_id);
+      }
+    }
+  }
 
   // Fetch nutrition data for all recipes
   const recipeIds = recipes.map((r) => r.id);
@@ -77,6 +112,8 @@ export default async function RecipesPage() {
           userAllergenAlerts={userAllergenAlerts}
           customDietaryRestrictions={customDietaryRestrictions}
           customBadges={customBadges}
+          folders={folders}
+          folderMemberships={folderMemberships}
         />
       </Suspense>
     </div>
