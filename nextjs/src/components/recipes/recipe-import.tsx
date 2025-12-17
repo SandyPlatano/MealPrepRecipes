@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { RecipeForm } from "./recipe-form";
 import type { RecipeFormData } from "@/types/recipe";
 import { getNetworkErrorMessage, cn } from "@/lib/utils";
+import { createRecipe } from "@/app/actions/recipes";
 
 type ImportMode = "manual" | "paste" | "url";
 
@@ -65,6 +66,8 @@ export function RecipeImport() {
   const [importStatuses, setImportStatuses] = useState<UrlImportStatus[]>([]);
   const [importStats, setImportStats] = useState<ImportStats | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [isCreatingAll, setIsCreatingAll] = useState(false);
+  const [createAllProgress, setCreateAllProgress] = useState(0);
 
   // Check if nutrition tracking is enabled and fetch import stats
   useEffect(() => {
@@ -368,6 +371,64 @@ export function RecipeImport() {
     }
   };
 
+  const handleRemoveFromQueue = (index: number) => {
+    const recipeTitle = parsedRecipes[index]?.title || `Recipe ${index + 1}`;
+    const newRecipes = parsedRecipes.filter((_, i) => i !== index);
+    setParsedRecipes(newRecipes);
+
+    // Adjust current index if needed
+    if (newRecipes.length === 0) {
+      handleClearParsed();
+    } else if (currentReviewIndex >= newRecipes.length) {
+      setCurrentReviewIndex(newRecipes.length - 1);
+    } else if (index < currentReviewIndex) {
+      setCurrentReviewIndex(currentReviewIndex - 1);
+    }
+
+    toast.success(`Removed "${recipeTitle}" from queue`);
+  };
+
+  const handleCreateAllRecipes = async () => {
+    if (parsedRecipes.length === 0) return;
+
+    setIsCreatingAll(true);
+    setCreateAllProgress(0);
+
+    let successCount = 0;
+    let failCount = 0;
+    const total = parsedRecipes.length;
+
+    for (let i = 0; i < parsedRecipes.length; i++) {
+      const recipe = parsedRecipes[i];
+      try {
+        const result = await createRecipe(recipe);
+        if (result.error) {
+          failCount++;
+          console.error(`Failed to create "${recipe.title}":`, result.error);
+        } else {
+          successCount++;
+        }
+      } catch (error) {
+        failCount++;
+        console.error(`Failed to create "${recipe.title}":`, error);
+      }
+      setCreateAllProgress(((i + 1) / total) * 100);
+    }
+
+    setIsCreatingAll(false);
+    setCreateAllProgress(0);
+
+    if (failCount === 0) {
+      toast.success(`Successfully created ${successCount} recipe${successCount !== 1 ? "s" : ""}!`);
+      handleClearParsed();
+    } else if (successCount > 0) {
+      toast.warning(`Created ${successCount} recipe${successCount !== 1 ? "s" : ""}, ${failCount} failed`);
+      handleClearParsed();
+    } else {
+      toast.error("Failed to create recipes. Please try again.");
+    }
+  };
+
   // If we have parsed recipes from batch import, show the multi-recipe review flow
   if (parsedRecipes.length > 0) {
     const currentRecipe = parsedRecipes[currentReviewIndex];
@@ -396,7 +457,7 @@ export function RecipeImport() {
                     variant="outline"
                     size="sm"
                     onClick={handlePrevRecipe}
-                    disabled={currentReviewIndex === 0}
+                    disabled={currentReviewIndex === 0 || isCreatingAll}
                   >
                     Previous
                   </Button>
@@ -404,35 +465,89 @@ export function RecipeImport() {
                     variant="outline"
                     size="sm"
                     onClick={handleNextRecipe}
-                    disabled={currentReviewIndex === parsedRecipes.length - 1}
+                    disabled={currentReviewIndex === parsedRecipes.length - 1 || isCreatingAll}
                   >
                     Next
                   </Button>
                 </>
               )}
-              <Button variant="outline" onClick={handleClearParsed}>
+              <Button variant="outline" onClick={handleClearParsed} disabled={isCreatingAll}>
                 Start Over
               </Button>
             </div>
           </div>
-          {/* Recipe Progress Pills */}
+          {/* Recipe Progress Pills with Remove buttons */}
           {parsedRecipes.length > 1 && (
-            <div className="flex gap-2 mt-4">
+            <div className="flex flex-wrap gap-2 mt-4">
               {parsedRecipes.map((recipe, idx) => (
-                <button
+                <div
                   key={idx}
-                  onClick={() => setCurrentReviewIndex(idx)}
                   className={cn(
-                    "px-3 py-1 rounded-full text-xs font-medium transition-colors",
+                    "flex items-center gap-1 pl-3 pr-1 py-1 rounded-full text-xs font-medium transition-colors",
                     idx === currentReviewIndex
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   )}
                 >
-                  {recipe.title?.substring(0, 20) || `Recipe ${idx + 1}`}
-                  {(recipe.title?.length || 0) > 20 && "..."}
-                </button>
+                  <button
+                    onClick={() => setCurrentReviewIndex(idx)}
+                    disabled={isCreatingAll}
+                    className="truncate max-w-[150px]"
+                  >
+                    {recipe.title?.substring(0, 20) || `Recipe ${idx + 1}`}
+                    {(recipe.title?.length || 0) > 20 && "..."}
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveFromQueue(idx);
+                    }}
+                    disabled={isCreatingAll}
+                    className={cn(
+                      "p-0.5 rounded-full transition-colors",
+                      idx === currentReviewIndex
+                        ? "hover:bg-primary-foreground/20"
+                        : "hover:bg-muted-foreground/20"
+                    )}
+                    title="Remove from queue"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
               ))}
+            </div>
+          )}
+
+          {/* Create All Button */}
+          {parsedRecipes.length > 1 && (
+            <div className="mt-4 pt-4 border-t border-accent">
+              {isCreatingAll ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Creating all recipes...
+                    </span>
+                    <span className="text-muted-foreground">
+                      {Math.round(createAllProgress)}%
+                    </span>
+                  </div>
+                  <Progress value={createAllProgress} />
+                  <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <span className="inline-block w-1.5 h-1.5 bg-primary/60 rounded-full animate-pulse" />
+                    Please keep this page open
+                  </p>
+                </div>
+              ) : (
+                <Button
+                  onClick={handleCreateAllRecipes}
+                  className="w-full"
+                  variant="secondary"
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Create All {parsedRecipes.length} Recipes
+                </Button>
+              )}
             </div>
           )}
         </div>
