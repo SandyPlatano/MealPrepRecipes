@@ -4,7 +4,7 @@ import { EnhancedPantryView } from "@/components/pantry/enhanced-pantry-view";
 import { createClient } from "@/lib/supabase/server";
 import { getUserTier } from "@/lib/stripe/subscription";
 import { ContextualHint } from "@/components/hints/contextual-hint";
-import { HINT_IDS, HINT_CONTENT, isHintDismissed } from "@/lib/hints";
+import { HINT_IDS, HINT_CONTENT } from "@/lib/hints";
 
 export default async function PantryPage() {
   const supabase = await createClient();
@@ -16,7 +16,6 @@ export default async function PantryPage() {
   ]);
 
   const pantryItems = pantryResult.data || [];
-  const dismissedHints = settingsResult.data?.dismissed_hints || [];
 
   // Get user's subscription tier (respects localhost for development)
   let subscriptionTier: 'free' | 'pro' | 'premium' = 'free';
@@ -35,13 +34,11 @@ export default async function PantryPage() {
         </p>
       </div>
 
-      {!isHintDismissed(HINT_IDS.PANTRY_INTRO, dismissedHints) && (
-        <ContextualHint
-          hintId={HINT_IDS.PANTRY_INTRO}
-          title={HINT_CONTENT[HINT_IDS.PANTRY_INTRO].title}
-          description={HINT_CONTENT[HINT_IDS.PANTRY_INTRO].description}
-        />
-      )}
+      <ContextualHint
+        hintId={HINT_IDS.PANTRY_INTRO}
+        title={HINT_CONTENT[HINT_IDS.PANTRY_INTRO].title}
+        description={HINT_CONTENT[HINT_IDS.PANTRY_INTRO].description}
+      />
 
       <EnhancedPantryView
         initialItems={pantryItems}

@@ -22,7 +22,7 @@ import { createClient } from "@/lib/supabase/server";
 import { OnboardingWrapper } from "@/components/onboarding/onboarding-wrapper";
 import { hasActiveSubscription } from "@/lib/stripe/subscription";
 import { ContextualHint } from "@/components/hints/contextual-hint";
-import { HINT_IDS, HINT_CONTENT, isHintDismissed } from "@/lib/hints";
+import { HINT_IDS, HINT_CONTENT } from "@/lib/hints";
 
 interface HomePageProps {
   searchParams: Promise<{ week?: string }>;
@@ -108,7 +108,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const cookColors = settingsResult.data?.cook_colors || {};
   const userAllergenAlerts = settingsResult.data?.allergen_alerts || [];
   const calendarExcludedDays = settingsResult.data?.calendar_excluded_days || [];
-  const dismissedHints = settingsResult.data?.dismissed_hints || [];
   const googleConnected = !!settingsResult.data?.google_connected_account;
   const favorites = favoritesResult.data || [];
   const recentRecipeIds = (recentlyCooked.data || []).map((r) => r.id);
@@ -182,13 +181,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </p>
         </div>
 
-        {!isHintDismissed(HINT_IDS.MEAL_PLANNER_INTRO, dismissedHints) && (
-          <ContextualHint
-            hintId={HINT_IDS.MEAL_PLANNER_INTRO}
-            title={HINT_CONTENT[HINT_IDS.MEAL_PLANNER_INTRO].title}
-            description={HINT_CONTENT[HINT_IDS.MEAL_PLANNER_INTRO].description}
-          />
-        )}
+        <ContextualHint
+          hintId={HINT_IDS.MEAL_PLANNER_INTRO}
+          title={HINT_CONTENT[HINT_IDS.MEAL_PLANNER_INTRO].title}
+          description={HINT_CONTENT[HINT_IDS.MEAL_PLANNER_INTRO].description}
+        />
 
         <MealPlannerGrid
           weekStartStr={weekStartStr}

@@ -8,7 +8,7 @@ import { getSystemSmartFolders, getUserSmartFolders, getCookingHistoryContext } 
 import { createClient } from "@/lib/supabase/server";
 import { RecipesPageClient } from "@/components/recipes/recipes-page-client";
 import { ContextualHint } from "@/components/hints/contextual-hint";
-import { HINT_IDS, HINT_CONTENT, isHintDismissed } from "@/lib/hints";
+import { HINT_IDS, HINT_CONTENT } from "@/lib/hints";
 import type { FolderWithChildren, FolderCategoryWithFolders } from "@/types/folder";
 
 export default async function RecipesPage() {
@@ -42,7 +42,6 @@ export default async function RecipesPage() {
   const favoriteIds = new Set(favoritesResult.data || []);
   const userAllergenAlerts = settingsResult.data?.allergen_alerts || [];
   const customDietaryRestrictions = settingsResult.data?.custom_dietary_restrictions || [];
-  const dismissedHints = settingsResult.data?.dismissed_hints || [];
   const recipeCookCounts = cookCountsResult.data || {};
   const customBadges = customBadgesResult.data || [];
   const folders = foldersResult.data || [];
@@ -116,13 +115,11 @@ export default async function RecipesPage() {
         </p>
       </div>
 
-      {!isHintDismissed(HINT_IDS.RECIPES_INTRO, dismissedHints) && (
-        <ContextualHint
-          hintId={HINT_IDS.RECIPES_INTRO}
-          title={HINT_CONTENT[HINT_IDS.RECIPES_INTRO].title}
-          description={HINT_CONTENT[HINT_IDS.RECIPES_INTRO].description}
-        />
-      )}
+      <ContextualHint
+        hintId={HINT_IDS.RECIPES_INTRO}
+        title={HINT_CONTENT[HINT_IDS.RECIPES_INTRO].title}
+        description={HINT_CONTENT[HINT_IDS.RECIPES_INTRO].description}
+      />
 
       <Suspense fallback={<div>Loading recipes...</div>}>
         <RecipesPageClient
