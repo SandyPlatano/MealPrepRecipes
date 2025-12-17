@@ -39,6 +39,8 @@ interface CookingModeProps {
   userUnitSystem?: UnitSystem;
   initialSettings?: CookModeSettings;
   dismissedHints?: string[];
+  /** Base path for recipe routes (e.g., "/app" or "/demo"). Defaults to "/app" */
+  basePath?: string;
 }
 
 // Font size CSS class mapping
@@ -59,6 +61,7 @@ export function CookingMode({
   userUnitSystem = "imperial",
   initialSettings = DEFAULT_COOK_MODE_SETTINGS,
   dismissedHints = [],
+  basePath = "/app",
 }: CookingModeProps) {
   // Convert ingredients to user's preferred unit system
   const displayIngredients = convertIngredientsToSystem(recipe.ingredients, userUnitSystem);
@@ -464,7 +467,7 @@ export function CookingMode({
               className="w-full"
               onClick={() => {
                 toast.success("Great job! Enjoy your meal!");
-                router.push(`/app/recipes/${recipe.id}`);
+                router.push(`${basePath}/recipes/${recipe.id}`);
               }}
             >
               <Check className="h-5 w-5 mr-2" />

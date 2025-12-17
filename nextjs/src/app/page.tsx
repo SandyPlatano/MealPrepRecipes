@@ -21,6 +21,10 @@ import {
   Check,
   Sparkles,
   Menu,
+  Play,
+  ChefHat,
+  Calendar,
+  ShoppingCart,
 } from "lucide-react";
 import { FAQ } from "@/components/landing/faq";
 import { BrandLogo, BrandLogoCompact } from "@/components/brand/logo";
@@ -58,6 +62,12 @@ export default function Home() {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-4">
+            <Link
+              href="/demo"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Demo
+            </Link>
             <Link
               href="/about"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
@@ -100,6 +110,17 @@ export default function Home() {
                   <SheetTitle className="font-mono text-left">Menu</SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-2 mt-6">
+                  <SheetClose asChild>
+                    <Link href="/demo">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-base hover:bg-primary/5"
+                      >
+                        <Play className="h-4 w-4 mr-2" />
+                        Interactive Demo
+                      </Button>
+                    </Link>
+                  </SheetClose>
                   <SheetClose asChild>
                     <Link href="/about">
                       <Button
@@ -151,6 +172,12 @@ export default function Home() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
+              <Link href="/demo">
+                <Button size="lg" variant="outline" className="text-lg px-8 py-6">
+                  <Play className="mr-2 h-5 w-5" />
+                  Try Interactive Demo
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -170,6 +197,11 @@ export default function Home() {
           <div className="max-w-2xl mx-auto">
             <RecipeCardDemo />
           </div>
+          <div className="text-center mt-8">
+            <Link href="/demo/recipes" className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+              Try it yourself <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -187,6 +219,11 @@ export default function Home() {
           <div className="max-w-2xl mx-auto">
             <MealPlanDemo />
           </div>
+          <div className="text-center mt-8">
+            <Link href="/demo" className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+              Try it yourself <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -203,6 +240,11 @@ export default function Home() {
           </div>
           <div className="max-w-2xl mx-auto">
             <ShoppingListDemo />
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/demo/shop" className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+              Try it yourself <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
       </section>
@@ -269,8 +311,77 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Pricing Section */}
+      {/* Interactive Demo Section */}
       <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+              <Play className="h-4 w-4" />
+              Interactive Demo
+            </div>
+            <h2 className="text-3xl md:text-4xl font-mono font-bold mb-4">
+              See it in action
+            </h2>
+            <p className="text-muted-foreground max-w-lg mx-auto">
+              Try the full app with sample data. No signup required.
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto grid md:grid-cols-3 gap-6 mb-10">
+            <Link href="/demo/recipes/demo-recipe-1/cook" className="group">
+              <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all">
+                <CardContent className="p-6 text-center">
+                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <ChefHat className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold mb-2">Cook Mode</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Step-by-step guidance with voice and timers
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/demo" className="group">
+              <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all">
+                <CardContent className="p-6 text-center">
+                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <Calendar className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold mb-2">Meal Planning</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Plan your week with assigned cooks
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/demo/shop" className="group">
+              <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all">
+                <CardContent className="p-6 text-center">
+                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <ShoppingCart className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold mb-2">Shopping Lists</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Auto-generated and organized by aisle
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+
+          <div className="text-center">
+            <Link href="/demo">
+              <Button size="lg" variant="outline" className="gap-2">
+                <Play className="h-5 w-5" />
+                Explore Full Demo
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-mono font-bold mb-4">

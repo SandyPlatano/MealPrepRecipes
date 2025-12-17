@@ -57,9 +57,11 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Protected routes - redirect to login if not authenticated
+  // Note: /demo routes are public and bypass auth for the interactive demo
   if (
     !user &&
-    request.nextUrl.pathname.startsWith("/app")
+    request.nextUrl.pathname.startsWith("/app") &&
+    !request.nextUrl.pathname.startsWith("/demo")
   ) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

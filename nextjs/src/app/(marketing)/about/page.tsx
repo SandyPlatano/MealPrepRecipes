@@ -1,4 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Calendar,
   Search,
@@ -8,6 +11,10 @@ import {
   Users,
   Heart,
   Sparkles,
+  Play,
+  ShoppingCart,
+  Flame,
+  ArrowRight,
 } from "lucide-react";
 
 export default function AboutPage() {
@@ -165,6 +172,85 @@ export default function AboutPage() {
               clarity. Less stress, more delicious food.
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* See It In Action */}
+      <section className="max-w-4xl mx-auto space-y-8 py-12 px-6 bg-muted/30 rounded-2xl">
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+            <Play className="h-4 w-4" />
+            Interactive Demo
+          </div>
+          <h2 className="text-2xl font-mono font-bold">See It In Action</h2>
+          <p className="text-muted-foreground max-w-lg mx-auto">
+            Try the full app experience with sample data. No signup required.
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Link href="/demo/recipes/demo-recipe-1/cook" className="group">
+            <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all">
+              <CardContent className="p-5 text-center">
+                <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <ChefHat className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-sm mb-1">Cook Mode</h3>
+                <p className="text-xs text-muted-foreground">
+                  Step-by-step guidance
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href="/demo" className="group">
+            <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all">
+              <CardContent className="p-5 text-center">
+                <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <Calendar className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-sm mb-1">Meal Planning</h3>
+                <p className="text-xs text-muted-foreground">
+                  Plan your week
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href="/demo/shop" className="group">
+            <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all">
+              <CardContent className="p-5 text-center">
+                <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <ShoppingCart className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-sm mb-1">Shopping Lists</h3>
+                <p className="text-xs text-muted-foreground">
+                  Auto-generated
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href="/demo/nutrition" className="group">
+            <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all">
+              <CardContent className="p-5 text-center">
+                <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <Flame className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-sm mb-1">Nutrition</h3>
+                <p className="text-xs text-muted-foreground">
+                  Track macros
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+
+        <div className="text-center">
+          <Link href="/demo">
+            <Button size="lg" className="gap-2">
+              <Play className="h-5 w-5" />
+              Explore Full Demo
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </section>
 
