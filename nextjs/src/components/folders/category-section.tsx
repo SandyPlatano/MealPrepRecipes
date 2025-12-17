@@ -78,7 +78,7 @@ export function CategorySection({
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 opacity-0 group-hover:opacity-100"
+              className="h-6 w-6 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
               onClick={() => setCreateFolderOpen(true)}
               title="Add folder to this category"
             >
@@ -90,7 +90,7 @@ export function CategorySection({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 opacity-0 group-hover:opacity-100"
+                    className="h-6 w-6 opacity-0 group-hover:opacity-100 focus:opacity-100 data-[state=open]:opacity-100 transition-opacity"
                   >
                     <MoreHorizontal className="h-3 w-3" />
                   </Button>

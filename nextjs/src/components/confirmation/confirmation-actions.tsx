@@ -13,7 +13,7 @@ import {
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { formatWeekRange } from "@/types/meal-plan";
-import type { DayOfWeek } from "@/types/meal-plan";
+import type { DayOfWeek, MealType } from "@/types/meal-plan";
 import { downloadMealPlanAsMarkdown } from "@/lib/export";
 
 interface Recipe {
@@ -31,6 +31,7 @@ interface Assignment {
   recipe_id: string;
   day_of_week: DayOfWeek;
   cook: string | null;
+  meal_type: MealType | null;
   recipe: Recipe;
 }
 
@@ -102,6 +103,7 @@ export function ConfirmationActions({
             recipe: a.recipe,
             cook: a.cook,
             day: a.day_of_week,
+            meal_type: a.meal_type,
           })),
           userTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         }),

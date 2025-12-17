@@ -145,12 +145,27 @@ export const DEFAULT_COOK_MODE_SETTINGS: CookModeSettings = {
   },
 };
 
+// Cook Mode Preset Types
+export type CookModePresetKey = "minimal" | "full" | "hands-free" | "focus";
+
+export interface CookModePreset {
+  key: CookModePresetKey;
+  name: string;
+  description: string;
+  icon: string; // Lucide icon name
+  settings: CookModeSettings;
+}
+
 // ============================================================================
-// Meal Type Emoji Settings Types
+// Meal Type Customization Settings Types
 // ============================================================================
 
 export type MealTypeKey = "breakfast" | "lunch" | "dinner" | "snack" | "other";
 
+/**
+ * @deprecated Use MealTypeCustomization instead
+ * Kept for backward compatibility during migration
+ */
 export interface MealTypeEmojiSettings {
   breakfast: string;
   lunch: string;
@@ -159,6 +174,9 @@ export interface MealTypeEmojiSettings {
   other: string;
 }
 
+/**
+ * @deprecated Use DEFAULT_MEAL_TYPE_SETTINGS instead
+ */
 export const DEFAULT_MEAL_TYPE_EMOJIS: MealTypeEmojiSettings = {
   breakfast: "🌅",
   lunch: "🥗",
@@ -168,9 +186,92 @@ export const DEFAULT_MEAL_TYPE_EMOJIS: MealTypeEmojiSettings = {
 };
 
 /**
+ * Settings for a single meal type
+ */
+export interface MealTypeSettings {
+  emoji: string;       // Emoji to display (e.g., "🌅")
+  color: string;       // Hex color (e.g., "#fbbf24")
+  calendarTime: string; // Time in HH:MM format (e.g., "08:00")
+}
+
+/**
+ * Full customization settings for all meal types
+ */
+export interface MealTypeCustomization {
+  breakfast: MealTypeSettings;
+  lunch: MealTypeSettings;
+  dinner: MealTypeSettings;
+  snack: MealTypeSettings;
+  other: MealTypeSettings;
+}
+
+/**
+ * Default settings for all meal types
+ */
+export const DEFAULT_MEAL_TYPE_SETTINGS: MealTypeCustomization = {
+  breakfast: { emoji: "🌅", color: "#fbbf24", calendarTime: "08:00" },
+  lunch: { emoji: "🥗", color: "#34d399", calendarTime: "12:00" },
+  dinner: { emoji: "🍽️", color: "#f97316", calendarTime: "18:00" },
+  snack: { emoji: "🍿", color: "#a78bfa", calendarTime: "15:00" },
+  other: { emoji: "📋", color: "#9ca3af", calendarTime: "12:00" },
+};
+
+/**
+ * Predefined color palette for meal types
+ */
+export const MEAL_TYPE_COLOR_PALETTE = [
+  { key: "amber", color: "#fbbf24", label: "Amber" },
+  { key: "emerald", color: "#34d399", label: "Emerald" },
+  { key: "orange", color: "#f97316", label: "Orange" },
+  { key: "violet", color: "#a78bfa", label: "Violet" },
+  { key: "gray", color: "#9ca3af", label: "Gray" },
+  { key: "blue", color: "#3b82f6", label: "Blue" },
+  { key: "red", color: "#ef4444", label: "Red" },
+  { key: "pink", color: "#ec4899", label: "Pink" },
+  { key: "cyan", color: "#06b6d4", label: "Cyan" },
+  { key: "lime", color: "#84cc16", label: "Lime" },
+  { key: "rose", color: "#f43f5e", label: "Rose" },
+  { key: "indigo", color: "#6366f1", label: "Indigo" },
+  { key: "teal", color: "#14b8a6", label: "Teal" },
+  { key: "yellow", color: "#eab308", label: "Yellow" },
+  { key: "sky", color: "#0ea5e9", label: "Sky" },
+  { key: "fuchsia", color: "#d946ef", label: "Fuchsia" },
+] as const;
+
+// ============================================================================
+// Planner View Settings Types
+// ============================================================================
+
+export type PlannerViewDensity = "compact" | "comfortable" | "spacious";
+
+/**
+ * Settings for controlling the meal planner view display and visibility
+ */
+export interface PlannerViewSettings {
+  /** View density affects spacing and padding throughout the planner */
+  density: PlannerViewDensity;
+  /** Show meal type section headers (Breakfast, Lunch, etc.) */
+  showMealTypeHeaders: boolean;
+  /** Show nutrition badges (calories, protein) on recipe cards */
+  showNutritionBadges: boolean;
+  /** Show prep time on recipe cards */
+  showPrepTime: boolean;
+}
+
+export const DEFAULT_PLANNER_VIEW_SETTINGS: PlannerViewSettings = {
+  density: "comfortable",
+  showMealTypeHeaders: true,
+  showNutritionBadges: true,
+  showPrepTime: true,
+};
+
+/**
  * Structure for user_settings.preferences JSONB column
  */
 export interface UserSettingsPreferences {
   cookMode?: CookModeSettings;
+  /** @deprecated Use mealTypeSettings instead */
   mealTypeEmojis?: MealTypeEmojiSettings;
+  mealTypeSettings?: MealTypeCustomization;
+  plannerView?: PlannerViewSettings;
 }

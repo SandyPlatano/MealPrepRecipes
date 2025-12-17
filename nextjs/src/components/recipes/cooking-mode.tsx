@@ -30,12 +30,15 @@ import type { CookModeSettings } from "@/types/settings";
 import { DEFAULT_COOK_MODE_SETTINGS } from "@/types/settings";
 import { CookModeSettingsSheet } from "./cook-mode-settings-sheet";
 import { CookModeScrollableView } from "./cook-mode-scrollable-view";
+import { CookModeWizard } from "./cook-mode-wizard";
+import { HINT_IDS } from "@/lib/hints";
 import { cn } from "@/lib/utils";
 
 interface CookingModeProps {
   recipe: Recipe;
   userUnitSystem?: UnitSystem;
   initialSettings?: CookModeSettings;
+  dismissedHints?: string[];
 }
 
 // Font size CSS class mapping
@@ -55,12 +58,17 @@ export function CookingMode({
   recipe,
   userUnitSystem = "imperial",
   initialSettings = DEFAULT_COOK_MODE_SETTINGS,
+  dismissedHints = [],
 }: CookingModeProps) {
   // Convert ingredients to user's preferred unit system
   const displayIngredients = convertIngredientsToSystem(recipe.ingredients, userUnitSystem);
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const originalThemeRef = useRef(theme);
+
+  // Check if this is the first time user is entering cook mode
+  const isFirstTime = !dismissedHints.includes(HINT_IDS.COOK_MODE_WIZARD);
+  const [showWizard, setShowWizard] = useState(isFirstTime);
 
   // Settings state
   const [settings, setSettings] = useState<CookModeSettings>(initialSettings);
@@ -259,6 +267,28 @@ export function CookingMode({
   // Font size classes based on settings
   const fontSizeClass = FONT_SIZE_CLASSES[settings.display.fontSize];
   const proseSizeClass = PROSE_SIZE_CLASSES[settings.display.fontSize];
+
+  // Handle wizard completion - apply new settings and close wizard
+  const handleWizardComplete = useCallback((newSettings: CookModeSettings) => {
+    setSettings(newSettings);
+    setShowWizard(false);
+  }, []);
+
+  // Handle wizard skip - use current/default settings
+  const handleWizardSkip = useCallback(() => {
+    setShowWizard(false);
+  }, []);
+
+  // Show wizard for first-time users
+  if (showWizard) {
+    return (
+      <CookModeWizard
+        initialSettings={settings}
+        onComplete={handleWizardComplete}
+        onSkip={handleWizardSkip}
+      />
+    );
+  }
 
   return (
     <div className={cn("min-h-screen bg-background p-4", fontSizeClass)}>

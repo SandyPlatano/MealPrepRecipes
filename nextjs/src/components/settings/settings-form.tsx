@@ -50,9 +50,9 @@ import { BulkImportDialog } from "@/components/recipes/export/bulk-import-dialog
 import type { MacroGoals, MacroGoalPreset, RecipeNutrition } from "@/types/nutrition";
 import type { Recipe } from "@/types/recipe";
 import type { Substitution, UserSubstitution } from "@/lib/substitutions";
-import type { RecipeExportPreferences, MealTypeEmojiSettings as MealTypeEmojiSettingsType } from "@/types/settings";
+import type { RecipeExportPreferences, MealTypeCustomization } from "@/types/settings";
 import { DEFAULT_RECIPE_EXPORT_PREFERENCES } from "@/lib/export/recipe-markdown";
-import { MealTypeEmojiSettings } from "./meal-type-emoji-settings";
+import { MealTypeCustomizationSettings } from "./meal-type-customization";
 
 // Helper to format time as HH:MM:SS for database
 const formatTimeForDB = (time: string | null | undefined): string | null => {
@@ -102,7 +102,7 @@ interface SettingsFormProps {
   defaultSubstitutions?: Substitution[];
   username?: string | null;
   isAdmin?: boolean;
-  mealTypeEmojis?: MealTypeEmojiSettingsType;
+  mealTypeSettings?: MealTypeCustomization;
 }
 
 export function SettingsForm({
@@ -115,7 +115,7 @@ export function SettingsForm({
   defaultSubstitutions = [],
   username = null,
   isAdmin = false,
-  mealTypeEmojis,
+  mealTypeSettings,
 }: SettingsFormProps) {
   const { theme, setTheme } = useTheme();
   const [firstName, setFirstName] = useState(profile.first_name || "");
@@ -860,16 +860,16 @@ export function SettingsForm({
         </CardContent>
       </Card>
 
-      {/* Meal Type Emojis */}
+      {/* Meal Type Customization */}
       <Card>
         <CardHeader>
-          <CardTitle>Meal Type Emojis</CardTitle>
+          <CardTitle>Meal Type Customization</CardTitle>
           <CardDescription>
-            Customize the emojis shown for each meal type in your planner
+            Personalize emojis, colors, and default calendar times for each meal type
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <MealTypeEmojiSettings initialEmojis={mealTypeEmojis} />
+          <MealTypeCustomizationSettings initialSettings={mealTypeSettings} />
         </CardContent>
       </Card>
 

@@ -35,8 +35,11 @@ import { formatWeekRange, getWeekStart } from "@/types/meal-plan";
 import { SaveTemplateDialog } from "./save-template-dialog";
 import { TemplateManagerDialog } from "./template-manager-dialog";
 import { AISuggestionModal } from "./AISuggestionModal";
+import { PlannerViewToggle } from "./planner-view-toggle";
 import { UpgradeModal } from "@/components/subscriptions/UpgradeModal";
 import type { SubscriptionTier } from "@/types/subscription";
+import type { PlannerViewSettings } from "@/types/settings";
+import { DEFAULT_PLANNER_VIEW_SETTINGS } from "@/types/settings";
 
 interface PlannerHeaderProps {
   weekStartStr: string;
@@ -51,6 +54,8 @@ interface PlannerHeaderProps {
   aiQuotaRemaining?: number | null;
   existingMealDays?: string[];
   canNavigateWeeks?: boolean;
+  plannerViewSettings?: PlannerViewSettings;
+  onPlannerViewChange?: (settings: PlannerViewSettings) => void;
 }
 
 export function PlannerHeader({
@@ -64,6 +69,8 @@ export function PlannerHeader({
   aiQuotaRemaining = null,
   existingMealDays = [],
   canNavigateWeeks = false,
+  plannerViewSettings,
+  onPlannerViewChange,
 }: PlannerHeaderProps) {
   const router = useRouter();
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -242,6 +249,12 @@ export function PlannerHeader({
 
       {/* Actions - Right side */}
       <div className="flex items-center gap-2">
+        {/* View Toggle */}
+        <PlannerViewToggle
+          settings={plannerViewSettings || DEFAULT_PLANNER_VIEW_SETTINGS}
+          onChange={onPlannerViewChange}
+        />
+
         {/* Review Button */}
         {hasMeals ? (
           <Button

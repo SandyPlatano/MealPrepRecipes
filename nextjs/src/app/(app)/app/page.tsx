@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getWeekPlan, getRecipesForPlanning } from "@/app/actions/meal-plans";
-import { getSettings, getMealTypeEmojiSettings } from "@/app/actions/settings";
+import { getSettings, getMealTypeCustomization } from "@/app/actions/settings";
 import { getFavorites } from "@/app/actions/recipes";
 import {
   getRecentlyCooked,
@@ -74,6 +74,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     suggestions,
     aiQuota,
     nutritionTrackingResult,
+    mealTypeSettingsResult,
   ] = await Promise.all([
     getWeekPlan(weekStartStr),
     getRecipesForPlanning(),
@@ -84,6 +85,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     getSmartSuggestions(weekStartStr),
     checkAIQuota(),
     isNutritionTrackingEnabled(),
+    getMealTypeCustomization(),
   ]);
 
   const weekPlan = planResult.data || {
@@ -109,6 +111,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const favorites = favoritesResult.data || [];
   const recentRecipeIds = (recentlyCooked.data || []).map((r) => r.id);
   const suggestedRecipeIds = (suggestions.data || []).map((r) => r.id);
+  const mealTypeSettings = mealTypeSettingsResult.data;
 
   // Get existing meal days for AI suggestions
   const existingMealDays = Object.entries(weekPlan.assignments)
@@ -205,6 +208,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           weeklyNutritionDashboard={weeklyNutritionDashboard}
           macroGoals={macroGoals}
           canNavigateWeeks={canNavigateWeeks}
+          mealTypeSettings={mealTypeSettings}
         />
       </div>
     </>

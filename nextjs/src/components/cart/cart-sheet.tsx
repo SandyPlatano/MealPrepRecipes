@@ -217,6 +217,7 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
             recipe: item.recipe,
             cook: item.cook,
             day: item.day,
+            meal_type: null, // Cart items don't have meal types, uses global time fallback
           })),
           userTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         }),

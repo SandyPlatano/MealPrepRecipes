@@ -22,12 +22,14 @@ export default async function CookPage({ params }: CookPageProps) {
   const recipe = recipeResult.data;
   const userUnitSystem = (settingsResult.data?.unit_system as "imperial" | "metric") || "imperial";
   const cookModeSettings = cookModeSettingsResult.data;
+  const dismissedHints = settingsResult.data?.dismissed_hints || [];
 
   return (
     <CookingMode
       recipe={recipe}
       userUnitSystem={userUnitSystem}
       initialSettings={cookModeSettings}
+      dismissedHints={dismissedHints}
     />
   );
 }

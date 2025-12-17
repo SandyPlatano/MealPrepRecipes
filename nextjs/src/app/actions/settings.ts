@@ -620,9 +620,18 @@ export async function updateShowRecipeSources(showRecipeSources: boolean) {
 import type {
   CookModeSettings,
   MealTypeEmojiSettings,
+  MealTypeCustomization,
+  MealTypeKey,
+  MealTypeSettings,
+  PlannerViewSettings,
   UserSettingsPreferences,
 } from "@/types/settings";
-import { DEFAULT_COOK_MODE_SETTINGS, DEFAULT_MEAL_TYPE_EMOJIS } from "@/types/settings";
+import {
+  DEFAULT_COOK_MODE_SETTINGS,
+  DEFAULT_MEAL_TYPE_EMOJIS,
+  DEFAULT_MEAL_TYPE_SETTINGS,
+  DEFAULT_PLANNER_VIEW_SETTINGS,
+} from "@/types/settings";
 
 /**
  * Get cook mode settings from the preferences JSONB column
@@ -851,6 +860,401 @@ export async function updateMealTypeEmojiSettings(
 
   // Revalidate meal planner paths
   revalidatePath("/app/plan");
+  revalidatePath("/app/settings");
+
+  return { error: null };
+}
+
+// ============================================================================
+// Meal Type Customization (Full Settings: Emoji, Color, Calendar Time)
+// ============================================================================
+
+/**
+ * Helper to migrate from old emoji-only format to new full format
+ */
+function migrateToFullSettings(
+  oldEmojis: MealTypeEmojiSettings | undefined,
+  newSettings: MealTypeCustomization | undefined
+): MealTypeCustomization {
+  // If new settings exist, use them
+  if (newSettings) {
+    // Merge with defaults to ensure all fields exist
+    const result: MealTypeCustomization = { ...DEFAULT_MEAL_TYPE_SETTINGS };
+    for (const key of Object.keys(DEFAULT_MEAL_TYPE_SETTINGS) as MealTypeKey[]) {
+      if (newSettings[key]) {
+        result[key] = {
+          ...DEFAULT_MEAL_TYPE_SETTINGS[key],
+          ...newSettings[key],
+        };
+      }
+    }
+    return result;
+  }
+
+  // If only old emoji settings exist, migrate them
+  if (oldEmojis) {
+    const result: MealTypeCustomization = { ...DEFAULT_MEAL_TYPE_SETTINGS };
+    for (const key of Object.keys(DEFAULT_MEAL_TYPE_SETTINGS) as MealTypeKey[]) {
+      result[key] = {
+        ...DEFAULT_MEAL_TYPE_SETTINGS[key],
+        emoji: oldEmojis[key] ?? DEFAULT_MEAL_TYPE_SETTINGS[key].emoji,
+      };
+    }
+    return result;
+  }
+
+  // Return defaults
+  return DEFAULT_MEAL_TYPE_SETTINGS;
+}
+
+/**
+ * Get full meal type customization settings (emoji, color, calendar time)
+ * Automatically migrates from old emoji-only format
+ */
+export async function getMealTypeCustomization(): Promise<{
+  error: string | null;
+  data: MealTypeCustomization;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: null, data: DEFAULT_MEAL_TYPE_SETTINGS };
+  }
+
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!settings?.preferences) {
+    return { error: null, data: DEFAULT_MEAL_TYPE_SETTINGS };
+  }
+
+  const preferences = settings.preferences as UserSettingsPreferences;
+  const migrated = migrateToFullSettings(
+    preferences.mealTypeEmojis,
+    preferences.mealTypeSettings
+  );
+
+  return { error: null, data: migrated };
+}
+
+/**
+ * Update a single meal type's settings
+ */
+export async function updateMealTypeSetting(
+  mealType: MealTypeKey,
+  updates: Partial<MealTypeSettings>
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get existing preferences
+  const { data: existingData } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
+  const existingSettings = migrateToFullSettings(
+    existingPreferences.mealTypeEmojis,
+    existingPreferences.mealTypeSettings
+  );
+
+  // Update the specific meal type
+  const updatedSettings: MealTypeCustomization = {
+    ...existingSettings,
+    [mealType]: {
+      ...existingSettings[mealType],
+      ...updates,
+    },
+  };
+
+  // Update preferences (keep mealTypeEmojis for backward compatibility)
+  const updatedPreferences: UserSettingsPreferences = {
+    ...existingPreferences,
+    mealTypeSettings: updatedSettings,
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app");
+  revalidatePath("/app/settings");
+
+  return { error: null };
+}
+
+/**
+ * Update all meal type settings at once
+ */
+export async function updateMealTypeCustomization(
+  updates: Partial<MealTypeCustomization>
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get existing preferences
+  const { data: existingData } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
+  const existingSettings = migrateToFullSettings(
+    existingPreferences.mealTypeEmojis,
+    existingPreferences.mealTypeSettings
+  );
+
+  // Merge updates
+  const updatedSettings: MealTypeCustomization = { ...existingSettings };
+  for (const key of Object.keys(updates) as MealTypeKey[]) {
+    if (updates[key]) {
+      updatedSettings[key] = {
+        ...existingSettings[key],
+        ...updates[key],
+      };
+    }
+  }
+
+  // Update preferences
+  const updatedPreferences: UserSettingsPreferences = {
+    ...existingPreferences,
+    mealTypeSettings: updatedSettings,
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app");
+  revalidatePath("/app/settings");
+
+  return { error: null };
+}
+
+/**
+ * Reset all meal type settings to defaults
+ */
+export async function resetMealTypeCustomization(): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get existing preferences
+  const { data: existingData } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
+
+  // Reset to defaults and remove old emoji-only settings
+  const updatedPreferences: UserSettingsPreferences = {
+    ...existingPreferences,
+    mealTypeSettings: DEFAULT_MEAL_TYPE_SETTINGS,
+    mealTypeEmojis: undefined, // Clean up old format
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app");
+  revalidatePath("/app/settings");
+
+  return { error: null };
+}
+
+// ============================================================================
+// Planner View Settings
+// ============================================================================
+
+/**
+ * Get planner view settings from the preferences JSONB column
+ */
+export async function getPlannerViewSettings(): Promise<{
+  error: string | null;
+  data: PlannerViewSettings;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    // Return defaults for non-authenticated users
+    return { error: null, data: DEFAULT_PLANNER_VIEW_SETTINGS };
+  }
+
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!settings?.preferences) {
+    return { error: null, data: DEFAULT_PLANNER_VIEW_SETTINGS };
+  }
+
+  const preferences = settings.preferences as UserSettingsPreferences;
+  const plannerView = preferences.plannerView;
+
+  if (!plannerView) {
+    return { error: null, data: DEFAULT_PLANNER_VIEW_SETTINGS };
+  }
+
+  // Merge with defaults to ensure all fields exist
+  return {
+    error: null,
+    data: {
+      ...DEFAULT_PLANNER_VIEW_SETTINGS,
+      ...plannerView,
+    },
+  };
+}
+
+/**
+ * Update planner view settings in the preferences JSONB column
+ * Supports partial updates - only the fields provided will be updated
+ */
+export async function updatePlannerViewSettings(
+  newSettings: Partial<PlannerViewSettings>
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get existing preferences
+  const { data: existingData } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const existingPreferences = (existingData?.preferences ||
+    {}) as UserSettingsPreferences;
+  const existingPlannerView =
+    existingPreferences.plannerView || DEFAULT_PLANNER_VIEW_SETTINGS;
+
+  // Merge the new settings with existing
+  const updatedPlannerView: PlannerViewSettings = {
+    ...existingPlannerView,
+    ...newSettings,
+  };
+
+  // Update the preferences JSONB with the new planner view settings
+  const updatedPreferences: UserSettingsPreferences = {
+    ...existingPreferences,
+    plannerView: updatedPlannerView,
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  // Revalidate meal planner paths
+  revalidatePath("/app");
+  revalidatePath("/app/settings");
+
+  return { error: null };
+}
+
+/**
+ * Reset planner view settings to defaults
+ */
+export async function resetPlannerViewSettings(): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get existing preferences
+  const { data: existingData } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
+
+  // Reset to defaults
+  const updatedPreferences: UserSettingsPreferences = {
+    ...existingPreferences,
+    plannerView: DEFAULT_PLANNER_VIEW_SETTINGS,
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app");
   revalidatePath("/app/settings");
 
   return { error: null };

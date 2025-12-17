@@ -56,7 +56,7 @@ export default async function NutritionPage() {
   const today = getTodayDate();
 
   return (
-    <div className="container max-w-4xl space-y-6 py-6 pb-24 md:pb-8">
+    <div className="container max-w-6xl space-y-6 py-6 pb-24 md:pb-8">
       {/* Simplified Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Nutrition</h1>

@@ -5,9 +5,9 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { type MealType, MEAL_TYPE_CONFIG } from "@/types/meal-plan";
+import type { MealTypeCustomization, MealTypeKey } from "@/types/settings";
 
 interface MealTypeSelectorProps {
   value: MealType | null;
@@ -16,6 +16,8 @@ interface MealTypeSelectorProps {
   className?: string;
   /** Show compact version without icon - uses just emoji + color indicator */
   compact?: boolean;
+  /** Full meal type settings including emoji and color */
+  mealTypeSettings?: MealTypeCustomization;
 }
 
 export function MealTypeSelector({
@@ -24,8 +26,9 @@ export function MealTypeSelector({
   disabled = false,
   className,
   compact = false,
+  mealTypeSettings,
 }: MealTypeSelectorProps) {
-  const config = MEAL_TYPE_CONFIG[value ?? "other"];
+  const defaultConfig = MEAL_TYPE_CONFIG[value ?? "other"];
 
   const handleChange = (newValue: string) => {
     if (newValue === "other") {
@@ -34,6 +37,28 @@ export function MealTypeSelector({
       onChange(newValue as MealType);
     }
   };
+
+  // Get emoji for a meal type, using custom if available and not empty
+  const getEmoji = (type: MealType | "other"): string | null => {
+    const customSettings = mealTypeSettings?.[type as MealTypeKey];
+    if (customSettings?.emoji !== undefined && customSettings.emoji !== "") {
+      return customSettings.emoji;
+    }
+    // If explicitly set to empty string, return null to hide emoji
+    if (customSettings?.emoji === "") {
+      return null;
+    }
+    return MEAL_TYPE_CONFIG[type].emoji;
+  };
+
+  // Get color for a meal type, using custom if available
+  const getColor = (type: MealType | "other"): string => {
+    const customSettings = mealTypeSettings?.[type as MealTypeKey];
+    return customSettings?.color || MEAL_TYPE_CONFIG[type].accentColor;
+  };
+
+  const currentEmoji = getEmoji(value ?? "other");
+  const currentColor = getColor(value ?? "other");
 
   return (
     <Select
@@ -45,31 +70,33 @@ export function MealTypeSelector({
         className={className}
         style={{
           borderLeftWidth: "3px",
-          borderLeftColor: config.accentColor,
+          borderLeftColor: currentColor,
         }}
       >
-        <span className="flex items-center gap-1.5 min-w-0">
+        <span className="flex items-center gap-2.5 min-w-0">
           <span
             className="h-2 w-2 rounded-full flex-shrink-0"
-            style={{ backgroundColor: config.accentColor }}
+            style={{ backgroundColor: currentColor }}
             aria-hidden="true"
           />
-          <span className="flex-shrink-0">{config.emoji}</span>
-          {!compact && <span className="truncate">{config.label}</span>}
+          {currentEmoji && <span className="flex-shrink-0">{currentEmoji}</span>}
+          {!compact && <span className="truncate">{defaultConfig.label}</span>}
         </span>
       </SelectTrigger>
       <SelectContent className="z-[10000]">
         {(["breakfast", "lunch", "dinner", "snack", "other"] as const).map((type) => {
           const typeConfig = MEAL_TYPE_CONFIG[type];
+          const typeEmoji = getEmoji(type);
+          const typeColor = getColor(type);
           return (
             <SelectItem key={type} value={type}>
               <span className="flex items-center gap-2">
                 <span
                   className="h-2.5 w-2.5 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: typeConfig.accentColor }}
+                  style={{ backgroundColor: typeColor }}
                   aria-hidden="true"
                 />
-                <span>{typeConfig.emoji}</span>
+                {typeEmoji && <span>{typeEmoji}</span>}
                 <span>{typeConfig.label}</span>
               </span>
             </SelectItem>

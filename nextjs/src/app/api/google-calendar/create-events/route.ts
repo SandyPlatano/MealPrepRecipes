@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createMealPlanEvents, refreshAccessToken } from "@/lib/google-calendar";
 import { rateLimit } from "@/lib/rate-limit";
+import { DEFAULT_MEAL_TYPE_SETTINGS, type MealTypeCustomization, type MealTypeKey } from "@/types/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -58,7 +59,7 @@ export async function POST(request: Request) {
     // Check if user has Google Calendar connected
     const { data: settings } = await supabase
       .from("user_settings")
-      .select("google_access_token, google_refresh_token, google_token_expires_at, google_connected_account, calendar_event_time, calendar_event_duration_minutes, calendar_excluded_days")
+      .select("google_access_token, google_refresh_token, google_token_expires_at, google_connected_account, calendar_event_time, calendar_event_duration_minutes, calendar_excluded_days, preferences")
       .eq("user_id", user.id)
       .single();
 
@@ -112,9 +113,13 @@ export async function POST(request: Request) {
     const mondayDate = new Date(`${startDateStr}, ${currentYear}`);
 
     // Get calendar settings with defaults
-    const eventTime = settings.calendar_event_time || "17:00:00"; // Default 5 PM
+    const globalEventTime = settings.calendar_event_time || "17:00:00"; // Default 5 PM
     const eventDuration = settings.calendar_event_duration_minutes || 60; // Default 60 minutes
     const excludedDays = settings.calendar_excluded_days || [];
+
+    // Get meal type settings for meal-type-specific calendar times
+    const preferences = settings.preferences as { mealTypeSettings?: MealTypeCustomization } | null;
+    const mealTypeSettings: MealTypeCustomization = preferences?.mealTypeSettings || DEFAULT_MEAL_TYPE_SETTINGS;
 
     // Filter out items for excluded days
     const filteredItems = items.filter((item: Record<string, unknown>) => !excludedDays.includes(item.day as string));
@@ -147,6 +152,12 @@ export async function POST(request: Request) {
       const month = String(eventDate.getMonth() + 1).padStart(2, '0');
       const day = String(eventDate.getDate()).padStart(2, '0');
       const dateStr = `${year}-${month}-${day}`;
+
+      // Get meal-type-specific time, or fall back to global event time
+      const mealType = (item.meal_type as MealTypeKey | null) ?? "other";
+      const mealTypeTime = mealTypeSettings[mealType]?.calendarTime;
+      // Convert HH:MM to HH:MM:SS format if needed, or use global time as fallback
+      const eventTime = mealTypeTime ? `${mealTypeTime}:00` : globalEventTime;
 
       // Combine date and time (time is already in HH:MM:SS format)
       const startDateTime = `${dateStr}T${eventTime}`;

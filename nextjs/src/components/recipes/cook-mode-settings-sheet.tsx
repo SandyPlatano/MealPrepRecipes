@@ -24,6 +24,7 @@ import {
   Sun,
   Moon,
   Monitor,
+  Wand2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { updateCookModeSettings } from "@/app/actions/settings";
@@ -34,6 +35,9 @@ import type {
   CookModeTheme,
   CookModeNavigationMode,
 } from "@/types/settings";
+import { COOK_MODE_PRESETS, getMatchingPreset } from "@/lib/cook-mode-presets";
+import { CookModePresetCard } from "./cook-mode-preset-card";
+import { CookModeSettingsPreview } from "./cook-mode-settings-preview";
 
 interface CookModeSettingsSheetProps {
   isOpen: boolean;
@@ -115,6 +119,23 @@ export function CookModeSettingsSheet({
     [localSettings, onSettingsChange, saveSettings]
   );
 
+  // Apply a preset
+  const applyPreset = useCallback(
+    (presetKey: string) => {
+      const preset = COOK_MODE_PRESETS.find((p) => p.key === presetKey);
+      if (preset) {
+        setLocalSettings(preset.settings);
+        onSettingsChange(preset.settings);
+        saveSettings(preset.settings);
+        toast.success(`Applied "${preset.name}" preset`);
+      }
+    },
+    [onSettingsChange, saveSettings]
+  );
+
+  // Check if current settings match a preset
+  const currentPreset = getMatchingPreset(localSettings);
+
   if (!isOpen) return null;
 
   return (
@@ -170,6 +191,25 @@ export function CookModeSettingsSheet({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-6">
+          {/* Live Preview - sticky on desktop */}
+          <div className="hidden md:block sticky top-0 z-10 pb-4 bg-background">
+            <CookModeSettingsPreview settings={localSettings} />
+          </div>
+
+          {/* Quick Presets */}
+          <SettingsSection icon={<Wand2 className="h-4 w-4" />} title="Quick Presets">
+            <div className="grid grid-cols-2 gap-3 -ml-6">
+              {COOK_MODE_PRESETS.map((preset) => (
+                <CookModePresetCard
+                  key={preset.key}
+                  preset={preset}
+                  isSelected={currentPreset === preset.key}
+                  onSelect={() => applyPreset(preset.key)}
+                />
+              ))}
+            </div>
+          </SettingsSection>
+
           {/* Display Options */}
           <SettingsSection icon={<Type className="h-4 w-4" />} title="Display">
             {/* Font Size */}

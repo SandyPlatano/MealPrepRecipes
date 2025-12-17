@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import type { DayOfWeek, MealAssignmentWithRecipe, MealType } from "@/types/meal-plan";
 import { groupMealsByType, getMealTypeConfig, MEAL_TYPE_ORDER } from "@/types/meal-plan";
 import type { RecipeNutrition } from "@/types/nutrition";
+import type { MealTypeCustomization, MealTypeKey, PlannerViewSettings } from "@/types/settings";
 
 interface Recipe {
   id: string;
@@ -47,6 +48,8 @@ interface PlannerDayRowProps {
   onUpdateMealType: (assignmentId: string, mealType: MealType | null) => Promise<void>;
   onRemoveMeal: (assignmentId: string) => Promise<void>;
   nutritionData?: Map<string, RecipeNutrition> | null;
+  mealTypeSettings?: MealTypeCustomization;
+  viewSettings?: PlannerViewSettings;
 }
 
 export const PlannerDayRow = memo(function PlannerDayRow({
@@ -67,6 +70,8 @@ export const PlannerDayRow = memo(function PlannerDayRow({
   onUpdateMealType,
   onRemoveMeal,
   nutritionData = null,
+  mealTypeSettings,
+  viewSettings,
 }: PlannerDayRowProps) {
   const [isPending, startTransition] = useTransition();
   const [modalOpen, setModalOpen] = useState(false);
@@ -140,7 +145,12 @@ export const PlannerDayRow = memo(function PlannerDayRow({
 
               return (
                 <div key={mealType ?? "other"} className="space-y-2 md:space-y-3">
-                  <MealSlotHeader mealType={mealType} mealCount={typeMeals.length} />
+                  <MealSlotHeader
+                    mealType={mealType}
+                    mealCount={typeMeals.length}
+                    customEmoji={mealTypeSettings?.[(mealType ?? "other") as MealTypeKey]?.emoji}
+                    customColor={mealTypeSettings?.[(mealType ?? "other") as MealTypeKey]?.color}
+                  />
                   {typeMeals.map((assignment) => (
                     <RecipeRow
                       key={assignment.id}
@@ -156,6 +166,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                         setModalOpen(true);
                       }}
                       nutrition={nutritionData?.get(assignment.recipe_id) || null}
+                      mealTypeSettings={mealTypeSettings}
                     />
                   ))}
                 </div>
@@ -216,6 +227,7 @@ interface RecipeRowProps {
   onRemove: (assignmentId: string) => Promise<void>;
   onSwap: () => void;
   nutrition?: RecipeNutrition | null;
+  mealTypeSettings?: MealTypeCustomization;
 }
 
 function RecipeRow({
@@ -227,6 +239,7 @@ function RecipeRow({
   onRemove,
   onSwap,
   nutrition = null,
+  mealTypeSettings,
 }: RecipeRowProps) {
 
   // Default colors for cooks (fallback)
@@ -258,6 +271,10 @@ function RecipeRow({
 
   // Get meal type config for colored border
   const mealTypeConfig = getMealTypeConfig(assignment.meal_type);
+  // Use custom color if available, otherwise fall back to default
+  const mealTypeKey = (assignment.meal_type ?? "other") as MealTypeKey;
+  const customMealColor = mealTypeSettings?.[mealTypeKey]?.color;
+  const mealAccentColor = customMealColor || mealTypeConfig.accentColor;
 
   const [isUpdating, setIsUpdating] = useState(false);
   const [isUpdatingMealType, setIsUpdatingMealType] = useState(false);
@@ -300,7 +317,7 @@ function RecipeRow({
         isRemoving && "opacity-50"
       )}
       style={{
-        borderLeftColor: mealTypeConfig.accentColor,
+        borderLeftColor: mealAccentColor,
       }}
     >
       {/* Recipe Title & Meta - Always on top row */}
@@ -378,6 +395,7 @@ function RecipeRow({
             disabled={isUpdatingMealType}
             className="h-10 md:h-9 text-sm md:text-xs"
             compact={false}
+            mealTypeSettings={mealTypeSettings}
           />
         </div>
 

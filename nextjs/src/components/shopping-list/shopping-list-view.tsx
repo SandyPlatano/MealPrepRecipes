@@ -622,58 +622,62 @@ export function ShoppingListView({
 
       {/* Actions */}
       {shoppingList.items.length > 0 && (
-        <div className="flex gap-2 flex-wrap">
-          {/* Email Meal Plan - Primary */}
-          {plannedRecipes.length > 0 && (
-            <Button variant="outline" onClick={handleSendPlan} disabled={isSendingPlan}>
-              <Mail className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">{isSendingPlan ? "Emailing..." : "Email Meal Plan"}</span>
-              <span className="sm:hidden">{isSendingPlan ? "..." : "Email"}</span>
-            </Button>
-          )}
+        <div className="flex gap-2">
+          {/* Main action buttons - evenly distributed */}
+          <div className="flex gap-2 flex-1">
+            {/* Email Meal Plan - Primary */}
+            {plannedRecipes.length > 0 && (
+              <Button variant="outline" className="flex-1" onClick={handleSendPlan} disabled={isSendingPlan}>
+                <Mail className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">{isSendingPlan ? "Emailing..." : "Email Meal Plan"}</span>
+                <span className="sm:hidden">{isSendingPlan ? "..." : "Email"}</span>
+              </Button>
+            )}
 
-          {/* Show Pantry Items */}
-          {pantryCount > 0 && (
+            {/* Show Pantry Items */}
+            {pantryCount > 0 && (
+              <Button
+                variant={showPantryItems ? "default" : "outline"}
+                className="flex-1"
+                onClick={() => setShowPantryItems(!showPantryItems)}
+              >
+                <Cookie className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">
+                  {showPantryItems ? "Hide" : "Show"} Pantry ({pantryCount})
+                </span>
+                <span className="sm:hidden">
+                  Pantry ({pantryCount})
+                </span>
+              </Button>
+            )}
+
+            {/* Show Recipe Sources Toggle */}
+            <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-border bg-background">
+              <BookOpen className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm hidden sm:inline">Sources</span>
+              <Switch
+                checked={showRecipeSources}
+                onCheckedChange={handleToggleRecipeSources}
+                className="h-5 w-9"
+              />
+            </div>
+
+            {/* Clear All Items */}
             <Button
-              variant={showPantryItems ? "default" : "outline"}
-              onClick={() => setShowPantryItems(!showPantryItems)}
+              variant="outline"
+              className="flex-1 text-destructive hover:text-destructive"
+              onClick={() => setClearAllDialogOpen(true)}
             >
-              <Cookie className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">
-                {showPantryItems ? "Hide" : "Show"} Pantry ({pantryCount})
-              </span>
-              <span className="sm:hidden">
-                Pantry ({pantryCount})
-              </span>
+              <Trash2 className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Clear All</span>
+              <span className="sm:hidden">Clear</span>
             </Button>
-          )}
-
-          {/* Show Recipe Sources Toggle */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-background">
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm hidden sm:inline">Sources</span>
-            <Switch
-              checked={showRecipeSources}
-              onCheckedChange={handleToggleRecipeSources}
-              className="h-5 w-9"
-            />
           </div>
 
-          {/* Clear All Items */}
-          <Button
-            variant="outline"
-            className="text-destructive hover:text-destructive"
-            onClick={() => setClearAllDialogOpen(true)}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Clear All</span>
-            <span className="sm:hidden">Clear</span>
-          </Button>
-
-          {/* Three-Dot Menu - Secondary Actions */}
+          {/* Three-Dot Menu - Secondary Actions (fixed width) */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="flex-shrink-0">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

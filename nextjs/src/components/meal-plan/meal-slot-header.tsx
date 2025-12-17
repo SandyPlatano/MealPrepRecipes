@@ -8,6 +8,10 @@ interface MealSlotHeaderProps {
   mealType: MealType | null;
   mealCount: number;
   className?: string;
+  /** Custom emoji override from user settings */
+  customEmoji?: string;
+  /** Custom color override from user settings (hex color) */
+  customColor?: string;
 }
 
 /**
@@ -19,22 +23,35 @@ export function MealSlotHeader({
   mealType,
   mealCount,
   className,
+  customEmoji,
+  customColor,
 }: MealSlotHeaderProps) {
   if (mealCount === 0) return null;
 
   const config = getMealTypeConfig(mealType);
+  // Use custom emoji if provided and not empty, otherwise fall back to default
+  const displayEmoji = customEmoji !== undefined && customEmoji !== "" ? customEmoji : config.emoji;
+  // Use custom color if provided, otherwise fall back to config accent color
+  const accentColor = customColor || config.accentColor;
 
   return (
     <div
       className={cn(
         "flex items-center gap-2.5 py-2 px-3 rounded-lg text-sm md:text-base font-medium",
-        config.bgColor,
+        // Only use Tailwind bg class if no custom color is set
+        !customColor && config.bgColor,
         className
       )}
+      style={customColor ? {
+        backgroundColor: `${customColor}15`, // 15 is ~9% opacity in hex
+        borderLeft: `4px solid ${accentColor}`,
+      } : undefined}
     >
-      <span className="text-lg md:text-xl" aria-hidden="true">
-        {config.emoji}
-      </span>
+      {displayEmoji && (
+        <span className="text-lg md:text-xl" aria-hidden="true">
+          {displayEmoji}
+        </span>
+      )}
       <span className="flex-1 font-semibold">{config.label}</span>
       <Badge
         variant="secondary"

@@ -36,6 +36,8 @@ interface Recipe {
 
 import type { SubscriptionTier } from "@/types/subscription";
 import type { RecipeNutrition, WeeklyMacroDashboard, MacroGoals } from "@/types/nutrition";
+import type { MealTypeCustomization, PlannerViewSettings } from "@/types/settings";
+import { DEFAULT_PLANNER_VIEW_SETTINGS } from "@/types/settings";
 
 interface MealPlannerGridProps {
   weekStartStr: string;
@@ -58,6 +60,8 @@ interface MealPlannerGridProps {
   weeklyNutritionDashboard?: WeeklyMacroDashboard | null;
   macroGoals?: MacroGoals | null;
   canNavigateWeeks?: boolean;
+  mealTypeSettings?: MealTypeCustomization;
+  plannerViewSettings?: PlannerViewSettings;
 }
 
 export function MealPlannerGrid({
@@ -83,9 +87,16 @@ export function MealPlannerGrid({
   weeklyNutritionDashboard = null,
   macroGoals = null,
   canNavigateWeeks = false,
+  mealTypeSettings,
+  plannerViewSettings: initialPlannerViewSettings,
 }: MealPlannerGridProps) {
   const [isPending, startTransition] = useTransition();
   const [isSending, setIsSending] = useState(false);
+
+  // Planner view settings state (for optimistic updates from the header toggle)
+  const [plannerViewSettings, setPlannerViewSettings] = useState<PlannerViewSettings>(
+    initialPlannerViewSettings || DEFAULT_PLANNER_VIEW_SETTINGS
+  );
 
   // Optimistic state for cook assignments (instant UI feedback)
   const [optimisticCooks, setOptimisticCooks] = useState<Record<string, string | null>>({});
@@ -274,6 +285,8 @@ export function MealPlannerGrid({
               aiQuotaRemaining={aiQuotaRemaining}
               existingMealDays={existingMealDays}
               canNavigateWeeks={canNavigateWeeks}
+              plannerViewSettings={plannerViewSettings}
+              onPlannerViewChange={setPlannerViewSettings}
             />
           </div>
 
@@ -303,6 +316,8 @@ export function MealPlannerGrid({
                   onUpdateMealType={handleUpdateMealType}
                   onRemoveMeal={handleRemoveMeal}
                   nutritionData={nutritionData}
+                  mealTypeSettings={mealTypeSettings}
+                  viewSettings={plannerViewSettings}
                 />
               );
             })}

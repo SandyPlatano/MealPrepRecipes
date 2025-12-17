@@ -5,6 +5,7 @@ export const HINT_IDS = {
   RECIPES_INTRO: "recipes-intro",
   SHOPPING_LIST_INTRO: "shopping-list-intro",
   PANTRY_INTRO: "pantry-intro",
+  COOK_MODE_WIZARD: "cook-mode-wizard",
 } as const;
 
 export type HintId = (typeof HINT_IDS)[keyof typeof HINT_IDS];
@@ -34,6 +35,11 @@ export const HINT_CONTENT: Record<HintId, HintContent> = {
     title: "Scan Your Pantry",
     description:
       "Use AI to scan photos of your fridge or pantry. Items update your inventory automatically.",
+  },
+  [HINT_IDS.COOK_MODE_WIZARD]: {
+    title: "Set Up Cook Mode",
+    description:
+      "Customize your cooking experience with font sizes, themes, and helpful features.",
   },
 };
 

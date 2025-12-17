@@ -1,7 +1,10 @@
 /**
  * Recipe Folder Types
  * Organize recipes into folders and subfolders (max 2 levels)
+ * Includes smart folder support with filter criteria
  */
+
+import type { SmartFilterCriteria } from "./smart-folder";
 
 // =====================================================
 // FOLDER CATEGORY TYPES
@@ -44,6 +47,7 @@ export interface FolderCategoryFormData {
 
 /**
  * Recipe folder from database
+ * May be a regular folder or a smart folder with filter criteria
  */
 export interface RecipeFolder {
   id: string;
@@ -56,6 +60,10 @@ export interface RecipeFolder {
   cover_recipe_id: string | null;
   category_id: string | null;
   sort_order: number;
+  // Smart folder fields
+  is_smart: boolean;
+  smart_filters: SmartFilterCriteria | null;
+  // Timestamps
   created_at: string;
   updated_at: string;
 }
@@ -81,39 +89,11 @@ export interface RecipeFolderMember {
 }
 
 // =====================================================
-// SMART FOLDER TYPES
+// SMART FOLDER TYPES (Re-exported from smart-folder.ts)
 // =====================================================
 
-/**
- * Smart folder types (virtual, computed on-the-fly)
- */
-export type SmartFolderType = "recently_added";
-
-/**
- * Smart folder definition
- */
-export interface SmartFolder {
-  id: SmartFolderType;
-  name: string;
-  emoji: string;
-  color: string;
-  description: string;
-  isVirtual: true;
-}
-
-/**
- * Predefined smart folders
- */
-export const SMART_FOLDERS: Record<SmartFolderType, SmartFolder> = {
-  recently_added: {
-    id: "recently_added",
-    name: "Recently Added",
-    emoji: "🆕",
-    color: "#6366F1",
-    description: "Recipes added in the last 30 days",
-    isVirtual: true,
-  },
-};
+// Smart folder types are defined in @/types/smart-folder.ts
+// Import from there for SmartFilterCriteria, SystemSmartFolder, etc.
 
 // =====================================================
 // FORM TYPES
@@ -137,11 +117,14 @@ export interface FolderFormData {
 
 /**
  * Active folder filter state
+ * - "all": Show all recipes (no filter)
+ * - "folder": Filter by a regular folder
+ * - "smart": Filter by a smart folder (system or user-created)
  */
 export type ActiveFolderFilter =
+  | { type: "all" }
   | { type: "folder"; id: string }
-  | { type: "smart"; id: SmartFolderType }
-  | { type: "all" };
+  | { type: "smart"; id: string; isSystem: boolean };
 
 // =====================================================
 // UI CONSTANTS
