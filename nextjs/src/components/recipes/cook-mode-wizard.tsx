@@ -156,23 +156,23 @@ export function CookModeWizard({
 
       {/* Content Area */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto p-6">
-          <div className="grid md:grid-cols-[1fr_280px] gap-8">
+        <div className="max-w-7xl mx-auto p-6 lg:p-10">
+          <div className="grid lg:grid-cols-[1fr_400px] gap-10 lg:gap-16">
             {/* Main Content */}
-            <div className="space-y-6">
+            <div className="space-y-8">
               {/* Step 1: Welcome + Presets */}
               {step === 1 && (
-                <div className="space-y-6">
+                <div className="space-y-8">
                   <div>
-                    <h2 className="text-2xl font-bold mb-2">
+                    <h2 className="text-3xl lg:text-4xl font-bold mb-3">
                       Welcome to Cook Mode! 🍳
                     </h2>
-                    <p className="text-muted-foreground">
+                    <p className="text-lg text-muted-foreground">
                       Choose a preset that fits your cooking style, or customize everything yourself.
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     {COOK_MODE_PRESETS.map((preset) => (
                       <CookModePresetCard
                         key={preset.key}
@@ -183,7 +183,7 @@ export function CookModeWizard({
                     ))}
                   </div>
 
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground">
                     Don&apos;t worry — you can customize these settings in the next steps or change them anytime.
                   </p>
                 </div>
@@ -191,10 +191,10 @@ export function CookModeWizard({
 
               {/* Step 2: Display Settings */}
               {step === 2 && (
-                <div className="space-y-6">
+                <div className="space-y-8">
                   <div>
-                    <h2 className="text-2xl font-bold mb-2">Display Settings</h2>
-                    <p className="text-muted-foreground">
+                    <h2 className="text-3xl lg:text-4xl font-bold mb-3">Display Settings</h2>
+                    <p className="text-lg text-muted-foreground">
                       Adjust how cook mode looks on your screen.
                     </p>
                   </div>
@@ -266,10 +266,10 @@ export function CookModeWizard({
 
               {/* Step 3: Visibility */}
               {step === 3 && (
-                <div className="space-y-6">
+                <div className="space-y-8">
                   <div>
-                    <h2 className="text-2xl font-bold mb-2">What to Show</h2>
-                    <p className="text-muted-foreground">
+                    <h2 className="text-3xl lg:text-4xl font-bold mb-3">What to Show</h2>
+                    <p className="text-lg text-muted-foreground">
                       Choose which elements appear on screen while cooking.
                     </p>
                   </div>
@@ -305,10 +305,10 @@ export function CookModeWizard({
 
               {/* Step 4: Behavior */}
               {step === 4 && (
-                <div className="space-y-6">
+                <div className="space-y-8">
                   <div>
-                    <h2 className="text-2xl font-bold mb-2">Behavior Settings</h2>
-                    <p className="text-muted-foreground">
+                    <h2 className="text-3xl lg:text-4xl font-bold mb-3">Behavior Settings</h2>
+                    <p className="text-lg text-muted-foreground">
                       Fine-tune how cook mode behaves while you&apos;re cooking.
                     </p>
                   </div>
@@ -349,10 +349,10 @@ export function CookModeWizard({
               )}
             </div>
 
-            {/* Preview Panel - Always visible on desktop */}
-            <div className="hidden md:block">
+            {/* Preview Panel - Always visible on large screens */}
+            <div className="hidden lg:block">
               <div className="sticky top-6">
-                <CookModeSettingsPreview settings={settings} />
+                <CookModeSettingsPreview settings={settings} className="min-h-[400px]" />
               </div>
             </div>
           </div>

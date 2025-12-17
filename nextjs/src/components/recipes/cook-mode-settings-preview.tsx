@@ -23,9 +23,9 @@ const SAMPLE_INSTRUCTION = "Preheat the oven to 375°F. In a large bowl, whisk t
 
 // Font size mapping for preview text
 const FONT_SIZE_CLASSES = {
-  small: "text-xs",
-  medium: "text-sm",
-  large: "text-base",
+  small: "text-sm",
+  medium: "text-base",
+  large: "text-lg",
 } as const;
 
 export function CookModeSettingsPreview({
@@ -55,17 +55,17 @@ export function CookModeSettingsPreview({
       )}
     >
       {/* Preview Header */}
-      <div className="px-3 py-2 border-b flex items-center justify-between">
-        <span className="text-[10px] font-medium uppercase tracking-wider opacity-60">
+      <div className="px-4 py-3 border-b flex items-center justify-between">
+        <span className="text-xs font-medium uppercase tracking-wider opacity-60">
           Preview
         </span>
-        <Badge variant="outline" className="text-[10px] h-5">
+        <Badge variant="outline" className="text-xs">
           Cook Mode
         </Badge>
       </div>
 
       {/* Preview Content */}
-      <div className="p-3 space-y-3">
+      <div className="p-4 space-y-4">
         {/* Progress Bar - conditional */}
         <div
           className={cn(
@@ -75,27 +75,27 @@ export function CookModeSettingsPreview({
               : "opacity-0 h-0 overflow-hidden"
           )}
         >
-          <Progress value={33} className="h-1.5" />
-          <p className="text-[10px] opacity-60 mt-1">Step 1 of 3</p>
+          <Progress value={33} className="h-2" />
+          <p className="text-xs opacity-60 mt-1.5">Step 1 of 3</p>
         </div>
 
         {/* Main Content Grid */}
         <div
           className={cn(
-            "grid gap-3 transition-all duration-300",
-            settings.visibility.showIngredients && "grid-cols-[1fr_80px]"
+            "grid gap-4 transition-all duration-300",
+            settings.visibility.showIngredients && "grid-cols-[1fr_100px]"
           )}
         >
           {/* Instruction Card */}
           <Card
             className={cn(
-              "p-3 transition-all duration-300",
+              "p-4 transition-all duration-300",
               settings.display.themeOverride === "dark" && "bg-zinc-800 border-zinc-700",
               settings.display.themeOverride === "light" && "bg-zinc-50 border-zinc-200"
             )}
           >
-            <div className="space-y-2">
-              <span className="text-[10px] font-medium opacity-60">STEP 1</span>
+            <div className="space-y-3">
+              <span className="text-xs font-medium opacity-60">STEP 1</span>
               <p className={cn("leading-relaxed transition-all duration-300", fontSizeClass)}>
                 {SAMPLE_INSTRUCTION}
               </p>
@@ -103,14 +103,14 @@ export function CookModeSettingsPreview({
               {/* Timer badges - conditional */}
               <div
                 className={cn(
-                  "flex gap-1.5 pt-2 border-t transition-all duration-300",
+                  "flex gap-2 pt-3 border-t transition-all duration-300",
                   settings.visibility.showTimers
                     ? "opacity-100 h-auto"
                     : "opacity-0 h-0 overflow-hidden border-0 pt-0"
                 )}
               >
-                <Badge variant="default" className="text-[10px] gap-1 h-5">
-                  <Timer className="h-2.5 w-2.5" />
+                <Badge variant="default" className="text-xs gap-1.5 h-6">
+                  <Timer className="h-3 w-3" />
                   15 min
                 </Badge>
               </div>
@@ -128,20 +128,20 @@ export function CookModeSettingsPreview({
           >
             <Card
               className={cn(
-                "p-2 h-full transition-all duration-300",
+                "p-3 h-full transition-all duration-300",
                 settings.display.themeOverride === "dark" && "bg-zinc-800 border-zinc-700",
                 settings.display.themeOverride === "light" && "bg-zinc-50 border-zinc-200"
               )}
             >
-              <div className="flex items-center gap-1 mb-2">
-                <ListChecks className="h-3 w-3 opacity-60" />
-                <span className="text-[10px] font-medium">Ingredients</span>
+              <div className="flex items-center gap-1.5 mb-3">
+                <ListChecks className="h-4 w-4 opacity-60" />
+                <span className="text-xs font-medium">Ingredients</span>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-2">
                 {["Flour", "Sugar", "Salt"].map((item, i) => (
-                  <div key={i} className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-sm border opacity-60" />
-                    <span className="text-[10px] opacity-80">{item}</span>
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-sm border opacity-60" />
+                    <span className="text-xs opacity-80">{item}</span>
                   </div>
                 ))}
               </div>
@@ -150,25 +150,25 @@ export function CookModeSettingsPreview({
         </div>
 
         {/* Behavior Indicators */}
-        <div className="flex flex-wrap gap-1.5 pt-2 border-t">
+        <div className="flex flex-wrap gap-2 pt-3 border-t">
           {settings.behavior.keepScreenAwake && (
-            <Badge variant="secondary" className="text-[9px] h-4 gap-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+            <Badge variant="secondary" className="text-xs h-6 gap-1">
+              <span className="w-2 h-2 rounded-full bg-green-500" />
               Screen awake
             </Badge>
           )}
           {settings.behavior.timerSounds && (
-            <Badge variant="secondary" className="text-[9px] h-4 gap-0.5">
+            <Badge variant="secondary" className="text-xs h-6 gap-1">
               🔔 Sounds
             </Badge>
           )}
           {settings.behavior.autoAdvance && (
-            <Badge variant="secondary" className="text-[9px] h-4 gap-0.5">
-              <Check className="h-2 w-2" />
+            <Badge variant="secondary" className="text-xs h-6 gap-1">
+              <Check className="h-3 w-3" />
               Auto-advance
             </Badge>
           )}
-          <Badge variant="secondary" className="text-[9px] h-4">
+          <Badge variant="secondary" className="text-xs h-6">
             {settings.navigation.mode === "step-by-step" ? "Step-by-step" : "Scrollable"}
           </Badge>
         </div>
