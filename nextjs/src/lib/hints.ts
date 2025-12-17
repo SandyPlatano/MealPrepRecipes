@@ -43,10 +43,35 @@ export const HINT_CONTENT: Record<HintId, HintContent> = {
   },
 };
 
-// Helper to check if a hint is dismissed
+// Helper to check if a hint is dismissed (server-side check)
 export function isHintDismissed(
   hintId: HintId,
   dismissedHints: string[] | undefined
 ): boolean {
   return dismissedHints?.includes(hintId) ?? false;
+}
+
+// localStorage-based hint persistence (client-side)
+const STORAGE_KEY = "dismissed_hints";
+
+function getDismissedHintsFromStorage(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+export function dismissHintLocally(hintId: HintId): void {
+  if (typeof window === "undefined") return;
+  const dismissed = getDismissedHintsFromStorage();
+  if (!dismissed.includes(hintId)) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([...dismissed, hintId]));
+  }
+}
+
+export function isHintDismissedLocally(hintId: HintId): boolean {
+  if (typeof window === "undefined") return false;
+  return getDismissedHintsFromStorage().includes(hintId);
 }

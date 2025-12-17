@@ -1,10 +1,9 @@
 "use client";
 
 import { X, Lightbulb } from "lucide-react";
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { dismissHint } from "@/app/actions/settings";
+import { useState, useEffect } from "react";
 import type { HintId } from "@/lib/hints";
+import { dismissHintLocally, isHintDismissedLocally } from "@/lib/hints";
 
 interface ContextualHintProps {
   hintId: HintId;
@@ -17,21 +16,23 @@ export function ContextualHint({
   title,
   description,
 }: ContextualHintProps) {
-  const [isDismissed, setIsDismissed] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const [isDismissed, setIsDismissed] = useState(true); // Start hidden to prevent flash
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Check localStorage on mount
+  useEffect(() => {
+    setIsHydrated(true);
+    setIsDismissed(isHintDismissedLocally(hintId));
+  }, [hintId]);
 
   const handleDismiss = () => {
-    setIsDismissed(true); // Hide immediately via local state
-    startTransition(async () => {
-      await dismissHint(hintId); // Persist to database
-      // Refresh the page to ensure server-side check reflects the dismissal
-      router.refresh();
-    });
+    dismissHintLocally(hintId); // Persist to localStorage immediately
+    setIsDismissed(true);
   };
 
-  if (isDismissed || isPending) {
-    return null; // Stay hidden via local state, even after transition completes
+  // Don't render until hydrated (prevents flash) or if dismissed
+  if (!isHydrated || isDismissed) {
+    return null;
   }
 
   return (
