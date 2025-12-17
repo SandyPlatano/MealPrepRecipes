@@ -5,6 +5,7 @@ import { DemoBanner } from "@/components/demo/demo-banner";
 import { DemoNav } from "@/components/demo/demo-nav";
 import { DemoFloatingCTA } from "@/components/demo/demo-floating-cta";
 import { ScrollHeader } from "@/components/navigation/scroll-header";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata = {
   title: "Interactive Demo | Babe, What's for Dinner?",
@@ -26,6 +27,7 @@ export default function DemoLayout({
 }) {
   return (
     <DemoProvider>
+      <TooltipProvider>
       <div className="min-h-screen bg-background flex flex-col">
         {/* Demo Banner */}
         <DemoBanner />
@@ -67,6 +69,7 @@ export default function DemoLayout({
         {/* Floating CTA - appears after 2 minutes */}
         <DemoFloatingCTA delaySeconds={90} />
       </div>
+      </TooltipProvider>
     </DemoProvider>
   );
 }
