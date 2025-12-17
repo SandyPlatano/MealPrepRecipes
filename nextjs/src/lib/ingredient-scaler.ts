@@ -539,6 +539,68 @@ export function mergeShoppingItems(items: MergeableItem[]): MergedItem[] {
 
 export type UnitSystem = "imperial" | "metric";
 
+/**
+ * Round metric values to kitchen-friendly numbers
+ * Makes measurements practical for actual cooking (e.g., 29.57ml → 30ml)
+ */
+function roundMetricValue(value: number, unit: string): number {
+  const normalizedUnit = normalizeUnit(unit);
+
+  // For milliliters
+  if (normalizedUnit === "ml") {
+    if (value < 5) {
+      // Very small amounts: round up to 5ml minimum
+      return 5;
+    } else if (value <= 15) {
+      // Small amounts: round to nearest 5
+      return Math.ceil(value / 5) * 5;
+    } else if (value <= 100) {
+      // Medium amounts: round to nearest 5
+      return Math.round(value / 5) * 5;
+    } else if (value <= 500) {
+      // Larger amounts: round to nearest 25
+      return Math.round(value / 25) * 25;
+    } else {
+      // Very large amounts: round to nearest 50
+      return Math.round(value / 50) * 50;
+    }
+  }
+
+  // For liters
+  if (normalizedUnit === "l") {
+    // Round to nearest 0.25L (250ml increments)
+    return Math.round(value * 4) / 4;
+  }
+
+  // For grams
+  if (normalizedUnit === "g") {
+    if (value < 5) {
+      // Very small amounts: round up to 5g minimum
+      return 5;
+    } else if (value <= 25) {
+      // Small amounts: round to nearest 5
+      return Math.ceil(value / 5) * 5;
+    } else if (value <= 100) {
+      // Medium amounts: round to nearest 10
+      return Math.round(value / 10) * 10;
+    } else if (value <= 500) {
+      // Larger amounts: round to nearest 25
+      return Math.round(value / 25) * 25;
+    } else {
+      // Very large amounts: round to nearest 50
+      return Math.round(value / 50) * 50;
+    }
+  }
+
+  // For kilograms
+  if (normalizedUnit === "kg") {
+    // Round to nearest 0.1kg (100g increments)
+    return Math.round(value * 10) / 10;
+  }
+
+  return value;
+}
+
 // Define which units belong to which system
 const IMPERIAL_VOLUME_UNITS = ["tsp", "tbsp", "cup", "fl oz", "pint", "quart", "gallon"];
 const METRIC_VOLUME_UNITS = ["ml", "l"];
@@ -599,6 +661,7 @@ export function getTargetUnit(unit: string, targetSystem: UnitSystem): string | 
 /**
  * Get preferred display unit within a system based on quantity
  * For metric: uses ml/l for volume, g/kg for weight based on magnitude
+ *             and rounds to kitchen-friendly numbers
  * For imperial: uses existing getPreferredUnit logic
  */
 function getPreferredUnitForSystem(
@@ -613,18 +676,20 @@ function getPreferredUnitForSystem(
     if (VOLUME_TO_ML[normalized]) {
       const ml = quantity * VOLUME_TO_ML[normalized];
       if (ml >= 1000) {
-        return { quantity: ml / 1000, unit: "l" };
+        const liters = ml / 1000;
+        return { quantity: roundMetricValue(liters, "l"), unit: "l" };
       }
-      return { quantity: ml, unit: "ml" };
+      return { quantity: roundMetricValue(ml, "ml"), unit: "ml" };
     }
 
     // Weight: use g for small amounts, kg for large
     if (WEIGHT_TO_GRAMS[normalized]) {
       const g = quantity * WEIGHT_TO_GRAMS[normalized];
       if (g >= 1000) {
-        return { quantity: g / 1000, unit: "kg" };
+        const kg = g / 1000;
+        return { quantity: roundMetricValue(kg, "kg"), unit: "kg" };
       }
-      return { quantity: g, unit: "g" };
+      return { quantity: roundMetricValue(g, "g"), unit: "g" };
     }
   } else {
     // Imperial: use existing getPreferredUnit logic

@@ -521,10 +521,17 @@ export async function dismissHint(hintId: string) {
 
   // Only add if not already dismissed
   if (!currentHints.includes(hintId)) {
+    // Use upsert to ensure the row exists, creating it if necessary
     const { error } = await supabase
       .from("user_settings")
-      .update({ dismissed_hints: [...currentHints, hintId] })
-      .eq("user_id", user.id);
+      .upsert(
+        {
+          user_id: user.id,
+          dismissed_hints: [...currentHints, hintId],
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" }
+      );
 
     if (error) {
       return { error: error.message };

@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { useSettings } from "@/contexts/settings-context";
 import { SettingsHeader } from "@/components/settings/layout/settings-header";
 import { SettingRow, SettingSection } from "@/components/settings/shared/setting-row";
@@ -13,8 +14,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { MacroGoalsSection } from "@/components/settings/macro-goals-section";
 import { cn } from "@/lib/utils";
 import type { UnitSystem } from "@/types/settings";
+import type { MacroGoals, MacroGoalPreset } from "@/types/nutrition";
 
 const ALLERGENS = [
   "Dairy",
@@ -29,7 +32,7 @@ const ALLERGENS = [
 ];
 
 export default function DietarySettingsPage() {
-  const { settings, updateSettingsField } = useSettings();
+  const { settings, updateSettingsField, updateSettingsBatch } = useSettings();
 
   const toggleAllergen = (allergen: string) => {
     const current = settings.allergen_alerts || [];
@@ -38,6 +41,17 @@ export default function DietarySettingsPage() {
       : [...current, allergen];
     updateSettingsField("allergen_alerts", updated);
   };
+
+  const handleMacroSave = useCallback(
+    async (goals: MacroGoals, enabled: boolean, preset: MacroGoalPreset) => {
+      updateSettingsBatch({
+        macro_goals: goals,
+        macro_tracking_enabled: enabled,
+        macro_goal_preset: preset,
+      });
+    },
+    [updateSettingsBatch]
+  );
 
   return (
     <div className="space-y-8">
@@ -97,39 +111,14 @@ export default function DietarySettingsPage() {
       </SettingSection>
 
       {/* Nutrition Tracking */}
-      <SettingSection title="Nutrition Tracking">
-        <SettingRow
-          id="setting-macro-tracking"
-          label="Macro Tracking"
-          description="Enable macronutrient tracking"
-        >
-          <Switch
-            id="setting-macro-tracking-control"
-            checked={settings.macro_tracking_enabled ?? false}
-            onCheckedChange={(checked) =>
-              updateSettingsField("macro_tracking_enabled", checked)
-            }
-          />
-        </SettingRow>
-
-        <SettingRow
-          id="setting-macro-goals"
-          label="Macro Goals"
-          description="Daily targets for protein, carbs, and fats"
-        >
-          <div className="text-sm text-muted-foreground">
-            {settings.macro_goals ? (
-              <div className="flex gap-3">
-                <span>P: {settings.macro_goals.protein_g}g</span>
-                <span>C: {settings.macro_goals.carbs_g}g</span>
-                <span>F: {settings.macro_goals.fat_g}g</span>
-              </div>
-            ) : (
-              "Not set"
-            )}
-          </div>
-        </SettingRow>
-      </SettingSection>
+      <div id="setting-macro-tracking">
+        <MacroGoalsSection
+          initialGoals={settings.macro_goals || undefined}
+          initialEnabled={settings.macro_tracking_enabled ?? false}
+          initialPreset={settings.macro_goal_preset || undefined}
+          onSave={handleMacroSave}
+        />
+      </div>
 
       {/* Units */}
       <SettingSection title="Measurements">

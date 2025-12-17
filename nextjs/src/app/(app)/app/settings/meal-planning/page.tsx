@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useSettings } from "@/contexts/settings-context";
 import { SettingsHeader } from "@/components/settings/layout/settings-header";
 import { SettingRow, SettingSection } from "@/components/settings/shared/setting-row";
@@ -12,6 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { GoogleCalendarButton } from "@/components/settings/google-calendar-button";
+import { MealTypeCustomizationSettings } from "@/components/settings/meal-type-customization";
 import type { PlannerViewDensity } from "@/types/settings";
 
 const DENSITY_OPTIONS: { value: PlannerViewDensity; label: string; description: string }[] = [
@@ -21,7 +25,14 @@ const DENSITY_OPTIONS: { value: PlannerViewDensity; label: string; description: 
 ];
 
 export default function MealPlanningSettingsPage() {
-  const { plannerViewSettings, updatePlannerSettings } = useSettings();
+  const { plannerViewSettings, mealTypeSettings, updatePlannerSettings } = useSettings();
+  const router = useRouter();
+  const [googleAccount, setGoogleAccount] = useState<string | null>(null);
+
+  const handleGoogleConnectionChange = useCallback(() => {
+    // Refresh page to get updated connection status
+    router.refresh();
+  }, [router]);
 
   return (
     <div className="space-y-8">
@@ -101,11 +112,11 @@ export default function MealPlanningSettingsPage() {
 
       {/* Meal Types */}
       <SettingSection title="Meal Types">
-        <div className="py-4 text-sm text-muted-foreground">
-          <p>Customize emojis, colors, and default times for each meal type.</p>
-          <p className="mt-2 text-xs">
-            Meal type customization coming soon in this new settings UI.
+        <div className="py-2">
+          <p className="text-sm text-muted-foreground mb-4">
+            Customize emojis, colors, and default calendar times for each meal type.
           </p>
+          <MealTypeCustomizationSettings initialSettings={mealTypeSettings || undefined} />
         </div>
       </SettingSection>
 
@@ -116,9 +127,10 @@ export default function MealPlanningSettingsPage() {
           label="Google Calendar"
           description="Sync meals to your Google Calendar"
         >
-          <div className="text-sm text-muted-foreground">
-            Calendar integration coming soon
-          </div>
+          <GoogleCalendarButton
+            connectedAccount={googleAccount}
+            onConnectionChange={handleGoogleConnectionChange}
+          />
         </SettingRow>
       </SettingSection>
 

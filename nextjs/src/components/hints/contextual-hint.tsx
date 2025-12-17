@@ -2,6 +2,7 @@
 
 import { X, Lightbulb } from "lucide-react";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { dismissHint } from "@/app/actions/settings";
 import type { HintId } from "@/lib/hints";
 
@@ -18,11 +19,14 @@ export function ContextualHint({
 }: ContextualHintProps) {
   const [isDismissed, setIsDismissed] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleDismiss = () => {
     setIsDismissed(true); // Hide immediately via local state
     startTransition(async () => {
       await dismissHint(hintId); // Persist to database
+      // Refresh the page to ensure server-side check reflects the dismissal
+      router.refresh();
     });
   };
 
