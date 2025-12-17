@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Star, Trophy, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { BrandLogo } from "@/components/brand/logo";
 
 interface TrustIndicator {
   icon: React.ReactNode;
@@ -24,11 +24,10 @@ export function HeroSection() {
 
       <div className="container mx-auto px-4 relative">
         <div className="max-w-3xl mx-auto text-center space-y-8">
-          {/* Main headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-clay-text animate-fade-in">
-            Your kitchen,{" "}
-            <span className="text-primary">finally organized.</span>
-          </h1>
+          {/* Main brand headline */}
+          <div className="animate-fade-in">
+            <BrandLogo size="xl" showIcon={false} showTagline={true} className="justify-center" />
+          </div>
 
           {/* Subheadline */}
           <p

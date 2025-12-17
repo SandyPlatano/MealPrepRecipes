@@ -5,61 +5,73 @@ interface BrandLogoProps {
   className?: string;
   size?: "sm" | "md" | "lg" | "xl";
   showIcon?: boolean;
+  showTagline?: boolean;
 }
 
 const sizeClasses = {
   sm: {
     icon: "w-4 h-4",
-    meal: "text-lg",
-    prep: "text-lg",
-    os: "text-sm",
+    babe: "text-lg",
+    rest: "text-sm",
+    tagline: "text-xs",
   },
   md: {
     icon: "w-5 h-5",
-    meal: "text-2xl",
-    prep: "text-2xl",
-    os: "text-base",
+    babe: "text-2xl",
+    rest: "text-base",
+    tagline: "text-sm",
   },
   lg: {
     icon: "w-7 h-7",
-    meal: "text-4xl",
-    prep: "text-4xl",
-    os: "text-xl",
+    babe: "text-4xl",
+    rest: "text-xl",
+    tagline: "text-base",
   },
   xl: {
     icon: "w-10 h-10",
-    meal: "text-6xl",
-    prep: "text-6xl",
-    os: "text-2xl",
+    babe: "text-6xl",
+    rest: "text-2xl",
+    tagline: "text-lg",
   },
 };
 
-export function BrandLogo({ className, size = "md", showIcon = true }: BrandLogoProps) {
+export function BrandLogo({
+  className,
+  size = "md",
+  showIcon = true,
+  showTagline = false,
+}: BrandLogoProps) {
   const sizes = sizeClasses[size];
 
   return (
-    <span className={cn("inline-flex items-center gap-2", className)}>
-      {showIcon && (
-        <ChefHat className={cn("text-primary", sizes.icon)} />
-      )}
-      <span className="inline-flex items-baseline gap-1">
-        <span
-          className={cn(
-            "font-bold leading-none",
-            sizes.meal
-          )}
-        >
-          Meal Prep
-        </span>
-        <span
-          className={cn(
-            "font-mono font-bold text-primary leading-none",
-            sizes.os
-          )}
-        >
-          OS
+    <span className={cn("inline-flex flex-col", className)}>
+      <span className="inline-flex items-center gap-2">
+        {showIcon && <ChefHat className={cn("text-primary", sizes.icon)} />}
+        <span className="inline-flex items-baseline gap-1">
+          <span
+            className={cn(
+              "font-handwritten font-semibold text-primary leading-none",
+              sizes.babe
+            )}
+          >
+            Babe,
+          </span>
+          <span className={cn("font-mono font-bold leading-none", sizes.rest)}>
+            What&apos;s for Dinner?
+          </span>
         </span>
       </span>
+      {showTagline && (
+        <span
+          className={cn(
+            "font-mono text-clay-muted tracking-wider uppercase mt-1",
+            showIcon ? "ml-7" : "",
+            sizes.tagline
+          )}
+        >
+          Your Meal Prep OS
+        </span>
+      )}
     </span>
   );
 }
@@ -70,45 +82,40 @@ export function BrandLogoCompact({ className }: { className?: string }) {
     <span className={cn("inline-flex items-center gap-1.5", className)}>
       <ChefHat className="w-5 h-5 text-primary" />
       <span className="inline-flex items-baseline">
-        <span className="font-bold text-lg leading-none">
-          Meal Prep
+        <span className="font-handwritten font-semibold text-primary text-lg leading-none">
+          Babe,
         </span>
-        <span className="font-mono font-bold text-sm text-primary leading-none ml-1">
-          OS
+        <span className="font-mono font-bold text-sm leading-none ml-1">
+          What&apos;s for Dinner?
         </span>
       </span>
     </span>
   );
 }
 
-// Keep the old "Babe, What's for Dinner?" logo for backwards compatibility
-export function BabeWhatsForDinnerLogo({ className, size = "md" }: BrandLogoProps) {
-  const oldSizeClasses = {
-    sm: { babe: "text-lg", rest: "text-sm" },
-    md: { babe: "text-2xl", rest: "text-base" },
-    lg: { babe: "text-4xl", rest: "text-xl" },
-    xl: { babe: "text-6xl", rest: "text-2xl" },
+// Alternative: Just the tagline for places where we need it standalone
+export function MealPrepOSTagline({
+  className,
+  size = "md",
+}: {
+  className?: string;
+  size?: "sm" | "md" | "lg";
+}) {
+  const taglineSizes = {
+    sm: "text-xs",
+    md: "text-sm",
+    lg: "text-base",
   };
-  const sizes = oldSizeClasses[size];
 
   return (
-    <span className={cn("inline-flex items-baseline gap-1", className)}>
-      <span
-        className={cn(
-          "font-handwritten font-semibold text-primary leading-none",
-          sizes.babe
-        )}
-      >
-        Babe,
-      </span>
-      <span
-        className={cn(
-          "font-mono font-bold leading-none",
-          sizes.rest
-        )}
-      >
-        What&apos;s for Dinner?
-      </span>
+    <span
+      className={cn(
+        "font-mono text-clay-muted tracking-wider uppercase",
+        taglineSizes[size],
+        className
+      )}
+    >
+      Meal Prep OS
     </span>
   );
 }
