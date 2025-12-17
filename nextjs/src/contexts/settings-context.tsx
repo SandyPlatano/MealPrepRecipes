@@ -18,6 +18,7 @@ import {
   updateAiPersonalityAuto as updateAiPersonality,
   updateServingSizePresetsAuto as updateServingSizePresets,
   updateEnergyModePreferencesAuto as updateEnergyModePreferences,
+  updatePrivacyPreferencesAuto as updatePrivacyPreferences,
 } from "@/app/actions/user-preferences";
 import type { UserSettings, UserProfile, MealTypeCustomization, PlannerViewSettings } from "@/types/settings";
 import type {
@@ -28,8 +29,11 @@ import type {
   ServingSizePreset,
   AiPersonalityType,
   EnergyModePreferences,
+  PrivacyPreferences,
 } from "@/types/user-preferences-v2";
 import { DEFAULT_USER_PREFERENCES_V2 } from "@/types/user-preferences-v2";
+import type { SettingsChange, SettingsChangeCategory } from "@/types/settings-history";
+import { getSettingLabel } from "@/lib/settings/setting-labels";
 
 // ============================================================================
 // Types
@@ -99,11 +103,20 @@ export interface SettingsContextValue extends SettingsState {
   // Energy mode preferences (auto-save)
   updateEnergyModePrefs: (partial: Partial<EnergyModePreferences>) => void;
 
+  // Privacy preferences (auto-save)
+  updatePrivacyPrefs: (partial: Partial<PrivacyPreferences>) => void;
+
   // Planner view settings (auto-save)
   updatePlannerSettings: (partial: Partial<PlannerViewSettings>) => void;
 
   // Force immediate save
   saveNow: () => Promise<void>;
+
+  // Undo functionality
+  canUndo: boolean;
+  lastChange: SettingsChange | null;
+  settingsHistory: SettingsChange[];
+  undoLastChange: () => void;
 }
 
 // ============================================================================
@@ -142,10 +155,47 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     aiPersonality?: { personality: AiPersonalityType; customPrompt?: string | null };
     servingPresets?: ServingSizePreset[];
     energyModePrefs?: Partial<EnergyModePreferences>;
+    privacyPrefs?: Partial<PrivacyPreferences>;
     plannerSettings?: Partial<PlannerViewSettings>;
   }>({});
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Settings history for undo functionality
+  const [settingsHistory, setSettingsHistory] = useState<SettingsChange[]>([]);
+  const MAX_HISTORY_LENGTH = 10;
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // History Recording
+  // ──────────────────────────────────────────────────────────────────────────
+
+  const recordChange = useCallback(
+    (
+      settingPath: string,
+      oldValue: unknown,
+      newValue: unknown,
+      category: SettingsChangeCategory
+    ) => {
+      // Skip if values are the same
+      if (JSON.stringify(oldValue) === JSON.stringify(newValue)) return;
+
+      const newChange: SettingsChange = {
+        id: crypto.randomUUID(),
+        timestamp: new Date(),
+        settingPath,
+        settingLabel: getSettingLabel(settingPath),
+        oldValue,
+        newValue,
+        category,
+      };
+
+      setSettingsHistory((prev) => {
+        const updated = [newChange, ...prev].slice(0, MAX_HISTORY_LENGTH);
+        return updated;
+      });
+    },
+    []
+  );
 
   // ──────────────────────────────────────────────────────────────────────────
   // Save Logic
@@ -200,6 +250,11 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
       // Energy mode preferences
       if (changes.energyModePrefs && Object.keys(changes.energyModePrefs).length > 0) {
         savePromises.push(updateEnergyModePreferences(changes.energyModePrefs));
+      }
+
+      // Privacy preferences
+      if (changes.privacyPrefs && Object.keys(changes.privacyPrefs).length > 0) {
+        savePromises.push(updatePrivacyPreferences(changes.privacyPrefs));
       }
 
       // Planner view settings
@@ -264,11 +319,15 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
 
   const updateSettingsField = useCallback(
     <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => {
-      // Optimistic update
-      setState((prev) => ({
-        ...prev,
-        settings: { ...prev.settings, [key]: value },
-      }));
+      // Record for undo (before updating state)
+      setState((prev) => {
+        const oldValue = prev.settings[key];
+        recordChange(`settings.${String(key)}`, oldValue, value, "settings");
+        return {
+          ...prev,
+          settings: { ...prev.settings, [key]: value },
+        };
+      });
 
       // Queue for save
       pendingChanges.current.settings = {
@@ -278,7 +337,7 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
 
       scheduleSave();
     },
-    [scheduleSave]
+    [scheduleSave, recordChange]
   );
 
   const updateSettingsBatch = useCallback(
@@ -302,14 +361,21 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
 
   const updateDisplayPrefs = useCallback(
     (partial: Partial<DisplayPreferences>) => {
-      // Optimistic update
-      setState((prev) => ({
-        ...prev,
-        preferencesV2: {
-          ...prev.preferencesV2,
-          display: { ...prev.preferencesV2.display, ...partial },
-        },
-      }));
+      // Record changes and optimistic update
+      setState((prev) => {
+        // Record each changed field for undo
+        Object.entries(partial).forEach(([key, value]) => {
+          const oldValue = prev.preferencesV2.display[key as keyof DisplayPreferences];
+          recordChange(`preferencesV2.display.${key}`, oldValue, value, "displayPrefs");
+        });
+        return {
+          ...prev,
+          preferencesV2: {
+            ...prev.preferencesV2,
+            display: { ...prev.preferencesV2.display, ...partial },
+          },
+        };
+      });
 
       // Queue for save
       pendingChanges.current.displayPrefs = {
@@ -319,19 +385,25 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
 
       scheduleSave();
     },
-    [scheduleSave]
+    [scheduleSave, recordChange]
   );
 
   const updateSoundPrefs = useCallback(
     (partial: Partial<SoundPreferences>) => {
-      // Optimistic update
-      setState((prev) => ({
-        ...prev,
-        preferencesV2: {
-          ...prev.preferencesV2,
-          sounds: { ...prev.preferencesV2.sounds, ...partial },
-        },
-      }));
+      // Record changes and optimistic update
+      setState((prev) => {
+        Object.entries(partial).forEach(([key, value]) => {
+          const oldValue = prev.preferencesV2.sounds[key as keyof SoundPreferences];
+          recordChange(`preferencesV2.sounds.${key}`, oldValue, value, "soundPrefs");
+        });
+        return {
+          ...prev,
+          preferencesV2: {
+            ...prev.preferencesV2,
+            sounds: { ...prev.preferencesV2.sounds, ...partial },
+          },
+        };
+      });
 
       // Queue for save
       pendingChanges.current.soundPrefs = {
@@ -341,7 +413,7 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
 
       scheduleSave();
     },
-    [scheduleSave]
+    [scheduleSave, recordChange]
   );
 
   const updateKeyboardPrefs = useCallback(
@@ -427,6 +499,34 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     [scheduleSave]
   );
 
+  const updatePrivacyPrefs = useCallback(
+    (partial: Partial<PrivacyPreferences>) => {
+      // Record changes and optimistic update
+      setState((prev) => {
+        Object.entries(partial).forEach(([key, value]) => {
+          const oldValue = prev.preferencesV2.privacy[key as keyof PrivacyPreferences];
+          recordChange(`preferencesV2.privacy.${key}`, oldValue, value, "privacyPrefs");
+        });
+        return {
+          ...prev,
+          preferencesV2: {
+            ...prev.preferencesV2,
+            privacy: { ...prev.preferencesV2.privacy, ...partial },
+          },
+        };
+      });
+
+      // Queue for save
+      pendingChanges.current.privacyPrefs = {
+        ...pendingChanges.current.privacyPrefs,
+        ...partial,
+      };
+
+      scheduleSave();
+    },
+    [scheduleSave, recordChange]
+  );
+
   const updatePlannerSettings = useCallback(
     (partial: Partial<PlannerViewSettings>) => {
       // Optimistic update
@@ -449,6 +549,81 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
   );
 
   // ──────────────────────────────────────────────────────────────────────────
+  // Undo Functionality
+  // ──────────────────────────────────────────────────────────────────────────
+
+  const canUndo = settingsHistory.length > 0;
+  const lastChange = settingsHistory[0] ?? null;
+
+  const undoLastChange = useCallback(() => {
+    const change = settingsHistory[0];
+    if (!change) return;
+
+    // Remove this change from history (don't record the undo as a new change)
+    setSettingsHistory((prev) => prev.slice(1));
+
+    // Apply the old value based on category
+    const { category, settingPath, oldValue } = change;
+
+    if (category === "settings") {
+      const key = settingPath.split(".")[1] as keyof UserSettings;
+      setState((prev) => ({
+        ...prev,
+        settings: { ...prev.settings, [key]: oldValue },
+      }));
+      pendingChanges.current.settings = {
+        ...pendingChanges.current.settings,
+        [key]: oldValue,
+      };
+    } else if (category === "displayPrefs") {
+      const key = settingPath.split(".").pop() as keyof DisplayPreferences;
+      setState((prev) => ({
+        ...prev,
+        preferencesV2: {
+          ...prev.preferencesV2,
+          display: { ...prev.preferencesV2.display, [key]: oldValue },
+        },
+      }));
+      pendingChanges.current.displayPrefs = {
+        ...pendingChanges.current.displayPrefs,
+        [key]: oldValue,
+      };
+    } else if (category === "soundPrefs") {
+      const key = settingPath.split(".").pop() as keyof SoundPreferences;
+      setState((prev) => ({
+        ...prev,
+        preferencesV2: {
+          ...prev.preferencesV2,
+          sounds: { ...prev.preferencesV2.sounds, [key]: oldValue },
+        },
+      }));
+      pendingChanges.current.soundPrefs = {
+        ...pendingChanges.current.soundPrefs,
+        [key]: oldValue,
+      };
+    } else if (category === "privacyPrefs") {
+      const key = settingPath.split(".").pop() as keyof PrivacyPreferences;
+      setState((prev) => ({
+        ...prev,
+        preferencesV2: {
+          ...prev.preferencesV2,
+          privacy: { ...prev.preferencesV2.privacy, [key]: oldValue },
+        },
+      }));
+      pendingChanges.current.privacyPrefs = {
+        ...pendingChanges.current.privacyPrefs,
+        [key]: oldValue,
+      };
+    }
+
+    // Trigger save
+    scheduleSave();
+
+    // Show feedback
+    toast.success(`Reverted "${change.settingLabel}"`);
+  }, [settingsHistory, scheduleSave]);
+
+  // ──────────────────────────────────────────────────────────────────────────
   // Context Value
   // ──────────────────────────────────────────────────────────────────────────
 
@@ -464,8 +639,14 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     updateAiPersonalitySettings,
     updateServingPresets,
     updateEnergyModePrefs,
+    updatePrivacyPrefs,
     updatePlannerSettings,
     saveNow,
+    // Undo functionality
+    canUndo,
+    lastChange,
+    settingsHistory,
+    undoLastChange,
   };
 
   return (

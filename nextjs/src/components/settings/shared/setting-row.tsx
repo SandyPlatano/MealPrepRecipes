@@ -45,6 +45,7 @@ export function SettingRow({
 interface SettingSectionProps {
   title: string;
   description?: string;
+  badge?: string;
   children: React.ReactNode;
   className?: string;
 }
@@ -55,13 +56,21 @@ interface SettingSectionProps {
 export function SettingSection({
   title,
   description,
+  badge,
   children,
   className,
 }: SettingSectionProps) {
   return (
     <div className={cn("space-y-4", className)}>
       <div className="space-y-1">
-        <h3 className="text-base font-mono font-semibold">{title}</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-base font-mono font-semibold">{title}</h3>
+          {badge && (
+            <span className="px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider rounded bg-primary/10 text-primary">
+              {badge}
+            </span>
+          )}
+        </div>
         {description && (
           <p className="text-sm text-muted-foreground">{description}</p>
         )}

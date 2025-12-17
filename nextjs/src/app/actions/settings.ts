@@ -288,15 +288,6 @@ export async function updateSettings(settings: {
   calendar_event_duration_minutes?: number | null;
   calendar_excluded_days?: string[] | null;
   unit_system?: "imperial" | "metric";
-  recipe_export_preferences?: {
-    include_ingredients: boolean;
-    include_instructions: boolean;
-    include_nutrition: boolean;
-    include_tags: boolean;
-    include_times: boolean;
-    include_notes: boolean;
-    include_servings: boolean;
-  };
 }) {
   // Use direct auth check instead of getCachedUserWithHousehold since user might not have a household yet
   const supabase = await createClient();
@@ -347,9 +338,6 @@ export async function updateSettings(settings: {
   if (settings.calendar_event_time !== undefined) settingsToSave.calendar_event_time = settings.calendar_event_time;
   if (settings.calendar_event_duration_minutes !== undefined) settingsToSave.calendar_event_duration_minutes = settings.calendar_event_duration_minutes;
   if (settings.unit_system !== undefined) settingsToSave.unit_system = settings.unit_system;
-  if (settings.recipe_export_preferences !== undefined) {
-    settingsToSave.recipe_export_preferences = settings.recipe_export_preferences;
-  }
 
   // Ensure array fields are never null in the final object
   if (!settingsToSave.allergen_alerts || !Array.isArray(settingsToSave.allergen_alerts)) {
@@ -380,14 +368,14 @@ export async function updateSettings(settings: {
 
 // Get household info
 export async function getHouseholdInfo() {
-  const { user, household, error: authError } = await getCachedUserWithHousehold();
+  const { user, household, membership, error: authError } = await getCachedUserWithHousehold();
 
-  if (authError || !user || !household) {
+  if (authError || !user || !household || !membership) {
     return { error: authError || "No household found", data: null };
   }
 
   const supabase = await createClient();
-  
+
   // Get full household details
   const { data: householdDetails } = await supabase
     .from("households")
@@ -415,7 +403,7 @@ export async function getHouseholdInfo() {
     error: null,
     data: {
       household: householdDetails,
-      role: household.role,
+      role: membership.role,
       members: members || [],
     },
   };
@@ -423,14 +411,14 @@ export async function getHouseholdInfo() {
 
 // Update household name
 export async function updateHouseholdName(name: string) {
-  const { user, household, error: authError } = await getCachedUserWithHousehold();
+  const { user, household, membership, error: authError } = await getCachedUserWithHousehold();
 
-  if (authError || !user || !household) {
+  if (authError || !user || !household || !membership) {
     return { error: authError || "No household found" };
   }
 
   // Only owners can update household name
-  if (household.role !== "owner") {
+  if (membership.role !== "owner") {
     return { error: "Only the household owner can update the name" };
   }
 
@@ -632,6 +620,7 @@ import type {
   MealTypeSettings,
   PlannerViewSettings,
   RecipePreferences,
+  RecipeExportPreferences,
   UserSettingsPreferences,
 } from "@/types/settings";
 import {
@@ -640,6 +629,7 @@ import {
   DEFAULT_MEAL_TYPE_SETTINGS,
   DEFAULT_PLANNER_VIEW_SETTINGS,
   DEFAULT_RECIPE_PREFERENCES,
+  DEFAULT_RECIPE_EXPORT_PREFERENCES,
 } from "@/types/settings";
 
 /**
@@ -1357,6 +1347,111 @@ export async function updateRecipePreferences(
   const updatedPreferences: UserSettingsPreferences = {
     ...existingPreferences,
     recipe: updatedRecipe,
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app");
+  revalidatePath("/app/settings");
+
+  return { error: null };
+}
+
+// ============================================================================
+// Recipe Export Preferences
+// ============================================================================
+
+/**
+ * Get recipe export preferences from the preferences JSONB column
+ */
+export async function getRecipeExportPreferences(): Promise<{
+  error: string | null;
+  data: RecipeExportPreferences;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    // Return defaults for non-authenticated users
+    return { error: null, data: DEFAULT_RECIPE_EXPORT_PREFERENCES };
+  }
+
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!settings?.preferences) {
+    return { error: null, data: DEFAULT_RECIPE_EXPORT_PREFERENCES };
+  }
+
+  const preferences = settings.preferences as UserSettingsPreferences;
+  const recipeExport = preferences.recipeExport;
+
+  if (!recipeExport) {
+    return { error: null, data: DEFAULT_RECIPE_EXPORT_PREFERENCES };
+  }
+
+  // Merge with defaults to ensure all fields exist
+  return {
+    error: null,
+    data: {
+      ...DEFAULT_RECIPE_EXPORT_PREFERENCES,
+      ...recipeExport,
+    },
+  };
+}
+
+/**
+ * Update recipe export preferences in the preferences JSONB column
+ * Supports partial updates - only the fields provided will be updated
+ */
+export async function updateRecipeExportPreferences(
+  newSettings: Partial<RecipeExportPreferences>
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get existing preferences
+  const { data: existingData } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const existingPreferences = (existingData?.preferences ||
+    {}) as UserSettingsPreferences;
+  const existingRecipeExport =
+    existingPreferences.recipeExport || DEFAULT_RECIPE_EXPORT_PREFERENCES;
+
+  // Merge the new settings with existing
+  const updatedRecipeExport: RecipeExportPreferences = {
+    ...existingRecipeExport,
+    ...newSettings,
+  };
+
+  // Update the preferences JSONB with the new recipe export settings
+  const updatedPreferences: UserSettingsPreferences = {
+    ...existingPreferences,
+    recipeExport: updatedRecipeExport,
   };
 
   const { error } = await supabase

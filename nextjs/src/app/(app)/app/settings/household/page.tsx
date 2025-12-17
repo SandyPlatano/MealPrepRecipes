@@ -1,15 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSettings } from "@/contexts/settings-context";
+import { usePermissions } from "@/hooks/use-permissions";
 import { SettingsHeader } from "@/components/settings/layout/settings-header";
 import { SettingRow, SettingSection } from "@/components/settings/shared/setting-row";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Check, Loader2, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PermissionModeSelector } from "@/components/settings/household/permission-mode-selector";
+import { MemberRoleEditor } from "@/components/settings/household/member-role-editor";
+import { ChildPermissionsEditor } from "@/components/settings/household/child-permissions-editor";
+import { ContributionDashboard } from "@/components/settings/household/contribution-dashboard";
+import { InvitationManager } from "@/components/settings/household/invitation-manager";
+import {
+  updatePermissionMode,
+  updateMemberRole,
+  updateHouseholdSettings,
+  getHouseholdPermissions,
+  getHouseholdContributionStats,
+} from "@/app/actions/household-permissions";
+import { updateHouseholdName } from "@/app/actions/settings";
+import type { PermissionMode, HouseholdRole, ChildPermissions } from "@/types/household-permissions";
+import { DEFAULT_CHILD_PERMISSIONS } from "@/types/household-permissions";
+import { toast } from "sonner";
+import type { MemberContribution } from "@/components/settings/household/contribution-dashboard";
 
 const COOK_COLORS = [
   "#ef4444", // red
@@ -23,11 +41,85 @@ const COOK_COLORS = [
 ];
 
 export default function HouseholdSettingsPage() {
-  const { household, settings, updateSettingsField } = useSettings();
+  const { household, settings, updateSettingsField, profile } = useSettings();
+  const { isOwner } = usePermissions();
   const [newCookName, setNewCookName] = useState("");
+  const [permissionMode, setPermissionMode] = useState<PermissionMode>("managed");
+  const [childPermissions, setChildPermissions] = useState<ChildPermissions>(DEFAULT_CHILD_PERMISSIONS);
+  const [contributions, setContributions] = useState<MemberContribution[]>([]);
+
+  // Household name editing state
+  const [householdName, setHouseholdName] = useState("");
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [isSavingName, setIsSavingName] = useState(false);
 
   const cookNames = settings.cook_names || ["Me"];
   const cookColors = settings.cook_colors || {};
+
+  // Initialize household name when loaded
+  useEffect(() => {
+    if (household?.household?.name) {
+      setHouseholdName(household.household.name);
+    }
+  }, [household?.household?.name]);
+
+  // Load household permissions and contribution stats on mount
+  useEffect(() => {
+    async function loadData() {
+      const [permissionsResult, contributionsResult] = await Promise.all([
+        getHouseholdPermissions(),
+        getHouseholdContributionStats(),
+      ]);
+
+      if (!permissionsResult.error && permissionsResult.data) {
+        setPermissionMode(permissionsResult.data.permissionMode);
+        setChildPermissions(
+          permissionsResult.data.settings?.childPermissions || DEFAULT_CHILD_PERMISSIONS
+        );
+      }
+
+      if (!contributionsResult.error && contributionsResult.data) {
+        setContributions(
+          contributionsResult.data.map((stat) => ({
+            user_id: stat.userId,
+            first_name: stat.firstName || null,
+            email: stat.email || null,
+            meals_planned: stat.mealsPlanned,
+            meals_cooked: stat.mealsCooked,
+            items_added: stat.recipesCreated,
+          }))
+        );
+      }
+    }
+
+    if (household) {
+      loadData();
+    }
+  }, [household]);
+
+  // Save household name handler
+  const handleSaveHouseholdName = async () => {
+    if (!householdName.trim()) {
+      toast.error("Household name cannot be empty");
+      return;
+    }
+
+    setIsSavingName(true);
+    const result = await updateHouseholdName(householdName.trim());
+    setIsSavingName(false);
+
+    if (result.error) {
+      toast.error(typeof result.error === "string" ? result.error : "Failed to update name");
+    } else {
+      toast.success("Household name updated");
+      setIsEditingName(false);
+    }
+  };
+
+  const handleCancelEditName = () => {
+    setHouseholdName(household?.household?.name || "");
+    setIsEditingName(false);
+  };
 
   const addCook = () => {
     if (!newCookName.trim()) return;
@@ -45,6 +137,39 @@ export default function HouseholdSettingsPage() {
     updateSettingsField("cook_colors", { ...cookColors, [name]: color });
   };
 
+  const handlePermissionModeChange = async (mode: PermissionMode) => {
+    const result = await updatePermissionMode(mode);
+    if (result.error) {
+      toast.error(`Failed to update permission mode: ${result.error}`);
+    } else {
+      setPermissionMode(mode);
+      toast.success("Permission mode updated");
+    }
+  };
+
+  const handleMemberRoleChange = async (memberId: string, role: HouseholdRole) => {
+    const result = await updateMemberRole(memberId, role);
+    if (result.error) {
+      toast.error(`Failed to update member role: ${result.error}`);
+    } else {
+      toast.success("Member role updated");
+    }
+  };
+
+  const handleChildPermissionsChange = async (permissions: ChildPermissions) => {
+    setChildPermissions(permissions);
+    const result = await updateHouseholdSettings({
+      childPermissions: permissions,
+      guestCanViewShoppingList: false,
+      showContributionBadges: true,
+    });
+    if (result.error) {
+      toast.error(`Failed to update child permissions: ${result.error}`);
+    } else {
+      toast.success("Child permissions updated");
+    }
+  };
+
   return (
     <div className="space-y-8">
       <SettingsHeader
@@ -54,46 +179,130 @@ export default function HouseholdSettingsPage() {
 
       {/* Household Info */}
       {household ? (
-        <SettingSection title="Household">
-          <SettingRow
-            id="setting-household-name"
-            label="Household Name"
-            description="Your household's display name"
-          >
-            <div className="text-sm font-medium">
-              {household.household?.name || "Unnamed Household"}
-            </div>
-          </SettingRow>
-
-          <SettingRow
-            id="setting-household-members"
-            label="Members"
-            description="People in your household"
-          >
-            <div className="flex flex-col gap-2">
-              {household.members.map((member) => (
-                <div
-                  key={member.user_id}
-                  className="flex items-center gap-2 text-sm"
-                >
-                  <Avatar className="h-6 w-6">
-                    <AvatarFallback className="text-xs">
-                      {member.profiles?.first_name?.[0] ||
-                        member.profiles?.email?.[0] ||
-                        "?"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span>
-                    {member.profiles?.first_name || member.profiles?.email}
-                  </span>
-                  <Badge variant="outline" className="text-xs">
-                    {member.role}
-                  </Badge>
+        <>
+          <SettingSection title="Household">
+            <SettingRow
+              id="setting-household-name"
+              label="Household Name"
+              description="Your household's display name"
+            >
+              {isOwner ? (
+                isEditingName ? (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={householdName}
+                      onChange={(e) => setHouseholdName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSaveHouseholdName();
+                        if (e.key === "Escape") handleCancelEditName();
+                      }}
+                      className="w-48"
+                      autoFocus
+                    />
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={handleSaveHouseholdName}
+                      disabled={isSavingName}
+                    >
+                      {isSavingName ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Check className="h-4 w-4 text-green-500" />
+                      )}
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={handleCancelEditName}
+                      disabled={isSavingName}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">
+                      {household.household?.name || "Unnamed Household"}
+                    </span>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8"
+                      onClick={() => setIsEditingName(true)}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                )
+              ) : (
+                <div className="text-sm font-medium">
+                  {household.household?.name || "Unnamed Household"}
                 </div>
-              ))}
+              )}
+            </SettingRow>
+          </SettingSection>
+
+          {/* Invite Members */}
+          <SettingSection
+            title="Invite Members"
+            description="Add new members to your household"
+          >
+            <div className="py-4">
+              <InvitationManager isOwner={isOwner} />
             </div>
-          </SettingRow>
-        </SettingSection>
+          </SettingSection>
+
+          {/* Permission Mode */}
+          <SettingSection
+            title="Permission Mode"
+            description="Control how permissions are managed in your household"
+          >
+            <div className="py-4">
+              <PermissionModeSelector
+                value={permissionMode}
+                onChange={handlePermissionModeChange}
+                isOwner={isOwner}
+              />
+            </div>
+          </SettingSection>
+
+          {/* Members & Roles */}
+          <SettingSection
+            title="Members & Roles"
+            description="Manage member roles and permissions"
+          >
+            <div className="py-4">
+              <MemberRoleEditor
+                members={household.members}
+                currentUserId={profile.id}
+                permissionMode={permissionMode}
+                onRoleChange={handleMemberRoleChange}
+                isOwner={isOwner}
+              />
+            </div>
+          </SettingSection>
+
+          {/* Child Permissions (only show in family mode) */}
+          {permissionMode === "family" && (
+            <SettingSection
+              title="Child Permissions"
+              description="Configure what child accounts can do"
+            >
+              <div className="py-4">
+                <ChildPermissionsEditor
+                  permissions={childPermissions}
+                  onChange={handleChildPermissionsChange}
+                />
+              </div>
+            </SettingSection>
+          )}
+
+          {/* Contribution Dashboard */}
+          {contributions.length > 0 && (
+            <ContributionDashboard contributions={contributions} />
+          )}
+        </>
       ) : (
         <SettingSection title="Household">
           <p className="text-sm text-muted-foreground py-4">

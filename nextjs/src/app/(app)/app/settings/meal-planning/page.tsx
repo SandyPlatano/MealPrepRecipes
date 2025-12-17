@@ -16,7 +16,10 @@ import {
 } from "@/components/ui/select";
 import { GoogleCalendarButton } from "@/components/settings/google-calendar-button";
 import { MealTypeCustomizationSettings } from "@/components/settings/meal-type-customization";
+import { SpoonSelector } from "@/components/energy-mode";
 import type { PlannerViewDensity } from "@/types/settings";
+import type { EnergyLevel } from "@/types/energy-mode";
+import { ENERGY_LEVEL_LABELS, ENERGY_LEVEL_DESCRIPTIONS } from "@/types/energy-mode";
 
 const DENSITY_OPTIONS: { value: PlannerViewDensity; label: string; description: string }[] = [
   { value: "compact", label: "Compact", description: "Minimal spacing" },
@@ -25,9 +28,18 @@ const DENSITY_OPTIONS: { value: PlannerViewDensity; label: string; description: 
 ];
 
 export default function MealPlanningSettingsPage() {
-  const { plannerViewSettings, mealTypeSettings, updatePlannerSettings } = useSettings();
+  const {
+    plannerViewSettings,
+    mealTypeSettings,
+    preferencesV2,
+    updatePlannerSettings,
+    updateEnergyModePrefs,
+  } = useSettings();
   const router = useRouter();
   const [googleAccount, setGoogleAccount] = useState<string | null>(null);
+
+  // Energy mode preferences
+  const energyPrefs = preferencesV2.energyMode;
 
   const handleGoogleConnectionChange = useCallback(() => {
     // Refresh page to get updated connection status
@@ -108,6 +120,81 @@ export default function MealPlanningSettingsPage() {
             }}
           />
         </SettingRow>
+      </SettingSection>
+
+      {/* Energy Mode / Spoons */}
+      <SettingSection
+        title="Energy Mode"
+        badge="New"
+        description="Adapt meal suggestions based on your daily energy levels (Spoon Theory)"
+      >
+        <SettingRow
+          id="setting-energy-mode-enabled"
+          label="Enable Energy Mode"
+          description="Show daily energy check-in and filter recipes by complexity"
+        >
+          <Switch
+            id="setting-energy-mode-enabled-control"
+            checked={energyPrefs.enabled}
+            onCheckedChange={(checked) => {
+              updateEnergyModePrefs({ enabled: checked });
+            }}
+          />
+        </SettingRow>
+
+        {energyPrefs.enabled && (
+          <>
+            <SettingRow
+              id="setting-energy-default-level"
+              label="Default Energy Level"
+              description={`${ENERGY_LEVEL_LABELS[energyPrefs.defaultEnergyLevel]}: ${ENERGY_LEVEL_DESCRIPTIONS[energyPrefs.defaultEnergyLevel]}`}
+            >
+              <SpoonSelector
+                value={energyPrefs.defaultEnergyLevel}
+                onChange={(level: EnergyLevel) => {
+                  updateEnergyModePrefs({ defaultEnergyLevel: level });
+                }}
+                displayMode={energyPrefs.displayMode}
+                size="sm"
+              />
+            </SettingRow>
+
+            <SettingRow
+              id="setting-energy-display-mode"
+              label="Display Style"
+              description="How energy levels are shown"
+            >
+              <Select
+                value={energyPrefs.displayMode}
+                onValueChange={(value: "spoons" | "simple") => {
+                  updateEnergyModePrefs({ displayMode: value });
+                }}
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="spoons">Spoons 🥄</SelectItem>
+                  <SelectItem value="simple">Numbers</SelectItem>
+                </SelectContent>
+              </Select>
+            </SettingRow>
+
+            <SettingRow
+              id="setting-energy-daily-prompt"
+              label="Show Daily Prompt"
+              description="Ask how you're feeling when opening the planner"
+            >
+              <Switch
+                id="setting-energy-daily-prompt-control"
+                checked={energyPrefs.showDailyPrompt}
+                onCheckedChange={(checked) => {
+                  updateEnergyModePrefs({ showDailyPrompt: checked });
+                }}
+              />
+            </SettingRow>
+          </>
+        )}
       </SettingSection>
 
       {/* Meal Types */}

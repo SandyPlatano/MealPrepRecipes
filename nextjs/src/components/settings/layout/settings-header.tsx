@@ -1,8 +1,9 @@
 "use client";
 
-import { useSettingsSaveStatus } from "@/contexts/settings-context";
+import { useSettings } from "@/contexts/settings-context";
 import { SettingsSearch } from "../search/settings-search";
 import { AutoSaveIndicator } from "../shared/auto-save-indicator";
+import { UndoButton } from "../shared/undo-button";
 
 interface SettingsHeaderProps {
   title: string;
@@ -10,7 +11,7 @@ interface SettingsHeaderProps {
 }
 
 export function SettingsHeader({ title, description }: SettingsHeaderProps) {
-  const { saveStatus, lastSavedAt } = useSettingsSaveStatus();
+  const { saveStatus, lastSavedAt, canUndo, lastChange, undoLastChange } = useSettings();
 
   return (
     <div className="space-y-4 pb-6 border-b">
@@ -19,7 +20,7 @@ export function SettingsHeader({ title, description }: SettingsHeaderProps) {
         <SettingsSearch />
       </div>
 
-      {/* Title and save indicator */}
+      {/* Title, undo button, and save indicator */}
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-mono font-bold tracking-tight">{title}</h1>
@@ -27,7 +28,14 @@ export function SettingsHeader({ title, description }: SettingsHeaderProps) {
             <p className="text-muted-foreground mt-1">{description}</p>
           )}
         </div>
-        <AutoSaveIndicator status={saveStatus} lastSavedAt={lastSavedAt} />
+        <div className="flex items-center gap-2">
+          <UndoButton
+            canUndo={canUndo}
+            lastChange={lastChange}
+            onUndo={undoLastChange}
+          />
+          <AutoSaveIndicator status={saveStatus} lastSavedAt={lastSavedAt} />
+        </div>
       </div>
     </div>
   );

@@ -3,6 +3,11 @@
 // Comprehensive display settings, sounds, keyboard shortcuts, AI personality
 // ============================================================================
 
+import {
+  EnergyModePreferences,
+  DEFAULT_ENERGY_MODE_PREFERENCES,
+} from "./energy-mode";
+
 // Display Preferences
 export type WeekStartDay = "monday" | "sunday" | "saturday";
 export type TimeFormat = "12h" | "24h";
@@ -59,6 +64,14 @@ export interface KeyboardPreferences {
 // AI Personality
 export type AiPersonalityType = "friendly" | "professional" | "grandma" | "gordon" | "custom";
 
+// Privacy Preferences (all OFF by default - opt-in model per research findings)
+export interface PrivacyPreferences {
+  analyticsEnabled: boolean;          // Share anonymous usage data
+  crashReporting: boolean;            // Send crash reports to help fix bugs
+  personalizedRecommendations: boolean; // AI-powered recipe suggestions based on history
+  consentTimestamp: string | null;    // ISO timestamp when user explicitly opted in
+}
+
 // Full V2 Preferences Structure
 export interface UserPreferencesV2 {
   display: DisplayPreferences;
@@ -67,6 +80,8 @@ export interface UserPreferencesV2 {
   keyboard: KeyboardPreferences;
   aiPersonality: AiPersonalityType;
   customAiPrompt: string | null;
+  energyMode: EnergyModePreferences;
+  privacy: PrivacyPreferences;
 }
 
 // ============================================================================
@@ -116,6 +131,14 @@ export const DEFAULT_KEYBOARD_PREFERENCES: KeyboardPreferences = {
   shortcuts: DEFAULT_KEYBOARD_SHORTCUTS,
 };
 
+// Privacy defaults: ALL OFF by default (opt-in model)
+export const DEFAULT_PRIVACY_PREFERENCES: PrivacyPreferences = {
+  analyticsEnabled: false,           // OFF by default
+  crashReporting: false,             // OFF by default
+  personalizedRecommendations: false, // OFF by default
+  consentTimestamp: null,
+};
+
 export const DEFAULT_USER_PREFERENCES_V2: UserPreferencesV2 = {
   display: DEFAULT_DISPLAY_PREFERENCES,
   sounds: DEFAULT_SOUND_PREFERENCES,
@@ -123,6 +146,8 @@ export const DEFAULT_USER_PREFERENCES_V2: UserPreferencesV2 = {
   keyboard: DEFAULT_KEYBOARD_PREFERENCES,
   aiPersonality: "friendly",
   customAiPrompt: null,
+  energyMode: DEFAULT_ENERGY_MODE_PREFERENCES,
+  privacy: DEFAULT_PRIVACY_PREFERENCES,
 };
 
 // ============================================================================
@@ -219,3 +244,7 @@ export const ACCENT_COLOR_PALETTE = [
   { key: "purple", color: "#a855f7", label: "Purple" },
   { key: "violet", color: "#8b5cf6", label: "Violet" },
 ] as const;
+
+// Re-export energy mode types for convenience
+export type { EnergyModePreferences } from "./energy-mode";
+export { DEFAULT_ENERGY_MODE_PREFERENCES } from "./energy-mode";

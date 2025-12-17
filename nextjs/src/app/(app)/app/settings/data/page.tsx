@@ -1,32 +1,113 @@
 "use client";
 
-import { useSettings } from "@/contexts/settings-context";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { SettingsHeader } from "@/components/settings/layout/settings-header";
 import { SettingRow, SettingSection } from "@/components/settings/shared/setting-row";
 import { AdvancedToggle } from "@/components/settings/shared/advanced-toggle";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Download, Upload } from "lucide-react";
+import { Download, Upload, Loader2, Shield } from "lucide-react";
+import { toast } from "sonner";
+import {
+  getRecipeExportPreferences,
+  updateRecipeExportPreferences,
+} from "@/app/actions/settings";
+import {
+  getRecipesForExport,
+  getExistingRecipeTitles,
+} from "@/app/actions/export";
+import { useSettings } from "@/contexts/settings-context";
+import { BulkExportDialog } from "@/components/recipes/export/bulk-export-dialog";
+import { BulkImportDialog } from "@/components/recipes/export/bulk-import-dialog";
+import type { RecipeExportPreferences } from "@/types/settings";
+import type { Recipe } from "@/types/recipe";
+
+const DEFAULT_EXPORT_PREFS: RecipeExportPreferences = {
+  include_ingredients: true,
+  include_instructions: true,
+  include_nutrition: true,
+  include_tags: true,
+  include_times: true,
+  include_notes: true,
+  include_servings: true,
+};
 
 export default function DataSettingsPage() {
-  const { settings, updateSettingsField } = useSettings();
-  const exportPrefs = settings.recipe_export_preferences;
+  const router = useRouter();
+  const { profile, preferencesV2, updatePrivacyPrefs } = useSettings();
+  const [exportPrefs, setExportPrefs] = useState<RecipeExportPreferences>(DEFAULT_EXPORT_PREFS);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const updateExportPref = (key: string, value: boolean) => {
-    const currentPrefs = exportPrefs || {
-      include_ingredients: true,
-      include_instructions: true,
-      include_nutrition: true,
-      include_tags: true,
-      include_times: true,
-      include_notes: true,
-      include_servings: true,
-    };
-    updateSettingsField("recipe_export_preferences", {
-      ...currentPrefs,
-      [key]: value,
-    });
+  // Export/Import dialog state
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [existingTitles, setExistingTitles] = useState<Set<string>>(new Set());
+  const [isLoadingExport, setIsLoadingExport] = useState(false);
+  const [isLoadingImport, setIsLoadingImport] = useState(false);
+
+  // Load initial preferences
+  useEffect(() => {
+    async function loadPrefs() {
+      const result = await getRecipeExportPreferences();
+      if (!result.error && result.data) {
+        setExportPrefs(result.data);
+      }
+      setIsLoaded(true);
+    }
+    loadPrefs();
+  }, []);
+
+  // Handle export button click
+  const handleExportClick = async () => {
+    setIsLoadingExport(true);
+    const result = await getRecipesForExport();
+    setIsLoadingExport(false);
+
+    if (result.error) {
+      toast.error(result.error);
+      return;
+    }
+
+    setRecipes(result.recipes || []);
+    setShowExportDialog(true);
   };
+
+  // Handle import button click
+  const handleImportClick = async () => {
+    setIsLoadingImport(true);
+    const result = await getExistingRecipeTitles();
+    setIsLoadingImport(false);
+
+    if (result.error) {
+      toast.error(result.error);
+      return;
+    }
+
+    setExistingTitles(new Set(result.titles || []));
+    setShowImportDialog(true);
+  };
+
+  // Handle import success
+  const handleImportSuccess = () => {
+    setShowImportDialog(false);
+    router.refresh();
+    toast.success("Recipes imported successfully!");
+  };
+
+  const updateExportPref = useCallback(async (key: keyof RecipeExportPreferences, value: boolean) => {
+    // Optimistic update
+    setExportPrefs(prev => ({ ...prev, [key]: value }));
+
+    // Save to database
+    const result = await updateRecipeExportPreferences({ [key]: value });
+    if (result.error) {
+      // Revert on error
+      setExportPrefs(prev => ({ ...prev, [key]: !value }));
+      toast.error(`Failed to save: ${result.error}`);
+    }
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -35,6 +116,45 @@ export default function DataSettingsPage() {
         description="Import, export, and manage your recipe data"
       />
 
+      {/* Privacy Settings */}
+      <SettingSection
+        title="Privacy"
+        description="Control how your data is used. All options are off by default."
+      >
+        <SettingRow
+          id="setting-analytics"
+          label="Usage Analytics"
+          description="Help improve the app by sharing anonymous usage patterns"
+        >
+          <Switch
+            checked={preferencesV2.privacy.analyticsEnabled}
+            onCheckedChange={(v) => updatePrivacyPrefs({ analyticsEnabled: v })}
+          />
+        </SettingRow>
+
+        <SettingRow
+          id="setting-crash-reporting"
+          label="Crash Reporting"
+          description="Send crash reports to help fix bugs faster"
+        >
+          <Switch
+            checked={preferencesV2.privacy.crashReporting}
+            onCheckedChange={(v) => updatePrivacyPrefs({ crashReporting: v })}
+          />
+        </SettingRow>
+
+        <SettingRow
+          id="setting-personalized-recommendations"
+          label="Personalized Recommendations"
+          description="Get AI-powered recipe suggestions based on your cooking history"
+        >
+          <Switch
+            checked={preferencesV2.privacy.personalizedRecommendations}
+            onCheckedChange={(v) => updatePrivacyPrefs({ personalizedRecommendations: v })}
+          />
+        </SettingRow>
+      </SettingSection>
+
       {/* Import/Export */}
       <SettingSection title="Recipes">
         <SettingRow
@@ -42,8 +162,12 @@ export default function DataSettingsPage() {
           label="Export All Recipes"
           description="Download all your recipes as a backup"
         >
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
+          <Button variant="outline" onClick={handleExportClick} disabled={isLoadingExport}>
+            {isLoadingExport ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4 mr-2" />
+            )}
             Export
           </Button>
         </SettingRow>
@@ -53,8 +177,12 @@ export default function DataSettingsPage() {
           label="Import Recipes"
           description="Import from JSON or other apps"
         >
-          <Button variant="outline">
-            <Upload className="h-4 w-4 mr-2" />
+          <Button variant="outline" onClick={handleImportClick} disabled={isLoadingImport}>
+            {isLoadingImport ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Upload className="h-4 w-4 mr-2" />
+            )}
             Import
           </Button>
         </SettingRow>
@@ -73,8 +201,9 @@ export default function DataSettingsPage() {
             description="Export ingredient lists"
           >
             <Switch
-              checked={exportPrefs?.include_ingredients ?? true}
+              checked={exportPrefs.include_ingredients}
               onCheckedChange={(v) => updateExportPref("include_ingredients", v)}
+              disabled={!isLoaded}
             />
           </SettingRow>
 
@@ -84,8 +213,9 @@ export default function DataSettingsPage() {
             description="Export cooking instructions"
           >
             <Switch
-              checked={exportPrefs?.include_instructions ?? true}
+              checked={exportPrefs.include_instructions}
               onCheckedChange={(v) => updateExportPref("include_instructions", v)}
+              disabled={!isLoaded}
             />
           </SettingRow>
 
@@ -95,8 +225,9 @@ export default function DataSettingsPage() {
             description="Export nutritional information"
           >
             <Switch
-              checked={exportPrefs?.include_nutrition ?? true}
+              checked={exportPrefs.include_nutrition}
               onCheckedChange={(v) => updateExportPref("include_nutrition", v)}
+              disabled={!isLoaded}
             />
           </SettingRow>
 
@@ -106,8 +237,9 @@ export default function DataSettingsPage() {
             description="Export recipe tags"
           >
             <Switch
-              checked={exportPrefs?.include_tags ?? true}
+              checked={exportPrefs.include_tags}
               onCheckedChange={(v) => updateExportPref("include_tags", v)}
+              disabled={!isLoaded}
             />
           </SettingRow>
         </SettingSection>
@@ -146,6 +278,22 @@ export default function DataSettingsPage() {
           </SettingRow>
         </SettingSection>
       </AdvancedToggle>
+
+      {/* Export Dialog */}
+      <BulkExportDialog
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
+        recipes={recipes}
+      />
+
+      {/* Import Dialog */}
+      <BulkImportDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        existingTitles={existingTitles}
+        userId={profile.id}
+        onSuccess={handleImportSuccess}
+      />
     </div>
   );
 }

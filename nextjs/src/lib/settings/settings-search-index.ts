@@ -496,6 +496,36 @@ export const SETTINGS_SEARCH_INDEX: SearchableSetting[] = [
   // DATA & EXPORT
   // ═══════════════════════════════════════════════════════════════════
   {
+    id: "analytics",
+    label: "Usage Analytics",
+    description: "Share anonymous usage data to help improve the app",
+    keywords: ["analytics", "tracking", "privacy", "data", "usage", "telemetry", "anonymous"],
+    category: "data",
+    path: "/app/settings/data",
+    componentId: "setting-analytics",
+    isAdvanced: false,
+  },
+  {
+    id: "crash-reporting",
+    label: "Crash Reporting",
+    description: "Send crash reports to help fix bugs",
+    keywords: ["crash", "error", "bug", "report", "privacy", "debug"],
+    category: "data",
+    path: "/app/settings/data",
+    componentId: "setting-crash-reporting",
+    isAdvanced: false,
+  },
+  {
+    id: "personalized-recommendations",
+    label: "Personalized Recommendations",
+    description: "AI-powered recipe suggestions based on your cooking history",
+    keywords: ["recommendations", "ai", "suggestions", "personalized", "privacy", "machine learning"],
+    category: "data",
+    path: "/app/settings/data",
+    componentId: "setting-personalized-recommendations",
+    isAdvanced: false,
+  },
+  {
     id: "export-preferences",
     label: "Export Preferences",
     description: "What to include when exporting recipes",

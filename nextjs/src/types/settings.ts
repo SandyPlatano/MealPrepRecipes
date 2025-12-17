@@ -292,4 +292,18 @@ export interface UserSettingsPreferences {
   mealTypeSettings?: MealTypeCustomization;
   plannerView?: PlannerViewSettings;
   recipe?: RecipePreferences;
+  recipeExport?: RecipeExportPreferences;
 }
+
+/**
+ * Default recipe export preferences
+ */
+export const DEFAULT_RECIPE_EXPORT_PREFERENCES: RecipeExportPreferences = {
+  include_ingredients: true,
+  include_instructions: true,
+  include_nutrition: true,
+  include_tags: true,
+  include_times: true,
+  include_notes: true,
+  include_servings: true,
+};

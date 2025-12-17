@@ -113,6 +113,8 @@ import {
   type CachedShoppingList,
 } from "@/lib/use-offline";
 import { Confetti } from "@/components/ui/confetti";
+import { SubstitutionButton } from "./substitution-button";
+import { SubstitutionSheet } from "./substitution-sheet";
 
 interface ShoppingListViewProps {
   shoppingList: ShoppingListWithItems;
@@ -161,6 +163,16 @@ export function ShoppingListView({
   // Confetti celebration state
   const [showConfetti, setShowConfetti] = useState(false);
   const prevCheckedCountRef = useRef<number | null>(null);
+
+  // Substitution sheet state
+  const [substitutionItem, setSubstitutionItem] = useState<{
+    id: string;
+    ingredient: string;
+    quantity?: string | null;
+    unit?: string | null;
+    recipe_id?: string | null;
+    recipe_title?: string | null;
+  } | null>(null);
 
   // Offline support
   const { isOffline } = useOffline();
@@ -491,6 +503,13 @@ export function ShoppingListView({
       {/* Confetti celebration when all items checked */}
       <Confetti active={showConfetti} />
 
+      {/* Substitution Sheet */}
+      <SubstitutionSheet
+        isOpen={!!substitutionItem}
+        onClose={() => setSubstitutionItem(null)}
+        item={substitutionItem}
+      />
+
       {/* Offline indicator */}
       {isOffline && (
         <div className="flex items-center gap-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-yellow-600 dark:text-yellow-400">
@@ -796,6 +815,7 @@ export function ShoppingListView({
                   category={category}
                   items={groupedItems[category]}
                   onPantryToggle={handlePantryToggle}
+                  onSubstitute={setSubstitutionItem}
                   userUnitSystem={userUnitSystem}
                   showRecipeSources={showRecipeSources}
                   onRemoveRecipeItems={handleRemoveRecipeItems}
@@ -822,6 +842,14 @@ interface SortableCategorySectionProps {
   category: string;
   items: (ShoppingListItem & { is_in_pantry?: boolean })[];
   onPantryToggle: (ingredient: string, isInPantry: boolean) => void;
+  onSubstitute: (item: {
+    id: string;
+    ingredient: string;
+    quantity?: string | null;
+    unit?: string | null;
+    recipe_id?: string | null;
+    recipe_title?: string | null;
+  }) => void;
   userUnitSystem: UnitSystem;
   showRecipeSources: boolean;
   onRemoveRecipeItems: (recipeId: string, recipeTitle: string) => void;
@@ -831,6 +859,7 @@ const SortableCategorySection = memo(function SortableCategorySection({
   category,
   items,
   onPantryToggle,
+  onSubstitute,
   userUnitSystem,
   showRecipeSources,
   onRemoveRecipeItems,
@@ -886,6 +915,7 @@ const SortableCategorySection = memo(function SortableCategorySection({
               key={item.id}
               item={item}
               onPantryToggle={onPantryToggle}
+              onSubstitute={onSubstitute}
               userUnitSystem={userUnitSystem}
               showRecipeSources={showRecipeSources}
               onRemoveRecipeItems={onRemoveRecipeItems}
@@ -926,6 +956,14 @@ function CategoryCardOverlay({
 interface ShoppingItemRowProps {
   item: ShoppingListItem & { is_in_pantry?: boolean };
   onPantryToggle: (ingredient: string, isInPantry: boolean) => void;
+  onSubstitute: (item: {
+    id: string;
+    ingredient: string;
+    quantity?: string | null;
+    unit?: string | null;
+    recipe_id?: string | null;
+    recipe_title?: string | null;
+  }) => void;
   userUnitSystem: UnitSystem;
   showRecipeSources: boolean;
   onRemoveRecipeItems: (recipeId: string, recipeTitle: string) => void;
@@ -934,6 +972,7 @@ interface ShoppingItemRowProps {
 const ShoppingItemRow = memo(function ShoppingItemRow({
   item,
   onPantryToggle,
+  onSubstitute,
   userUnitSystem,
   showRecipeSources,
   onRemoveRecipeItems,
@@ -1047,7 +1086,23 @@ const ShoppingItemRow = memo(function ShoppingItemRow({
           {item.is_in_pantry && (
             <span className="text-xs text-green-600">(in pantry)</span>
           )}
+          {item.substituted_from && (
+            <span className="text-xs text-blue-600">(was: {item.substituted_from})</span>
+          )}
         </label>
+        <SubstitutionButton
+          onClick={() =>
+            onSubstitute({
+              id: item.id,
+              ingredient: item.ingredient,
+              quantity: item.quantity,
+              unit: item.unit,
+              recipe_id: item.recipe_id,
+              recipe_title: item.recipe_title,
+            })
+          }
+          disabled={item.is_checked}
+        />
         <Tooltip>
           <TooltipTrigger asChild>
             <Button

@@ -2,6 +2,8 @@
  * Utility functions for parsing and scaling recipe ingredients
  */
 
+import type { IngredientCategory } from "@/types/shopping-list";
+
 export interface ParsedIngredient {
   quantity: number | null;
   unit: string;
@@ -753,5 +755,443 @@ export function convertIngredientsToSystem(
   targetSystem: UnitSystem
 ): string[] {
   return ingredients.map((ing) => convertIngredientToSystem(ing, targetSystem));
+}
+
+// ============================================================================
+// Enhanced Ingredient Intelligence
+// ============================================================================
+
+
+/**
+ * Expanded descriptor lists for ingredient normalization
+ */
+const PREPARATION_DESCRIPTORS = [
+  "chopped", "diced", "sliced", "minced", "crushed", "ground",
+  "shredded", "grated", "peeled", "julienned", "cubed", "quartered",
+  "halved", "torn", "crumbled", "mashed", "pureed", "zested",
+  "trimmed", "deveined", "pitted", "seeded", "cored", "deboned",
+  "butterflied", "thinly", "thickly", "roughly", "finely", "coarsely",
+];
+
+const STATE_DESCRIPTORS = [
+  "fresh", "frozen", "dried", "canned", "raw", "cooked",
+  "softened", "melted", "room temperature", "cold", "warm", "hot",
+  "chilled", "thawed", "refrigerated", "ripe", "unripe", "rinsed",
+  "drained", "packed", "loosely packed", "firmly packed",
+];
+
+const QUALITY_DESCRIPTORS = [
+  "organic", "free-range", "grass-fed", "low-sodium", "reduced-fat",
+  "extra-virgin", "virgin", "light", "dark", "unsalted", "salted",
+  "sweetened", "unsweetened", "plain", "vanilla", "whole", "skim",
+  "fat-free", "low-fat", "nonfat", "2%", "1%", "boneless", "skinless",
+  "bone-in", "skin-on", "lean", "extra-lean", "kosher", "gluten-free",
+];
+
+/**
+ * Category keyword map for intelligent categorization
+ */
+const CATEGORY_KEYWORDS: Record<IngredientCategory | string, string[]> = {
+  "Produce": [
+    // Vegetables
+    "lettuce", "tomato", "onion", "garlic", "pepper", "carrot", "celery",
+    "potato", "spinach", "kale", "broccoli", "cauliflower", "zucchini",
+    "squash", "mushroom", "cucumber", "cabbage", "asparagus", "artichoke",
+    "eggplant", "beet", "radish", "turnip", "parsnip", "leek", "shallot",
+    "scallion", "green onion", "chive", "corn", "pea", "bean sprout",
+    "bok choy", "brussels sprout", "fennel", "arugula", "watercress",
+    "endive", "radicchio", "swiss chard", "collard", "mustard green",
+    // Fruits
+    "apple", "banana", "orange", "lemon", "lime", "grapefruit", "avocado",
+    "grape", "strawberry", "blueberry", "raspberry", "blackberry", "cherry",
+    "peach", "plum", "nectarine", "apricot", "mango", "pineapple", "papaya",
+    "kiwi", "melon", "watermelon", "cantaloupe", "honeydew", "pomegranate",
+    "fig", "date", "pear", "coconut", "passion fruit", "dragon fruit",
+    // Herbs
+    "basil", "cilantro", "parsley", "mint", "thyme", "rosemary", "oregano",
+    "dill", "sage", "tarragon", "chervil", "marjoram", "bay leaf", "lemongrass",
+  ],
+  "Meat & Seafood": [
+    // Meat
+    "chicken", "beef", "pork", "lamb", "turkey", "duck", "veal", "venison",
+    "bison", "rabbit", "goat", "bacon", "sausage", "ham", "prosciutto",
+    "pancetta", "chorizo", "salami", "pepperoni", "hot dog", "bratwurst",
+    "steak", "ground beef", "ground turkey", "ground pork", "ground chicken",
+    "roast", "chop", "rib", "tenderloin", "sirloin", "filet", "brisket",
+    "flank", "skirt", "breast", "thigh", "drumstick", "wing", "liver",
+    // Seafood
+    "salmon", "tuna", "cod", "tilapia", "halibut", "trout", "bass",
+    "snapper", "mahi", "swordfish", "mackerel", "sardine", "anchovy",
+    "shrimp", "prawn", "crab", "lobster", "scallop", "mussel", "clam",
+    "oyster", "squid", "calamari", "octopus", "fish", "seafood",
+  ],
+  "Dairy & Eggs": [
+    "milk", "cream", "half-and-half", "buttermilk", "evaporated milk",
+    "condensed milk", "heavy cream", "whipping cream", "sour cream",
+    "creme fraiche", "yogurt", "greek yogurt", "kefir",
+    "butter", "margarine", "ghee",
+    "cheese", "cheddar", "mozzarella", "parmesan", "feta", "gouda",
+    "swiss", "provolone", "brie", "camembert", "blue cheese", "gorgonzola",
+    "ricotta", "cottage cheese", "cream cheese", "mascarpone", "goat cheese",
+    "gruyere", "manchego", "pecorino", "asiago", "havarti", "monterey jack",
+    "colby", "american cheese", "velveeta", "queso",
+    "egg", "eggs", "egg white", "egg yolk",
+  ],
+  "Pantry": [
+    // Grains & Starches
+    "flour", "bread flour", "cake flour", "whole wheat flour", "almond flour",
+    "rice", "white rice", "brown rice", "jasmine rice", "basmati rice",
+    "arborio rice", "wild rice", "quinoa", "couscous", "bulgur", "farro",
+    "barley", "oat", "oats", "oatmeal", "cornmeal", "polenta", "grits",
+    "pasta", "spaghetti", "penne", "rigatoni", "fettuccine", "linguine",
+    "macaroni", "lasagna", "orzo", "noodle", "ramen", "udon", "soba",
+    "bread crumb", "panko", "crouton",
+    // Legumes
+    "bean", "black bean", "kidney bean", "pinto bean", "navy bean",
+    "cannellini", "chickpea", "garbanzo", "lentil", "split pea",
+    // Oils & Vinegars
+    "oil", "olive oil", "vegetable oil", "canola oil", "coconut oil",
+    "sesame oil", "peanut oil", "avocado oil", "grapeseed oil",
+    "vinegar", "balsamic", "red wine vinegar", "white wine vinegar",
+    "apple cider vinegar", "rice vinegar", "sherry vinegar",
+    // Sauces & Stocks
+    "soy sauce", "tamari", "fish sauce", "worcestershire", "oyster sauce",
+    "hoisin", "teriyaki", "broth", "stock", "bouillon", "tomato paste",
+    "tomato sauce", "marinara", "alfredo",
+    // Baking
+    "sugar", "brown sugar", "powdered sugar", "confectioners sugar",
+    "honey", "maple syrup", "molasses", "corn syrup", "agave",
+    "baking powder", "baking soda", "yeast", "cornstarch", "arrowroot",
+    "gelatin", "vanilla extract", "almond extract", "cocoa powder",
+    "chocolate chip", "chocolate", "nut", "almond", "walnut", "pecan",
+    "cashew", "peanut", "pistachio", "hazelnut", "macadamia", "pine nut",
+    "seed", "sesame seed", "sunflower seed", "pumpkin seed", "flax seed",
+    "chia seed", "poppy seed",
+  ],
+  "Spices": [
+    "salt", "pepper", "black pepper", "white pepper", "sea salt", "kosher salt",
+    "cumin", "paprika", "smoked paprika", "cayenne", "chili powder",
+    "cinnamon", "nutmeg", "allspice", "clove", "cardamom", "coriander",
+    "turmeric", "ginger", "curry powder", "garam masala", "five spice",
+    "oregano", "thyme", "rosemary", "sage", "basil", "bay leaf", "dill",
+    "tarragon", "marjoram", "parsley flakes", "chives",
+    "garlic powder", "onion powder", "mustard powder", "celery salt",
+    "red pepper flake", "crushed red pepper", "chili flake",
+    "saffron", "sumac", "za'atar", "ras el hanout", "herbes de provence",
+    "italian seasoning", "poultry seasoning", "old bay", "taco seasoning",
+    "everything bagel seasoning",
+  ],
+  "Condiments": [
+    "ketchup", "mustard", "yellow mustard", "dijon", "whole grain mustard",
+    "mayonnaise", "mayo", "aioli", "hot sauce", "sriracha", "tabasco",
+    "bbq sauce", "barbecue sauce", "ranch", "blue cheese dressing",
+    "salsa", "pico de gallo", "guacamole", "hummus", "tahini",
+    "pesto", "chimichurri", "tzatziki", "harissa", "gochujang",
+    "relish", "pickle", "olive", "caper", "sun-dried tomato",
+    "jam", "jelly", "preserves", "marmalade", "peanut butter", "almond butter",
+    "nutella", "chutney", "horseradish", "wasabi",
+  ],
+  "Frozen": [
+    "frozen", "ice cream", "gelato", "sorbet", "frozen yogurt",
+    "frozen vegetable", "frozen fruit", "frozen pizza", "frozen dinner",
+    "frozen waffle", "frozen pie", "frozen dough",
+  ],
+  "Beverages": [
+    "water", "sparkling water", "soda", "cola", "sprite", "ginger ale",
+    "juice", "orange juice", "apple juice", "grape juice", "cranberry juice",
+    "lemonade", "iced tea", "sweet tea",
+    "coffee", "espresso", "cold brew", "tea", "green tea", "black tea",
+    "herbal tea", "chamomile", "matcha",
+    "milk", "oat milk", "almond milk", "soy milk", "coconut milk",
+    "wine", "red wine", "white wine", "rose", "champagne", "prosecco",
+    "beer", "ale", "lager", "stout", "cider",
+    "vodka", "rum", "tequila", "whiskey", "bourbon", "gin", "brandy",
+  ],
+  "Bakery": [
+    "bread", "white bread", "wheat bread", "sourdough", "rye bread",
+    "baguette", "ciabatta", "focaccia", "brioche", "challah",
+    "bagel", "english muffin", "croissant", "danish", "muffin", "scone",
+    "roll", "dinner roll", "hamburger bun", "hot dog bun", "slider bun",
+    "tortilla", "flour tortilla", "corn tortilla", "wrap", "pita", "naan",
+    "flatbread", "lavash", "cracker", "breadstick",
+    "cake", "cupcake", "brownie", "cookie", "pie", "tart", "pastry",
+    "donut", "doughnut", "cinnamon roll",
+  ],
+  "Snacks": [
+    "chip", "potato chip", "tortilla chip", "corn chip", "pita chip",
+    "cracker", "pretzel", "popcorn", "nut", "trail mix",
+    "granola bar", "protein bar", "energy bar", "fruit snack",
+    "beef jerky", "cheese puff", "cheeto", "dorito",
+  ],
+};
+
+/**
+ * Extract the core ingredient name, removing all modifiers
+ * More aggressive than normalizeIngredientName - for comparison purposes
+ */
+export function extractCoreIngredient(name: string): string {
+  let core = name.toLowerCase().trim();
+
+  // Remove all preparation descriptors
+  for (const desc of PREPARATION_DESCRIPTORS) {
+    core = core.replace(new RegExp(`\\b${desc}\\b`, "gi"), "");
+  }
+
+  // Remove all state descriptors
+  for (const desc of STATE_DESCRIPTORS) {
+    core = core.replace(new RegExp(`\\b${desc}\\b`, "gi"), "");
+  }
+
+  // Remove all quality descriptors
+  for (const desc of QUALITY_DESCRIPTORS) {
+    core = core.replace(new RegExp(`\\b${desc}\\b`, "gi"), "");
+  }
+
+  // Remove common phrases
+  core = core.replace(/,.*$/, "");           // After comma
+  core = core.replace(/\(.*?\)/g, "");       // Parenthetical
+  core = core.replace(/for .*$/i, "");       // "for garnish"
+  core = core.replace(/to taste/i, "");      // "to taste"
+  core = core.replace(/as needed/i, "");     // "as needed"
+  core = core.replace(/optional/i, "");      // "optional"
+
+  // Clean up whitespace
+  core = core.replace(/\s+/g, " ").trim();
+
+  return core;
+}
+
+/**
+ * Calculate similarity between two ingredient names (0-1)
+ * Uses Levenshtein distance ratio
+ */
+function calculateSimilarity(a: string, b: string): number {
+  if (a === b) return 1;
+  if (a.length === 0 || b.length === 0) return 0;
+
+  // Simple Levenshtein distance implementation
+  const matrix: number[][] = [];
+
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // substitution
+          matrix[i][j - 1] + 1,     // insertion
+          matrix[i - 1][j] + 1      // deletion
+        );
+      }
+    }
+  }
+
+  const distance = matrix[b.length][a.length];
+  const maxLength = Math.max(a.length, b.length);
+  return 1 - distance / maxLength;
+}
+
+/**
+ * Check if two ingredients are similar enough to merge
+ * Returns true if they should be considered the same ingredient
+ */
+export function areIngredientsSimilar(
+  a: string,
+  b: string,
+  threshold: number = 0.85
+): boolean {
+  // First, try exact match on core ingredients
+  const coreA = extractCoreIngredient(a);
+  const coreB = extractCoreIngredient(b);
+
+  if (coreA === coreB) return true;
+
+  // Check if one contains the other (after normalization)
+  if (coreA.includes(coreB) || coreB.includes(coreA)) {
+    // But avoid matching things like "chicken" with "chicken broth"
+    const shorter = coreA.length < coreB.length ? coreA : coreB;
+    const longer = coreA.length < coreB.length ? coreB : coreA;
+
+    // If the longer one has significantly more words, don't match
+    const shorterWords = shorter.split(/\s+/).length;
+    const longerWords = longer.split(/\s+/).length;
+
+    if (longerWords > shorterWords + 1) {
+      return false;
+    }
+
+    return true;
+  }
+
+  // Calculate similarity score
+  const similarity = calculateSimilarity(coreA, coreB);
+  return similarity >= threshold;
+}
+
+/**
+ * Guess the category of an ingredient based on keyword matching
+ */
+export function guessCategory(ingredient: string): IngredientCategory {
+  const lower = ingredient.toLowerCase();
+  const core = extractCoreIngredient(lower);
+
+  // Check each category's keywords
+  for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+    for (const keyword of keywords) {
+      if (core.includes(keyword) || lower.includes(keyword)) {
+        return category as IngredientCategory;
+      }
+    }
+  }
+
+  return "Other";
+}
+
+/**
+ * Merged item with confidence scoring
+ */
+export interface MergedItemWithConfidence extends MergedItem {
+  confidence: number;  // 0-1, how confident we are in the merge
+  needs_review: boolean;  // Flag for user to review
+}
+
+/**
+ * Merge shopping items with confidence scoring
+ * Groups items that are likely the same ingredient
+ */
+export function mergeWithConfidence(
+  items: MergeableItem[],
+  similarityThreshold: number = 0.85
+): MergedItemWithConfidence[] {
+  const merged = new Map<string, MergedItemWithConfidence>();
+  const processedIndices = new Set<number>();
+
+  for (let i = 0; i < items.length; i++) {
+    if (processedIndices.has(i)) continue;
+
+    const item = items[i];
+    const normalizedName = normalizeIngredientName(item.ingredient);
+    const coreName = extractCoreIngredient(item.ingredient);
+
+    // Check if this matches any existing merged item
+    let foundMatch = false;
+    for (const [key, existing] of merged.entries()) {
+      const existingCore = extractCoreIngredient(existing.ingredient);
+
+      if (areIngredientsSimilar(coreName, existingCore, similarityThreshold)) {
+        // Merge with existing
+        foundMatch = true;
+
+        const newQuantity = parseQuantity(item.quantity || "");
+        const existingQuantity = parseQuantity(existing.quantity || "");
+
+        // Track confidence based on how similar the names are
+        const similarity = calculateSimilarity(coreName, existingCore);
+        existing.confidence = Math.min(existing.confidence, similarity);
+        existing.needs_review = existing.confidence < 0.9;
+
+        // Add source
+        if (item.recipe_id || item.recipe_title) {
+          const alreadyHasSource = existing.sources.some(
+            (s) => s.recipe_id === item.recipe_id && s.recipe_title === item.recipe_title
+          );
+          if (!alreadyHasSource) {
+            existing.sources.push({
+              recipe_id: item.recipe_id,
+              recipe_title: item.recipe_title,
+            });
+          }
+        }
+
+        // Try to merge quantities
+        if (newQuantity !== null && existingQuantity !== null) {
+          const newUnit = item.unit ? normalizeUnit(item.unit) : null;
+          const existingUnit = existing.unit;
+
+          if (newUnit === existingUnit || (!newUnit && !existingUnit)) {
+            const total = existingQuantity + newQuantity;
+            const preferred = existingUnit
+              ? getPreferredUnit(total, existingUnit)
+              : { quantity: total, unit: null };
+            existing.quantity = formatQuantity(preferred.quantity);
+            existing.unit = preferred.unit;
+          } else if (newUnit && existingUnit && areUnitsConvertible(newUnit, existingUnit)) {
+            const converted = convertUnit(newQuantity, newUnit, existingUnit);
+            if (converted !== null) {
+              const total = existingQuantity + converted;
+              const preferred = getPreferredUnit(total, existingUnit);
+              existing.quantity = formatQuantity(preferred.quantity);
+              existing.unit = preferred.unit;
+            }
+          } else {
+            // Units not compatible - lower confidence
+            existing.confidence *= 0.8;
+            existing.needs_review = true;
+          }
+        }
+
+        processedIndices.add(i);
+        break;
+      }
+    }
+
+    if (!foundMatch) {
+      // Create new entry
+      const category = item.category || guessCategory(item.ingredient);
+
+      merged.set(normalizedName, {
+        ingredient: item.ingredient,
+        quantity: item.quantity || null,
+        unit: item.unit ? normalizeUnit(item.unit) : null,
+        category,
+        sources: item.recipe_id || item.recipe_title
+          ? [{ recipe_id: item.recipe_id, recipe_title: item.recipe_title }]
+          : [],
+        confidence: 1.0,
+        needs_review: false,
+      });
+
+      processedIndices.add(i);
+    }
+  }
+
+  // Find any items that weren't processed (shouldn't happen, but safety check)
+  for (let i = 0; i < items.length; i++) {
+    if (!processedIndices.has(i)) {
+      const item = items[i];
+      const normalizedName = normalizeIngredientName(item.ingredient);
+      const category = item.category || guessCategory(item.ingredient);
+
+      merged.set(`${normalizedName}_${i}`, {
+        ingredient: item.ingredient,
+        quantity: item.quantity || null,
+        unit: item.unit ? normalizeUnit(item.unit) : null,
+        category,
+        sources: item.recipe_id || item.recipe_title
+          ? [{ recipe_id: item.recipe_id, recipe_title: item.recipe_title }]
+          : [],
+        confidence: 1.0,
+        needs_review: false,
+      });
+    }
+  }
+
+  return Array.from(merged.values());
+}
+
+/**
+ * Get a list of items that need user review (low confidence merges)
+ */
+export function getItemsNeedingReview(
+  items: MergedItemWithConfidence[]
+): MergedItemWithConfidence[] {
+  return items.filter((item) => item.needs_review);
 }
 

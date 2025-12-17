@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getWeekPlan, getRecipesForPlanning } from "@/app/actions/meal-plans";
 import { getSettings, getMealTypeCustomization, getPlannerViewSettings } from "@/app/actions/settings";
+import { getUserPreferencesV2 } from "@/app/actions/user-preferences";
 import { getFavorites } from "@/app/actions/recipes";
 import {
   getRecentlyCooked,
@@ -23,6 +24,7 @@ import { OnboardingWrapper } from "@/components/onboarding/onboarding-wrapper";
 import { hasActiveSubscription } from "@/lib/stripe/subscription";
 import { ContextualHint } from "@/components/hints/contextual-hint";
 import { HINT_IDS, HINT_CONTENT } from "@/lib/hints";
+import { DEFAULT_ENERGY_MODE_PREFERENCES, type EnergyModePreferences } from "@/types/energy-mode";
 
 interface HomePageProps {
   searchParams: Promise<{ week?: string }>;
@@ -76,6 +78,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     nutritionTrackingResult,
     mealTypeSettingsResult,
     plannerViewSettingsResult,
+    userPreferencesV2Result,
   ] = await Promise.all([
     getWeekPlan(weekStartStr),
     getRecipesForPlanning(),
@@ -88,6 +91,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     isNutritionTrackingEnabled(),
     getMealTypeCustomization(),
     getPlannerViewSettings(),
+    user ? getUserPreferencesV2(user.id) : Promise.resolve({ error: null, data: null }),
   ]);
 
   const weekPlan = planResult.data || {
@@ -114,6 +118,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const suggestedRecipeIds = (suggestions.data || []).map((r) => r.id);
   const mealTypeSettings = mealTypeSettingsResult.data;
   const plannerViewSettings = plannerViewSettingsResult.data;
+  const energyModePreferences: EnergyModePreferences =
+    userPreferencesV2Result.data?.energyMode || DEFAULT_ENERGY_MODE_PREFERENCES;
 
   // Get existing meal days for AI suggestions
   const existingMealDays = Object.entries(weekPlan.assignments)
@@ -210,6 +216,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           canNavigateWeeks={canNavigateWeeks}
           mealTypeSettings={mealTypeSettings}
           plannerViewSettings={plannerViewSettings}
+          energyModePreferences={energyModePreferences}
         />
       </div>
     </>

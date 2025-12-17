@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useSettings } from "@/contexts/settings-context";
 import { SettingsHeader } from "@/components/settings/layout/settings-header";
 import { SettingRow, SettingSection } from "@/components/settings/shared/setting-row";
@@ -15,9 +15,17 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { MacroGoalsSection } from "@/components/settings/macro-goals-section";
+import { CustomBadgesSection } from "@/components/settings/custom-badges-section";
+import { SubstitutionsSection } from "@/components/settings/substitutions-section";
 import { cn } from "@/lib/utils";
 import type { UnitSystem } from "@/types/settings";
 import type { MacroGoals, MacroGoalPreset } from "@/types/nutrition";
+import {
+  getDefaultSubstitutions,
+  getUserSubstitutions,
+  type UserSubstitution,
+  type Substitution,
+} from "@/lib/substitutions";
 
 const ALLERGENS = [
   "Dairy",
@@ -33,6 +41,25 @@ const ALLERGENS = [
 
 export default function DietarySettingsPage() {
   const { settings, updateSettingsField, updateSettingsBatch } = useSettings();
+
+  // Substitutions state
+  const [userSubstitutions, setUserSubstitutions] = useState<UserSubstitution[]>([]);
+  const [defaultSubstitutions, setDefaultSubstitutions] = useState<Substitution[]>([]);
+  const [substitutionsLoaded, setSubstitutionsLoaded] = useState(false);
+
+  // Load substitutions data
+  useEffect(() => {
+    async function loadSubstitutions() {
+      const [defaults, userSubs] = await Promise.all([
+        getDefaultSubstitutions(),
+        getUserSubstitutions(),
+      ]);
+      setDefaultSubstitutions(defaults);
+      setUserSubstitutions(userSubs);
+      setSubstitutionsLoaded(true);
+    }
+    loadSubstitutions();
+  }, []);
 
   const toggleAllergen = (allergen: string) => {
     const current = settings.allergen_alerts || [];
@@ -148,26 +175,24 @@ export default function DietarySettingsPage() {
         </SettingRow>
       </SettingSection>
 
-      {/* Advanced */}
-      <AdvancedToggle>
-        <SettingSection title="Advanced Dietary Settings">
-          <SettingRow
-            id="setting-custom-badges"
-            label="Custom Nutrition Badges"
-            description="Create custom nutrition indicator badges"
-          >
-            <div className="text-sm text-muted-foreground">Coming soon</div>
-          </SettingRow>
+      {/* Custom Nutrition Badges */}
+      <div id="setting-custom-badges">
+        <CustomBadgesSection />
+      </div>
 
-          <SettingRow
-            id="setting-substitutions"
-            label="Ingredient Substitutions"
-            description="Automatic ingredient swaps"
-          >
-            <div className="text-sm text-muted-foreground">Coming soon</div>
-          </SettingRow>
-        </SettingSection>
-      </AdvancedToggle>
+      {/* Ingredient Substitutions */}
+      <div id="setting-substitutions">
+        {substitutionsLoaded ? (
+          <SubstitutionsSection
+            initialUserSubstitutions={userSubstitutions}
+            defaultSubstitutions={defaultSubstitutions}
+          />
+        ) : (
+          <SettingSection title="Ingredient Substitutions">
+            <div className="text-sm text-muted-foreground py-4">Loading substitutions...</div>
+          </SettingSection>
+        )}
+      </div>
     </div>
   );
 }

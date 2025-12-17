@@ -19,7 +19,13 @@ export const getCachedUserWithHousehold = cache(async () => {
   const { user, error: authError } = await getCachedUser();
 
   if (authError || !user) {
-    return { user: null, household: null, subscription: null, error: authError };
+    return {
+      user: null,
+      household: null,
+      householdId: null,
+      subscription: null,
+      error: authError
+    };
   }
 
   const supabase = await createClient();
@@ -30,6 +36,30 @@ export const getCachedUserWithHousehold = cache(async () => {
     .select("household_id, role")
     .eq("user_id", user.id)
     .single();
+
+  // Fetch full household data if membership exists
+  let household: {
+    id: string;
+    name: string;
+    owner_id: string;
+    permission_mode: string;
+    household_settings: Record<string, unknown>;
+    household_id: string; // Backward compatibility alias
+  } | null = null;
+
+  if (membership?.household_id) {
+    const { data: householdData } = await supabase
+      .from("households")
+      .select("id, name, owner_id, permission_mode, household_settings")
+      .eq("id", membership.household_id)
+      .single();
+    if (householdData) {
+      household = {
+        ...householdData,
+        household_id: householdData.id, // Backward compatibility alias
+      };
+    }
+  }
 
   // Fetch subscription data (graceful - don't fail if table doesn't exist)
   let subscription = null;
@@ -50,7 +80,9 @@ export const getCachedUserWithHousehold = cache(async () => {
 
   return {
     user,
-    household: membership,
+    household,
+    householdId: membership?.household_id ?? null,
+    membership,
     subscription,
     error: householdError, // Only fail on household error, not subscription
   };
@@ -60,7 +92,7 @@ export const getCachedUserWithHousehold = cache(async () => {
  * Get just the household_id for the current user (cached)
  */
 export const getCachedHouseholdId = cache(async (): Promise<string | null> => {
-  const { household } = await getCachedUserWithHousehold();
-  return household?.household_id || null;
+  const { householdId } = await getCachedUserWithHousehold();
+  return householdId || null;
 });
 

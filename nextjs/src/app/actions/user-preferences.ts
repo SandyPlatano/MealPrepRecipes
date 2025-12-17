@@ -9,6 +9,8 @@ import type {
   ServingSizePreset,
   KeyboardPreferences,
   AiPersonalityType,
+  EnergyModePreferences,
+  PrivacyPreferences,
 } from "@/types/user-preferences-v2";
 import {
   DEFAULT_USER_PREFERENCES_V2,
@@ -16,6 +18,8 @@ import {
   DEFAULT_SOUND_PREFERENCES,
   DEFAULT_SERVING_SIZE_PRESETS,
   DEFAULT_KEYBOARD_PREFERENCES,
+  DEFAULT_ENERGY_MODE_PREFERENCES,
+  DEFAULT_PRIVACY_PREFERENCES,
 } from "@/types/user-preferences-v2";
 
 // ============================================================================
@@ -63,6 +67,14 @@ export async function getUserPreferencesV2(
       },
       aiPersonality: prefs.aiPersonality || "friendly",
       customAiPrompt: prefs.customAiPrompt || null,
+      energyMode: {
+        ...DEFAULT_ENERGY_MODE_PREFERENCES,
+        ...(prefs.energyMode || {}),
+      },
+      privacy: {
+        ...DEFAULT_PRIVACY_PREFERENCES,
+        ...(prefs.privacy || {}),
+      },
     },
   };
 }
@@ -268,6 +280,92 @@ export async function updateAiPersonality(
 }
 
 // ============================================================================
+// Update Energy Mode Preferences
+// ============================================================================
+
+export async function updateEnergyModePreferences(
+  userId: string,
+  data: Partial<EnergyModePreferences>
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+
+  // Get current preferences
+  const { data: currentPrefs } = await getUserPreferencesV2(userId);
+
+  const updatedPreferences: UserPreferencesV2 = {
+    ...currentPrefs,
+    energyMode: {
+      ...currentPrefs.energyMode,
+      ...data,
+    },
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences_v2: updatedPreferences })
+    .eq("user_id", userId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app");
+  revalidatePath("/app/settings");
+  return { error: null };
+}
+
+// ============================================================================
+// Update Privacy Preferences
+// ============================================================================
+
+export async function updatePrivacyPreferences(
+  userId: string,
+  data: Partial<PrivacyPreferences>
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+
+  // Get current preferences
+  const { data: currentPrefs } = await getUserPreferencesV2(userId);
+
+  // Track consent timestamp when any privacy setting changes from false to true
+  const updates: Partial<PrivacyPreferences> = { ...data };
+  const privacyKeys: (keyof PrivacyPreferences)[] = [
+    "analyticsEnabled",
+    "crashReporting",
+    "personalizedRecommendations",
+  ];
+
+  const anyOptIn = privacyKeys.some(
+    (key) =>
+      data[key] === true && !currentPrefs.privacy[key]
+  );
+
+  if (anyOptIn && !currentPrefs.privacy.consentTimestamp) {
+    updates.consentTimestamp = new Date().toISOString();
+  }
+
+  const updatedPreferences: UserPreferencesV2 = {
+    ...currentPrefs,
+    privacy: {
+      ...currentPrefs.privacy,
+      ...updates,
+    },
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences_v2: updatedPreferences })
+    .eq("user_id", userId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app/settings");
+  return { error: null };
+}
+
+// ============================================================================
 // Custom CSS
 // ============================================================================
 
@@ -408,4 +506,20 @@ export async function updateServingSizePresetsAuto(
   const userId = await getCurrentUserId();
   if (!userId) return { error: "Not authenticated" };
   return updateServingSizePresets(userId, presets);
+}
+
+export async function updateEnergyModePreferencesAuto(
+  data: Partial<EnergyModePreferences>
+): Promise<{ error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Not authenticated" };
+  return updateEnergyModePreferences(userId, data);
+}
+
+export async function updatePrivacyPreferencesAuto(
+  data: Partial<PrivacyPreferences>
+): Promise<{ error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Not authenticated" };
+  return updatePrivacyPreferences(userId, data);
 }

@@ -3,6 +3,7 @@
 import { CartProvider } from "@/components/cart";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
+import { KeyboardShortcutsProvider } from "@/components/keyboard-shortcuts-provider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -16,6 +17,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <CartProvider>
         {children}
         <ServiceWorkerRegistration />
+        <KeyboardShortcutsProvider />
       </CartProvider>
     </ThemeProvider>
   );

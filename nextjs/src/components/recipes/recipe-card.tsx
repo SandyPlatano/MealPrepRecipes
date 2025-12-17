@@ -393,18 +393,13 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                   {currentRating ? (
                     <RatingBadge rating={currentRating} size="sm" />
                   ) : (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground/50 hover:text-yellow-500"
-                        >
-                          <Star className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Rate this recipe</TooltipContent>
-                    </Tooltip>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground/50 hover:text-yellow-500"
+                    >
+                      <Star className="h-4 w-4" />
+                    </Button>
                   )}
                 </QuickRatingPopover>
 

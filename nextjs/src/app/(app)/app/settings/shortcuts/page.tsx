@@ -19,9 +19,10 @@ import { resetAllHints } from "@/app/actions/settings";
 import { playSound } from "@/lib/sounds";
 import { toast } from "sonner";
 import { Volume2, RotateCcw, Play } from "lucide-react";
+import { KeyboardShortcutsSection } from "@/components/settings/keyboard-shortcuts-section";
 
 export default function ShortcutsSettingsPage() {
-  const { preferencesV2, updateSoundPrefs, updateKeyboardPrefs } = useSettings();
+  const { profile, preferencesV2, updateSoundPrefs, updateKeyboardPrefs } = useSettings();
   const sounds = preferencesV2.sounds;
   const keyboard = preferencesV2.keyboard;
 
@@ -213,43 +214,15 @@ export default function ShortcutsSettingsPage() {
         </SettingRow>
       </SettingSection>
 
-      {/* Advanced - Keyboard */}
-      <AdvancedToggle>
-        <SettingSection title="Keyboard Shortcuts">
-          <SettingRow
-            id="setting-keyboard-shortcuts"
-            label="Enable Keyboard Shortcuts"
-            description="Use keyboard shortcuts for navigation"
-          >
-            <Switch
-              id="setting-keyboard-shortcuts-control"
-              checked={keyboard.enabled}
-              onCheckedChange={(checked) =>
-                updateKeyboardPrefs({ enabled: checked })
-              }
-            />
-          </SettingRow>
-
-          {keyboard.enabled && (
-            <SettingRow
-              id="setting-custom-hotkeys"
-              label="Custom Hotkeys"
-              description="Current keyboard shortcuts"
-            >
-              <div className="text-xs text-muted-foreground space-y-1">
-                {Object.entries(keyboard.shortcuts).slice(0, 4).map(([action, key]) => (
-                  <div key={action} className="flex gap-2">
-                    <kbd className="px-1.5 py-0.5 bg-muted rounded text-[10px] font-mono">
-                      {key}
-                    </kbd>
-                    <span>{action}</span>
-                  </div>
-                ))}
-              </div>
-            </SettingRow>
-          )}
-        </SettingSection>
-      </AdvancedToggle>
+      {/* Keyboard Shortcuts */}
+      <div id="setting-keyboard-shortcuts">
+        <div id="setting-custom-hotkeys">
+          <KeyboardShortcutsSection
+            userId={profile.id}
+            initialPreferences={keyboard}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -11,6 +11,9 @@ export interface ShoppingListItem {
   recipe_id?: string | null;
   recipe_title?: string | null;
   created_at: string;
+  // Substitution tracking
+  substituted_from?: string | null;
+  substitution_log_id?: string | null;
   // Computed field for pantry check
   is_in_pantry?: boolean;
 }
