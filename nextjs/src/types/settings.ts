@@ -94,13 +94,28 @@ export interface ProfileFormData {
 // Cook Mode Settings Types
 // ============================================================================
 
-export type CookModeFontSize = "small" | "medium" | "large";
+export type CookModeFontSize = "small" | "medium" | "large" | "extra-large";
 export type CookModeTheme = "system" | "light" | "dark";
 export type CookModeNavigationMode = "step-by-step" | "scrollable";
+export type VoiceReadoutSpeed = "slow" | "normal" | "fast";
 
 export interface CookModeDisplaySettings {
   fontSize: CookModeFontSize;
   themeOverride: CookModeTheme;
+  highContrast: boolean;
+}
+
+export interface CookModeVoiceSettings {
+  enabled: boolean;
+  wakeWord: string;
+  autoReadSteps: boolean;
+  readoutSpeed: VoiceReadoutSpeed;
+}
+
+export interface CookModeGestureSettings {
+  swipeEnabled: boolean;
+  tapToAdvance: boolean;
+  hapticFeedback: boolean;
 }
 
 export interface CookModeVisibilitySettings {
@@ -124,12 +139,15 @@ export interface CookModeSettings {
   visibility: CookModeVisibilitySettings;
   behavior: CookModeBehaviorSettings;
   navigation: CookModeNavigationSettings;
+  voice: CookModeVoiceSettings;
+  gestures: CookModeGestureSettings;
 }
 
 export const DEFAULT_COOK_MODE_SETTINGS: CookModeSettings = {
   display: {
     fontSize: "medium",
     themeOverride: "system",
+    highContrast: false,
   },
   visibility: {
     showIngredients: true,
@@ -143,6 +161,17 @@ export const DEFAULT_COOK_MODE_SETTINGS: CookModeSettings = {
   },
   navigation: {
     mode: "step-by-step",
+  },
+  voice: {
+    enabled: false,
+    wakeWord: "hey chef",
+    autoReadSteps: false,
+    readoutSpeed: "normal",
+  },
+  gestures: {
+    swipeEnabled: true,
+    tapToAdvance: false,
+    hapticFeedback: true,
   },
 };
 

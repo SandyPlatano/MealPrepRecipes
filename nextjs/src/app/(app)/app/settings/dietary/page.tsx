@@ -25,7 +25,7 @@ import {
   getUserSubstitutions,
   type UserSubstitution,
   type Substitution,
-} from "@/lib/substitutions";
+} from "@/app/actions/substitutions";
 
 const ALLERGENS = [
   "Dairy",

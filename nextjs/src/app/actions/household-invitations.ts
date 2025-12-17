@@ -316,7 +316,7 @@ export async function acceptHouseholdInvitation(token: string): Promise<{
 /**
  * Get the invitation link URL for sharing
  */
-export function getInvitationLink(token: string): string {
+export async function getInvitationLink(token: string): Promise<string> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   return `${baseUrl}/invite/${token}`;
 }

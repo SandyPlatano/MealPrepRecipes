@@ -56,62 +56,29 @@ export default async function PrepPage() {
 
       {/* In Progress Sessions */}
       {inProgressSessions.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">In Progress</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {inProgressSessions.map((session) => (
-              <PrepSessionCard
-                key={session.id}
-                session={session}
-                recipeCount={0}
-                completedRecipeCount={0}
-                onView={(id) => {
-                  // Client-side navigation handled by PrepSessionCard
-                }}
-              />
-            ))}
-          </div>
-        </div>
+        <PrepSessionList
+          sessions={inProgressSessions}
+          title="In Progress"
+          showActions={true}
+        />
       )}
 
       {/* Upcoming Sessions */}
       {upcomingSessions.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Upcoming</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {upcomingSessions.map((session) => (
-              <PrepSessionCard
-                key={session.id}
-                session={session}
-                recipeCount={0}
-                completedRecipeCount={0}
-                onView={(id) => {
-                  // Client-side navigation handled by PrepSessionCard
-                }}
-              />
-            ))}
-          </div>
-        </div>
+        <PrepSessionList
+          sessions={upcomingSessions}
+          title="Upcoming"
+          showActions={true}
+        />
       )}
 
       {/* Completed Sessions */}
       {completedSessions.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Completed</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {completedSessions.map((session) => (
-              <PrepSessionCard
-                key={session.id}
-                session={session}
-                recipeCount={0}
-                completedRecipeCount={0}
-                onView={(id) => {
-                  // Client-side navigation handled by PrepSessionCard
-                }}
-              />
-            ))}
-          </div>
-        </div>
+        <PrepSessionList
+          sessions={completedSessions}
+          title="Completed"
+          showActions={true}
+        />
       )}
     </div>
   );

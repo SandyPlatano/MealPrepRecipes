@@ -1082,7 +1082,7 @@ export function mergeWithConfidence(
 
     // Check if this matches any existing merged item
     let foundMatch = false;
-    for (const [key, existing] of merged.entries()) {
+    for (const [key, existing] of Array.from(merged.entries())) {
       const existingCore = extractCoreIngredient(existing.ingredient);
 
       if (areIngredientsSimilar(coreName, existingCore, similarityThreshold)) {
@@ -1100,7 +1100,8 @@ export function mergeWithConfidence(
         // Add source
         if (item.recipe_id || item.recipe_title) {
           const alreadyHasSource = existing.sources.some(
-            (s) => s.recipe_id === item.recipe_id && s.recipe_title === item.recipe_title
+            (s: { recipe_id?: string | null; recipe_title?: string | null }) =>
+              s.recipe_id === item.recipe_id && s.recipe_title === item.recipe_title
           );
           if (!alreadyHasSource) {
             existing.sources.push({

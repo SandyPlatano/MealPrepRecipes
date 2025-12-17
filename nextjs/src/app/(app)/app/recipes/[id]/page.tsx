@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getRecipe, getFavorites, getRecipeHistory } from "@/app/actions/recipes";
 import { getSettings } from "@/app/actions/settings";
 import { getRecipeNutrition, isNutritionTrackingEnabled } from "@/app/actions/nutrition";
-import { findSubstitutionsForIngredients } from "@/lib/substitutions";
+import { findSubstitutionsForIngredients } from "@/app/actions/substitutions";
 import { RecipeDetail } from "@/components/recipes/recipe-detail";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit } from "lucide-react";

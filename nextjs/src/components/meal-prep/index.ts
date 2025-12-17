@@ -10,3 +10,11 @@ export {
   type ContainerInventoryManagerProps,
 } from "./container-inventory-manager";
 export { PrepTimeline, type PrepTimelineProps } from "./prep-timeline";
+export {
+  IngredientOverlapCard,
+  type IngredientOverlapCardProps,
+} from "./ingredient-overlap-card";
+export {
+  PrepSessionDetail,
+  type PrepSessionDetailProps,
+} from "./prep-session-detail";
