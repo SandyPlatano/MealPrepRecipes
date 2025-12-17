@@ -334,3 +334,78 @@ export async function resetPreferencesToDefaults(
   revalidatePath("/app/settings");
   return { error: null };
 }
+
+// ============================================================================
+// Auto-authenticated wrappers (for SettingsContext)
+// These functions get the current user automatically
+// ============================================================================
+
+async function getCurrentUserId(): Promise<string | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  return user?.id ?? null;
+}
+
+export async function updateDisplayPreferencesAuto(
+  data: Partial<DisplayPreferences>
+): Promise<{ error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Not authenticated" };
+  return updateDisplayPreferences(userId, data);
+}
+
+export async function updateSoundPreferencesAuto(
+  data: Partial<SoundPreferences>
+): Promise<{ error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Not authenticated" };
+  return updateSoundPreferences(userId, data);
+}
+
+export async function updateKeyboardPreferencesAuto(
+  data: Partial<KeyboardPreferences>
+): Promise<{ error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Not authenticated" };
+
+  const supabase = await createClient();
+  const { data: currentPrefs } = await getUserPreferencesV2(userId);
+
+  const updatedPreferences: UserPreferencesV2 = {
+    ...currentPrefs,
+    keyboard: {
+      ...currentPrefs.keyboard,
+      ...data,
+    },
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences_v2: updatedPreferences })
+    .eq("user_id", userId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app");
+  revalidatePath("/app/settings");
+  return { error: null };
+}
+
+export async function updateAiPersonalityAuto(
+  personality: AiPersonalityType,
+  customPrompt: string | null
+): Promise<{ error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Not authenticated" };
+  return updateAiPersonality(userId, personality, customPrompt ?? undefined);
+}
+
+export async function updateServingSizePresetsAuto(
+  presets: ServingSizePreset[]
+): Promise<{ error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Not authenticated" };
+  return updateServingSizePresets(userId, presets);
+}
