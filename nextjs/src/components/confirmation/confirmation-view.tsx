@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertCircle } from "lucide-react";
-import { formatWeekRange, type DayOfWeek } from "@/types/meal-plan";
+import { formatWeekRange, type DayOfWeek, type MealType } from "@/types/meal-plan";
 import { WeekSchedule } from "@/components/finalize/week-schedule";
 import { CheckoutShoppingList } from "@/components/finalize/checkout-shopping-list";
 import { ConfirmationActions } from "./confirmation-actions";
@@ -27,6 +27,7 @@ interface Assignment {
   recipe_id: string;
   day_of_week: DayOfWeek;
   cook: string | null;
+  meal_type: MealType | null;
   recipe: Recipe;
 }
 

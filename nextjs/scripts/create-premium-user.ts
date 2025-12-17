@@ -181,23 +181,27 @@ async function updateSubscriptionToPremium(userId: string) {
     });
 
   // Try to update AI suggestions if column exists
-  const { error: aiQuotaError } = await adminClient.rpc('exec_sql', {
-    sql_query: `
-      UPDATE user_settings 
-      SET 
-        ai_suggestions_remaining = 999,
-        ai_suggestions_reset_at = NULL
-      WHERE user_id = '${userId}'
-      AND EXISTS (
-        SELECT 1 FROM information_schema.columns 
-        WHERE table_name = 'user_settings' 
-        AND column_name = 'ai_suggestions_remaining'
-      );
-    `
-  }).catch(() => {
+  let aiQuotaError: Error | null = null;
+  try {
+    const result = await adminClient.rpc('exec_sql', {
+      sql_query: `
+        UPDATE user_settings
+        SET
+          ai_suggestions_remaining = 999,
+          ai_suggestions_reset_at = NULL
+        WHERE user_id = '${userId}'
+        AND EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'user_settings'
+          AND column_name = 'ai_suggestions_remaining'
+        );
+      `
+    });
+    aiQuotaError = result.error;
+  } catch {
     // Ignore if RPC doesn't exist or column doesn't exist
-    return { error: null };
-  });
+    aiQuotaError = null;
+  }
 
   if (settingsError) {
     console.error("Error updating user settings:", settingsError);
