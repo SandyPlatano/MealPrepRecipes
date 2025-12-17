@@ -53,6 +53,8 @@ import type { Substitution, UserSubstitution } from "@/lib/substitutions";
 import type { RecipeExportPreferences, MealTypeCustomization } from "@/types/settings";
 import { DEFAULT_RECIPE_EXPORT_PREFERENCES } from "@/lib/export/recipe-markdown";
 import { MealTypeCustomizationSettings } from "./meal-type-customization";
+import { PlannerViewSettingsSection } from "./planner-view-settings";
+import type { PlannerViewSettings } from "@/types/settings";
 
 // Helper to format time as HH:MM:SS for database
 const formatTimeForDB = (time: string | null | undefined): string | null => {
@@ -103,6 +105,7 @@ interface SettingsFormProps {
   username?: string | null;
   isAdmin?: boolean;
   mealTypeSettings?: MealTypeCustomization;
+  plannerViewSettings?: PlannerViewSettings;
 }
 
 export function SettingsForm({
@@ -116,6 +119,7 @@ export function SettingsForm({
   username = null,
   isAdmin = false,
   mealTypeSettings,
+  plannerViewSettings,
 }: SettingsFormProps) {
   const { theme, setTheme } = useTheme();
   const [firstName, setFirstName] = useState(profile.first_name || "");
@@ -872,6 +876,9 @@ export function SettingsForm({
           <MealTypeCustomizationSettings initialSettings={mealTypeSettings} />
         </CardContent>
       </Card>
+
+      {/* Planner View Settings */}
+      <PlannerViewSettingsSection initialSettings={plannerViewSettings} />
 
       {/* Household */}
       {household && (

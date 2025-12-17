@@ -82,6 +82,8 @@ export async function getFolders(): Promise<{
       cover_recipe_id: folder.cover_recipe_id,
       category_id: folder.category_id,
       sort_order: folder.sort_order,
+      is_smart: folder.is_smart ?? false,
+      smart_filters: folder.smart_filters ?? null,
       created_at: folder.created_at,
       updated_at: folder.updated_at,
       children: [],

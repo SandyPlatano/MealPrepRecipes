@@ -74,10 +74,10 @@ export function FilterConditionRow({
 
     // For in/not_in operators, value should be array
     if (op === "in" || op === "not_in") {
-      const currentValue = Array.isArray(condition.value)
-        ? condition.value
+      const currentValue: string[] = Array.isArray(condition.value)
+        ? condition.value.map(String)
         : condition.value !== null && condition.value !== undefined
-        ? [condition.value]
+        ? [String(condition.value)]
         : [];
       onChange({ ...condition, operator: op, value: currentValue });
       return;
@@ -196,7 +196,9 @@ function ValueInput({ fieldMeta, operator, value, onChange }: ValueInputProps) {
   if (fieldMeta?.type === "enum" && fieldMeta.enumOptions) {
     // Multi-select for in/not_in operators
     if (operator === "in" || operator === "not_in") {
-      const selectedValues = Array.isArray(value) ? value : [];
+      const selectedValues: string[] = Array.isArray(value)
+        ? value.map(String)
+        : [];
       return (
         <div className="flex flex-wrap gap-1">
           {fieldMeta.enumOptions.map((opt) => {

@@ -1,10 +1,10 @@
-import { getProfile, getSettings, getHouseholdInfo, getMealTypeCustomization } from "@/app/actions/settings";
+import { getProfile, getSettings, getHouseholdInfo, getMealTypeCustomization, getPlannerViewSettings } from "@/app/actions/settings";
 import { getUserSubstitutions, getDefaultSubstitutions } from "@/lib/substitutions";
 import { SettingsForm } from "@/components/settings/settings-form";
 import { isCurrentUserAdmin } from "@/lib/auth/admin";
 
 export default async function SettingsPage() {
-  const [profileResult, settingsResult, householdResult, userSubstitutions, defaultSubstitutions, isAdmin, mealTypeSettingsResult] = await Promise.all([
+  const [profileResult, settingsResult, householdResult, userSubstitutions, defaultSubstitutions, isAdmin, mealTypeSettingsResult, plannerViewSettingsResult] = await Promise.all([
     getProfile(),
     getSettings(),
     getHouseholdInfo(),
@@ -12,6 +12,7 @@ export default async function SettingsPage() {
     getDefaultSubstitutions(),
     isCurrentUserAdmin(),
     getMealTypeCustomization(),
+    getPlannerViewSettings(),
   ]);
 
   const profile = profileResult.data || {
@@ -56,6 +57,7 @@ export default async function SettingsPage() {
         username={profile.username || null}
         isAdmin={isAdmin}
         mealTypeSettings={mealTypeSettingsResult.data}
+        plannerViewSettings={plannerViewSettingsResult.data}
       />
     </div>
   );

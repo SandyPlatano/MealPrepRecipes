@@ -12,7 +12,14 @@ import type {
 } from "@/types/recipe";
 import type { CustomBadge } from "@/lib/nutrition/badge-calculator";
 import type { FolderWithChildren, FolderCategoryWithFolders, ActiveFolderFilter } from "@/types/folder";
+import type { SystemSmartFolder } from "@/types/smart-folder";
+import type { EvaluationContext } from "@/lib/smart-folders";
 import { getRecipeFolderIds } from "@/app/actions/folders";
+import {
+  filterRecipesBySmartFolder,
+  countMatchingRecipes,
+  SYSTEM_FOLDER_CRITERIA,
+} from "@/lib/smart-folders";
 
 interface RecipesPageClientProps {
   recipes: RecipeWithFavoriteAndNutrition[];
@@ -24,6 +31,10 @@ interface RecipesPageClientProps {
   folders: FolderWithChildren[];
   categories: FolderCategoryWithFolders[];
   folderMemberships: Record<string, string[]>; // folderId -> recipeIds[]
+  // Smart folder data
+  systemSmartFolders: SystemSmartFolder[];
+  userSmartFolders: FolderWithChildren[];
+  cookingHistoryContext: EvaluationContext;
 }
 
 export function RecipesPageClient({
@@ -36,6 +47,9 @@ export function RecipesPageClient({
   folders,
   categories,
   folderMemberships,
+  systemSmartFolders,
+  userSmartFolders,
+  cookingHistoryContext,
 }: RecipesPageClientProps) {
   const [discoverOpen, setDiscoverOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<ActiveFolderFilter>({
@@ -51,14 +65,25 @@ export function RecipesPageClient({
   // Cast for discover dialog which doesn't need nutrition data
   const recipesForDiscover = recipes as RecipeWithFavorite[];
 
-  // Calculate recently added count (last 30 days)
-  const recentlyAddedCount = useMemo(() => {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    return recipes.filter(
-      (r) => new Date(r.created_at) >= thirtyDaysAgo
-    ).length;
-  }, [recipes]);
+  // Calculate smart folder counts for all system and user smart folders
+  const smartFolderCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    // Count for system smart folders
+    for (const folder of systemSmartFolders) {
+      const criteria = SYSTEM_FOLDER_CRITERIA[folder.id] || folder.smart_filters;
+      counts[folder.id] = countMatchingRecipes(recipes, criteria, cookingHistoryContext);
+    }
+
+    // Count for user smart folders
+    for (const folder of userSmartFolders) {
+      if (folder.smart_filters) {
+        counts[folder.id] = countMatchingRecipes(recipes, folder.smart_filters, cookingHistoryContext);
+      }
+    }
+
+    return counts;
+  }, [recipes, systemSmartFolders, userSmartFolders, cookingHistoryContext]);
 
   // Get recipe IDs for active folder filter
   const folderRecipeIds = useMemo(() => {
@@ -67,13 +92,25 @@ export function RecipesPageClient({
     }
 
     if (activeFilter.type === "smart") {
-      if (activeFilter.id === "recently_added") {
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        return recipes
-          .filter((r) => new Date(r.created_at) >= thirtyDaysAgo)
-          .map((r) => r.id);
+      if (activeFilter.isSystem) {
+        // System smart folder
+        const systemFolder = systemSmartFolders.find(
+          (f) => f.id === activeFilter.id
+        );
+        const criteria = SYSTEM_FOLDER_CRITERIA[activeFilter.id] || systemFolder?.smart_filters;
+        if (criteria) {
+          return filterRecipesBySmartFolder(recipes, criteria, cookingHistoryContext);
+        }
+      } else {
+        // User smart folder
+        const userFolder = userSmartFolders.find(
+          (f) => f.id === activeFilter.id
+        );
+        if (userFolder?.smart_filters) {
+          return filterRecipesBySmartFolder(recipes, userFolder.smart_filters, cookingHistoryContext);
+        }
       }
+      return [];
     }
 
     if (activeFilter.type === "folder") {
@@ -81,7 +118,7 @@ export function RecipesPageClient({
     }
 
     return null;
-  }, [activeFilter, recipes, folderMemberships]);
+  }, [activeFilter, recipes, folderMemberships, systemSmartFolders, userSmartFolders, cookingHistoryContext]);
 
   // Handle opening the add to folder sheet
   const handleAddToFolder = useCallback(
@@ -105,8 +142,10 @@ export function RecipesPageClient({
         categories={categories}
         activeFilter={activeFilter}
         onFilterChange={setActiveFilter}
-        recentlyAddedCount={recentlyAddedCount}
         totalRecipeCount={recipes.length}
+        systemSmartFolders={systemSmartFolders}
+        userSmartFolders={userSmartFolders}
+        smartFolderCounts={smartFolderCounts}
       />
 
       {/* Main Content */}

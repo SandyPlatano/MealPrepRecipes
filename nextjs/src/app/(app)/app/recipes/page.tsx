@@ -14,7 +14,18 @@ import type { FolderWithChildren, FolderCategoryWithFolders } from "@/types/fold
 export default async function RecipesPage() {
   const supabase = await createClient();
 
-  const [recipesResult, favoritesResult, settingsResult, cookCountsResult, customBadgesResult, foldersResult, categoriesResult] = await Promise.all([
+  const [
+    recipesResult,
+    favoritesResult,
+    settingsResult,
+    cookCountsResult,
+    customBadgesResult,
+    foldersResult,
+    categoriesResult,
+    systemSmartFoldersResult,
+    userSmartFoldersResult,
+    cookingHistoryResult,
+  ] = await Promise.all([
     getRecipes(),
     getFavorites(),
     getSettings(),
@@ -22,6 +33,9 @@ export default async function RecipesPage() {
     getActiveCustomBadges(),
     getFolders(),
     getFolderCategories(),
+    getSystemSmartFolders(),
+    getUserSmartFolders(),
+    getCookingHistoryContext(),
   ]);
 
   const recipes = recipesResult.data || [];
@@ -33,6 +47,9 @@ export default async function RecipesPage() {
   const customBadges = customBadgesResult.data || [];
   const folders = foldersResult.data || [];
   const categories = categoriesResult.data || [];
+  const systemSmartFolders = systemSmartFoldersResult.data || [];
+  const userSmartFolders = userSmartFoldersResult.data || [];
+  const cookingHistoryContext = cookingHistoryResult.data || { cookCounts: {}, lastCookedDates: {} };
 
   // Build folder membership map (folderId -> recipeIds[])
   const folderMemberships: Record<string, string[]> = {};
@@ -118,6 +135,9 @@ export default async function RecipesPage() {
           folders={folders}
           categories={categories}
           folderMemberships={folderMemberships}
+          systemSmartFolders={systemSmartFolders}
+          userSmartFolders={userSmartFolders}
+          cookingHistoryContext={cookingHistoryContext}
         />
       </Suspense>
     </div>
