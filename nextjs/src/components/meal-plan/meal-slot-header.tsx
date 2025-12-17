@@ -27,18 +27,18 @@ export function MealSlotHeader({
   return (
     <div
       className={cn(
-        "flex items-center gap-2 py-1.5 px-2 rounded-md text-sm font-medium",
+        "flex items-center gap-2.5 py-2 px-3 rounded-lg text-sm md:text-base font-medium",
         config.bgColor,
         className
       )}
     >
-      <span className="text-base" aria-hidden="true">
+      <span className="text-lg md:text-xl" aria-hidden="true">
         {config.emoji}
       </span>
-      <span className="flex-1">{config.label}</span>
+      <span className="flex-1 font-semibold">{config.label}</span>
       <Badge
         variant="secondary"
-        className="text-[10px] px-1.5 py-0 h-4 font-mono"
+        className="text-[11px] px-2 py-0.5 h-5 font-mono tabular-nums"
       >
         {mealCount}
       </Badge>

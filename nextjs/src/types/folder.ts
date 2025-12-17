@@ -4,6 +4,41 @@
  */
 
 // =====================================================
+// FOLDER CATEGORY TYPES
+// =====================================================
+
+/**
+ * Folder category from database
+ * Categories are like sections in the sidebar (e.g., "My Folders", "Seasonal", etc.)
+ */
+export interface FolderCategory {
+  id: string;
+  household_id: string;
+  created_by_user_id: string;
+  name: string;
+  emoji: string | null;
+  is_system: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Category with its folders attached
+ */
+export interface FolderCategoryWithFolders extends FolderCategory {
+  folders: FolderWithChildren[];
+}
+
+/**
+ * Form data for creating/editing categories
+ */
+export interface FolderCategoryFormData {
+  name: string;
+  emoji?: string | null;
+}
+
+// =====================================================
 // CORE FOLDER TYPES
 // =====================================================
 
@@ -19,6 +54,7 @@ export interface RecipeFolder {
   color: string | null;
   parent_folder_id: string | null;
   cover_recipe_id: string | null;
+  category_id: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -92,6 +128,7 @@ export interface FolderFormData {
   color?: string | null;
   parent_folder_id?: string | null;
   cover_recipe_id?: string | null;
+  category_id?: string | null;
 }
 
 // =====================================================
@@ -146,4 +183,27 @@ export const FOLDER_EMOJIS = [
   "🏠",
   "👨‍👩‍👧",
   "🎉",
+] as const;
+
+export const CATEGORY_EMOJIS = [
+  "📂",
+  "🗂️",
+  "📁",
+  "🗃️",
+  "🏷️",
+  "📋",
+  "📑",
+  "🍽️",
+  "🌿",
+  "🌞",
+  "❄️",
+  "🎃",
+  "🎄",
+  "🌸",
+  "🍂",
+  "⚡",
+  "💪",
+  "🌱",
+  "🏆",
+  "✨",
 ] as const;

@@ -66,7 +66,8 @@ import {
 } from "@/components/ui/tooltip";
 import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
 import { MarkCookedDialog } from "@/components/recipes/mark-cooked-dialog";
-import { RecipeExportDialog } from "@/components/recipes/export/recipe-export-dialog";
+import { RecipeExportOnlyDialog } from "@/components/recipes/export/recipe-export-only-dialog";
+import { RecipeShareDialog } from "@/components/recipes/export/recipe-share-dialog";
 import { ReviewList } from "@/components/social/review-list";
 import { RatingBadge } from "@/components/ui/rating-badge";
 import { QuickRatingPopover } from "@/components/recipes/quick-rating-popover";
@@ -147,6 +148,7 @@ export function RecipeDetail({
   const [currentRating, setCurrentRating] = useState<number | null>(recipe.rating);
   const [showCookedDialog, setShowCookedDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isExtractingNutrition, setIsExtractingNutrition] = useState(false);
@@ -370,7 +372,7 @@ export function RecipeDetail({
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setShowExportDialog(true)}>
                       <Download className="h-4 w-4 mr-2" />
-                      Export & Share
+                      Export
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => setDeleteDialogOpen(true)}
@@ -520,9 +522,9 @@ export function RecipeDetail({
                 </a>
               </Button>
             )}
-            <Button variant="outline" onClick={() => setShowExportDialog(true)}>
-              <Download className="mr-2 h-4 w-4" />
-              Export
+            <Button variant="outline" onClick={() => setShowShareDialog(true)}>
+              <Share2 className="mr-2 h-4 w-4" />
+              Share
             </Button>
           </div>
 
@@ -847,11 +849,19 @@ export function RecipeDetail({
         onSuccess={handleCookedSuccess}
       />
 
-      {/* Export & Share Dialog */}
-      <RecipeExportDialog
+      {/* Export Dialog */}
+      <RecipeExportOnlyDialog
         open={showExportDialog}
         onOpenChange={setShowExportDialog}
         recipe={{ ...recipe, nutrition: localNutrition }}
+      />
+
+      {/* Share Dialog */}
+      <RecipeShareDialog
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
+        recipeId={recipe.id}
+        recipeTitle={recipe.title}
         isPublic={recipe.is_public || false}
         shareToken={recipe.share_token || null}
         viewCount={recipe.view_count || 0}

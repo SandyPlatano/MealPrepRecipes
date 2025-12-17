@@ -3,23 +3,24 @@ import { getRecipes, getFavorites, getRecipeCookCounts } from "@/app/actions/rec
 import { getSettings } from "@/app/actions/settings";
 import { getBulkRecipeNutrition } from "@/app/actions/nutrition";
 import { getActiveCustomBadges } from "@/app/actions/custom-badges";
-import { getFolders } from "@/app/actions/folders";
+import { getFolders, getFolderCategories } from "@/app/actions/folders";
 import { createClient } from "@/lib/supabase/server";
 import { RecipesPageClient } from "@/components/recipes/recipes-page-client";
 import { ContextualHint } from "@/components/hints/contextual-hint";
 import { HINT_IDS, HINT_CONTENT, isHintDismissed } from "@/lib/hints";
-import type { FolderWithChildren } from "@/types/folder";
+import type { FolderWithChildren, FolderCategoryWithFolders } from "@/types/folder";
 
 export default async function RecipesPage() {
   const supabase = await createClient();
 
-  const [recipesResult, favoritesResult, settingsResult, cookCountsResult, customBadgesResult, foldersResult] = await Promise.all([
+  const [recipesResult, favoritesResult, settingsResult, cookCountsResult, customBadgesResult, foldersResult, categoriesResult] = await Promise.all([
     getRecipes(),
     getFavorites(),
     getSettings(),
     getRecipeCookCounts(),
     getActiveCustomBadges(),
     getFolders(),
+    getFolderCategories(),
   ]);
 
   const recipes = recipesResult.data || [];
@@ -30,6 +31,7 @@ export default async function RecipesPage() {
   const recipeCookCounts = cookCountsResult.data || {};
   const customBadges = customBadgesResult.data || [];
   const folders = foldersResult.data || [];
+  const categories = categoriesResult.data || [];
 
   // Build folder membership map (folderId -> recipeIds[])
   const folderMemberships: Record<string, string[]> = {};
@@ -113,6 +115,7 @@ export default async function RecipesPage() {
           customDietaryRestrictions={customDietaryRestrictions}
           customBadges={customBadges}
           folders={folders}
+          categories={categories}
           folderMemberships={folderMemberships}
         />
       </Suspense>

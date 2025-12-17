@@ -28,15 +28,15 @@ export function EditFolderDialog({
   folder,
 }: EditFolderDialogProps) {
   const [name, setName] = useState(folder.name);
-  const [emoji, setEmoji] = useState<string>(folder.emoji || "📁");
-  const [color, setColor] = useState<string>(folder.color || FOLDER_COLORS[0]);
+  const [emoji, setEmoji] = useState<string | null>(folder.emoji || null);
+  const [color, setColor] = useState<string | null>(folder.color || null);
   const [isPending, startTransition] = useTransition();
 
   // Reset form when folder changes
   useEffect(() => {
     setName(folder.name);
-    setEmoji(folder.emoji || "📁");
-    setColor(folder.color || FOLDER_COLORS[0]);
+    setEmoji(folder.emoji || null);
+    setColor(folder.color || null);
   }, [folder]);
 
   const handleSave = () => {
@@ -87,8 +87,16 @@ export function EditFolderDialog({
 
           {/* Emoji */}
           <div className="space-y-2">
-            <Label>Icon</Label>
+            <Label>Icon (optional)</Label>
             <div className="flex flex-wrap gap-1.5">
+              <Button
+                variant={emoji === null ? "default" : "outline"}
+                size="sm"
+                className="h-9 px-3 text-xs"
+                onClick={() => setEmoji(null)}
+              >
+                None
+              </Button>
               {FOLDER_EMOJIS.map((e) => (
                 <Button
                   key={e}
@@ -105,8 +113,18 @@ export function EditFolderDialog({
 
           {/* Color */}
           <div className="space-y-2">
-            <Label>Color</Label>
-            <div className="flex flex-wrap gap-2">
+            <Label>Color (optional)</Label>
+            <div className="flex flex-wrap gap-2 items-center">
+              <button
+                className={`h-8 px-3 rounded-full border-2 border-dashed transition-transform text-xs ${
+                  color === null
+                    ? "ring-2 ring-offset-2 ring-primary scale-110 border-primary"
+                    : "border-muted-foreground/30 hover:scale-105"
+                }`}
+                onClick={() => setColor(null)}
+              >
+                None
+              </button>
               {FOLDER_COLORS.map((c) => (
                 <button
                   key={c}

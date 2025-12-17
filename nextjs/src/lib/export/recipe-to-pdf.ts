@@ -1,43 +1,114 @@
 import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 
 /**
  * Export a rendered HTML element to PDF
- * Uses jsPDF's html() method with html2canvas (bundled)
+ * Uses html2canvas for rendering, then adds to jsPDF
  */
 export async function exportRecipeToPdf(
   element: HTMLElement,
   filename: string
 ): Promise<void> {
-  // Create PDF in portrait mode, A4 size
-  const pdf = new jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: "a4",
-  });
+  // Clone the element to avoid modifying the original
+  const clone = element.cloneNode(true) as HTMLElement;
 
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 10;
-  const contentWidth = pageWidth - margin * 2;
+  // Create a temporary container that's visible to html2canvas
+  const container = document.createElement("div");
+  container.style.position = "fixed";
+  container.style.left = "0";
+  container.style.top = "0";
+  container.style.width = "800px";
+  container.style.zIndex = "-9999";
+  container.style.backgroundColor = "#ffffff";
+  container.style.opacity = "0"; // Invisible but rendered
+  container.style.pointerEvents = "none";
+  container.appendChild(clone);
+  document.body.appendChild(container);
 
-  // Use html2canvas through jsPDF's html method
-  await pdf.html(element, {
-    callback: (doc) => {
-      doc.save(sanitizeFilename(filename) + ".pdf");
-    },
-    x: margin,
-    y: margin,
-    width: contentWidth,
-    windowWidth: element.scrollWidth,
-    html2canvas: {
-      scale: 2, // Higher resolution
-      useCORS: true, // Enable cross-origin images
+  // Wait for images to load
+  await waitForImages(clone);
+
+  // Small delay to ensure rendering is complete
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
+  try {
+    // Capture the element as canvas
+    const canvas = await html2canvas(clone, {
+      scale: 2, // Higher resolution for better quality
+      useCORS: true,
       allowTaint: true,
       backgroundColor: "#ffffff",
       logging: false,
-    },
-    autoPaging: "text", // Handle multi-page content
+      width: 800,
+      height: clone.scrollHeight,
+      windowWidth: 800,
+      windowHeight: clone.scrollHeight,
+    });
+
+    // Calculate dimensions for A4 PDF
+    const imgWidth = 210; // A4 width in mm
+    const pageHeight = 297; // A4 height in mm
+    const margin = 10;
+    const contentWidth = imgWidth - margin * 2;
+
+    // Calculate scaled height based on aspect ratio
+    const imgHeight = (canvas.height * contentWidth) / canvas.width;
+
+    // Create PDF
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
+
+    // Get canvas as data URL
+    const imgData = canvas.toDataURL("image/jpeg", 0.95);
+
+    // Handle multi-page content
+    let heightLeft = imgHeight;
+    let position = margin;
+    let page = 0;
+
+    // Add first page
+    pdf.addImage(imgData, "JPEG", margin, position, contentWidth, imgHeight);
+    heightLeft -= pageHeight - margin * 2;
+
+    // Add additional pages if needed
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight + margin;
+      pdf.addPage();
+      page++;
+      pdf.addImage(imgData, "JPEG", margin, position, contentWidth, imgHeight);
+      heightLeft -= pageHeight - margin * 2;
+    }
+
+    // Save the PDF
+    pdf.save(sanitizeFilename(filename) + ".pdf");
+  } finally {
+    // Clean up the temporary container
+    document.body.removeChild(container);
+  }
+}
+
+/**
+ * Wait for all images in an element to load
+ */
+async function waitForImages(element: HTMLElement): Promise<void> {
+  const images = element.querySelectorAll("img");
+  const promises: Promise<void>[] = [];
+
+  images.forEach((img) => {
+    if (!img.complete) {
+      promises.push(
+        new Promise((resolve) => {
+          img.onload = () => resolve();
+          img.onerror = () => resolve(); // Don't fail on broken images
+        })
+      );
+    }
   });
+
+  await Promise.all(promises);
 }
 
 /**

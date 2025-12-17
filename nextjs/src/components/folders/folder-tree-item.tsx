@@ -93,16 +93,21 @@ export function FolderTreeItem({
 
           <Button
             variant={isActive ? "secondary" : "ghost"}
-            className="flex-1 justify-between h-9 px-2"
+            className="flex-1 justify-between h-10 px-2"
             onClick={onSelect}
             disabled={isPending}
           >
             <span className="flex items-center truncate">
-              <span
-                className="w-3 h-3 rounded-full mr-2 shrink-0"
-                style={{ backgroundColor: folder.color || "#6B7280" }}
-              />
-              <span className="mr-1">{folder.emoji || "📁"}</span>
+              {folder.color && (
+                <span
+                  className="w-2.5 h-2.5 rounded-full mr-2 shrink-0"
+                  style={{ backgroundColor: folder.color }}
+                />
+              )}
+              {folder.emoji && <span className="mr-1.5">{folder.emoji}</span>}
+              {!folder.color && !folder.emoji && (
+                <span className="w-4 h-4 mr-1.5 text-muted-foreground">📁</span>
+              )}
               <span className="truncate">{folder.name}</span>
             </span>
             <span className="text-xs text-muted-foreground ml-2">

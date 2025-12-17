@@ -11,7 +11,7 @@ import type {
   Recipe,
 } from "@/types/recipe";
 import type { CustomBadge } from "@/lib/nutrition/badge-calculator";
-import type { FolderWithChildren, ActiveFolderFilter } from "@/types/folder";
+import type { FolderWithChildren, FolderCategoryWithFolders, ActiveFolderFilter } from "@/types/folder";
 import { getRecipeFolderIds } from "@/app/actions/folders";
 
 interface RecipesPageClientProps {
@@ -22,6 +22,7 @@ interface RecipesPageClientProps {
   customDietaryRestrictions?: string[];
   customBadges?: CustomBadge[];
   folders: FolderWithChildren[];
+  categories: FolderCategoryWithFolders[];
   folderMemberships: Record<string, string[]>; // folderId -> recipeIds[]
 }
 
@@ -33,6 +34,7 @@ export function RecipesPageClient({
   customDietaryRestrictions = [],
   customBadges = [],
   folders,
+  categories,
   folderMemberships,
 }: RecipesPageClientProps) {
   const [discoverOpen, setDiscoverOpen] = useState(false);
@@ -100,6 +102,7 @@ export function RecipesPageClient({
       {/* Folder Sidebar */}
       <FolderSidebar
         folders={folders}
+        categories={categories}
         activeFilter={activeFilter}
         onFilterChange={setActiveFilter}
         recentlyAddedCount={recentlyAddedCount}

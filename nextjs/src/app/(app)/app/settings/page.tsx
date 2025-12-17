@@ -1,16 +1,17 @@
-import { getProfile, getSettings, getHouseholdInfo } from "@/app/actions/settings";
+import { getProfile, getSettings, getHouseholdInfo, getMealTypeEmojiSettings } from "@/app/actions/settings";
 import { getUserSubstitutions, getDefaultSubstitutions } from "@/lib/substitutions";
 import { SettingsForm } from "@/components/settings/settings-form";
 import { isCurrentUserAdmin } from "@/lib/auth/admin";
 
 export default async function SettingsPage() {
-  const [profileResult, settingsResult, householdResult, userSubstitutions, defaultSubstitutions, isAdmin] = await Promise.all([
+  const [profileResult, settingsResult, householdResult, userSubstitutions, defaultSubstitutions, isAdmin, mealTypeEmojisResult] = await Promise.all([
     getProfile(),
     getSettings(),
     getHouseholdInfo(),
     getUserSubstitutions(),
     getDefaultSubstitutions(),
     isCurrentUserAdmin(),
+    getMealTypeEmojiSettings(),
   ]);
 
   const profile = profileResult.data || {
@@ -54,6 +55,7 @@ export default async function SettingsPage() {
         defaultSubstitutions={defaultSubstitutions}
         username={profile.username || null}
         isAdmin={isAdmin}
+        mealTypeEmojis={mealTypeEmojisResult.data}
       />
     </div>
   );

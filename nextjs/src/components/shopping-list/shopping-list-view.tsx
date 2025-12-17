@@ -623,12 +623,12 @@ export function ShoppingListView({
       {/* Actions */}
       {shoppingList.items.length > 0 && (
         <div className="flex gap-2 flex-wrap">
-          {/* Send Meal Plan - Primary */}
+          {/* Email Meal Plan - Primary */}
           {plannedRecipes.length > 0 && (
             <Button variant="outline" onClick={handleSendPlan} disabled={isSendingPlan}>
               <Mail className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">{isSendingPlan ? "Sending..." : "Send Meal Plan"}</span>
-              <span className="sm:hidden">{isSendingPlan ? "..." : "Send"}</span>
+              <span className="hidden sm:inline">{isSendingPlan ? "Emailing..." : "Email Meal Plan"}</span>
+              <span className="sm:hidden">{isSendingPlan ? "..." : "Email"}</span>
             </Button>
           )}
 
@@ -1039,12 +1039,6 @@ const ShoppingItemRow = memo(function ShoppingItemRow({
             </Badge>
           )}
 
-          {/* Simple text display when toggle is OFF */}
-          {!showRecipeSources && item.recipe_title && (
-            <span className="text-xs text-muted-foreground">
-              ({item.recipe_title})
-            </span>
-          )}
 
           {item.is_in_pantry && (
             <span className="text-xs text-green-600">(in pantry)</span>

@@ -7,7 +7,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UtensilsCrossed } from "lucide-react";
 import { type MealType, MEAL_TYPE_CONFIG } from "@/types/meal-plan";
 
 interface MealTypeSelectorProps {
@@ -15,7 +14,7 @@ interface MealTypeSelectorProps {
   onChange: (type: MealType | null) => void;
   disabled?: boolean;
   className?: string;
-  /** Show compact version without icon */
+  /** Show compact version without icon - uses just emoji + color indicator */
   compact?: boolean;
 }
 
@@ -49,8 +48,15 @@ export function MealTypeSelector({
           borderLeftColor: config.accentColor,
         }}
       >
-        {!compact && <UtensilsCrossed className="h-3 w-3 mr-1 flex-shrink-0" />}
-        <SelectValue placeholder="Meal type" />
+        <span className="flex items-center gap-1.5 min-w-0">
+          <span
+            className="h-2 w-2 rounded-full flex-shrink-0"
+            style={{ backgroundColor: config.accentColor }}
+            aria-hidden="true"
+          />
+          <span className="flex-shrink-0">{config.emoji}</span>
+          {!compact && <span className="truncate">{config.label}</span>}
+        </span>
       </SelectTrigger>
       <SelectContent className="z-[10000]">
         {(["breakfast", "lunch", "dinner", "snack", "other"] as const).map((type) => {

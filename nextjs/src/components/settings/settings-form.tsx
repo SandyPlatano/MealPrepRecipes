@@ -50,8 +50,9 @@ import { BulkImportDialog } from "@/components/recipes/export/bulk-import-dialog
 import type { MacroGoals, MacroGoalPreset, RecipeNutrition } from "@/types/nutrition";
 import type { Recipe } from "@/types/recipe";
 import type { Substitution, UserSubstitution } from "@/lib/substitutions";
-import type { RecipeExportPreferences } from "@/types/settings";
+import type { RecipeExportPreferences, MealTypeEmojiSettings as MealTypeEmojiSettingsType } from "@/types/settings";
 import { DEFAULT_RECIPE_EXPORT_PREFERENCES } from "@/lib/export/recipe-markdown";
+import { MealTypeEmojiSettings } from "./meal-type-emoji-settings";
 
 // Helper to format time as HH:MM:SS for database
 const formatTimeForDB = (time: string | null | undefined): string | null => {
@@ -101,6 +102,7 @@ interface SettingsFormProps {
   defaultSubstitutions?: Substitution[];
   username?: string | null;
   isAdmin?: boolean;
+  mealTypeEmojis?: MealTypeEmojiSettingsType;
 }
 
 export function SettingsForm({
@@ -113,6 +115,7 @@ export function SettingsForm({
   defaultSubstitutions = [],
   username = null,
   isAdmin = false,
+  mealTypeEmojis,
 }: SettingsFormProps) {
   const { theme, setTheme } = useTheme();
   const [firstName, setFirstName] = useState(profile.first_name || "");
@@ -854,6 +857,19 @@ export function SettingsForm({
             <Plus className="h-4 w-4 mr-2" />
             Add Another Cook
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Meal Type Emojis */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Meal Type Emojis</CardTitle>
+          <CardDescription>
+            Customize the emojis shown for each meal type in your planner
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <MealTypeEmojiSettings initialEmojis={mealTypeEmojis} />
         </CardContent>
       </Card>
 

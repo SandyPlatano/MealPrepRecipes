@@ -94,27 +94,27 @@ export const PlannerDayRow = memo(function PlannerDayRow({
   const monthAbbrev = date.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
 
   return (
-    <div className={`flex items-start gap-2 sm:gap-3 transition-opacity ${isPending ? "opacity-60" : ""}`}>
+    <div className={`flex items-start gap-3 md:gap-4 transition-opacity ${isPending ? "opacity-60" : ""}`}>
       {/* Day Badge - Floats on the left */}
       <div
         className={cn(
-          "flex flex-col items-center justify-center min-w-[56px] sm:min-w-[60px] pt-2",
+          "flex flex-col items-center justify-center min-w-[56px] md:min-w-[72px] lg:min-w-[80px] pt-3 md:pt-4",
           isToday && "text-primary"
         )}
       >
-        <div className="text-2xl sm:text-3xl font-bold font-mono leading-none">
+        <div className="text-2xl md:text-3xl lg:text-4xl font-bold font-mono leading-none">
           {dayNumber}
         </div>
-        <div className="text-[10px] font-semibold mt-0.5">{dayAbbrev}</div>
-        <div className="text-[9px] text-muted-foreground">{monthAbbrev}</div>
+        <div className="text-[10px] md:text-xs font-semibold mt-1">{dayAbbrev}</div>
+        <div className="text-[9px] md:text-[10px] text-muted-foreground">{monthAbbrev}</div>
         {isToday && (
-          <Badge variant="default" className="text-[8px] px-1 py-0 mt-1">
+          <Badge variant="default" className="text-[8px] md:text-[10px] px-1.5 py-0 mt-1.5">
             Today
           </Badge>
         )}
         {googleConnected && isCalendarExcluded && (
-          <div className="mt-1 flex items-center justify-center" title="Calendar sync disabled">
-            <CalendarOff className="h-3 w-3 text-muted-foreground" />
+          <div className="mt-1.5 flex items-center justify-center" title="Calendar sync disabled">
+            <CalendarOff className="h-3 w-3 md:h-3.5 md:w-3.5 text-muted-foreground" />
           </div>
         )}
       </div>
@@ -122,14 +122,14 @@ export const PlannerDayRow = memo(function PlannerDayRow({
       {/* Card with Recipes */}
       <Card
         className={cn(
-          "flex-1 transition-all min-h-[100px]",
+          "flex-1 transition-all min-h-[120px]",
           isToday && "ring-2 ring-primary",
           isPast && "opacity-70"
         )}
       >
-        <CardContent className="p-2.5 space-y-2">
+        <CardContent className="p-3 md:p-4 space-y-3 md:space-y-4">
           {assignments.length === 0 ? (
-            <div className="text-xs text-muted-foreground text-center py-4">
+            <div className="text-sm text-muted-foreground text-center py-6 md:py-8">
               {isPast ? "No meals planned" : "No meals yet"}
             </div>
           ) : (
@@ -139,7 +139,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
               if (typeMeals.length === 0) return null;
 
               return (
-                <div key={mealType ?? "other"} className="space-y-1.5">
+                <div key={mealType ?? "other"} className="space-y-2 md:space-y-3">
                   <MealSlotHeader mealType={mealType} mealCount={typeMeals.length} />
                   {typeMeals.map((assignment) => (
                     <RecipeRow
@@ -171,11 +171,11 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                 size="sm"
                 onClick={() => setModalOpen(true)}
                 className={cn(
-                  "w-full h-12 sm:h-10 border-2 border-dashed",
-                  "hover:border-primary hover:bg-primary/5"
+                  "w-full h-12 md:h-11 text-sm md:text-base border-2 border-dashed rounded-lg",
+                  "hover:border-primary hover:bg-primary/5 transition-colors"
                 )}
               >
-                <Plus className="h-5 w-5 sm:h-4 sm:w-4 mr-1" />
+                <Plus className="h-5 w-5 mr-2" />
                 Add Meal
               </Button>
 
@@ -293,36 +293,38 @@ function RecipeRow({
   return (
     <div
       className={cn(
-        "group flex flex-col sm:flex-row sm:items-center gap-2 p-2 rounded-md border bg-card/50 transition-all border-l-4",
+        "group flex flex-col gap-3 p-3 rounded-lg border bg-card/50 transition-all border-l-4",
         "hover:bg-card hover:shadow-sm hover:border-primary/30",
+        // Large desktop: single row layout
+        "xl:flex-row xl:items-center xl:gap-4 xl:p-3",
         isRemoving && "opacity-50"
       )}
       style={{
         borderLeftColor: mealTypeConfig.accentColor,
       }}
     >
-      {/* Mobile: Row 1 - Title + Delete | Desktop: Title only */}
-      <div className="flex items-center gap-2 sm:flex-1 sm:min-w-0">
+      {/* Recipe Title & Meta - Always on top row */}
+      <div className="flex items-center gap-3 flex-1 min-w-0">
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm truncate" title={assignment.recipe.title}>
+          <p className="font-medium text-sm md:text-base truncate" title={assignment.recipe.title}>
             {assignment.recipe.title}
           </p>
-          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
             {assignment.recipe.prep_time && (
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {assignment.recipe.prep_time}
               </span>
             )}
             {nutrition && (
               <>
                 {nutrition.calories && (
-                  <Badge variant="outline" className="text-[10px] font-mono px-1 py-0 h-4">
+                  <Badge variant="outline" className="text-[11px] font-mono px-1.5 py-0.5 h-5">
                     {Math.round(nutrition.calories)} cal
                   </Badge>
                 )}
                 {nutrition.protein_g && (
-                  <Badge variant="outline" className="text-[10px] font-mono px-1 py-0 h-4">
-                    {Math.round(nutrition.protein_g)}g p
+                  <Badge variant="outline" className="text-[11px] font-mono px-1.5 py-0.5 h-5">
+                    {Math.round(nutrition.protein_g)}g protein
                   </Badge>
                 )}
               </>
@@ -330,67 +332,57 @@ function RecipeRow({
           </div>
         </div>
 
-        {/* Delete button - visible on mobile in row 1, hidden on desktop (shown in action buttons) */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 sm:hidden hover:bg-destructive/10 hover:text-destructive flex-shrink-0"
-          onClick={handleRemove}
-          disabled={isRemoving}
-          title="Remove"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
+        {/* Action buttons - Always visible with title on mobile, grouped on desktop */}
+        <div className="flex items-center gap-1 xl:hidden">
+          <Link href={`/app/recipes/${assignment.recipe.id}`} target="_blank">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 md:h-9 md:w-9"
+              title="View Recipe"
+            >
+              <Eye className="h-5 w-5 md:h-4 md:w-4" />
+            </Button>
+          </Link>
 
-      {/* Mobile: Row 2 - View, Edit, Cook Selector | Desktop: All action buttons + Cook Selector */}
-      <div className="flex items-center gap-1 sm:gap-0.5">
-        <Link href={`/app/recipes/${assignment.recipe.id}`} target="_blank">
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 sm:h-7 sm:w-7"
-            title="View Recipe"
+            className="h-10 w-10 md:h-9 md:w-9"
+            onClick={onSwap}
+            title="Change Recipe"
           >
-            <Eye className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+            <Pencil className="h-5 w-5 md:h-4 md:w-4" />
           </Button>
-        </Link>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 sm:h-7 sm:w-7"
-          onClick={onSwap}
-          title="Change Recipe"
-        >
-          <Pencil className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
-        </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-10 w-10 md:h-9 md:w-9 hover:bg-destructive/10 hover:text-destructive"
+            onClick={handleRemove}
+            disabled={isRemoving}
+            title="Remove"
+          >
+            <Trash2 className="h-5 w-5 md:h-4 md:w-4" />
+          </Button>
+        </div>
+      </div>
 
-        {/* Delete button - hidden on mobile (shown in row 1), visible on desktop */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="hidden sm:flex h-7 w-7 hover:bg-destructive/10 hover:text-destructive"
-          onClick={handleRemove}
-          disabled={isRemoving}
-          title="Remove"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </Button>
-
-        {/* Meal Type Selector - hidden on mobile (shown via border color), visible on desktop */}
-        <div className="hidden sm:block sm:w-[110px]">
+      {/* Selectors Row - Full width on mobile/tablet, inline on large desktop */}
+      <div className="flex items-center gap-2 md:gap-3">
+        {/* Meal Type Selector */}
+        <div className="flex-1 md:flex-none md:w-[140px] lg:w-[160px] xl:w-[150px]">
           <MealTypeSelector
             value={assignment.meal_type}
             onChange={handleMealTypeChange}
             disabled={isUpdatingMealType}
-            className="h-7 text-xs"
-            compact
+            className="h-10 md:h-9 text-sm md:text-xs"
+            compact={false}
           />
         </div>
 
-        {/* Cook Selector - flex-1 on mobile, fixed width on desktop */}
-        <div className="flex-1 sm:flex-none sm:w-[140px] min-w-0">
+        {/* Cook Selector */}
+        <div className="flex-1 md:flex-none md:w-[160px] lg:w-[180px] xl:w-[170px] min-w-0">
           {(() => {
             const cookColor = getCookColor(assignment.cook);
             return (
@@ -400,12 +392,12 @@ function RecipeRow({
                 disabled={isUpdating}
               >
                 <SelectTrigger
-                  className="h-7 text-xs min-w-0 [&>span]:min-w-0 [&>span]:truncate"
+                  className="h-10 md:h-9 text-sm md:text-xs min-w-0 [&>span]:min-w-0 [&>span]:truncate"
                   style={cookColor ? {
                     borderLeft: `3px solid ${cookColor}`,
                   } : undefined}
                 >
-                  <ChefHat className="h-3 w-3 mr-1 flex-shrink-0" />
+                  <ChefHat className="h-4 w-4 md:h-3.5 md:w-3.5 mr-1.5 flex-shrink-0" />
                   <SelectValue placeholder="Assign cook" />
                 </SelectTrigger>
                 <SelectContent>
@@ -431,6 +423,41 @@ function RecipeRow({
               </Select>
             );
           })()}
+        </div>
+
+        {/* Action buttons - Only on large desktop, inline with selectors */}
+        <div className="hidden xl:flex items-center gap-1">
+          <Link href={`/app/recipes/${assignment.recipe.id}`} target="_blank">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              title="View Recipe"
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          </Link>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9"
+            onClick={onSwap}
+            title="Change Recipe"
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 hover:bg-destructive/10 hover:text-destructive"
+            onClick={handleRemove}
+            disabled={isRemoving}
+            title="Remove"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>

@@ -6,22 +6,24 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ChevronLeft,
   ChevronRight,
-  FolderPlus,
   Folders,
   BookOpen,
+  Plus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type {
   FolderWithChildren,
+  FolderCategoryWithFolders,
   ActiveFolderFilter,
   SmartFolderType,
 } from "@/types/folder";
 import { SMART_FOLDERS } from "@/types/folder";
-import { FolderTreeItem } from "./folder-tree-item";
-import { CreateFolderDialog } from "./create-folder-dialog";
+import { CategorySection } from "./category-section";
+import { CategoryDialog } from "./category-dialog";
 
 interface FolderSidebarProps {
   folders: FolderWithChildren[];
+  categories: FolderCategoryWithFolders[];
   activeFilter: ActiveFolderFilter;
   onFilterChange: (filter: ActiveFolderFilter) => void;
   recentlyAddedCount: number;
@@ -30,13 +32,14 @@ interface FolderSidebarProps {
 
 export function FolderSidebar({
   folders,
+  categories,
   activeFilter,
   onFilterChange,
   recentlyAddedCount,
   totalRecipeCount,
 }: FolderSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [createCategoryOpen, setCreateCategoryOpen] = useState(false);
 
   const smartFolderCounts: Record<SmartFolderType, number> = {
     recently_added: recentlyAddedCount,
@@ -44,9 +47,6 @@ export function FolderSidebar({
 
   const isSmartFolderActive = (id: SmartFolderType) =>
     activeFilter.type === "smart" && activeFilter.id === id;
-
-  const isFolderActive = (id: string) =>
-    activeFilter.type === "folder" && activeFilter.id === id;
 
   const isAllActive = activeFilter.type === "all";
 
@@ -81,11 +81,11 @@ export function FolderSidebar({
 
       {!isCollapsed && (
         <ScrollArea className="flex-1">
-          <div className="p-2 space-y-1">
+          <div className="p-3 space-y-2">
             {/* All Recipes */}
             <Button
               variant={isAllActive ? "secondary" : "ghost"}
-              className="w-full justify-between h-9"
+              className="w-full justify-between h-10"
               onClick={() => onFilterChange({ type: "all" })}
             >
               <span className="flex items-center">
@@ -98,76 +98,60 @@ export function FolderSidebar({
             </Button>
 
             {/* Smart Folders */}
-            <div className="pt-3">
-              <p className="text-xs font-medium text-muted-foreground px-2 mb-1">
+            <div className="pt-4">
+              <p className="text-xs font-medium text-muted-foreground px-2 mb-2">
                 Smart Folders
               </p>
-              {Object.values(SMART_FOLDERS).map((folder) => (
-                <Button
-                  key={folder.id}
-                  variant={isSmartFolderActive(folder.id) ? "secondary" : "ghost"}
-                  className="w-full justify-between h-9"
-                  onClick={() => onFilterChange({ type: "smart", id: folder.id })}
-                >
-                  <span className="flex items-center">
-                    <span className="mr-2">{folder.emoji}</span>
-                    {folder.name}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {smartFolderCounts[folder.id]}
-                  </span>
-                </Button>
-              ))}
+              <div className="space-y-1">
+                {Object.values(SMART_FOLDERS).map((folder) => (
+                  <Button
+                    key={folder.id}
+                    variant={isSmartFolderActive(folder.id) ? "secondary" : "ghost"}
+                    className="w-full justify-between h-10"
+                    onClick={() => onFilterChange({ type: "smart", id: folder.id })}
+                  >
+                    <span className="flex items-center">
+                      <span className="mr-2">{folder.emoji}</span>
+                      {folder.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {smartFolderCounts[folder.id]}
+                    </span>
+                  </Button>
+                ))}
+              </div>
             </div>
 
-            {/* User Folders */}
-            <div className="pt-3">
-              <div className="flex items-center justify-between px-2 mb-1">
-                <p className="text-xs font-medium text-muted-foreground">
-                  My Folders
-                </p>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => setCreateDialogOpen(true)}
-                >
-                  <FolderPlus className="h-3 w-3" />
-                </Button>
-              </div>
+            {/* User Categories with Folders */}
+            {categories.map((category) => (
+              <CategorySection
+                key={category.id}
+                category={category}
+                activeFilter={activeFilter}
+                onFilterChange={onFilterChange}
+                allFolders={folders}
+              />
+            ))}
 
-              {folders.length === 0 ? (
-                <p className="text-xs text-muted-foreground px-2 py-4 text-center">
-                  No folders yet
-                </p>
-              ) : (
-                folders.map((folder) => (
-                  <FolderTreeItem
-                    key={folder.id}
-                    folder={folder}
-                    isActive={isFolderActive(folder.id)}
-                    onSelect={() =>
-                      onFilterChange({ type: "folder", id: folder.id })
-                    }
-                    onChildSelect={(id) =>
-                      onFilterChange({ type: "folder", id })
-                    }
-                    activeChildId={
-                      activeFilter.type === "folder" ? activeFilter.id : null
-                    }
-                    allFolders={folders}
-                  />
-                ))
-              )}
+            {/* Add Category Button */}
+            <div className="pt-4 border-t mt-4">
+              <Button
+                variant="ghost"
+                className="w-full justify-start h-9 text-muted-foreground hover:text-foreground"
+                onClick={() => setCreateCategoryOpen(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Category
+              </Button>
             </div>
           </div>
         </ScrollArea>
       )}
 
-      <CreateFolderDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        folders={folders}
+      {/* Create Category Dialog */}
+      <CategoryDialog
+        open={createCategoryOpen}
+        onOpenChange={setCreateCategoryOpen}
       />
     </div>
   );

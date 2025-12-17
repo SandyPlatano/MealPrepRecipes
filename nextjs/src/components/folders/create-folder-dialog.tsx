@@ -28,6 +28,7 @@ interface CreateFolderDialogProps {
   onOpenChange: (open: boolean) => void;
   folders: FolderWithChildren[];
   parentFolderId?: string;
+  defaultCategoryId?: string;
 }
 
 export function CreateFolderDialog({
@@ -35,11 +36,13 @@ export function CreateFolderDialog({
   onOpenChange,
   folders,
   parentFolderId,
+  defaultCategoryId,
 }: CreateFolderDialogProps) {
   const [name, setName] = useState("");
-  const [emoji, setEmoji] = useState<string>("📁");
-  const [color, setColor] = useState<string>(FOLDER_COLORS[0]);
+  const [emoji, setEmoji] = useState<string | null>(null);
+  const [color, setColor] = useState<string | null>(null);
   const [parentId, setParentId] = useState<string | null>(parentFolderId || null);
+  const [categoryId, setCategoryId] = useState<string | null>(defaultCategoryId || null);
   const [isPending, startTransition] = useTransition();
 
   const handleCreate = () => {
@@ -54,6 +57,7 @@ export function CreateFolderDialog({
         emoji,
         color,
         parent_folder_id: parentId,
+        category_id: categoryId,
       });
 
       if (result.error) {
@@ -63,9 +67,10 @@ export function CreateFolderDialog({
         onOpenChange(false);
         // Reset form
         setName("");
-        setEmoji("📁");
-        setColor(FOLDER_COLORS[0]);
+        setEmoji(null);
+        setColor(null);
         setParentId(null);
+        setCategoryId(defaultCategoryId || null);
       }
     });
   };
@@ -101,8 +106,16 @@ export function CreateFolderDialog({
 
           {/* Emoji */}
           <div className="space-y-2">
-            <Label>Icon</Label>
+            <Label>Icon (optional)</Label>
             <div className="flex flex-wrap gap-1.5">
+              <Button
+                variant={emoji === null ? "default" : "outline"}
+                size="sm"
+                className="h-9 px-3 text-xs"
+                onClick={() => setEmoji(null)}
+              >
+                None
+              </Button>
               {FOLDER_EMOJIS.map((e) => (
                 <Button
                   key={e}
@@ -119,8 +132,18 @@ export function CreateFolderDialog({
 
           {/* Color */}
           <div className="space-y-2">
-            <Label>Color</Label>
-            <div className="flex flex-wrap gap-2">
+            <Label>Color (optional)</Label>
+            <div className="flex flex-wrap gap-2 items-center">
+              <button
+                className={`h-8 px-3 rounded-full border-2 border-dashed transition-transform text-xs ${
+                  color === null
+                    ? "ring-2 ring-offset-2 ring-primary scale-110 border-primary"
+                    : "border-muted-foreground/30 hover:scale-105"
+                }`}
+                onClick={() => setColor(null)}
+              >
+                None
+              </button>
               {FOLDER_COLORS.map((c) => (
                 <button
                   key={c}

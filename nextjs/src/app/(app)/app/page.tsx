@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getWeekPlan, getRecipesForPlanning } from "@/app/actions/meal-plans";
-import { getSettings } from "@/app/actions/settings";
+import { getSettings, getMealTypeEmojiSettings } from "@/app/actions/settings";
 import { getFavorites } from "@/app/actions/recipes";
 import {
   getRecentlyCooked,

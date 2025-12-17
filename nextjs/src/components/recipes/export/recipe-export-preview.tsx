@@ -26,11 +26,12 @@ export const RecipeExportPreview = forwardRef<HTMLDivElement, RecipeExportPrevie
     return (
       <div
         ref={ref}
-        className="bg-white text-black"
         style={{
           width: "800px",
           padding: "48px",
           fontFamily: "system-ui, -apple-system, sans-serif",
+          backgroundColor: "#ffffff",
+          color: "#000000",
         }}
       >
         {/* Recipe Image */}
