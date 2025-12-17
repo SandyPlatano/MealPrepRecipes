@@ -64,7 +64,7 @@ export function BrandLogo({
       {showTagline && (
         <span
           className={cn(
-            "font-mono text-clay-muted tracking-wider uppercase mt-1",
+            "font-mono text-cream/60 tracking-wider uppercase mt-1",
             showIcon ? "ml-7" : "",
             sizes.tagline
           )}
@@ -110,7 +110,7 @@ export function MealPrepOSTagline({
   return (
     <span
       className={cn(
-        "font-mono text-clay-muted tracking-wider uppercase",
+        "font-mono text-cream/60 tracking-wider uppercase",
         taglineSizes[size],
         className
       )}

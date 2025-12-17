@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 
 export function CTASection() {
   return (
-    <section className="py-24 md:py-32 bg-gradient-to-br from-primary to-coral-600">
-      <div className="container mx-auto px-4">
+    <section className="py-24 md:py-32 bg-gradient-to-br from-primary to-bold-red-dark relative overflow-hidden">
+      {/* Subtle glow effect */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
+
+      <div className="container mx-auto px-4 relative">
         <div className="max-w-2xl mx-auto text-center space-y-8">
           {/* Icon */}
           <div className="flex justify-center">
@@ -18,7 +21,7 @@ export function CTASection() {
 
           {/* Headline */}
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
-            Ready to take control of your kitchen?
+            Ready to answer &quot;What&apos;s for dinner?&quot;
           </h2>
 
           {/* Subtext */}
@@ -32,7 +35,7 @@ export function CTASection() {
               <Button
                 size="lg"
                 variant="secondary"
-                className="text-base md:text-lg px-8 py-6 bg-white text-primary hover:bg-white/90 shadow-clay-xl transition-all duration-200 hover:-translate-y-0.5"
+                className="text-base md:text-lg px-8 py-6 bg-white text-primary hover:bg-white/90 shadow-xl transition-all duration-200 hover:-translate-y-0.5"
               >
                 Start planning free
                 <ArrowRight className="ml-2 h-5 w-5" />

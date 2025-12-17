@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
 
 interface Metric {
   value: number;
@@ -32,7 +31,7 @@ const metrics: Metric[] = [
 
 export function MetricsSection() {
   return (
-    <section className="py-20 md:py-24 bg-clay-bg">
+    <section className="py-20 md:py-24 bg-dark-lighter">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
@@ -106,7 +105,7 @@ function MetricItem({ value, suffix, label, sublabel, delay = 0 }: MetricItemPro
   return (
     <div ref={ref} className="text-center space-y-2">
       <div className="flex items-baseline justify-center gap-1">
-        <span className="text-4xl md:text-5xl lg:text-6xl font-mono font-bold text-clay-text">
+        <span className="text-4xl md:text-5xl lg:text-6xl font-mono font-bold text-cream">
           {formatNumber(displayValue)}
         </span>
         {suffix && suffix !== "$" && (
@@ -115,8 +114,8 @@ function MetricItem({ value, suffix, label, sublabel, delay = 0 }: MetricItemPro
           </span>
         )}
       </div>
-      <p className="text-base md:text-lg font-medium text-clay-text">{label}</p>
-      <p className="text-sm text-clay-muted">{sublabel}</p>
+      <p className="text-base md:text-lg font-medium text-cream">{label}</p>
+      <p className="text-sm text-cream/60">{sublabel}</p>
     </div>
   );
 }

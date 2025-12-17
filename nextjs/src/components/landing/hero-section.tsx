@@ -20,7 +20,7 @@ export function HeroSection() {
   return (
     <section className="relative py-24 md:py-32 lg:py-40 overflow-hidden">
       {/* Subtle gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-coral-tint-50/50 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
 
       <div className="container mx-auto px-4 relative">
         <div className="max-w-3xl mx-auto text-center space-y-8">
@@ -31,7 +31,7 @@ export function HeroSection() {
 
           {/* Subheadline */}
           <p
-            className="text-lg md:text-xl lg:text-2xl text-clay-muted max-w-2xl mx-auto leading-relaxed animate-fade-in-up"
+            className="text-lg md:text-xl lg:text-2xl text-cream/70 max-w-2xl mx-auto leading-relaxed animate-fade-in-up"
             style={{ animationDelay: "100ms" }}
           >
             Plan meals, generate shopping lists, and cook with confidence
@@ -46,7 +46,7 @@ export function HeroSection() {
             <Link href="/signup">
               <Button
                 size="lg"
-                className="text-base md:text-lg px-8 py-6 shadow-clay-lg hover:shadow-clay-xl transition-all duration-200 hover:-translate-y-0.5"
+                className="text-base md:text-lg px-8 py-6 shadow-glow-red hover:shadow-glow-red-strong transition-all duration-200 hover:-translate-y-0.5"
               >
                 Start free
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -56,7 +56,7 @@ export function HeroSection() {
               <Button
                 variant="outline"
                 size="lg"
-                className="text-base md:text-lg px-8 py-6 border-clay-border hover:border-clay-border-hover hover:bg-clay-bg transition-all duration-200"
+                className="text-base md:text-lg px-8 py-6 border-dark-border text-cream hover:bg-dark-lighter transition-all duration-200"
               >
                 See how it works
               </Button>
@@ -82,7 +82,7 @@ export function HeroSection() {
 
 function TrustBadge({ icon, label }: TrustIndicator) {
   return (
-    <div className="flex items-center gap-2 text-clay-muted">
+    <div className="flex items-center gap-2 text-cream/60">
       <span className="text-primary">{icon}</span>
       <span className="text-sm font-medium">{label}</span>
     </div>

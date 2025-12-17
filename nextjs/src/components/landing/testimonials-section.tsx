@@ -35,9 +35,9 @@ const testimonials: Testimonial[] = [
 ];
 
 const variantStyles = {
-  coral: "bg-coral-tint-50 border-coral-200",
-  sage: "bg-sage-tint-50 border-sage-200",
-  neutral: "bg-clay-bg border-clay-border",
+  coral: "bg-primary/10 border-primary/20",
+  sage: "bg-bold-green/10 border-bold-green/20",
+  neutral: "bg-dark-accent border-dark-border",
 };
 
 export function TestimonialsSection() {
@@ -45,11 +45,11 @@ export function TestimonialsSection() {
     <section className="py-24 md:py-32">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-clay-text mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-cream mb-4">
             Real people, real kitchens
           </h2>
-          <p className="text-lg text-clay-muted max-w-2xl mx-auto">
-            See what households are saying about Meal Prep OS
+          <p className="text-lg text-cream/60 max-w-2xl mx-auto">
+            See what households are saying about Babe
           </p>
         </div>
 
@@ -84,23 +84,23 @@ function TestimonialCard({
     <div
       className={cn(
         "relative p-6 md:p-8 rounded-2xl border transition-all duration-200",
-        "hover:shadow-clay-lg hover:-translate-y-1",
+        "hover:shadow-card-hover hover:-translate-y-1",
         variantStyles[variant],
         className
       )}
     >
       {/* Quote icon */}
-      <Quote className="h-8 w-8 text-clay-subtle mb-4 opacity-40" />
+      <Quote className="h-8 w-8 text-cream/20 mb-4" />
 
       {/* Quote text */}
-      <blockquote className="text-clay-text text-base md:text-lg leading-relaxed mb-6">
+      <blockquote className="text-cream text-base md:text-lg leading-relaxed mb-6">
         &ldquo;{quote}&rdquo;
       </blockquote>
 
       {/* Attribution */}
       <div className="mt-auto">
-        <p className="font-semibold text-clay-text">{author}</p>
-        <p className="text-sm text-clay-muted">{role}</p>
+        <p className="font-semibold text-cream">{author}</p>
+        <p className="text-sm text-cream/60">{role}</p>
       </div>
     </div>
   );
