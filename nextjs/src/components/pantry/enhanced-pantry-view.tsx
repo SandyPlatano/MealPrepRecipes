@@ -48,9 +48,17 @@ import { Badge } from '@/components/ui/badge';
 import ScanReview from './scan-review';
 import ScanHistory from './scan-history';
 import BarcodeResultReview from './barcode-result-review';
-import { ScanFab } from './scan-fab';
+import PantryScanner from './pantry-scanner';
+import BarcodeScanner from './barcode-scanner';
 import { PantryScan } from '@/app/actions/pantry-scan';
 import { ScannedProduct } from '@/types/barcode';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet';
 
 interface DetectedItem {
   ingredient: string;
@@ -98,6 +106,10 @@ export function EnhancedPantryView({
   const [barcodeProduct, setBarcodeProduct] = useState<ScannedProduct | null>(null);
   const [showBarcodeReview, setShowBarcodeReview] = useState(false);
   const [manualEntryBarcode, setManualEntryBarcode] = useState<string | null>(null);
+
+  // Scanner sheet state
+  const [scanSheetOpen, setScanSheetOpen] = useState(false);
+  const [scanMode, setScanMode] = useState<'photo' | 'barcode' | null>(null);
 
   // Group items by category for display
   const groupedItems = initialItems.reduce(
@@ -152,9 +164,11 @@ export function EnhancedPantryView({
   };
 
   const handleScanComplete = (scanId: string, detectedItems: DetectedItem[], suggestedRecipes: SuggestedRecipe[]) => {
+    setScanSheetOpen(false);
+    setScanMode(null);
     setScanData({ scanId, detectedItems, suggestedRecipes });
     setShowScanReview(true);
-    setActiveTab('items'); // Switch back to items tab to show review
+    setActiveTab('items');
   };
 
   const handleScanConfirm = () => {
@@ -180,16 +194,25 @@ export function EnhancedPantryView({
 
   // Barcode handlers
   const handleBarcodeScanComplete = (product: ScannedProduct) => {
+    setScanSheetOpen(false);
+    setScanMode(null);
     setBarcodeProduct(product);
     setShowBarcodeReview(true);
     setManualEntryBarcode(null);
   };
 
   const handleBarcodeNotFound = (barcode: string) => {
+    setScanSheetOpen(false);
+    setScanMode(null);
     // Store barcode for manual entry prefill
     setManualEntryBarcode(barcode);
     setBarcodeProduct(null);
     setShowBarcodeReview(false);
+  };
+
+  const openScanner = (mode: 'photo' | 'barcode') => {
+    setScanMode(mode);
+    setScanSheetOpen(true);
   };
 
   const handleBarcodeConfirm = async (item: { ingredient: string; category: string }) => {
@@ -299,6 +322,28 @@ export function EnhancedPantryView({
 
           {/* Actions */}
           <div className="flex flex-wrap gap-2">
+            {/* Scan Buttons - Pro/Premium only */}
+            {subscriptionTier !== 'free' && (
+              <>
+                <Button
+                  variant="default"
+                  onClick={() => openScanner('photo')}
+                  className="bg-blue-500 hover:bg-blue-600"
+                >
+                  <Camera className="h-4 w-4 mr-2" />
+                  Photo Scan
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={() => openScanner('barcode')}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Barcode className="h-4 w-4 mr-2" />
+                  Barcode
+                </Button>
+              </>
+            )}
+
             <Button variant="outline" asChild>
               <Link href="/app/shop">
                 <ShoppingCart className="h-4 w-4 mr-2" />
@@ -351,7 +396,7 @@ export function EnhancedPantryView({
                   <div>
                     <p className="text-lg font-medium">Your pantry is empty</p>
                     <p className="text-sm text-muted-foreground mt-2">
-                      Add items above, or tap the <Plus className="h-4 w-4 inline" /> button to scan items from photos or barcodes.
+                      Add items above, or use the Photo Scan / Barcode buttons to quickly add items.
                     </p>
                   </div>
                 </div>
@@ -448,13 +493,49 @@ export function EnhancedPantryView({
         </div>
       )}
 
-      {/* Floating Action Button for Scanning */}
-      <ScanFab
-        subscriptionTier={subscriptionTier}
-        onPhotoScanComplete={handleScanComplete}
-        onBarcodeScanComplete={handleBarcodeScanComplete}
-        onBarcodeNotFound={handleBarcodeNotFound}
-      />
+      {/* Scanner Sheet */}
+      <Sheet open={scanSheetOpen} onOpenChange={setScanSheetOpen}>
+        <SheetContent side="bottom" className="h-[85vh] rounded-t-xl overflow-y-auto">
+          <SheetHeader className="mb-4">
+            <SheetTitle className="flex items-center gap-2">
+              {scanMode === 'photo' && (
+                <>
+                  <Camera className="h-5 w-5 text-blue-500" />
+                  Photo Scan
+                </>
+              )}
+              {scanMode === 'barcode' && (
+                <>
+                  <Barcode className="h-5 w-5 text-green-500" />
+                  Barcode Scanner
+                </>
+              )}
+            </SheetTitle>
+            <SheetDescription>
+              {scanMode === 'photo'
+                ? 'Take a photo of your pantry or fridge to detect items'
+                : 'Scan product barcodes to add items with nutrition info'
+              }
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="space-y-4 pb-6">
+            {scanMode === 'photo' && (
+              <PantryScanner
+                onScanComplete={handleScanComplete}
+                subscriptionTier={subscriptionTier}
+              />
+            )}
+            {scanMode === 'barcode' && (
+              <BarcodeScanner
+                onScanComplete={handleBarcodeScanComplete}
+                onNotFound={handleBarcodeNotFound}
+                subscriptionTier={subscriptionTier}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
