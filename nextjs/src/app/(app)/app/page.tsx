@@ -152,7 +152,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   // Check if user needs onboarding
   // Show onboarding only for truly new users who haven't set up anything yet
   // Note: cook_names defaults to ["Me"], so we check if it's just that default
-  const cookNames = settingsResult.data?.cook_names || [];
   const hasCustomCookNames = cookNames.length > 1 || (cookNames.length === 1 && cookNames[0] !== "Me");
   const hasSetName = !!(profile?.first_name || profile?.last_name);
   const hasCompletedOnboarding = hasSetName || hasCustomCookNames;
