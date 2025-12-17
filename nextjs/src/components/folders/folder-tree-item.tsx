@@ -110,7 +110,7 @@ export function FolderTreeItem({
               )}
               <span className="truncate">{folder.name}</span>
             </span>
-            <span className="text-xs text-muted-foreground ml-2">
+            <span className="text-xs text-muted-foreground ml-2 mr-1">
               {folder.recipe_count}
             </span>
           </Button>

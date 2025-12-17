@@ -142,9 +142,10 @@ export function FolderSidebar({
           size="icon"
           className="h-8 w-8"
           onClick={() => setIsCollapsed(!isCollapsed)}
+          title={isCollapsed ? "Expand folders" : "Collapse folders"}
         >
           {isCollapsed ? (
-            <ChevronRight className="h-4 w-4" />
+            <Folders className="h-4 w-4" />
           ) : (
             <ChevronLeft className="h-4 w-4" />
           )}
@@ -164,7 +165,7 @@ export function FolderSidebar({
                 <BookOpen className="h-4 w-4 mr-2" />
                 All Recipes
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground mr-1">
                 {totalRecipeCount}
               </span>
             </Button>
@@ -209,7 +210,7 @@ export function FolderSidebar({
                       )}
                       {folder.name}
                     </span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground mr-1">
                       {smartFolderCounts[folder.id] ?? 0}
                     </span>
                   </Button>
@@ -239,7 +240,7 @@ export function FolderSidebar({
                         )}
                         <span className="truncate">{folder.name}</span>
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground mr-1">
                         {smartFolderCounts[folder.id] ?? 0}
                       </span>
                     </Button>
