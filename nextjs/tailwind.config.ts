@@ -77,6 +77,34 @@ const config: Config = {
   				sage: 'hsl(var(--brand-sage))',
   				cream: 'hsl(var(--brand-cream))',
   				'warm-gray': 'hsl(var(--brand-warm-gray))'
+  			},
+  			// Coral palette for calendar and accents
+  			coral: {
+  				50: 'hsl(25 100% 97%)',
+  				100: 'hsl(25 100% 93%)',
+  				200: 'hsl(25 100% 85%)',
+  				300: 'hsl(25 100% 75%)',
+  				400: 'hsl(25 95% 63%)',
+  				500: 'hsl(25 95% 53%)',
+  				600: 'hsl(25 90% 45%)',
+  				700: 'hsl(25 85% 38%)',
+  				800: 'hsl(25 80% 30%)',
+  				900: 'hsl(25 75% 22%)',
+  				950: 'hsl(25 70% 12%)'
+  			},
+  			// Sage palette for secondary accents
+  			sage: {
+  				50: 'hsl(142 50% 97%)',
+  				100: 'hsl(142 45% 92%)',
+  				200: 'hsl(142 40% 82%)',
+  				300: 'hsl(142 38% 68%)',
+  				400: 'hsl(142 36% 55%)',
+  				500: 'hsl(142 40% 45%)',
+  				600: 'hsl(142 42% 36%)',
+  				700: 'hsl(142 40% 28%)',
+  				800: 'hsl(142 38% 22%)',
+  				900: 'hsl(142 35% 16%)',
+  				950: 'hsl(142 30% 10%)'
   			}
   		},
   		borderRadius: {

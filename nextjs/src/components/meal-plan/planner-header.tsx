@@ -188,11 +188,20 @@ export function PlannerHeader({
               )}
             </Button>
           </DialogTrigger>
-          <DialogContent className="h-[70vh] max-h-[70vh] w-[95vw] max-w-md p-0 flex flex-col [&>button]:z-10">
-            <div className="p-4 pb-2 flex-1 overflow-auto">
+          <DialogContent className="w-[95vw] max-w-sm p-0 overflow-hidden [&>button]:z-10">
+            {/* Header */}
+            <div className="px-6 pt-6 pb-2">
+              <h2 className="text-lg font-semibold tracking-tight">Select Week</h2>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Choose a week to plan your meals
+              </p>
+            </div>
+
+            {/* Calendar */}
+            <div className="px-4 pb-6">
               {!canNavigateWeeks && (
-                <div className="mb-3 p-3 bg-muted rounded-lg text-sm text-muted-foreground flex items-center gap-2">
-                  <Lock className="h-4 w-4" />
+                <div className="mb-4 mx-2 p-3 bg-gradient-to-r from-coral-50 to-coral-100/50 dark:from-coral-950/30 dark:to-coral-900/20 rounded-xl text-sm text-coral-700 dark:text-coral-300 flex items-center gap-2 border border-coral-200/50 dark:border-coral-800/30">
+                  <Lock className="h-4 w-4 flex-shrink-0" />
                   <span>Upgrade to Pro to plan any week</span>
                 </div>
               )}
