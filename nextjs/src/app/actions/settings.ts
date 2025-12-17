@@ -624,6 +624,7 @@ import type {
   MealTypeKey,
   MealTypeSettings,
   PlannerViewSettings,
+  RecipePreferences,
   UserSettingsPreferences,
 } from "@/types/settings";
 import {
@@ -631,6 +632,7 @@ import {
   DEFAULT_MEAL_TYPE_EMOJIS,
   DEFAULT_MEAL_TYPE_SETTINGS,
   DEFAULT_PLANNER_VIEW_SETTINGS,
+  DEFAULT_RECIPE_PREFERENCES,
 } from "@/types/settings";
 
 /**
@@ -1243,6 +1245,111 @@ export async function resetPlannerViewSettings(): Promise<{ error: string | null
   const updatedPreferences: UserSettingsPreferences = {
     ...existingPreferences,
     plannerView: DEFAULT_PLANNER_VIEW_SETTINGS,
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app");
+  revalidatePath("/app/settings");
+
+  return { error: null };
+}
+
+// ============================================================================
+// Recipe Preferences (Default Serving Size)
+// ============================================================================
+
+/**
+ * Get recipe preferences from the preferences JSONB column
+ */
+export async function getRecipePreferences(): Promise<{
+  error: string | null;
+  data: RecipePreferences;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    // Return defaults for non-authenticated users
+    return { error: null, data: DEFAULT_RECIPE_PREFERENCES };
+  }
+
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!settings?.preferences) {
+    return { error: null, data: DEFAULT_RECIPE_PREFERENCES };
+  }
+
+  const preferences = settings.preferences as UserSettingsPreferences;
+  const recipe = preferences.recipe;
+
+  if (!recipe) {
+    return { error: null, data: DEFAULT_RECIPE_PREFERENCES };
+  }
+
+  // Merge with defaults to ensure all fields exist
+  return {
+    error: null,
+    data: {
+      ...DEFAULT_RECIPE_PREFERENCES,
+      ...recipe,
+    },
+  };
+}
+
+/**
+ * Update recipe preferences in the preferences JSONB column
+ * Supports partial updates - only the fields provided will be updated
+ */
+export async function updateRecipePreferences(
+  newSettings: Partial<RecipePreferences>
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get existing preferences
+  const { data: existingData } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const existingPreferences = (existingData?.preferences ||
+    {}) as UserSettingsPreferences;
+  const existingRecipe =
+    existingPreferences.recipe || DEFAULT_RECIPE_PREFERENCES;
+
+  // Merge the new settings with existing
+  const updatedRecipe: RecipePreferences = {
+    ...existingRecipe,
+    ...newSettings,
+  };
+
+  // Update the preferences JSONB with the new recipe settings
+  const updatedPreferences: UserSettingsPreferences = {
+    ...existingPreferences,
+    recipe: updatedRecipe,
   };
 
   const { error } = await supabase

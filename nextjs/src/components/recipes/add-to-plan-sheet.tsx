@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, ChevronDown, Clock, User, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Calendar, ChevronDown, Clock, Minus, Plus, User, Users, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { RecipeWithFavorite } from "@/types/recipe";
 import type { DayOfWeek } from "@/types/meal-plan";
@@ -15,7 +16,7 @@ interface AddToPlanSheetProps {
   recipe: RecipeWithFavorite | null;
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (day: DayOfWeek, cook: string | null) => void;
+  onAdd: (day: DayOfWeek, cook: string | null, servingSize: number | null) => void;
 }
 
 const DAY_ABBREVIATIONS: Record<DayOfWeek, string> = {
@@ -36,6 +37,8 @@ export function AddToPlanSheet({
 }: AddToPlanSheetProps) {
   const [selectedDay, setSelectedDay] = useState<DayOfWeek | null>(null);
   const [selectedCook, setSelectedCook] = useState<string | null>(null);
+  const [servingSize, setServingSize] = useState<number>(2);
+  const [defaultServingSize, setDefaultServingSize] = useState<number>(2);
   const [cookNames, setCookNames] = useState<string[]>([]);
   const [cookColors, setCookColors] = useState<Record<string, string>>({});
   const [isAdding, setIsAdding] = useState(false);
@@ -47,7 +50,7 @@ export function AddToPlanSheet({
     return () => setMounted(false);
   }, []);
 
-  // Load cook names from user settings (localStorage)
+  // Load cook names and default serving size from user settings (localStorage)
   useEffect(() => {
     const stored = localStorage.getItem("user-settings");
     if (stored) {
@@ -58,6 +61,10 @@ export function AddToPlanSheet({
         }
         if (settings.cook_colors) {
           setCookColors(settings.cook_colors);
+        }
+        // Load default serving size from preferences
+        if (settings.preferences?.recipe?.defaultServingSize) {
+          setDefaultServingSize(settings.preferences.recipe.defaultServingSize);
         }
       } catch (e) {
         console.error("Failed to load settings", e);
@@ -97,16 +104,29 @@ export function AddToPlanSheet({
     }
   }, [isOpen]);
 
+  // Initialize serving size when recipe changes or sheet opens
+  useEffect(() => {
+    if (isOpen && recipe) {
+      // Use recipe's base_servings if available, otherwise use default
+      const initialServings = recipe.base_servings ?? defaultServingSize;
+      setServingSize(initialServings);
+    }
+  }, [isOpen, recipe, defaultServingSize]);
+
   const handleAdd = async () => {
     if (!selectedDay) return;
     setIsAdding(true);
     try {
-      onAdd(selectedDay, selectedCook);
+      onAdd(selectedDay, selectedCook, servingSize > 0 ? servingSize : null);
       onClose();
     } finally {
       setIsAdding(false);
     }
   };
+
+  // Increment/decrement serving size
+  const incrementServings = () => setServingSize((prev) => prev + 1);
+  const decrementServings = () => setServingSize((prev) => Math.max(1, prev - 1));
 
   // Don't render if not mounted (SSR), not open, or no recipe
   if (!mounted || !isOpen || !recipe) return null;
@@ -225,6 +245,51 @@ export function AddToPlanSheet({
                   {DAY_ABBREVIATIONS[day]}
                 </Button>
               ))}
+            </div>
+          </div>
+
+          {/* Serving Size Selection */}
+          <div className="mb-6">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">
+              <Users className="h-4 w-4 inline-block mr-1.5 -mt-0.5" />
+              Servings
+              {recipe.base_servings && (
+                <span className="text-muted-foreground/60 ml-1">
+                  (recipe makes {recipe.base_servings})
+                </span>
+              )}
+            </h3>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-10 w-10 shrink-0"
+                onClick={decrementServings}
+                disabled={servingSize <= 1}
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+              <Input
+                type="number"
+                min={1}
+                value={servingSize}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  if (!isNaN(val) && val > 0) {
+                    setServingSize(val);
+                  }
+                }}
+                className="h-10 w-20 text-center text-lg font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-10 w-10 shrink-0"
+                onClick={incrementServings}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+              <span className="text-sm text-muted-foreground">servings</span>
             </div>
           </div>
 

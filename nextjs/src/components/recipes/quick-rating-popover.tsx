@@ -50,7 +50,7 @@ export function QuickRatingPopover({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild onClick={(e) => e.preventDefault()}>
+      <PopoverTrigger asChild>
         {children}
       </PopoverTrigger>
       <PopoverContent

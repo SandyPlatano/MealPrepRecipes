@@ -127,16 +127,17 @@ export function MealPlannerGrid({
   // Use 'T00:00:00' to ensure consistent parsing across timezones
   const weekStartDate = new Date(weekStartStr + "T00:00:00");
 
-  // Handler for adding a meal (with optional cook and meal type)
+  // Handler for adding a meal (with optional cook, meal type, and serving size)
   const handleAddMeal = useCallback(
-    async (recipeId: string, day: DayOfWeek, cook?: string, mealType?: MealType | null) => {
+    async (recipeId: string, day: DayOfWeek, cook?: string, mealType?: MealType | null, servingSize?: number | null) => {
       const recipe = recipes.find((r) => r.id === recipeId);
       startTransition(async () => {
-        const result = await addMealAssignment(weekStartStr, recipeId, day, cook, mealType);
+        const result = await addMealAssignment(weekStartStr, recipeId, day, cook, mealType, servingSize);
         if (result.error) {
           toast.error(result.error);
         } else {
-          toast.success(`Added "${recipe?.title}" to ${day}`);
+          const servingsText = servingSize ? ` (${servingSize} servings)` : "";
+          toast.success(`Added "${recipe?.title}" to ${day}${servingsText}`);
         }
       });
     },

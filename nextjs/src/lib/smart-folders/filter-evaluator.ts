@@ -368,20 +368,11 @@ export function countMatchingRecipes(
  * These match the system_smart_folders table entries
  */
 export const SYSTEM_FOLDER_CRITERIA: Record<string, SmartFilterCriteria> = {
-  quick_meals: {
-    conditions: [{ field: "total_time", operator: "lt", value: 30 }],
-  },
   highly_rated: {
     conditions: [{ field: "rating", operator: "gte", value: 4 }],
   },
-  recently_added: {
-    conditions: [{ field: "created_at", operator: "within_days", value: 30 }],
-  },
   never_cooked: {
     conditions: [{ field: "cook_count", operator: "eq", value: 0 }],
-  },
-  frequently_cooked: {
-    conditions: [{ field: "cook_count", operator: "gte", value: 3 }],
   },
 };
 

@@ -94,6 +94,7 @@ export interface MealAssignment {
   day_of_week: DayOfWeek;
   cook: string | null;
   meal_type: MealType | null;
+  serving_size: number | null;
   created_at: string;
 }
 
@@ -135,6 +136,7 @@ export interface TemplateAssignment {
   day_of_week: DayOfWeek;
   cook: string | null;
   meal_type: MealType | null;
+  serving_size: number | null;
 }
 
 // Helper to get the Monday of a given week

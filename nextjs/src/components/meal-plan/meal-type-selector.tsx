@@ -80,7 +80,7 @@ export function MealTypeSelector({
             aria-hidden="true"
           />
           {currentEmoji && <span className="flex-shrink-0">{currentEmoji}</span>}
-          {!compact && <span className="truncate">{defaultConfig.label}</span>}
+          {!compact && <span className="truncate ml-0.5">{defaultConfig.label}</span>}
         </span>
       </SelectTrigger>
       <SelectContent className="z-[10000]">
@@ -97,7 +97,7 @@ export function MealTypeSelector({
                   aria-hidden="true"
                 />
                 {typeEmoji && <span>{typeEmoji}</span>}
-                <span>{typeConfig.label}</span>
+                <span className="ml-0.5">{typeConfig.label}</span>
               </span>
             </SelectItem>
           );

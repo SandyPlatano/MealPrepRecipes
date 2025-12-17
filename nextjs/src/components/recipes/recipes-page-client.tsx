@@ -65,6 +65,13 @@ export function RecipesPageClient({
   // Cast for discover dialog which doesn't need nutrition data
   const recipesForDiscover = recipes as RecipeWithFavorite[];
 
+  // Ensure cookingHistoryContext always has the expected structure
+  // This prevents "Cannot convert undefined or null to object" errors
+  const safeCookingHistoryContext = useMemo<EvaluationContext>(() => ({
+    cookCounts: cookingHistoryContext?.cookCounts ?? {},
+    lastCookedDates: cookingHistoryContext?.lastCookedDates ?? {},
+  }), [cookingHistoryContext]);
+
   // Calculate smart folder counts for all system and user smart folders
   const smartFolderCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -72,18 +79,25 @@ export function RecipesPageClient({
     // Count for system smart folders
     for (const folder of systemSmartFolders) {
       const criteria = SYSTEM_FOLDER_CRITERIA[folder.id] || folder.smart_filters;
-      counts[folder.id] = countMatchingRecipes(recipes, criteria, cookingHistoryContext);
+      // Ensure criteria has valid conditions before counting
+      if (criteria?.conditions && Array.isArray(criteria.conditions)) {
+        counts[folder.id] = countMatchingRecipes(recipes, criteria, safeCookingHistoryContext);
+      } else {
+        counts[folder.id] = 0;
+      }
     }
 
     // Count for user smart folders
     for (const folder of userSmartFolders) {
-      if (folder.smart_filters) {
-        counts[folder.id] = countMatchingRecipes(recipes, folder.smart_filters, cookingHistoryContext);
+      if (folder.smart_filters?.conditions && Array.isArray(folder.smart_filters.conditions)) {
+        counts[folder.id] = countMatchingRecipes(recipes, folder.smart_filters, safeCookingHistoryContext);
+      } else {
+        counts[folder.id] = 0;
       }
     }
 
     return counts;
-  }, [recipes, systemSmartFolders, userSmartFolders, cookingHistoryContext]);
+  }, [recipes, systemSmartFolders, userSmartFolders, safeCookingHistoryContext]);
 
   // Get recipe IDs for active folder filter
   const folderRecipeIds = useMemo(() => {
@@ -99,7 +113,7 @@ export function RecipesPageClient({
         );
         const criteria = SYSTEM_FOLDER_CRITERIA[activeFilter.id] || systemFolder?.smart_filters;
         if (criteria) {
-          return filterRecipesBySmartFolder(recipes, criteria, cookingHistoryContext);
+          return filterRecipesBySmartFolder(recipes, criteria, safeCookingHistoryContext);
         }
       } else {
         // User smart folder
@@ -107,7 +121,7 @@ export function RecipesPageClient({
           (f) => f.id === activeFilter.id
         );
         if (userFolder?.smart_filters) {
-          return filterRecipesBySmartFolder(recipes, userFolder.smart_filters, cookingHistoryContext);
+          return filterRecipesBySmartFolder(recipes, userFolder.smart_filters, safeCookingHistoryContext);
         }
       }
       return [];
@@ -118,7 +132,7 @@ export function RecipesPageClient({
     }
 
     return null;
-  }, [activeFilter, recipes, folderMemberships, systemSmartFolders, userSmartFolders, cookingHistoryContext]);
+  }, [activeFilter, recipes, folderMemberships, systemSmartFolders, userSmartFolders, safeCookingHistoryContext]);
 
   // Handle opening the add to folder sheet
   const handleAddToFolder = useCallback(

@@ -7,6 +7,7 @@ export interface CartItem {
   recipe: Recipe;
   cook: string | null;
   day: DayOfWeek | null;
+  servingSize: number | null;
   addedAt: string;
 }
 
@@ -22,6 +23,7 @@ export function createCartItem(recipe: Recipe): CartItem {
     recipe,
     cook: null,
     day: null,
+    servingSize: null,
     addedAt: new Date().toISOString(),
   };
 }
@@ -29,7 +31,8 @@ export function createCartItem(recipe: Recipe): CartItem {
 export function createCartItemWithAssignment(
   recipe: Recipe,
   day: DayOfWeek,
-  cook: string | null
+  cook: string | null,
+  servingSize: number | null = null
 ): CartItem {
   return {
     id: crypto.randomUUID(),
@@ -37,6 +40,7 @@ export function createCartItemWithAssignment(
     recipe,
     cook,
     day,
+    servingSize,
     addedAt: new Date().toISOString(),
   };
 }

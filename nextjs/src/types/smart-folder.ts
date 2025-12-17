@@ -76,8 +76,8 @@ export interface SmartFilterCriteria {
 export interface SystemSmartFolder {
   id: string;
   name: string;
-  emoji: string;
-  color: string;
+  emoji: string | null;
+  color: string | null;
   description: string;
   smart_filters: SmartFilterCriteria;
   sort_order: number;

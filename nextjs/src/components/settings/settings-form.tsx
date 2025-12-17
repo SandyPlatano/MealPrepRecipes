@@ -172,6 +172,7 @@ export function SettingsForm({
     settings.dismissed_hints?.length || 0
   );
   const [mounted, setMounted] = useState(false);
+  const [defaultServingSize, setDefaultServingSize] = useState<number>(2);
 
   // Data Management state
   const [showExportDialog, setShowExportDialog] = useState(false);
@@ -194,6 +195,7 @@ export function SettingsForm({
   const calendarExcludedDaysRef = useRef(calendarExcludedDays);
   const unitSystemRef = useRef(unitSystem);
   const exportPreferencesRef = useRef(exportPreferences);
+  const defaultServingSizeRef = useRef(defaultServingSize);
 
   // Track previous settings to detect changes
   const prevSettingsRef = useRef(settings);
@@ -300,6 +302,40 @@ export function SettingsForm({
   useEffect(() => {
     exportPreferencesRef.current = exportPreferences;
   }, [exportPreferences]);
+  useEffect(() => {
+    defaultServingSizeRef.current = defaultServingSize;
+  }, [defaultServingSize]);
+
+  // Sync settings to localStorage for quick client-side access (e.g., add-to-plan-sheet)
+  useEffect(() => {
+    if (mounted) {
+      const localSettings = {
+        cook_names: cookNames,
+        cook_colors: cookColors,
+        preferences: {
+          recipe: {
+            defaultServingSize: defaultServingSize,
+          },
+        },
+      };
+      localStorage.setItem("user-settings", JSON.stringify(localSettings));
+    }
+  }, [mounted, cookNames, cookColors, defaultServingSize]);
+
+  // Load defaultServingSize from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("user-settings");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed.preferences?.recipe?.defaultServingSize) {
+          setDefaultServingSize(parsed.preferences.recipe.defaultServingSize);
+        }
+      } catch (e) {
+        console.error("Failed to parse user-settings from localStorage", e);
+      }
+    }
+  }, []);
 
   // Only render theme toggle after mounting to avoid hydration mismatch
   useEffect(() => {
@@ -697,6 +733,63 @@ export function SettingsForm({
                 <div className="text-xs opacity-70">ml, g, kg</div>
               </div>
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Recipe Defaults */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Recipe Defaults
+          </CardTitle>
+          <CardDescription>
+            Set defaults used when adding recipes to your meal plan
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="default-serving-size" className="text-base font-medium">
+                Default Serving Size
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Pre-filled when adding recipes to your meal plan
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setDefaultServingSize((prev) => Math.max(1, prev - 1))}
+                disabled={defaultServingSize <= 1}
+              >
+                <span className="text-lg">-</span>
+              </Button>
+              <Input
+                id="default-serving-size"
+                type="number"
+                min={1}
+                value={defaultServingSize}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  if (!isNaN(val) && val > 0) {
+                    setDefaultServingSize(val);
+                  }
+                }}
+                className="h-8 w-16 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setDefaultServingSize((prev) => prev + 1)}
+              >
+                <span className="text-lg">+</span>
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

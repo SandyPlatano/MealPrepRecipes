@@ -265,6 +265,22 @@ export const DEFAULT_PLANNER_VIEW_SETTINGS: PlannerViewSettings = {
   showPrepTime: true,
 };
 
+// ============================================================================
+// Recipe Preferences Settings Types
+// ============================================================================
+
+/**
+ * Recipe-related user preferences (default serving size, etc.)
+ */
+export interface RecipePreferences {
+  /** Default serving size when adding recipes to meal plans */
+  defaultServingSize: number;
+}
+
+export const DEFAULT_RECIPE_PREFERENCES: RecipePreferences = {
+  defaultServingSize: 2,
+};
+
 /**
  * Structure for user_settings.preferences JSONB column
  */
@@ -274,4 +290,5 @@ export interface UserSettingsPreferences {
   mealTypeEmojis?: MealTypeEmojiSettings;
   mealTypeSettings?: MealTypeCustomization;
   plannerView?: PlannerViewSettings;
+  recipe?: RecipePreferences;
 }

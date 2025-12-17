@@ -197,7 +197,16 @@ export function FolderSidebar({
                     onClick={() => handleSmartFolderClick(folder.id, true)}
                   >
                     <span className="flex items-center">
-                      <span className="mr-2">{folder.emoji}</span>
+                      {folder.emoji && <span className="mr-2">{folder.emoji}</span>}
+                      {!folder.emoji && folder.color && (
+                        <span
+                          className="w-3 h-3 rounded-full mr-2"
+                          style={{ backgroundColor: folder.color }}
+                        />
+                      )}
+                      {!folder.emoji && !folder.color && (
+                        <Sparkles className="h-3 w-3 mr-2 text-muted-foreground" />
+                      )}
                       {folder.name}
                     </span>
                     <span className="text-xs text-muted-foreground">

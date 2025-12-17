@@ -43,7 +43,7 @@ interface PlannerDayRowProps {
   userAllergenAlerts?: string[];
   isCalendarExcluded?: boolean;
   googleConnected?: boolean;
-  onAddMeal: (recipeId: string, day: DayOfWeek, cook?: string, mealType?: MealType | null) => Promise<void>;
+  onAddMeal: (recipeId: string, day: DayOfWeek, cook?: string, mealType?: MealType | null, servingSize?: number | null) => Promise<void>;
   onUpdateCook: (assignmentId: string, cook: string | null) => Promise<void>;
   onUpdateMealType: (assignmentId: string, mealType: MealType | null) => Promise<void>;
   onRemoveMeal: (assignmentId: string) => Promise<void>;

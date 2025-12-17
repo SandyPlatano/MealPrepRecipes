@@ -272,7 +272,7 @@ export function MealTypeCustomizationSettings({ initialSettings }: MealTypeCusto
                         {editForm.emoji || "—"}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 border-0" align="start">
+                    <PopoverContent className="w-auto p-0 border-0 z-[10000]" align="start">
                       <Picker
                         data={data}
                         onEmojiSelect={handleEmojiSelect}
@@ -361,7 +361,7 @@ export function MealTypeCustomizationSettings({ initialSettings }: MealTypeCusto
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="max-h-60">
+                  <SelectContent className="max-h-60 z-[10000]">
                     {TIME_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         {opt.label}

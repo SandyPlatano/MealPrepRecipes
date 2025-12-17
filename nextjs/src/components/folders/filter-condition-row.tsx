@@ -99,7 +99,7 @@ export function FilterConditionRow({
         <SelectTrigger className="w-[140px] sm:w-[160px]">
           <SelectValue placeholder="Select field" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="z-[100]">
           {FIELD_CATEGORIES.map((category) => {
             const fields = SMART_FILTER_FIELDS.filter(
               (f) => f.category === category.key
@@ -124,7 +124,7 @@ export function FilterConditionRow({
         <SelectTrigger className="w-[130px] sm:w-[150px]">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="z-[100]">
           {fieldMeta?.operators.map((op) => (
             <SelectItem key={op} value={op}>
               {OPERATOR_LABELS[op]}
@@ -235,7 +235,7 @@ function ValueInput({ fieldMeta, operator, value, onChange }: ValueInputProps) {
         <SelectTrigger>
           <SelectValue placeholder="Select..." />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="z-[100]">
           {fieldMeta.enumOptions.map((opt) => (
             <SelectItem key={opt.value} value={opt.value}>
               {opt.label}
@@ -248,11 +248,12 @@ function ValueInput({ fieldMeta, operator, value, onChange }: ValueInputProps) {
 
   // Number fields
   if (fieldMeta?.type === "number") {
+    const numValue = typeof value === "number" ? value : "";
     return (
       <div className="flex items-center gap-2">
         <Input
           type="number"
-          value={value ?? ""}
+          value={numValue}
           onChange={(e) =>
             onChange(e.target.value ? Number(e.target.value) : null)
           }
@@ -270,12 +271,13 @@ function ValueInput({ fieldMeta, operator, value, onChange }: ValueInputProps) {
 
   // Date fields (within_days)
   if (fieldMeta?.type === "date" && operator === "within_days") {
+    const numValue = typeof value === "number" ? value : "";
     return (
       <div className="flex items-center gap-2">
         <Input
           type="number"
           min="1"
-          value={value ?? ""}
+          value={numValue}
           onChange={(e) =>
             onChange(e.target.value ? Number(e.target.value) : null)
           }

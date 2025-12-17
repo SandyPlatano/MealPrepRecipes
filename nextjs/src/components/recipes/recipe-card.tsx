@@ -151,13 +151,14 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
     setShowAddToPlanSheet(true);
   };
 
-  const handleAddFromSheet = (day: DayOfWeek, cook: string | null) => {
-    const added = addToCartWithAssignment(recipe, day, cook);
+  const handleAddFromSheet = (day: DayOfWeek, cook: string | null, servingSize: number | null) => {
+    const added = addToCartWithAssignment(recipe, day, cook, servingSize);
     if (added) {
       triggerHaptic("success");
+      const servingsText = servingSize ? ` (${servingSize} servings)` : "";
       const message = cook
-        ? `Added to ${day} for ${cook}`
-        : `Added to ${day}`;
+        ? `Added to ${day} for ${cook}${servingsText}`
+        : `Added to ${day}${servingsText}`;
       toast.success(message);
     } else {
       toast.info("Already on there");

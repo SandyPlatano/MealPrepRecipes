@@ -113,6 +113,44 @@ function guessCategory(ingredient: string): string {
   return "Other";
 }
 
+// Helper to scale a quantity string by a multiplier
+function scaleQuantity(quantity: string | undefined, scale: number): string | undefined {
+  if (!quantity || scale === 1) return quantity;
+
+  // Parse the quantity (handles fractions like "1/2", decimals like "1.5", and whole numbers)
+  const trimmed = quantity.trim();
+
+  // Handle fraction format (e.g., "1/2", "3/4")
+  const fractionMatch = trimmed.match(/^(\d+)\/(\d+)$/);
+  if (fractionMatch) {
+    const numerator = parseInt(fractionMatch[1], 10);
+    const denominator = parseInt(fractionMatch[2], 10);
+    const value = (numerator / denominator) * scale;
+    // Return as decimal if not a clean fraction
+    return value % 1 === 0 ? value.toString() : value.toFixed(2).replace(/\.?0+$/, '');
+  }
+
+  // Handle mixed number format (e.g., "1 1/2")
+  const mixedMatch = trimmed.match(/^(\d+)\s+(\d+)\/(\d+)$/);
+  if (mixedMatch) {
+    const whole = parseInt(mixedMatch[1], 10);
+    const numerator = parseInt(mixedMatch[2], 10);
+    const denominator = parseInt(mixedMatch[3], 10);
+    const value = (whole + numerator / denominator) * scale;
+    return value % 1 === 0 ? value.toString() : value.toFixed(2).replace(/\.?0+$/, '');
+  }
+
+  // Handle simple number (integer or decimal)
+  const num = parseFloat(trimmed);
+  if (!isNaN(num)) {
+    const scaled = num * scale;
+    return scaled % 1 === 0 ? scaled.toString() : scaled.toFixed(2).replace(/\.?0+$/, '');
+  }
+
+  // Return original if we can't parse it
+  return quantity;
+}
+
 // Helper to add recipe ingredients to shopping list
 async function addRecipeToShoppingList(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -120,7 +158,9 @@ async function addRecipeToShoppingList(
   mealPlanId: string,
   recipeId: string,
   recipeTitle: string,
-  ingredients: string[]
+  ingredients: string[],
+  servingSize?: number | null,
+  recipeBaseServings?: number | null
 ) {
   // Get or create shopping list for this meal plan
   let { data: shoppingList } = await supabase
@@ -146,11 +186,18 @@ async function addRecipeToShoppingList(
     shoppingList = newList;
   }
 
+  // Calculate scaling ratio based on serving size
+  const scale = (servingSize && recipeBaseServings && recipeBaseServings > 0)
+    ? servingSize / recipeBaseServings
+    : 1;
+
   // Parse and prepare ingredients for merging
   const ingredientsToAdd: MergeableItem[] = ingredients.map((ing) => {
     const parsed = parseIngredient(ing);
     return {
       ...parsed,
+      // Scale the quantity if we have a valid scale factor
+      quantity: scaleQuantity(parsed.quantity, scale),
       recipe_id: recipeId,
       recipe_title: recipeTitle,
     };
@@ -332,18 +379,19 @@ export async function addMealAssignment(
   recipeId: string,
   dayOfWeek: DayOfWeek,
   cook?: string,
-  mealType?: MealType | null
+  mealType?: MealType | null,
+  servingSize?: number | null
 ) {
   // Check authentication first
   const { user: authUser, error: authError } = await getCachedUser();
-  
+
   if (authError || !authUser) {
     return { error: "Not authenticated" };
   }
 
   // Get household separately (required for meal planning)
   const { household } = await getCachedUserWithHousehold();
-  
+
   if (!household) {
     return { error: "Please create or join a household to use meal planning" };
   }
@@ -356,23 +404,24 @@ export async function addMealAssignment(
     return { error: planResult.error || "Failed to get meal plan" };
   }
 
-  // Add assignment
+  // Add assignment with serving_size
   const { error } = await supabase.from("meal_assignments").insert({
     meal_plan_id: planResult.data.id,
     recipe_id: recipeId,
     day_of_week: dayOfWeek,
     cook: cook || null,
     meal_type: mealType ?? null,
+    serving_size: servingSize ?? null,
   });
 
   if (error) {
     return { error: error.message };
   }
 
-  // Auto-add recipe ingredients to shopping list
+  // Auto-add recipe ingredients to shopping list (with scaling)
   const { data: recipe } = await supabase
     .from("recipes")
-    .select("title, ingredients")
+    .select("title, ingredients, base_servings")
     .eq("id", recipeId)
     .single();
 
@@ -383,7 +432,9 @@ export async function addMealAssignment(
       planResult.data.id,
       recipeId,
       recipe.title,
-      recipe.ingredients
+      recipe.ingredients,
+      servingSize,
+      recipe.base_servings
     );
   }
 
@@ -455,14 +506,14 @@ export async function removeMealAssignment(assignmentId: string) {
   return { error: null };
 }
 
-// Update assignment (change day, cook, or meal type)
+// Update assignment (change day, cook, meal type, or serving size)
 export async function updateMealAssignment(
   assignmentId: string,
-  updates: { day_of_week?: DayOfWeek; cook?: string | null; meal_type?: MealType | null }
+  updates: { day_of_week?: DayOfWeek; cook?: string | null; meal_type?: MealType | null; serving_size?: number | null }
 ) {
   // Check authentication first
   const { user: authUser, error: authError } = await getCachedUser();
-  
+
   if (authError || !authUser) {
     return { error: "Not authenticated" };
   }
@@ -881,7 +932,7 @@ export async function createMealPlanTemplate(
   // Get all assignments for this meal plan
   const { data: assignments, error: assignmentsError } = await supabase
     .from("meal_assignments")
-    .select("recipe_id, day_of_week, cook, meal_type")
+    .select("recipe_id, day_of_week, cook, meal_type, serving_size")
     .eq("meal_plan_id", mealPlan.id);
 
   if (assignmentsError) {
@@ -895,6 +946,7 @@ export async function createMealPlanTemplate(
       day_of_week: a.day_of_week as DayOfWeek,
       cook: a.cook,
       meal_type: a.meal_type as MealType | null,
+      serving_size: a.serving_size as number | null,
     })
   );
 
@@ -1046,6 +1098,7 @@ export async function applyMealPlanTemplate(
         day_of_week: a.day_of_week,
         cook: a.cook,
         meal_type: a.meal_type ?? null,
+        serving_size: a.serving_size ?? null,
       }));
 
       const { error: insertError } = await supabase
@@ -1056,11 +1109,11 @@ export async function applyMealPlanTemplate(
         return { error: insertError.message };
       }
 
-      // Add ingredients to shopping list for all recipes (batched query)
+      // Add ingredients to shopping list for all recipes (batched query, with scaling)
       const assignmentRecipeIds = Array.from(new Set(validAssignments.map(a => a.recipe_id)));
       const { data: recipesWithIngredients } = await supabase
         .from("recipes")
-        .select("id, title, ingredients")
+        .select("id, title, ingredients, base_servings")
         .in("id", assignmentRecipeIds);
 
       if (recipesWithIngredients) {
@@ -1075,7 +1128,9 @@ export async function applyMealPlanTemplate(
               planResult.data.id,
               assignment.recipe_id,
               recipe.title,
-              recipe.ingredients
+              recipe.ingredients,
+              assignment.serving_size,
+              recipe.base_servings
             );
           }
         }
@@ -1374,7 +1429,7 @@ export async function createMealPlanTemplateFromPlan(
   // Get all assignments for this plan
   const { data: assignments, error: assignmentsError } = await supabase
     .from("meal_assignments")
-    .select("recipe_id, day_of_week, cook, meal_type")
+    .select("recipe_id, day_of_week, cook, meal_type, serving_size")
     .eq("meal_plan_id", planId);
 
   if (assignmentsError) {
@@ -1391,6 +1446,7 @@ export async function createMealPlanTemplateFromPlan(
     day_of_week: a.day_of_week,
     cook: a.cook,
     meal_type: a.meal_type as MealType | null,
+    serving_size: a.serving_size as number | null,
   }));
 
   const { data: template, error: createError } = await supabase
