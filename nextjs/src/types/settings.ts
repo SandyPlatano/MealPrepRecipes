@@ -88,7 +88,7 @@ export interface UserProfile {
   currently_craving: string | null;
   cook_with_me_status: CookWithMeStatus | null;
   favorite_cuisine: string | null;
-  cooking_skill_level: CookingSkillLevel | null;
+  cooking_skill: CookingSkillLevel | null;
   location: string | null;
   website_url: string | null;
   public_profile: boolean;
@@ -121,7 +121,7 @@ export interface ProfileCustomizationSettings {
   currently_craving: string;
   cook_with_me_status: CookWithMeStatus;
   favorite_cuisine: string;
-  cooking_skill_level: CookingSkillLevel;
+  cooking_skill: CookingSkillLevel;
   location: string;
   website_url: string;
   profile_accent_color: string;
@@ -143,7 +143,7 @@ export const DEFAULT_PROFILE_CUSTOMIZATION: ProfileCustomizationSettings = {
   currently_craving: "",
   cook_with_me_status: "not_set",
   favorite_cuisine: "",
-  cooking_skill_level: "home_cook",
+  cooking_skill: "home_cook",
   location: "",
   website_url: "",
   profile_accent_color: "#f97316",
@@ -423,9 +423,11 @@ export const DEFAULT_MEAL_TYPE_EMOJIS: MealTypeEmojiSettings = {
  * Settings for a single meal type
  */
 export interface MealTypeSettings {
-  emoji: string;       // Emoji to display (e.g., "🌅")
-  color: string;       // Hex color (e.g., "#fbbf24")
-  calendarTime: string; // Time in HH:MM format (e.g., "08:00")
+  emoji: string;           // Emoji to display (e.g., "🌅")
+  color: string;           // Hex color (e.g., "#fbbf24")
+  calendarTime: string;    // Time in HH:MM format (e.g., "08:00")
+  duration: number;        // Duration in minutes (e.g., 60)
+  excludedDays: string[];  // Days to skip for this meal type (e.g., ["Saturday", "Sunday"])
 }
 
 /**
@@ -443,11 +445,11 @@ export interface MealTypeCustomization {
  * Default settings for all meal types
  */
 export const DEFAULT_MEAL_TYPE_SETTINGS: MealTypeCustomization = {
-  breakfast: { emoji: "🌅", color: "#fbbf24", calendarTime: "08:00" },
-  lunch: { emoji: "🥗", color: "#34d399", calendarTime: "12:00" },
-  dinner: { emoji: "🍽️", color: "#f97316", calendarTime: "18:00" },
-  snack: { emoji: "🍿", color: "#a78bfa", calendarTime: "15:00" },
-  other: { emoji: "📋", color: "#9ca3af", calendarTime: "12:00" },
+  breakfast: { emoji: "🌅", color: "#fbbf24", calendarTime: "08:00", duration: 30, excludedDays: [] },
+  lunch: { emoji: "🥗", color: "#34d399", calendarTime: "12:00", duration: 60, excludedDays: [] },
+  dinner: { emoji: "🍽️", color: "#f97316", calendarTime: "18:00", duration: 60, excludedDays: [] },
+  snack: { emoji: "🍿", color: "#a78bfa", calendarTime: "15:00", duration: 15, excludedDays: [] },
+  other: { emoji: "📋", color: "#9ca3af", calendarTime: "12:00", duration: 60, excludedDays: [] },
 };
 
 /**

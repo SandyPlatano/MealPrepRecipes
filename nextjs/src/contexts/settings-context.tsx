@@ -868,7 +868,7 @@ export function createDefaultSettingsState(): SettingsState {
       currently_craving: null,
       cook_with_me_status: null,
       favorite_cuisine: null,
-      cooking_skill_level: null,
+      cooking_skill: null,
       location: null,
       website_url: null,
       public_profile: false,
@@ -907,5 +907,6 @@ export function createDefaultSettingsState(): SettingsState {
     household: null,
     mealTypeSettings: null,
     plannerViewSettings: null,
+    calendarPreferences: null,
   };
 }

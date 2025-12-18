@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Palette, RotateCcw, Smile } from "lucide-react";
+import { CalendarDays, Clock, Hourglass, Palette, RotateCcw, Smile } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -57,6 +57,19 @@ const TIME_OPTIONS = Array.from({ length: 37 }, (_, i) => {
   const label = `${hour12}:${minute.toString().padStart(2, "0")} ${ampm}`;
   return { value, label };
 });
+
+// Duration options in minutes
+const DURATION_OPTIONS = [
+  { value: 15, label: "15 min" },
+  { value: 30, label: "30 min" },
+  { value: 45, label: "45 min" },
+  { value: 60, label: "1 hour" },
+  { value: 90, label: "1.5 hours" },
+  { value: 120, label: "2 hours" },
+];
+
+// Days of the week
+const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 const LABELS: Record<MealTypeKey, string> = {
   breakfast: "Breakfast",
@@ -158,6 +171,24 @@ export function MealTypeCustomizationSettings({ initialSettings }: MealTypeCusto
   // Handle time change
   const handleTimeChange = (time: string) => {
     setEditForm((prev) => prev ? { ...prev, calendarTime: time } : null);
+  };
+
+  // Handle duration change
+  const handleDurationChange = (duration: string) => {
+    setEditForm((prev) => prev ? { ...prev, duration: parseInt(duration, 10) } : null);
+  };
+
+  // Handle excluded day toggle
+  const handleExcludedDayToggle = (day: string) => {
+    setEditForm((prev) => {
+      if (!prev) return null;
+      const currentExcluded = prev.excludedDays || [];
+      const isExcluded = currentExcluded.includes(day);
+      const updatedExcluded = isExcluded
+        ? currentExcluded.filter((d) => d !== day)
+        : [...currentExcluded, day];
+      return { ...prev, excludedDays: updatedExcluded };
+    });
   };
 
   // Clear emoji
@@ -369,6 +400,58 @@ export function MealTypeCustomizationSettings({ initialSettings }: MealTypeCusto
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Event Duration Section */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Hourglass className="h-4 w-4" />
+                  Event Duration
+                </Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  How long {LABELS[editingType].toLowerCase()} calendar events last.
+                </p>
+                <Select value={String(editForm.duration || 60)} onValueChange={handleDurationChange}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="z-[10000]">
+                    {DURATION_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={String(opt.value)}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Excluded Days Section */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <CalendarDays className="h-4 w-4" />
+                  Excluded Days
+                </Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Days to skip when creating {LABELS[editingType].toLowerCase()} calendar events.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {DAYS_OF_WEEK.map((day) => {
+                    const isExcluded = editForm.excludedDays?.includes(day) ?? false;
+                    return (
+                      <Badge
+                        key={day}
+                        variant={isExcluded ? "default" : "outline"}
+                        className={cn(
+                          "cursor-pointer transition-all",
+                          isExcluded ? "bg-destructive hover:bg-destructive/80" : "hover:bg-accent"
+                        )}
+                        onClick={() => handleExcludedDayToggle(day)}
+                      >
+                        {day.slice(0, 3)}
+                      </Badge>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Preview */}

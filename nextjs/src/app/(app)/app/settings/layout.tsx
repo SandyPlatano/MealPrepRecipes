@@ -94,6 +94,7 @@ export default async function SettingsLayout({
     household,
     mealTypeSettings: mealTypeSettingsResult.data,
     plannerViewSettings: plannerViewSettingsResult.data,
+    calendarPreferences: null,
   };
 
   return (

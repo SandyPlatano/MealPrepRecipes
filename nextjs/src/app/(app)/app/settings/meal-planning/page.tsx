@@ -7,7 +7,6 @@ import { SettingRow, SettingSection } from "@/components/settings/shared/setting
 import { AdvancedToggle } from "@/components/settings/shared/advanced-toggle";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -17,12 +16,13 @@ import {
 } from "@/components/ui/select";
 import { GoogleCalendarButton } from "@/components/settings/google-calendar-button";
 import { MealTypeCustomizationSettings } from "@/components/settings/meal-type-customization";
+import { ServingSizePresetsManager } from "@/components/settings/serving-size-presets-manager";
+import { CustomMealTypesManager } from "@/components/settings/custom-meal-types-manager";
 import { SpoonSelector } from "@/components/energy-mode";
 import type { PlannerViewDensity } from "@/types/settings";
 import type { EnergyLevel } from "@/types/energy-mode";
 import { ENERGY_LEVEL_LABELS, ENERGY_LEVEL_DESCRIPTIONS } from "@/types/energy-mode";
 import { updateRecipePreferences } from "@/app/actions/settings";
-import { cn } from "@/lib/utils";
 
 const DENSITY_OPTIONS: { value: PlannerViewDensity; label: string; description: string }[] = [
   { value: "compact", label: "Compact", description: "Minimal spacing" },
@@ -35,10 +35,8 @@ export default function MealPlanningSettingsPage() {
     plannerViewSettings,
     mealTypeSettings,
     preferencesV2,
-    calendarPreferences,
     updatePlannerSettings,
     updateEnergyModePrefs,
-    updateCalendarPrefs,
   } = useSettings();
   const [googleAccount, setGoogleAccount] = useState<string | null>(null);
 
@@ -275,7 +273,7 @@ export default function MealPlanningSettingsPage() {
             label="Custom Meal Types"
             description="Create your own meal categories"
           >
-            <div className="text-sm text-muted-foreground">Coming soon</div>
+            <CustomMealTypesManager />
           </SettingRow>
 
           <SettingRow
@@ -291,78 +289,10 @@ export default function MealPlanningSettingsPage() {
             label="Serving Size Presets"
             description="Quick-select serving sizes"
           >
-            <div className="text-sm text-muted-foreground">Coming soon</div>
+            <ServingSizePresetsManager />
           </SettingRow>
         </SettingSection>
 
-        <SettingSection title="Calendar Settings">
-          <SettingRow
-            id="setting-calendar-event-time"
-            label="Default Event Time"
-            description="When calendar events start by default"
-          >
-            <Input
-              type="time"
-              value={calendarPreferences?.eventTime || "12:00"}
-              onChange={(e) => updateCalendarPrefs({ eventTime: e.target.value })}
-              className="w-32"
-            />
-          </SettingRow>
-
-          <SettingRow
-            id="setting-calendar-event-duration"
-            label="Event Duration"
-            description="How long calendar events last"
-          >
-            <Select
-              value={String(calendarPreferences?.eventDurationMinutes || 60)}
-              onValueChange={(value) => updateCalendarPrefs({ eventDurationMinutes: parseInt(value, 10) })}
-            >
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="15">15 min</SelectItem>
-                <SelectItem value="30">30 min</SelectItem>
-                <SelectItem value="45">45 min</SelectItem>
-                <SelectItem value="60">1 hour</SelectItem>
-                <SelectItem value="90">1.5 hours</SelectItem>
-                <SelectItem value="120">2 hours</SelectItem>
-              </SelectContent>
-            </Select>
-          </SettingRow>
-
-          <SettingRow
-            id="setting-calendar-excluded-days"
-            label="Excluded Days"
-            description="Days to skip when creating events"
-          >
-            <div className="flex flex-wrap gap-2">
-              {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => {
-                const isExcluded = calendarPreferences?.excludedDays?.includes(day) ?? false;
-                return (
-                  <Badge
-                    key={day}
-                    variant={isExcluded ? "default" : "outline"}
-                    className={cn(
-                      "cursor-pointer transition-all",
-                      isExcluded ? "bg-destructive hover:bg-destructive/80" : "hover:bg-accent"
-                    )}
-                    onClick={() => {
-                      const current = calendarPreferences?.excludedDays || [];
-                      const updated = isExcluded
-                        ? current.filter((d) => d !== day)
-                        : [...current, day];
-                      updateCalendarPrefs({ excludedDays: updated });
-                    }}
-                  >
-                    {day.slice(0, 3)}
-                  </Badge>
-                );
-              })}
-            </div>
-          </SettingRow>
-        </SettingSection>
       </AdvancedToggle>
     </div>
   );

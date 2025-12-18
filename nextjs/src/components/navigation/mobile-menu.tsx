@@ -83,7 +83,7 @@ export function MobileMenu({ navItems, settingsItem, logoutAction }: MobileMenuP
           <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[300px]">
+      <SheetContent side="right" className="w-[85vw] max-w-none">
         <SheetHeader>
           <SheetTitle className="font-mono text-left">Menu</SheetTitle>
         </SheetHeader>

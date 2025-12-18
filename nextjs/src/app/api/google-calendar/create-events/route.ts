@@ -71,12 +71,14 @@ export async function POST(request: Request) {
     }
 
     // Extract calendar preferences from JSONB with fallback to old columns
+    // Note: Global calendar preferences are deprecated in favor of per-meal-type settings
     const preferences = settings.preferences as { calendar?: { eventTime?: string; eventDurationMinutes?: number; excludedDays?: string[] } } | undefined;
     const calendarPrefs = preferences?.calendar;
 
-    const eventTime = calendarPrefs?.eventTime || settings.calendar_event_time || "12:00";
-    const eventDuration = calendarPrefs?.eventDurationMinutes || settings.calendar_event_duration_minutes || 60;
-    const excludedDays = calendarPrefs?.excludedDays || settings.calendar_excluded_days || [];
+    // Legacy fallback for global event time (used when meal type doesn't have a specific time)
+    const globalEventTime = calendarPrefs?.eventTime || settings.calendar_event_time || "12:00";
+    // Legacy fallback for global duration (used when meal type doesn't have a specific duration)
+    const globalEventDuration = calendarPrefs?.eventDurationMinutes || settings.calendar_event_duration_minutes || 60;
 
     let accessToken = settings.google_access_token;
 
@@ -120,16 +122,20 @@ export async function POST(request: Request) {
     const currentYear = new Date().getFullYear();
     const mondayDate = new Date(`${startDateStr}, ${currentYear}`);
 
-    // Get meal type settings for meal-type-specific calendar times
+    // Get meal type settings for meal-type-specific calendar times, durations, and excluded days
     const mealTypePreferences = settings.preferences as { mealTypeSettings?: MealTypeCustomization } | null;
     const mealTypeSettings: MealTypeCustomization = mealTypePreferences?.mealTypeSettings || DEFAULT_MEAL_TYPE_SETTINGS;
 
-    // Filter out items for excluded days
-    const filteredItems = items.filter((item: Record<string, unknown>) => !excludedDays.includes(item.day as string));
+    // Filter out items based on per-meal-type excluded days
+    const filteredItems = items.filter((item: Record<string, unknown>) => {
+      const mealType = (item.meal_type as MealTypeKey | null) ?? "other";
+      const mealTypeExcludedDays = mealTypeSettings[mealType]?.excludedDays || [];
+      return !mealTypeExcludedDays.includes(item.day as string);
+    });
 
     if (filteredItems.length === 0) {
       return NextResponse.json(
-        { error: "All assigned days are excluded from calendar sync. Please adjust your calendar settings." },
+        { error: "All assigned days are excluded from calendar sync. Please adjust your meal type settings." },
         { status: 400 }
       );
     }
@@ -156,19 +162,22 @@ export async function POST(request: Request) {
       const day = String(eventDate.getDate()).padStart(2, '0');
       const dateStr = `${year}-${month}-${day}`;
 
-      // Get meal-type-specific time, or fall back to global event time
+      // Get meal-type-specific settings
       const mealType = (item.meal_type as MealTypeKey | null) ?? "other";
-      const mealTypeTime = mealTypeSettings[mealType]?.calendarTime;
+      const mealTypeConfig = mealTypeSettings[mealType];
+      const mealTypeTime = mealTypeConfig?.calendarTime;
+      const mealTypeDuration = mealTypeConfig?.duration || globalEventDuration;
+
       // Convert HH:MM to HH:MM:SS format if needed, or use global time as fallback
-      const eventTime = mealTypeTime ? `${mealTypeTime}:00` : globalEventTime;
+      const eventTime = mealTypeTime ? `${mealTypeTime}:00` : `${globalEventTime}:00`;
 
       // Combine date and time (time is already in HH:MM:SS format)
       const startDateTime = `${dateStr}T${eventTime}`;
 
-      // Calculate end time by parsing the time and adding duration
+      // Calculate end time by parsing the time and adding per-meal-type duration
       const [hours, minutes, seconds] = eventTime.split(":").map(Number);
       const endDate = new Date(eventDate);
-      endDate.setHours(hours, minutes + eventDuration, seconds || 0, 0);
+      endDate.setHours(hours, minutes + mealTypeDuration, seconds || 0, 0);
       
       // Format end time (handle day overflow if event crosses midnight)
       const endYear = endDate.getFullYear();

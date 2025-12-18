@@ -70,7 +70,7 @@ export function MobileSidebarSheet({
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="w-[280px] p-0 flex flex-col"
+        className="w-[85vw] max-w-none p-0 flex flex-col"
       >
         <SheetHeader className="sr-only">
           <SheetTitle>Navigation Menu</SheetTitle>

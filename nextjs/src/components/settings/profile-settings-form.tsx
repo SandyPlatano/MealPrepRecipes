@@ -57,7 +57,7 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
   );
   const [favoriteCuisine, setFavoriteCuisine] = useState(profile.favorite_cuisine || "");
   const [cookingSkillLevel, setCookingSkillLevel] = useState<CookingSkillLevel>(
-    profile.cooking_skill_level || "home_cook"
+    profile.cooking_skill || "home_cook"
   );
 
   // Links State
@@ -92,7 +92,7 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
         currently_craving: currentlyCraving,
         cook_with_me_status: cookWithMeStatus,
         favorite_cuisine: favoriteCuisine,
-        cooking_skill_level: cookingSkillLevel,
+        cooking_skill: cookingSkillLevel,
         location,
         website_url: websiteUrl,
         profile_accent_color: profileAccentColor,

@@ -192,6 +192,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                       showNutrition={viewSettings?.showNutritionBadges !== false}
                       showPrepTime={viewSettings?.showPrepTime !== false}
                       compact={viewSettings?.density === "compact"}
+                      showMealTypeHeaders={viewSettings?.showMealTypeHeaders !== false}
                     />
                   ))}
                 </div>
@@ -256,6 +257,8 @@ interface RecipeRowProps {
   showNutrition?: boolean;
   showPrepTime?: boolean;
   compact?: boolean;
+  /** When true, meal type selector shows compact mode (dot + emoji only, no label) */
+  showMealTypeHeaders?: boolean;
 }
 
 function RecipeRow({
@@ -271,6 +274,7 @@ function RecipeRow({
   showNutrition = true,
   showPrepTime = true,
   compact = false,
+  showMealTypeHeaders = true,
 }: RecipeRowProps) {
 
   // Default colors for cooks (fallback)
@@ -433,7 +437,7 @@ function RecipeRow({
             onChange={handleMealTypeChange}
             disabled={isUpdatingMealType}
             className="h-10 md:h-9 text-sm md:text-xs"
-            compact={false}
+            compact={showMealTypeHeaders}
             mealTypeSettings={mealTypeSettings}
           />
         </div>
