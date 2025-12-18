@@ -20,6 +20,16 @@ export type SettingsCategoryId =
   | "household"
   | "feedback";
 
+/**
+ * Sub-section for jump-link navigation within a settings page.
+ * When clicked in the sidebar, scrolls to the target section.
+ */
+export interface SettingsSubSection {
+  id: string;
+  label: string;
+  scrollTarget: string; // ID of the element to scroll to
+}
+
 export interface SettingsCategory {
   id: SettingsCategoryId;
   label: string;
@@ -27,6 +37,8 @@ export interface SettingsCategory {
   description: string;
   icon: LucideIcon;
   path: string;
+  /** Optional sub-sections for jump-link navigation within the page */
+  subSections?: SettingsSubSection[];
 }
 
 export const SETTINGS_CATEGORIES: SettingsCategory[] = [
@@ -61,6 +73,13 @@ export const SETTINGS_CATEGORIES: SettingsCategory[] = [
     description: "Allergens, macro goals, and nutritional preferences",
     icon: Apple,
     path: "/app/settings/dietary",
+    subSections: [
+      { id: "allergens", label: "Allergens", scrollTarget: "section-allergens" },
+      { id: "nutrition", label: "Nutrition", scrollTarget: "section-nutrition" },
+      { id: "measurements", label: "Measurements", scrollTarget: "section-measurements" },
+      { id: "badges", label: "Badges", scrollTarget: "section-badges" },
+      { id: "substitutions", label: "Substitutions", scrollTarget: "section-substitutions" },
+    ],
   },
   {
     id: "shortcuts",
