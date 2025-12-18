@@ -47,10 +47,11 @@ export function AppSidebar({
   onSearchClick,
   onNewRecipeClick,
 }: AppSidebarProps) {
-  const { width, isIconOnly, isCollapsed } = useSidebar();
+  const { width, isIconOnly, isCollapsed, mode, hoverExpand, isHovered, setIsHovered } = useSidebar();
 
-  // Calculate actual width
-  const sidebarWidth = isCollapsed
+  // Calculate display state
+  const showFullSidebar = mode === "expanded" || (mode === "collapsed" && isHovered && hoverExpand);
+  const sidebarWidth = isCollapsed && !showFullSidebar
     ? SIDEBAR_DIMENSIONS.MIN_WIDTH
     : width;
 
@@ -59,11 +60,15 @@ export function AppSidebar({
       <aside
         role="navigation"
         aria-label="Main navigation"
-        aria-expanded={!isCollapsed}
+        aria-expanded={!isCollapsed || showFullSidebar}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         className={cn(
           "flex flex-col h-screen bg-muted/30 border-r",
           "transition-[width] duration-200 ease-out",
-          "shrink-0 overflow-hidden sticky top-0"
+          "shrink-0 overflow-hidden sticky top-0",
+          // When hover-expanded, show over content with shadow
+          mode === "collapsed" && isHovered && hoverExpand && "absolute z-50 shadow-xl"
         )}
         style={{ width: sidebarWidth }}
       >
@@ -78,6 +83,11 @@ export function AppSidebar({
               onSearchClick={onSearchClick}
               onNewRecipeClick={onNewRecipeClick}
             />
+
+            <SidebarDivider />
+
+            {/* Pinned Items */}
+            <SidebarPinned />
 
             <SidebarDivider />
 
