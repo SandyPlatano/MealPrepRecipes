@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -63,10 +64,12 @@ import {
 } from "@/app/actions/custom-badges";
 
 interface CustomBadgesSectionProps {
+  /** ID for scroll targeting from sidebar navigation */
+  id?: string;
   className?: string;
 }
 
-export function CustomBadgesSection({ className }: CustomBadgesSectionProps) {
+export function CustomBadgesSection({ id, className }: CustomBadgesSectionProps) {
   const [customBadges, setCustomBadges] = useState<CustomBadge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showExamples, setShowExamples] = useState(false);
@@ -150,22 +153,23 @@ export function CustomBadgesSection({ className }: CustomBadgesSectionProps) {
   };
 
   return (
-    <Card className={className}>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <CardTitle className="flex items-center gap-2">
-              <Tags className="h-5 w-5" />
-              Nutrition Badges
-            </CardTitle>
+    <Card id={id} className={className}>
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+            <Tags className="h-4 w-4 text-primary" />
+          </div>
+          <div className="space-y-0.5">
+            <CardTitle className="text-base">Nutrition Badges</CardTitle>
             <CardDescription>
               Create custom badges to categorize recipes by nutrition criteria
             </CardDescription>
           </div>
         </div>
       </CardHeader>
+      <Separator className="mb-0" />
 
-      <CardContent className="space-y-6">
+      <CardContent className="pt-6 space-y-6">
         {/* How It Works Info */}
         <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
           <div className="flex items-start gap-3">

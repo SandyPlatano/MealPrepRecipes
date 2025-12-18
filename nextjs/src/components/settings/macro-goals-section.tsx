@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,8 @@ import { MACRO_GOAL_PRESETS } from "@/types/nutrition";
 import { toast } from "sonner";
 
 interface MacroGoalsSectionProps {
+  /** ID for scroll targeting from sidebar navigation */
+  id?: string;
   initialGoals?: MacroGoals | null;
   initialEnabled?: boolean;
   initialPreset?: MacroGoalPreset | null;
@@ -28,6 +31,7 @@ interface MacroGoalsSectionProps {
 }
 
 export function MacroGoalsSection({
+  id,
   initialGoals,
   initialEnabled = false,
   initialPreset = null,
@@ -82,24 +86,27 @@ export function MacroGoalsSection({
   }, [goals, enabled, selectedPreset, onSave]);
 
   return (
-    <Card className={className}>
-      <CardHeader>
+    <Card id={id} className={className}>
+      <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5" />
-              Nutrition Tracking
-            </CardTitle>
-            <CardDescription>
-              Set daily macro goals and track your nutrition progress
-            </CardDescription>
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+              <Activity className="h-4 w-4 text-primary" />
+            </div>
+            <div className="space-y-0.5">
+              <CardTitle className="text-base">Nutrition Tracking</CardTitle>
+              <CardDescription>
+                Set daily macro goals and track your nutrition progress
+              </CardDescription>
+            </div>
           </div>
           <Switch checked={enabled} onCheckedChange={setEnabled} />
         </div>
       </CardHeader>
+      <Separator className="mb-0" />
 
       {enabled && (
-        <CardContent className="space-y-6">
+        <CardContent className="pt-6 space-y-6">
           {/* Goal Presets */}
           <div className="space-y-3">
             <Label className="flex items-center gap-2">
@@ -257,7 +264,7 @@ export function MacroGoalsSection({
       )}
 
       {!enabled && (
-        <CardContent>
+        <CardContent className="pt-6">
           <p className="text-sm text-muted-foreground">
             Enable nutrition tracking to set macro goals and monitor your daily intake.
           </p>

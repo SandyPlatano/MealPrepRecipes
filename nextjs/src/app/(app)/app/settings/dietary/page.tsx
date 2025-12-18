@@ -3,9 +3,8 @@
 import { useCallback, useState, useEffect } from "react";
 import { useSettings } from "@/contexts/settings-context";
 import { SettingsHeader } from "@/components/settings/layout/settings-header";
-import { SettingRow, SettingSection } from "@/components/settings/shared/setting-row";
-import { AdvancedToggle } from "@/components/settings/shared/advanced-toggle";
-import { Switch } from "@/components/ui/switch";
+import { SettingRow } from "@/components/settings/shared/setting-row";
+import { SettingsCard } from "@/components/settings/shared/settings-card";
 import {
   Select,
   SelectContent,
@@ -17,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { MacroGoalsSection } from "@/components/settings/macro-goals-section";
 import { CustomBadgesSection } from "@/components/settings/custom-badges-section";
 import { SubstitutionsSection } from "@/components/settings/substitutions-section";
+import { AlertTriangle, Ruler } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UnitSystem } from "@/types/settings";
 import type { MacroGoals, MacroGoalPreset } from "@/types/nutrition";
@@ -81,18 +81,23 @@ export default function DietarySettingsPage() {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <SettingsHeader
         title="Dietary & Nutrition"
         description="Manage allergens, dietary restrictions, and nutrition tracking"
       />
 
       {/* Allergens */}
-      <SettingSection title="Allergen Alerts">
+      <SettingsCard
+        id="section-allergens"
+        icon={AlertTriangle}
+        title="Allergen Alerts"
+        description="Get warnings when recipes contain allergens"
+      >
         <SettingRow
           id="setting-allergen-alerts"
           label="Track Allergens"
-          description="Get warnings when recipes contain these allergens"
+          description="Select allergens you want to be warned about"
         >
           <div className="flex flex-wrap gap-2 max-w-sm">
             {ALLERGENS.map((allergen) => {
@@ -118,8 +123,8 @@ export default function DietarySettingsPage() {
 
         <SettingRow
           id="setting-dietary-restrictions"
-          label="Dietary Restrictions"
-          description="Custom restrictions to track"
+          label="Custom Restrictions"
+          description="Additional dietary restrictions you track"
         >
           <div className="text-sm text-muted-foreground">
             {settings.custom_dietary_restrictions?.length ? (
@@ -135,24 +140,24 @@ export default function DietarySettingsPage() {
             )}
           </div>
         </SettingRow>
-      </SettingSection>
+      </SettingsCard>
 
       {/* Nutrition Tracking */}
-      <div id="setting-macro-tracking">
-        <div id="setting-macro-goals">
-          <div id="setting-macro-preset">
-            <MacroGoalsSection
-              initialGoals={settings.macro_goals || undefined}
-              initialEnabled={settings.macro_tracking_enabled ?? false}
-              initialPreset={settings.macro_goal_preset || undefined}
-              onSave={handleMacroSave}
-            />
-          </div>
-        </div>
-      </div>
+      <MacroGoalsSection
+        id="section-nutrition"
+        initialGoals={settings.macro_goals || undefined}
+        initialEnabled={settings.macro_tracking_enabled ?? false}
+        initialPreset={settings.macro_goal_preset || undefined}
+        onSave={handleMacroSave}
+      />
 
-      {/* Units */}
-      <SettingSection title="Measurements">
+      {/* Measurements */}
+      <SettingsCard
+        id="section-measurements"
+        icon={Ruler}
+        title="Measurements"
+        description="Configure measurement units for recipes"
+      >
         <SettingRow
           id="setting-unit-system"
           label="Unit System"
@@ -173,26 +178,28 @@ export default function DietarySettingsPage() {
             </SelectContent>
           </Select>
         </SettingRow>
-      </SettingSection>
+      </SettingsCard>
 
       {/* Custom Nutrition Badges */}
-      <div id="setting-custom-badges">
-        <CustomBadgesSection />
-      </div>
+      <CustomBadgesSection id="section-badges" />
 
       {/* Ingredient Substitutions */}
-      <div id="setting-substitutions">
-        {substitutionsLoaded ? (
-          <SubstitutionsSection
-            initialUserSubstitutions={userSubstitutions}
-            defaultSubstitutions={defaultSubstitutions}
-          />
-        ) : (
-          <SettingSection title="Ingredient Substitutions">
-            <div className="text-sm text-muted-foreground py-4">Loading substitutions...</div>
-          </SettingSection>
-        )}
-      </div>
+      {substitutionsLoaded ? (
+        <SubstitutionsSection
+          id="section-substitutions"
+          initialUserSubstitutions={userSubstitutions}
+          defaultSubstitutions={defaultSubstitutions}
+        />
+      ) : (
+        <SettingsCard
+          id="section-substitutions"
+          icon={Ruler}
+          title="Ingredient Substitutions"
+          description="Loading substitutions..."
+        >
+          <div className="text-sm text-muted-foreground py-4">Loading...</div>
+        </SettingsCard>
+      )}
     </div>
   );
 }
