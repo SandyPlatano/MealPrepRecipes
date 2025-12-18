@@ -5,7 +5,6 @@ import { getBulkRecipeNutrition } from "@/app/actions/nutrition";
 import { getActiveCustomBadges } from "@/app/actions/custom-badges";
 import { getFolders, getFolderCategories } from "@/app/actions/folders";
 import { getSystemSmartFolders, getUserSmartFolders, getCookingHistoryContext } from "@/app/actions/smart-folders";
-import { getSidebarPreferencesAuto } from "@/app/actions/sidebar-preferences";
 import { createClient } from "@/lib/supabase/server";
 import { RecipesPageClient } from "@/components/recipes/recipes-page-client";
 import { ContextualHint } from "@/components/hints/contextual-hint";
@@ -16,7 +15,16 @@ import { UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export default async function RecipesPage() {
+interface RecipesPageProps {
+  searchParams: Promise<{
+    filter?: string;
+    id?: string;
+    system?: string;
+  }>;
+}
+
+export default async function RecipesPage({ searchParams }: RecipesPageProps) {
+  const params = await searchParams;
   const supabase = await createClient();
 
   const [
@@ -30,7 +38,6 @@ export default async function RecipesPage() {
     systemSmartFoldersResult,
     userSmartFoldersResult,
     cookingHistoryResult,
-    sidebarPreferencesResult,
   ] = await Promise.all([
     getRecipes(),
     getFavorites(),
@@ -42,7 +49,6 @@ export default async function RecipesPage() {
     getSystemSmartFolders(),
     getUserSmartFolders(),
     getCookingHistoryContext(),
-    getSidebarPreferencesAuto(),
   ]);
 
   const recipes = recipesResult.data || [];
@@ -56,7 +62,6 @@ export default async function RecipesPage() {
   const systemSmartFolders = systemSmartFoldersResult.data || [];
   const userSmartFolders = userSmartFoldersResult.data || [];
   const cookingHistoryContext = cookingHistoryResult.data || { cookCounts: {}, lastCookedDates: {} };
-  const pinnedItems = sidebarPreferencesResult.data?.pinnedItems || [];
 
   // Build folder membership map (folderId -> recipeIds[])
   const folderMemberships: Record<string, string[]> = {};
@@ -155,7 +160,7 @@ export default async function RecipesPage() {
             systemSmartFolders={systemSmartFolders}
             userSmartFolders={userSmartFolders}
             cookingHistoryContext={cookingHistoryContext}
-            pinnedItems={pinnedItems}
+            searchParams={params}
           />
         </Suspense>
       )}

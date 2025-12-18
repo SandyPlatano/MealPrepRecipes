@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import type { LucideIcon } from "lucide-react";
-import { Settings, HelpCircle, Moon, Sun, Monitor, PanelLeft, PanelLeftClose, ExternalLink } from "lucide-react";
+import { Settings, HelpCircle, Moon, Sun, Monitor, PanelLeft, PanelLeftClose, ExternalLink, ChevronUp, ChevronDown } from "lucide-react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -21,20 +21,26 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { SidebarNavItem } from "./sidebar-nav-item";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { useSidebar } from "./sidebar-context";
 
 /**
  * Shared styling constants for consistent nav item appearance
- * Using !important-style utilities to override Button defaults
+ * Compact variant for bottom nav - reduced height for space efficiency
  */
 const NAV_ITEM_CLASSES = {
-  base: "w-full h-10 px-3 transition-all duration-150 flex items-center gap-3",
+  base: "w-full h-8 px-2.5 transition-all duration-150 flex items-center gap-2.5",
   inactive: "text-muted-foreground hover:text-foreground hover:bg-accent",
   iconOnly: "justify-center px-0",
-  icon: "h-4 w-4 shrink-0",
-  label: "flex-1 text-left truncate text-sm font-medium",
+  icon: "h-3.5 w-3.5 shrink-0",
+  label: "flex-1 text-left truncate text-[13px] font-medium",
 };
+
+const STORAGE_KEY = "sidebar-bottom-nav-collapsed";
 
 /**
  * Helper component for dropdown menu triggers styled as nav items.
@@ -62,14 +68,14 @@ function SidebarDropdownItem({
     <Button
       variant="ghost"
       className={cn(
-        "w-full h-10 px-3",
+        "w-full h-8 px-2.5",
         NAV_ITEM_CLASSES.inactive,
         isIconOnly && "px-0"
       )}
     >
       <span
         className={cn(
-          "flex items-center gap-3 w-full",
+          "flex items-center gap-2.5 w-full",
           isIconOnly && "justify-center"
         )}
       >
@@ -106,30 +112,100 @@ function SidebarDropdownItem({
 }
 
 export function SidebarBottomNav() {
+  const { isIconOnly } = useSidebar();
+  const [isCollapsed, setIsCollapsed] = React.useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(STORAGE_KEY) === "true";
+  });
+
   return (
     <div className="mt-auto border-t bg-muted/30 dark:bg-muted/10">
-      {/* Settings Group */}
-      <div className="p-2 space-y-0.5">
-        <SidebarNavItem
-          href="/app/settings"
-          icon={Settings}
-          label="Settings"
-          pinnableType="page"
-          pinnableId="settings"
-        />
-        <SidebarModeToggle />
-        <ThemeToggle />
-      </div>
+      <Collapsible open={!isCollapsed} onOpenChange={(open) => {
+        setIsCollapsed(!open);
+        localStorage.setItem(STORAGE_KEY, String(!open));
+      }}>
+        {/* Collapse toggle header */}
+        <CollapsibleTrigger asChild>
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full h-7 px-2.5 flex items-center justify-between",
+              "text-muted-foreground/60 hover:text-muted-foreground hover:bg-transparent",
+              isIconOnly && "px-0 justify-center"
+            )}
+          >
+            {!isIconOnly && (
+              <span className="text-[11px] uppercase tracking-wider font-medium">
+                Settings
+              </span>
+            )}
+            {isCollapsed ? (
+              <ChevronUp className="h-3 w-3" />
+            ) : (
+              <ChevronDown className="h-3 w-3" />
+            )}
+          </Button>
+        </CollapsibleTrigger>
 
-      {/* Subtle divider */}
-      <div className="mx-3 h-px bg-border/50" />
-
-      {/* Help - separated */}
-      <div className="p-2">
-        <HelpButton />
-      </div>
+        {/* Collapsible content - all items merged */}
+        <CollapsibleContent>
+          <div className="px-1.5 pb-1.5 space-y-0">
+            <CompactSidebarNavItem
+              href="/app/settings"
+              icon={Settings}
+              label="Settings"
+            />
+            <SidebarModeToggle />
+            <ThemeToggle />
+            <HelpButton />
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
+}
+
+/**
+ * Compact version of SidebarNavItem for bottom nav
+ */
+function CompactSidebarNavItem({ href, icon: Icon, label }: { href: string; icon: LucideIcon; label: string }) {
+  const { isIconOnly } = useSidebar();
+
+  const content = (
+    <Button
+      variant="ghost"
+      className={cn(
+        "w-full h-8 px-2.5",
+        NAV_ITEM_CLASSES.inactive,
+        isIconOnly && "px-0"
+      )}
+      asChild
+    >
+      <a
+        href={href}
+        className={cn(
+          "flex items-center gap-2.5 w-full",
+          isIconOnly && "justify-center"
+        )}
+      >
+        <Icon className={NAV_ITEM_CLASSES.icon} />
+        {!isIconOnly && <span className={NAV_ITEM_CLASSES.label}>{label}</span>}
+      </a>
+    </Button>
+  );
+
+  if (isIconOnly) {
+    return (
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>{content}</TooltipTrigger>
+        <TooltipContent side="right">
+          <span>{label}</span>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return content;
 }
 
 function SidebarModeToggle() {
@@ -204,7 +280,7 @@ function SidebarExternalLink({ href, icon: Icon, label }: SidebarExternalLinkPro
     <Button
       variant="ghost"
       className={cn(
-        "w-full h-10 px-3",
+        "w-full h-8 px-2.5",
         NAV_ITEM_CLASSES.inactive,
         isIconOnly && "px-0"
       )}
@@ -215,7 +291,7 @@ function SidebarExternalLink({ href, icon: Icon, label }: SidebarExternalLinkPro
         target="_blank"
         rel="noopener noreferrer"
         className={cn(
-          "flex items-center gap-3 w-full",
+          "flex items-center gap-2.5 w-full",
           isIconOnly && "justify-center"
         )}
       >
@@ -223,7 +299,7 @@ function SidebarExternalLink({ href, icon: Icon, label }: SidebarExternalLinkPro
         {!isIconOnly && (
           <>
             <span className={NAV_ITEM_CLASSES.label}>{label}</span>
-            <ExternalLink className="h-3 w-3 text-muted-foreground shrink-0" />
+            <ExternalLink className="h-2.5 w-2.5 text-muted-foreground shrink-0" />
           </>
         )}
       </a>

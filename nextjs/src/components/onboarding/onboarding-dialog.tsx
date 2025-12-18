@@ -368,17 +368,96 @@ export function OnboardingDialog({
                   <span className="text-xs opacity-80">2000 cal • 150g protein</span>
                 </Button>
                 <Button
-                  variant={!nutritionEnabled ? "secondary" : "outline"}
+                  variant={selectedPreset === "custom" ? "default" : "outline"}
                   onClick={() => {
-                    setNutritionEnabled(false);
-                    setSelectedPreset(null);
+                    setSelectedPreset("custom");
+                    setNutritionEnabled(true);
                   }}
                   className="h-auto flex-col items-start gap-1 px-3 py-2"
                 >
-                  <span className="font-semibold">Skip for now</span>
-                  <span className="text-xs opacity-80">Set up later in settings</span>
+                  <span className="font-semibold">Custom</span>
+                  <span className="text-xs opacity-80">Set your own targets</span>
                 </Button>
               </div>
+
+              {/* Custom macro inputs - shown when custom is selected */}
+              {selectedPreset === "custom" && (
+                <div className="space-y-3 pt-2 border-t">
+                  <Label className="text-sm">Set your daily targets</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="onboard-calories" className="text-xs text-muted-foreground">Calories</Label>
+                      <Input
+                        id="onboard-calories"
+                        type="number"
+                        min="1000"
+                        max="5000"
+                        step="50"
+                        value={macroGoals.calories}
+                        onChange={(e) => setMacroGoals({ ...macroGoals, calories: parseInt(e.target.value) || 2000 })}
+                        className="h-9"
+                        placeholder="2000"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="onboard-protein" className="text-xs text-muted-foreground">Protein (g)</Label>
+                      <Input
+                        id="onboard-protein"
+                        type="number"
+                        min="50"
+                        max="400"
+                        step="5"
+                        value={macroGoals.protein_g}
+                        onChange={(e) => setMacroGoals({ ...macroGoals, protein_g: parseInt(e.target.value) || 150 })}
+                        className="h-9"
+                        placeholder="150"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="onboard-carbs" className="text-xs text-muted-foreground">Carbs (g)</Label>
+                      <Input
+                        id="onboard-carbs"
+                        type="number"
+                        min="50"
+                        max="600"
+                        step="10"
+                        value={macroGoals.carbs_g}
+                        onChange={(e) => setMacroGoals({ ...macroGoals, carbs_g: parseInt(e.target.value) || 200 })}
+                        className="h-9"
+                        placeholder="200"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="onboard-fat" className="text-xs text-muted-foreground">Fat (g)</Label>
+                      <Input
+                        id="onboard-fat"
+                        type="number"
+                        min="20"
+                        max="250"
+                        step="5"
+                        value={macroGoals.fat_g}
+                        onChange={(e) => setMacroGoals({ ...macroGoals, fat_g: parseInt(e.target.value) || 65 })}
+                        className="h-9"
+                        placeholder="65"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Skip option */}
+              <Button
+                variant={!nutritionEnabled ? "secondary" : "ghost"}
+                onClick={() => {
+                  setNutritionEnabled(false);
+                  setSelectedPreset(null);
+                }}
+                className="w-full justify-start text-sm"
+                size="sm"
+              >
+                Skip for now — set up later in settings
+              </Button>
+
               <p className="text-xs text-muted-foreground">
                 You can customize your goals anytime in Settings → Dietary.
               </p>
