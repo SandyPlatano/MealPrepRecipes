@@ -269,6 +269,7 @@ export function SidebarProvider({
 
   // Derived state
   const isIconOnly = isCollapsed || width <= SIDEBAR_DIMENSIONS.MIN_WIDTH;
+  const isExpanded = mode === "expanded" || (mode === "collapsed" && isHovered && hoverExpand);
 
   const value = React.useMemo<SidebarContextValue>(
     () => ({
@@ -277,11 +278,13 @@ export function SidebarProvider({
       isMobileOpen,
       isMobile,
       isTablet,
-      isIconOnly,
       mode,
       hoverExpand,
-      isHovered,
       pinnedItems,
+      isHovered,
+      setIsHovered,
+      isIconOnly,
+      isExpanded,
       setWidth,
       toggleCollapse,
       collapse,
@@ -291,10 +294,11 @@ export function SidebarProvider({
       toggleMobile,
       setMode,
       toggleHoverExpand,
-      setIsHovered,
       pinItem,
       unpinItem,
+      reorderPinned,
       isPinned,
+      isLoading,
     }),
     [
       width,
@@ -302,11 +306,12 @@ export function SidebarProvider({
       isMobileOpen,
       isMobile,
       isTablet,
-      isIconOnly,
       mode,
       hoverExpand,
-      isHovered,
       pinnedItems,
+      isHovered,
+      isIconOnly,
+      isExpanded,
       setWidth,
       toggleCollapse,
       collapse,
@@ -314,10 +319,13 @@ export function SidebarProvider({
       openMobile,
       closeMobile,
       toggleMobile,
+      setMode,
       toggleHoverExpand,
       pinItem,
       unpinItem,
+      reorderPinned,
       isPinned,
+      isLoading,
     ]
   );
 

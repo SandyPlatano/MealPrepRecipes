@@ -389,12 +389,16 @@ export function useVoiceCommands({
   // NOTE: Caller is responsible for checking if voice should be enabled
   // Do NOT check 'enabled' here - it causes stale closure issues
   const startListening = useCallback(() => {
+    console.log("[VoiceCommands] startListening called");
+
     // Already listening - don't start again
     if (recognitionRef.current) {
+      console.log("[VoiceCommands] Already listening, returning early");
       return;
     }
 
     if (typeof window === "undefined") {
+      console.error("[VoiceCommands] No window object");
       setError("Voice commands not available (no window)");
       return;
     }
@@ -403,9 +407,12 @@ export function useVoiceCommands({
       window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognitionClass) {
+      console.error("[VoiceCommands] SpeechRecognition not supported");
       setError("Speech recognition not supported in this browser");
       return;
     }
+
+    console.log("[VoiceCommands] Creating recognition instance...");
 
     try {
       const recognition = new SpeechRecognitionClass();
@@ -416,11 +423,17 @@ export function useVoiceCommands({
       recognition.onresult = handleResult;
 
       recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+        console.error("[VoiceCommands] Recognition error:", event.error, event.message);
         // Handle specific errors differently
         if (event.error === "not-allowed") {
           setError("Microphone access denied. Please allow microphone access.");
         } else if (event.error === "no-speech") {
           // This is normal - don't treat as error, just restart
+          console.log("[VoiceCommands] No speech detected, continuing...");
+          return;
+        } else if (event.error === "aborted") {
+          // Recognition was aborted, this is normal when stopping
+          console.log("[VoiceCommands] Recognition aborted");
           return;
         } else {
           setError(`Speech recognition error: ${event.error}`);
@@ -430,28 +443,43 @@ export function useVoiceCommands({
       };
 
       recognition.onend = () => {
+        console.log("[VoiceCommands] Recognition ended, enabledRef:", enabledRef.current, "isListeningRef:", isListeningRef.current);
         // Use refs for current state (avoids stale closure)
         if (enabledRef.current && isListeningRef.current) {
           // Automatically restart if we're still enabled and should be listening
+          console.log("[VoiceCommands] Restarting recognition...");
           try {
             recognition.start();
           } catch (err) {
+            console.error("[VoiceCommands] Failed to restart:", err);
             setError(`Failed to restart: ${err instanceof Error ? err.message : "unknown"}`);
             setIsListening(false);
             isListeningRef.current = false;
           }
         } else {
+          console.log("[VoiceCommands] Not restarting, stopping listening");
           setIsListening(false);
           isListeningRef.current = false;
         }
       };
 
+      recognition.onstart = () => {
+        console.log("[VoiceCommands] Recognition started successfully!");
+      };
+
+      recognition.onaudiostart = () => {
+        console.log("[VoiceCommands] Audio capture started");
+      };
+
+      console.log("[VoiceCommands] Calling recognition.start()...");
       recognition.start();
       recognitionRef.current = recognition;
       setIsListening(true);
       isListeningRef.current = true;
       setError(null);
+      console.log("[VoiceCommands] Voice commands listening started!");
     } catch (err) {
+      console.error("[VoiceCommands] Failed to start:", err);
       setError(
         `Failed to start speech recognition: ${err instanceof Error ? err.message : "unknown error"}`
       );
