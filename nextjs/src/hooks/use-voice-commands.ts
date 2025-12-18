@@ -240,6 +240,19 @@ export function useVoiceCommands({
   const commandTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isAwaitingCommandRef = useRef(false);
 
+  // Use refs to track current state for event handlers (avoids stale closures)
+  const enabledRef = useRef(enabled);
+  const isListeningRef = useRef(isListening);
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    enabledRef.current = enabled;
+  }, [enabled]);
+
+  useEffect(() => {
+    isListeningRef.current = isListening;
+  }, [isListening]);
+
   // Check if SpeechRecognition is supported
   const isSupported =
     typeof window !== "undefined" &&
@@ -324,9 +337,11 @@ export function useVoiceCommands({
   );
 
   // Start listening for voice commands
+  // NOTE: Caller is responsible for checking if voice should be enabled
+  // Do NOT check 'enabled' here - it causes stale closure issues
   const startListening = useCallback(() => {
-    if (!enabled) {
-      setError("Voice commands are disabled");
+    // Already listening - don't start again
+    if (recognitionRef.current) {
       return;
     }
 
@@ -352,34 +367,49 @@ export function useVoiceCommands({
       recognition.onresult = handleResult;
 
       recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-        setError(`Speech recognition error: ${event.error}`);
+        // Handle specific errors differently
+        if (event.error === "not-allowed") {
+          setError("Microphone access denied. Please allow microphone access.");
+        } else if (event.error === "no-speech") {
+          // This is normal - don't treat as error, just restart
+          return;
+        } else {
+          setError(`Speech recognition error: ${event.error}`);
+        }
         setIsListening(false);
+        isListeningRef.current = false;
       };
 
       recognition.onend = () => {
-        // Automatically restart if we're still enabled
-        if (enabled && isListening) {
+        // Use refs for current state (avoids stale closure)
+        if (enabledRef.current && isListeningRef.current) {
+          // Automatically restart if we're still enabled and should be listening
           try {
             recognition.start();
-          } catch {
+          } catch (err) {
+            setError(`Failed to restart: ${err instanceof Error ? err.message : "unknown"}`);
             setIsListening(false);
+            isListeningRef.current = false;
           }
         } else {
           setIsListening(false);
+          isListeningRef.current = false;
         }
       };
 
       recognition.start();
       recognitionRef.current = recognition;
       setIsListening(true);
+      isListeningRef.current = true;
       setError(null);
     } catch (err) {
       setError(
         `Failed to start speech recognition: ${err instanceof Error ? err.message : "unknown error"}`
       );
       setIsListening(false);
+      isListeningRef.current = false;
     }
-  }, [enabled, handleResult, isListening]);
+  }, [handleResult]); // Removed 'enabled' and 'isListening' - use refs instead
 
   // Stop listening for voice commands
   const stopListening = useCallback(() => {
