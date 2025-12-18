@@ -352,22 +352,74 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     };
   }, []);
 
-  // Flush pending changes before page unload to prevent data loss
+  // Flush pending settings changes using navigator.sendBeacon for reliable delivery
+  // This fires on visibilitychange (most reliable) and pagehide (backup)
+  // See: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      const hasPendingChanges = Object.keys(pendingChanges.current).length > 0;
+    // Track if we've already flushed to avoid duplicate saves
+    let hasFlushed = false;
 
-      if (hasPendingChanges && saveTimeoutRef.current) {
+    const flushPendingSettings = () => {
+      // Only flush once per page hide cycle
+      if (hasFlushed) return;
+
+      const changes = pendingChanges.current;
+      const hasSettingsChanges =
+        changes.settings && Object.keys(changes.settings).length > 0;
+
+      if (!hasSettingsChanges) return;
+
+      // Clear the debounce timeout
+      if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
         saveTimeoutRef.current = null;
-        // Fire and forget - best effort save
-        executeSave();
+      }
+
+      // Use sendBeacon for reliable delivery during page unload
+      // sendBeacon automatically includes cookies for authentication
+      const payload = JSON.stringify(changes.settings);
+      const success = navigator.sendBeacon("/api/settings/sync", payload);
+
+      if (success) {
+        // Clear pending changes since beacon was queued
+        pendingChanges.current = {};
+        hasFlushed = true;
+      } else {
+        // Fallback: try regular fetch (may not complete during unload)
+        console.warn("[Settings] sendBeacon failed, attempting fetch fallback");
+        fetch("/api/settings/sync", {
+          method: "POST",
+          body: payload,
+          keepalive: true, // Hint to browser to complete after page unload
+        }).catch(() => {
+          // Silently fail - nothing more we can do
+        });
       }
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [executeSave]);
+    // visibilitychange is most reliable across devices (including mobile)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        flushPendingSettings();
+      } else {
+        // Reset flush flag when page becomes visible again
+        hasFlushed = false;
+      }
+    };
+
+    // pagehide is backup for same-tab navigation (Safari compatibility)
+    const handlePageHide = () => {
+      flushPendingSettings();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pagehide", handlePageHide);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pagehide", handlePageHide);
+    };
+  }, []);
 
   // ──────────────────────────────────────────────────────────────────────────
   // Update Functions
