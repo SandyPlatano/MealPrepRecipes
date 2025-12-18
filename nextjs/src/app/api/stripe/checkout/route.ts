@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: 'subscription',
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings/billing?success=true`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/settings/billing?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing?canceled=true`,
       allow_promotion_codes: true,
       billing_address_collection: 'auto',

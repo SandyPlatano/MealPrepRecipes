@@ -9,11 +9,13 @@ import {
   MessageSquareHeart,
   PanelLeft,
   LayoutGrid,
+  CreditCard,
   type LucideIcon,
 } from "lucide-react";
 
 export type SettingsCategoryId =
   | "profile"
+  | "billing"
   | "appearance"
   | "recipe-layout"
   | "sidebar"
@@ -53,6 +55,14 @@ export const SETTINGS_CATEGORIES: SettingsCategory[] = [
     description: "Your personal information and account settings",
     icon: User,
     path: "/app/settings/profile",
+  },
+  {
+    id: "billing",
+    label: "Billing & Subscription",
+    shortLabel: "Billing",
+    description: "Manage your subscription and billing",
+    icon: CreditCard,
+    path: "/app/settings/billing",
   },
   {
     id: "appearance",
