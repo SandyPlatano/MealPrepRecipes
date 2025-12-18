@@ -120,7 +120,7 @@ export function MealTypeEmojiSettings({ initialEmojis }: MealTypeEmojiSettingsPr
                     {hasEmoji ? currentEmoji : "—"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 border-0" align="start">
+                <PopoverContent className="w-auto p-0 border-0 z-[10000]" align="start" usePortal={false}>
                   <Picker
                     data={data}
                     onEmojiSelect={(emoji: { native: string }) =>

@@ -432,6 +432,7 @@ export function CustomIngredientCategoriesSection({
                   <PopoverContent
                     className="w-auto p-0 border-0 z-[10000]"
                     align="start"
+                    usePortal={false}
                   >
                     <Picker
                       data={data}

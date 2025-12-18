@@ -29,13 +29,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { LinkPresetGrid } from "./link-preset-grid";
@@ -111,7 +104,7 @@ export function CustomLinkEditor({
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dialogView, setDialogView] = useState<DialogView>("presets");
-  const [activeTab, setActiveTab] = useState<"quick" | "custom">("quick");
+  const [activeTab, setActiveTab] = useState<"quick" | "app-page" | "external-url">("quick");
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -198,6 +191,18 @@ export function CustomLinkEditor({
 
   const handleClearEmoji = () => {
     setForm((prev) => ({ ...prev, emoji: null }));
+  };
+
+  const handleTabChange = (value: string) => {
+    const tab = value as "quick" | "app-page" | "external-url";
+    setActiveTab(tab);
+
+    // Set form type based on selected tab
+    if (tab === "app-page") {
+      setForm((prev) => ({ ...prev, type: "internal", url: "" }));
+    } else if (tab === "external-url") {
+      setForm((prev) => ({ ...prev, type: "external", url: "" }));
+    }
   };
 
   const handleCloseDialog = () => {
@@ -343,7 +348,7 @@ export function CustomLinkEditor({
                           {form.emoji || <Smile className="h-4 w-4" />}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 z-[10000]" align="start">
+                      <PopoverContent className="w-auto p-0 z-[10000]" align="start" usePortal={false}>
                         <Picker
                           data={data}
                           onEmojiSelect={handleEmojiSelect}
@@ -381,15 +386,16 @@ export function CustomLinkEditor({
               </DialogFooter>
             </>
           ) : (
-            /* Tabbed View (Quick Add / Custom Link) */
+            /* Tabbed View (Quick Add / App Page / External URL) */
             <Tabs
               value={activeTab}
-              onValueChange={(value) => setActiveTab(value as "quick" | "custom")}
+              onValueChange={handleTabChange}
               className="w-full"
             >
-              <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsList className="grid w-full grid-cols-3 mb-4">
                 <TabsTrigger value="quick">Quick Add</TabsTrigger>
-                <TabsTrigger value="custom">Custom Link</TabsTrigger>
+                <TabsTrigger value="app-page">App Page</TabsTrigger>
+                <TabsTrigger value="external-url">External URL</TabsTrigger>
               </TabsList>
 
               {/* Quick Add Tab - Preset Grid */}
@@ -400,43 +406,14 @@ export function CustomLinkEditor({
                 />
               </TabsContent>
 
-              {/* Custom Link Tab - Full Form */}
-              <TabsContent value="custom" className="mt-0">
+              {/* App Page Tab */}
+              <TabsContent value="app-page" className="mt-0">
                 <div className="space-y-4 py-2">
-                  {/* Link Type */}
-                  <div className="space-y-2">
-                    <Label>Link Type</Label>
-                    <Select
-                      value={form.type}
-                      onValueChange={(value: LinkType) =>
-                        setForm((prev) => ({ ...prev, type: value, url: "" }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="internal">
-                          <div className="flex items-center gap-2">
-                            <LinkIcon className="h-4 w-4" />
-                            <span>App Page</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="external">
-                          <div className="flex items-center gap-2">
-                            <ExternalLink className="h-4 w-4" />
-                            <span>External URL</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
                   {/* Label */}
                   <div className="space-y-2">
-                    <Label htmlFor="custom-link-label">Label</Label>
+                    <Label htmlFor="app-page-label">Label</Label>
                     <Input
-                      id="custom-link-label"
+                      id="app-page-label"
                       value={form.label}
                       onChange={(e) =>
                         setForm((prev) => ({ ...prev, label: e.target.value }))
@@ -445,28 +422,20 @@ export function CustomLinkEditor({
                     />
                   </div>
 
-                  {/* URL/Path */}
+                  {/* App Path */}
                   <div className="space-y-2">
-                    <Label htmlFor="custom-link-url">
-                      {form.type === "internal" ? "App Path" : "URL"}
-                    </Label>
+                    <Label htmlFor="app-page-path">App Path</Label>
                     <Input
-                      id="custom-link-url"
+                      id="app-page-path"
                       value={form.url}
                       onChange={(e) =>
                         setForm((prev) => ({ ...prev, url: e.target.value }))
                       }
-                      placeholder={
-                        form.type === "internal"
-                          ? "/app/recipes"
-                          : "https://example.com"
-                      }
+                      placeholder="/app/recipes"
                     />
-                    {form.type === "internal" && (
-                      <p className="text-xs text-muted-foreground">
-                        Start with / for app pages (e.g., /app/recipes, /app/planner)
-                      </p>
-                    )}
+                    <p className="text-xs text-muted-foreground">
+                      Start with / for app pages (e.g., /app/recipes, /app/planner)
+                    </p>
                   </div>
 
                   {/* Emoji */}
@@ -485,7 +454,90 @@ export function CustomLinkEditor({
                             {form.emoji || <Smile className="h-4 w-4" />}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 z-[10000]" align="start">
+                        <PopoverContent className="w-auto p-0 z-[10000]" align="start" usePortal={false}>
+                          <Picker
+                            data={data}
+                            onEmojiSelect={handleEmojiSelect}
+                            theme="auto"
+                            previewPosition="none"
+                            skinTonePosition="search"
+                          />
+                        </PopoverContent>
+                      </Popover>
+
+                      {form.emoji && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={handleClearEmoji}
+                          className="h-8 w-8"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <DialogFooter className="mt-4">
+                  <Button variant="outline" onClick={handleCloseDialog} disabled={isSubmitting}>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleAddLink}
+                    disabled={isSubmitting || !form.label.trim() || !form.url.trim()}
+                  >
+                    {isSubmitting ? "Adding..." : "Add Link"}
+                  </Button>
+                </DialogFooter>
+              </TabsContent>
+
+              {/* External URL Tab */}
+              <TabsContent value="external-url" className="mt-0">
+                <div className="space-y-4 py-2">
+                  {/* Label */}
+                  <div className="space-y-2">
+                    <Label htmlFor="external-url-label">Label</Label>
+                    <Input
+                      id="external-url-label"
+                      value={form.label}
+                      onChange={(e) =>
+                        setForm((prev) => ({ ...prev, label: e.target.value }))
+                      }
+                      placeholder="e.g., YouTube Tutorial, Recipe Blog"
+                    />
+                  </div>
+
+                  {/* URL */}
+                  <div className="space-y-2">
+                    <Label htmlFor="external-url-input">URL</Label>
+                    <Input
+                      id="external-url-input"
+                      value={form.url}
+                      onChange={(e) =>
+                        setForm((prev) => ({ ...prev, url: e.target.value }))
+                      }
+                      placeholder="https://youtube.com/watch?v=..."
+                    />
+                  </div>
+
+                  {/* Emoji */}
+                  <div className="space-y-2">
+                    <Label>Icon (Optional)</Label>
+                    <div className="flex items-center gap-2">
+                      <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "h-10 w-10 text-lg",
+                              !form.emoji && "text-muted-foreground"
+                            )}
+                          >
+                            {form.emoji || <Smile className="h-4 w-4" />}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 z-[10000]" align="start" usePortal={false}>
                           <Picker
                             data={data}
                             onEmojiSelect={handleEmojiSelect}
@@ -509,21 +561,19 @@ export function CustomLinkEditor({
                     </div>
                   </div>
 
-                  {/* Open in New Tab (external only) */}
-                  {form.type === "external" && (
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="new-tab" className="text-sm">
-                        Open in new tab
-                      </Label>
-                      <Switch
-                        id="new-tab"
-                        checked={form.openInNewTab}
-                        onCheckedChange={(checked) =>
-                          setForm((prev) => ({ ...prev, openInNewTab: checked }))
-                        }
-                      />
-                    </div>
-                  )}
+                  {/* Open in New Tab */}
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="new-tab" className="text-sm">
+                      Open in new tab
+                    </Label>
+                    <Switch
+                      id="new-tab"
+                      checked={form.openInNewTab}
+                      onCheckedChange={(checked) =>
+                        setForm((prev) => ({ ...prev, openInNewTab: checked }))
+                      }
+                    />
+                  </div>
                 </div>
 
                 <DialogFooter className="mt-4">

@@ -68,7 +68,7 @@ export async function getSettings() {
 
   // Try to get existing settings
   // Explicitly select columns to avoid schema cache issues with missing columns
-  // Note: recipe_export_preferences is stored in the 'preferences' JSONB column, not as a separate column
+  // Note: recipe_export_preferences and unit_system are stored in the 'preferences' JSONB column, not as separate columns
   // eslint-disable-next-line prefer-const -- selectError is not reassigned but settings is
   let { data: settings, error: selectError } = await supabase
     .from("user_settings")
@@ -89,8 +89,7 @@ export async function getSettings() {
       preferences,
       created_at,
       updated_at,
-      email_notifications,
-      unit_system
+      email_notifications
     `)
     .eq("user_id", user.id)
     .single();
@@ -113,7 +112,6 @@ export async function getSettings() {
         calendar_excluded_days,
         google_connected_account,
         dismissed_hints,
-        unit_system,
         preferences,
         created_at,
         updated_at
