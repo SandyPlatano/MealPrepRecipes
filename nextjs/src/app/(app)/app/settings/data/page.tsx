@@ -7,7 +7,7 @@ import { SettingRow, SettingSection } from "@/components/settings/shared/setting
 import { AdvancedToggle } from "@/components/settings/shared/advanced-toggle";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Download, Upload, Loader2, Shield } from "lucide-react";
+import { Download, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   getRecipeExportPreferences,
@@ -17,11 +17,18 @@ import {
   getRecipesForExport,
   getExistingRecipeTitles,
 } from "@/app/actions/export";
+import { getCustomFieldDefinitions } from "@/app/actions/custom-fields";
+import { getCustomIngredientCategories } from "@/app/actions/custom-ingredient-categories";
 import { useSettings } from "@/contexts/settings-context";
 import { BulkExportDialog } from "@/components/recipes/export/bulk-export-dialog";
 import { BulkImportDialog } from "@/components/recipes/export/bulk-import-dialog";
+import { CustomFieldsSection } from "@/components/settings/custom-fields-section";
+import { CustomIngredientCategoriesSection } from "@/components/settings/custom-ingredient-categories-section";
+import { CategoryOrderSection } from "@/components/settings/category-order-section";
 import type { RecipeExportPreferences } from "@/types/settings";
 import type { Recipe } from "@/types/recipe";
+import type { CustomFieldDefinition } from "@/types/custom-fields";
+import type { CustomIngredientCategory } from "@/types/custom-ingredient-category";
 
 const DEFAULT_EXPORT_PREFS: RecipeExportPreferences = {
   include_ingredients: true,
@@ -35,7 +42,7 @@ const DEFAULT_EXPORT_PREFS: RecipeExportPreferences = {
 
 export default function DataSettingsPage() {
   const router = useRouter();
-  const { profile, preferencesV2, updatePrivacyPrefs } = useSettings();
+  const { profile, preferencesV2, updatePrivacyPrefs, household } = useSettings();
   const [exportPrefs, setExportPrefs] = useState<RecipeExportPreferences>(DEFAULT_EXPORT_PREFS);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -46,6 +53,14 @@ export default function DataSettingsPage() {
   const [existingTitles, setExistingTitles] = useState<Set<string>>(new Set());
   const [isLoadingExport, setIsLoadingExport] = useState(false);
   const [isLoadingImport, setIsLoadingImport] = useState(false);
+
+  // Custom data state
+  const [customFields, setCustomFields] = useState<CustomFieldDefinition[]>([]);
+  const [ingredientCategories, setIngredientCategories] = useState<CustomIngredientCategory[]>([]);
+  const [isLoadingCustomData, setIsLoadingCustomData] = useState(true);
+
+  // Get household ID
+  const householdId = household?.household?.id;
 
   // Load initial preferences
   useEffect(() => {
@@ -58,6 +73,35 @@ export default function DataSettingsPage() {
     }
     loadPrefs();
   }, []);
+
+  // Load custom fields and ingredient categories
+  useEffect(() => {
+    async function loadCustomData() {
+      if (!householdId) {
+        setIsLoadingCustomData(false);
+        return;
+      }
+
+      setIsLoadingCustomData(true);
+
+      const [fieldsResult, categoriesResult] = await Promise.all([
+        getCustomFieldDefinitions(householdId),
+        getCustomIngredientCategories(householdId),
+      ]);
+
+      if (fieldsResult.data) {
+        setCustomFields(fieldsResult.data);
+      }
+
+      if (categoriesResult.data) {
+        setIngredientCategories(categoriesResult.data);
+      }
+
+      setIsLoadingCustomData(false);
+    }
+
+    loadCustomData();
+  }, [householdId]);
 
   // Handle export button click
   const handleExportClick = async () => {
@@ -254,31 +298,68 @@ export default function DataSettingsPage() {
           </SettingRow>
         </SettingSection>
 
-        <SettingSection title="Custom Data">
-          <SettingRow
-            id="setting-custom-fields"
-            label="Custom Fields"
-            description="Add custom metadata to recipes"
-          >
-            <div className="text-sm text-muted-foreground">Coming soon</div>
-          </SettingRow>
+        {/* Custom Fields Section */}
+        {isLoadingCustomData ? (
+          <SettingSection title="Custom Recipe Fields">
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          </SettingSection>
+        ) : householdId ? (
+          <CustomFieldsSection
+            householdId={householdId}
+            initialFields={customFields}
+          />
+        ) : (
+          <SettingSection title="Custom Recipe Fields">
+            <p className="text-sm text-muted-foreground py-4">
+              Please join or create a household to use custom fields.
+            </p>
+          </SettingSection>
+        )}
 
-          <SettingRow
-            id="setting-ingredient-categories"
-            label="Ingredient Categories"
-            description="Organize shopping lists by category"
-          >
-            <div className="text-sm text-muted-foreground">Coming soon</div>
-          </SettingRow>
+        {/* Ingredient Categories Section */}
+        {isLoadingCustomData ? (
+          <SettingSection title="Ingredient Categories">
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          </SettingSection>
+        ) : householdId ? (
+          <SettingSection title="">
+            <CustomIngredientCategoriesSection
+              householdId={householdId}
+              initialCategories={ingredientCategories}
+            />
+          </SettingSection>
+        ) : (
+          <SettingSection title="Ingredient Categories">
+            <p className="text-sm text-muted-foreground py-4">
+              Please join or create a household to manage ingredient categories.
+            </p>
+          </SettingSection>
+        )}
 
-          <SettingRow
-            id="setting-category-order"
-            label="Category Order"
-            description="Reorder shopping list categories"
-          >
-            <div className="text-sm text-muted-foreground">Coming soon</div>
-          </SettingRow>
+        {/* Category Order Section */}
+        {isLoadingCustomData ? (
+          <SettingSection title="Shopping Route">
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          </SettingSection>
+        ) : ingredientCategories.length > 0 ? (
+          <SettingSection title="">
+            <CategoryOrderSection categories={ingredientCategories} />
+          </SettingSection>
+        ) : (
+          <SettingSection title="Shopping Route">
+            <p className="text-sm text-muted-foreground py-4">
+              Add ingredient categories above to customize your shopping route.
+            </p>
+          </SettingSection>
+        )}
 
+        <SettingSection title="API Usage">
           <SettingRow
             id="setting-api-costs"
             label="API Usage"
