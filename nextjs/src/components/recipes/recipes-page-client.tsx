@@ -3,7 +3,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { RecipeGrid } from "./recipe-grid";
 import { DiscoverDialog } from "./discover-dialog";
-import { FolderSidebar } from "@/components/folders/folder-sidebar";
 import { AddToFolderSheet } from "@/components/folders/add-to-folder-sheet";
 import type {
   RecipeWithFavoriteAndNutrition,
@@ -11,14 +10,12 @@ import type {
   Recipe,
 } from "@/types/recipe";
 import type { CustomBadge } from "@/lib/nutrition/badge-calculator";
-import type { FolderWithChildren, FolderCategoryWithFolders, ActiveFolderFilter } from "@/types/folder";
+import type { FolderWithChildren, ActiveFolderFilter } from "@/types/folder";
 import type { SystemSmartFolder } from "@/types/smart-folder";
 import type { EvaluationContext } from "@/lib/smart-folders";
-import type { PinnedItem } from "@/types/user-preferences-v2";
 import { getRecipeFolderIds } from "@/app/actions/folders";
 import {
   filterRecipesBySmartFolder,
-  countMatchingRecipes,
   SYSTEM_FOLDER_CRITERIA,
 } from "@/lib/smart-folders";
 
@@ -30,14 +27,17 @@ interface RecipesPageClientProps {
   customDietaryRestrictions?: string[];
   customBadges?: CustomBadge[];
   folders: FolderWithChildren[];
-  categories: FolderCategoryWithFolders[];
   folderMemberships: Record<string, string[]>; // folderId -> recipeIds[]
   // Smart folder data
   systemSmartFolders: SystemSmartFolder[];
   userSmartFolders: FolderWithChildren[];
   cookingHistoryContext: EvaluationContext;
-  // Pinned items
-  pinnedItems: PinnedItem[];
+  // URL search params for folder filtering
+  searchParams?: {
+    filter?: string;
+    id?: string;
+    system?: string;
+  };
 }
 
 export function RecipesPageClient({
@@ -48,17 +48,32 @@ export function RecipesPageClient({
   customDietaryRestrictions = [],
   customBadges = [],
   folders,
-  categories,
   folderMemberships,
   systemSmartFolders,
   userSmartFolders,
   cookingHistoryContext,
-  pinnedItems,
+  searchParams,
 }: RecipesPageClientProps) {
   const [discoverOpen, setDiscoverOpen] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<ActiveFolderFilter>({
-    type: "all",
-  });
+
+  // Derive active filter from URL search params
+  const activeFilter = useMemo<ActiveFolderFilter>(() => {
+    const filterType = searchParams?.filter;
+    const filterId = searchParams?.id;
+    const isSystem = searchParams?.system === "true";
+
+    if (filterType === "folder" && filterId) {
+      // Validate folder exists
+      if (!folderMemberships[filterId]) return { type: "all" };
+      return { type: "folder", id: filterId };
+    }
+
+    if (filterType === "smart" && filterId) {
+      return { type: "smart", id: filterId, isSystem };
+    }
+
+    return { type: "all" };
+  }, [searchParams, folderMemberships]);
   const [addToFolderRecipe, setAddToFolderRecipe] = useState<Recipe | null>(
     null
   );
@@ -75,33 +90,6 @@ export function RecipesPageClient({
     cookCounts: cookingHistoryContext?.cookCounts ?? {},
     lastCookedDates: cookingHistoryContext?.lastCookedDates ?? {},
   }), [cookingHistoryContext]);
-
-  // Calculate smart folder counts for all system and user smart folders
-  const smartFolderCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-
-    // Count for system smart folders
-    for (const folder of systemSmartFolders) {
-      const criteria = SYSTEM_FOLDER_CRITERIA[folder.id] || folder.smart_filters;
-      // Ensure criteria has valid conditions before counting
-      if (criteria?.conditions && Array.isArray(criteria.conditions)) {
-        counts[folder.id] = countMatchingRecipes(recipes, criteria, safeCookingHistoryContext);
-      } else {
-        counts[folder.id] = 0;
-      }
-    }
-
-    // Count for user smart folders
-    for (const folder of userSmartFolders) {
-      if (folder.smart_filters?.conditions && Array.isArray(folder.smart_filters.conditions)) {
-        counts[folder.id] = countMatchingRecipes(recipes, folder.smart_filters, safeCookingHistoryContext);
-      } else {
-        counts[folder.id] = 0;
-      }
-    }
-
-    return counts;
-  }, [recipes, systemSmartFolders, userSmartFolders, safeCookingHistoryContext]);
 
   // Get recipe IDs for active folder filter
   const folderRecipeIds = useMemo(() => {
@@ -153,50 +141,34 @@ export function RecipesPageClient({
   );
 
   return (
-    <div className="flex gap-0 -mx-4 sm:-mx-6 lg:-mx-8">
-      {/* Folder Sidebar */}
-      <FolderSidebar
+    <>
+      <RecipeGrid
+        recipes={recipes}
+        recipeCookCounts={recipeCookCounts}
+        userAllergenAlerts={userAllergenAlerts}
+        customDietaryRestrictions={customDietaryRestrictions}
+        customBadges={customBadges}
+        onDiscoverClick={() => setDiscoverOpen(true)}
+        folderRecipeIds={folderRecipeIds}
         folders={folders}
-        categories={categories}
-        activeFilter={activeFilter}
-        onFilterChange={setActiveFilter}
-        totalRecipeCount={recipes.length}
-        systemSmartFolders={systemSmartFolders}
-        userSmartFolders={userSmartFolders}
-        smartFolderCounts={smartFolderCounts}
-        pinnedItems={pinnedItems}
+        onAddToFolder={handleAddToFolder}
       />
 
-      {/* Main Content */}
-      <div className="flex-1 px-4 sm:px-6 lg:px-8">
-        <RecipeGrid
-          recipes={recipes}
-          recipeCookCounts={recipeCookCounts}
-          userAllergenAlerts={userAllergenAlerts}
-          customDietaryRestrictions={customDietaryRestrictions}
-          customBadges={customBadges}
-          onDiscoverClick={() => setDiscoverOpen(true)}
-          folderRecipeIds={folderRecipeIds}
-          folders={folders}
-          onAddToFolder={handleAddToFolder}
-        />
+      <DiscoverDialog
+        open={discoverOpen}
+        onOpenChange={setDiscoverOpen}
+        recipes={recipesForDiscover}
+        recipeCookCounts={recipeCookCounts}
+        recentlyCookedIds={recentlyCookedIds}
+      />
 
-        <DiscoverDialog
-          open={discoverOpen}
-          onOpenChange={setDiscoverOpen}
-          recipes={recipesForDiscover}
-          recipeCookCounts={recipeCookCounts}
-          recentlyCookedIds={recentlyCookedIds}
-        />
-
-        <AddToFolderSheet
-          recipe={addToFolderRecipe}
-          isOpen={addToFolderRecipe !== null}
-          onClose={() => setAddToFolderRecipe(null)}
-          folders={folders}
-          currentFolderIds={currentRecipeFolderIds}
-        />
-      </div>
-    </div>
+      <AddToFolderSheet
+        recipe={addToFolderRecipe}
+        isOpen={addToFolderRecipe !== null}
+        onClose={() => setAddToFolderRecipe(null)}
+        folders={folders}
+        currentFolderIds={currentRecipeFolderIds}
+      />
+    </>
   );
 }

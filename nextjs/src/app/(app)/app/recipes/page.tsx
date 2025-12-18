@@ -3,13 +3,13 @@ import { getRecipes, getFavorites, getRecipeCookCounts } from "@/app/actions/rec
 import { getSettings } from "@/app/actions/settings";
 import { getBulkRecipeNutrition } from "@/app/actions/nutrition";
 import { getActiveCustomBadges } from "@/app/actions/custom-badges";
-import { getFolders, getFolderCategories } from "@/app/actions/folders";
+import { getFolders } from "@/app/actions/folders";
 import { getSystemSmartFolders, getUserSmartFolders, getCookingHistoryContext } from "@/app/actions/smart-folders";
 import { createClient } from "@/lib/supabase/server";
 import { RecipesPageClient } from "@/components/recipes/recipes-page-client";
 import { ContextualHint } from "@/components/hints/contextual-hint";
 import { HINT_IDS, HINT_CONTENT } from "@/lib/hints";
-import type { FolderWithChildren, FolderCategoryWithFolders } from "@/types/folder";
+import type { FolderWithChildren } from "@/types/folder";
 import { EmptyState } from "@/components/ui/empty-state";
 import { UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,6 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
     cookCountsResult,
     customBadgesResult,
     foldersResult,
-    categoriesResult,
     systemSmartFoldersResult,
     userSmartFoldersResult,
     cookingHistoryResult,
@@ -45,7 +44,6 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
     getRecipeCookCounts(),
     getActiveCustomBadges(),
     getFolders(),
-    getFolderCategories(),
     getSystemSmartFolders(),
     getUserSmartFolders(),
     getCookingHistoryContext(),
@@ -58,7 +56,6 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   const recipeCookCounts = cookCountsResult.data || {};
   const customBadges = customBadgesResult.data || [];
   const folders = foldersResult.data || [];
-  const categories = categoriesResult.data || [];
   const systemSmartFolders = systemSmartFoldersResult.data || [];
   const userSmartFolders = userSmartFoldersResult.data || [];
   const cookingHistoryContext = cookingHistoryResult.data || { cookCounts: {}, lastCookedDates: {} };
@@ -155,7 +152,6 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
             customDietaryRestrictions={customDietaryRestrictions}
             customBadges={customBadges}
             folders={folders}
-            categories={categories}
             folderMemberships={folderMemberships}
             systemSmartFolders={systemSmartFolders}
             userSmartFolders={userSmartFolders}

@@ -6,17 +6,7 @@
  */
 
 // Logo components
-export {
-  BrandLogo,
-  BrandLogoCompact,
-  BrandIcon,
-  BrandWordmark,
-  MealPrepOSTagline,
-  type BrandLogoProps,
-  type BrandLogoCompactProps,
-  type BrandIconProps,
-  type BrandWordmarkProps,
-} from "./logo";
+export { BrandLogo, BrandLogoCompact, MealPrepOSTagline } from "./logo";
 
 // Custom icons
 export {
