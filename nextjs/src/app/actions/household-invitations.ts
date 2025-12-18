@@ -25,7 +25,7 @@ export interface HouseholdInvitation {
   email: string;
   invited_by: string;
   token: string;
-  status: "pending" | "accepted" | "expired" | "cancelled";
+  status: "pending" | "accepted" | "expired" | "declined";
   expires_at: string;
   created_at: string;
 }
@@ -233,7 +233,7 @@ export async function cancelHouseholdInvitation(invitationId: string): Promise<{
 
   const { error } = await supabase
     .from("household_invitations")
-    .update({ status: "cancelled" })
+    .update({ status: "declined" })
     .eq("id", invitationId)
     .eq("household_id", householdId)
     .eq("status", "pending");

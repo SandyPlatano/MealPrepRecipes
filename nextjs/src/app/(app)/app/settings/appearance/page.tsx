@@ -40,7 +40,7 @@ const WEEK_START_OPTIONS: { value: WeekStartDay; label: string }[] = [
 
 export default function AppearanceSettingsPage() {
   const { theme, setTheme } = useTheme();
-  const { preferencesV2, updateDisplayPrefs, settings, updateSettingsField } = useSettings();
+  const { preferencesV2, updateDisplayPrefs } = useSettings();
   const display = preferencesV2.display;
 
   return (
@@ -52,21 +52,6 @@ export default function AppearanceSettingsPage() {
 
       {/* Theme */}
       <SettingSection title="Theme">
-        <SettingRow
-          id="setting-dark-mode"
-          label="Dark Mode"
-          description="Toggle between light and dark theme"
-        >
-          <Switch
-            id="setting-dark-mode-control"
-            checked={theme === "dark"}
-            onCheckedChange={(checked) => {
-              setTheme(checked ? "dark" : "light");
-              updateSettingsField("dark_mode", checked);
-            }}
-          />
-        </SettingRow>
-
         <SettingRow
           id="setting-theme-mode"
           label="Theme Mode"

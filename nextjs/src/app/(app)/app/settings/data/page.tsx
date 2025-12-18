@@ -7,7 +7,13 @@ import { SettingRow, SettingSection } from "@/components/settings/shared/setting
 import { AdvancedToggle } from "@/components/settings/shared/advanced-toggle";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Download, Upload, Loader2 } from "lucide-react";
+import { Download, Upload, Loader2, BarChart3, Bug, Sparkles, Check, X } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { toast } from "sonner";
 import {
   getRecipeExportPreferences,
@@ -39,6 +45,139 @@ const DEFAULT_EXPORT_PREFS: RecipeExportPreferences = {
   include_notes: true,
   include_servings: true,
 };
+
+// Privacy transparency data
+interface PrivacyInfo {
+  collected: string[];
+  notCollected: string[];
+  purpose: string;
+}
+
+const PRIVACY_INFO: Record<string, PrivacyInfo> = {
+  analytics: {
+    collected: [
+      "Which features you use and how often",
+      "Session duration and page views",
+      "General app performance metrics",
+    ],
+    notCollected: [
+      "Your recipes or personal content",
+      "Your email or identity",
+    ],
+    purpose: "Helps us understand what's working and what needs improvement",
+  },
+  crashReporting: {
+    collected: [
+      "Error messages and stack traces",
+      "Browser type and version (e.g., Chrome 120)",
+      "Device type (e.g., Desktop, macOS)",
+      "App version",
+      "Session replay (all text is masked, media is blocked)",
+    ],
+    notCollected: [
+      "Your recipes or personal data",
+      "Any URL query parameters (filtered out)",
+    ],
+    purpose: "Helps us fix bugs faster by seeing what went wrong",
+  },
+  recommendations: {
+    collected: [
+      "Your recipe history (what you've cooked)",
+      "Your meal planning patterns",
+      "Your dietary preferences",
+    ],
+    notCollected: [
+      "Data is processed by Anthropic's Claude AI",
+      "Not stored externally or sold",
+    ],
+    purpose: "Suggests recipes you'll actually want to cook",
+  },
+};
+
+interface PrivacySettingRowProps {
+  id: string;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+  infoKey: keyof typeof PRIVACY_INFO;
+  checked: boolean;
+  onCheckedChange: (value: boolean) => void;
+}
+
+function PrivacySettingRow({
+  id,
+  label,
+  description,
+  icon,
+  infoKey,
+  checked,
+  onCheckedChange,
+}: PrivacySettingRowProps) {
+  const info = PRIVACY_INFO[infoKey];
+
+  return (
+    <div className="py-4 transition-all duration-300 rounded-lg px-2 -mx-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 p-1.5 rounded-md bg-muted text-muted-foreground">
+            {icon}
+          </div>
+          <div className="space-y-0.5">
+            <label htmlFor={`${id}-control`} className="text-sm font-medium">
+              {label}
+            </label>
+            <p className="text-xs text-muted-foreground">{description}</p>
+          </div>
+        </div>
+        <div className="flex-shrink-0 ml-9 sm:ml-0">
+          <Switch checked={checked} onCheckedChange={onCheckedChange} />
+        </div>
+      </div>
+
+      <Accordion type="single" collapsible className="ml-9 mt-2">
+        <AccordionItem value="details" className="border-none">
+          <AccordionTrigger className="py-1.5 text-xs text-muted-foreground hover:text-foreground hover:no-underline">
+            What data is collected?
+          </AccordionTrigger>
+          <AccordionContent className="pb-2">
+            <div className="space-y-3 text-xs">
+              {/* What IS collected */}
+              <div className="space-y-1.5">
+                <p className="font-medium text-muted-foreground">We collect:</p>
+                <ul className="space-y-1">
+                  {info.collected.map((item, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <Check className="h-3.5 w-3.5 text-green-500 mt-0.5 shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* What is NOT collected */}
+              <div className="space-y-1.5">
+                <p className="font-medium text-muted-foreground">We don&apos;t collect:</p>
+                <ul className="space-y-1">
+                  {info.notCollected.map((item, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <X className="h-3.5 w-3.5 text-red-500 mt-0.5 shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Purpose */}
+              <p className="text-muted-foreground italic">
+                Purpose: {info.purpose}
+              </p>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  );
+}
 
 export default function DataSettingsPage() {
   const router = useRouter();
@@ -173,40 +312,37 @@ export default function DataSettingsPage() {
       {/* Privacy Settings */}
       <SettingSection
         title="Privacy"
-        description="Control how your data is used. All options are off by default."
+        description="Control how your data is used. All options are off by default. Tap 'What data is collected?' to learn more."
       >
-        <SettingRow
+        <PrivacySettingRow
           id="setting-analytics"
           label="Usage Analytics"
           description="Help improve the app by sharing anonymous usage patterns"
-        >
-          <Switch
-            checked={preferencesV2?.privacy?.analyticsEnabled ?? false}
-            onCheckedChange={(v) => updatePrivacyPrefs({ analyticsEnabled: v })}
-          />
-        </SettingRow>
+          icon={<BarChart3 className="h-4 w-4" />}
+          infoKey="analytics"
+          checked={preferencesV2?.privacy?.analyticsEnabled ?? false}
+          onCheckedChange={(v) => updatePrivacyPrefs({ analyticsEnabled: v })}
+        />
 
-        <SettingRow
+        <PrivacySettingRow
           id="setting-crash-reporting"
           label="Crash Reporting"
           description="Send crash reports to help fix bugs faster"
-        >
-          <Switch
-            checked={preferencesV2?.privacy?.crashReporting ?? false}
-            onCheckedChange={(v) => updatePrivacyPrefs({ crashReporting: v })}
-          />
-        </SettingRow>
+          icon={<Bug className="h-4 w-4" />}
+          infoKey="crashReporting"
+          checked={preferencesV2?.privacy?.crashReporting ?? false}
+          onCheckedChange={(v) => updatePrivacyPrefs({ crashReporting: v })}
+        />
 
-        <SettingRow
+        <PrivacySettingRow
           id="setting-personalized-recommendations"
           label="Personalized Recommendations"
           description="Get AI-powered recipe suggestions based on your cooking history"
-        >
-          <Switch
-            checked={preferencesV2?.privacy?.personalizedRecommendations ?? false}
-            onCheckedChange={(v) => updatePrivacyPrefs({ personalizedRecommendations: v })}
-          />
-        </SettingRow>
+          icon={<Sparkles className="h-4 w-4" />}
+          infoKey="recommendations"
+          checked={preferencesV2?.privacy?.personalizedRecommendations ?? false}
+          onCheckedChange={(v) => updatePrivacyPrefs({ personalizedRecommendations: v })}
+        />
       </SettingSection>
 
       {/* Import/Export */}

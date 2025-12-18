@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useSettings } from "@/contexts/settings-context";
 import { toast } from "sonner";
 
@@ -16,7 +17,8 @@ import { toast } from "sonner";
 export function useKeyboardShortcuts() {
   const router = useRouter();
   const pathname = usePathname();
-  const { settings, preferencesV2, updateSettingsField } = useSettings();
+  const { theme, setTheme } = useTheme();
+  const { preferencesV2 } = useSettings();
   const shortcuts = preferencesV2.keyboard.shortcuts;
   const enabled = preferencesV2.keyboard.enabled;
 
@@ -93,9 +95,9 @@ export function useKeyboardShortcuts() {
           break;
 
         case "toggleDarkMode":
-          const newMode = !settings.dark_mode;
-          updateSettingsField("dark_mode", newMode);
-          showShortcutToast(newMode ? "🌙 Dark Mode" : "☀️ Light Mode");
+          const newTheme = theme === "dark" ? "light" : "dark";
+          setTheme(newTheme);
+          showShortcutToast(newTheme === "dark" ? "🌙 Dark Mode" : "☀️ Light Mode");
           break;
 
         case "nextWeek":
@@ -113,7 +115,7 @@ export function useKeyboardShortcuts() {
           break;
       }
     },
-    [pathname, router, settings.dark_mode, updateSettingsField, showShortcutToast]
+    [pathname, router, theme, setTheme, showShortcutToast]
   );
 
   useEffect(() => {

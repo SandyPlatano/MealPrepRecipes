@@ -100,7 +100,7 @@ export function InvitationManager({ isOwner }: InvitationManagerProps) {
     if (status === "accepted") {
       return <Badge variant="default" className="bg-green-500">Accepted</Badge>;
     }
-    if (status === "cancelled") {
+    if (status === "declined") {
       return <Badge variant="secondary">Cancelled</Badge>;
     }
     if (isExpired || status === "expired") {

@@ -11,6 +11,7 @@ import type {
   AiPersonalityType,
   EnergyModePreferences,
   PrivacyPreferences,
+  RecipeLayoutPreferences,
 } from "@/types/user-preferences-v2";
 import {
   DEFAULT_USER_PREFERENCES_V2,
@@ -21,6 +22,7 @@ import {
   DEFAULT_ENERGY_MODE_PREFERENCES,
   DEFAULT_PRIVACY_PREFERENCES,
   DEFAULT_SIDEBAR_PREFERENCES,
+  DEFAULT_RECIPE_LAYOUT_PREFERENCES,
 } from "@/types/user-preferences-v2";
 
 // ============================================================================
@@ -79,6 +81,17 @@ export async function getUserPreferencesV2(
       sidebar: {
         ...DEFAULT_SIDEBAR_PREFERENCES,
         ...(prefs.sidebar || {}),
+      },
+      recipeLayout: {
+        ...DEFAULT_RECIPE_LAYOUT_PREFERENCES,
+        ...(prefs.recipeLayout || {}),
+        sections: {
+          ...DEFAULT_RECIPE_LAYOUT_PREFERENCES.sections,
+          ...((prefs.recipeLayout?.sections as Record<string, unknown>) || {}),
+        },
+        sectionOrder:
+          prefs.recipeLayout?.sectionOrder ||
+          DEFAULT_RECIPE_LAYOUT_PREFERENCES.sectionOrder,
       },
     },
   };
@@ -530,4 +543,45 @@ export async function updatePrivacyPreferencesAuto(
   const userId = await getCurrentUserId();
   if (!userId) return { error: "Not authenticated" };
   return updatePrivacyPreferences(userId, data);
+}
+
+// ============================================================================
+// Update Recipe Layout Preferences
+// ============================================================================
+
+export async function updateRecipeLayoutPreferences(
+  userId: string,
+  data: RecipeLayoutPreferences
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+
+  // Get current preferences
+  const { data: currentPrefs } = await getUserPreferencesV2(userId);
+
+  const updatedPreferences: UserPreferencesV2 = {
+    ...currentPrefs,
+    recipeLayout: data,
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences_v2: updatedPreferences })
+    .eq("user_id", userId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app");
+  revalidatePath("/app/recipes");
+  revalidatePath("/app/settings");
+  return { error: null };
+}
+
+export async function updateRecipeLayoutPreferencesAuto(
+  data: RecipeLayoutPreferences
+): Promise<{ error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Not authenticated" };
+  return updateRecipeLayoutPreferences(userId, data);
 }

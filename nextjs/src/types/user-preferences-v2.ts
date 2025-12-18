@@ -7,6 +7,10 @@ import {
   EnergyModePreferences,
   DEFAULT_ENERGY_MODE_PREFERENCES,
 } from "./energy-mode";
+import {
+  RecipeLayoutPreferences,
+  DEFAULT_RECIPE_LAYOUT_PREFERENCES,
+} from "./recipe-layout";
 
 // Display Preferences
 export type WeekStartDay = "monday" | "sunday" | "saturday";
@@ -82,6 +86,7 @@ export interface UserPreferencesV2 {
   energyMode: EnergyModePreferences;
   privacy: PrivacyPreferences;
   sidebar: SidebarPreferences;
+  recipeLayout: RecipeLayoutPreferences;
 }
 
 // ============================================================================
@@ -159,6 +164,7 @@ export const DEFAULT_USER_PREFERENCES_V2: UserPreferencesV2 = {
   energyMode: DEFAULT_ENERGY_MODE_PREFERENCES,
   privacy: DEFAULT_PRIVACY_PREFERENCES,
   sidebar: DEFAULT_SIDEBAR_PREFERENCES,
+  recipeLayout: DEFAULT_RECIPE_LAYOUT_PREFERENCES,
 };
 
 // ============================================================================
@@ -289,3 +295,22 @@ export interface SidebarPreferences {
 // Re-export energy mode types for convenience
 export type { EnergyModePreferences } from "./energy-mode";
 export { DEFAULT_ENERGY_MODE_PREFERENCES } from "./energy-mode";
+
+// Re-export recipe layout types for convenience
+export type {
+  RecipeLayoutPreferences,
+  RecipeSectionId,
+  RecipeSectionWidth,
+  RecipeSectionConfig,
+} from "./recipe-layout";
+export {
+  DEFAULT_RECIPE_LAYOUT_PREFERENCES,
+  RECIPE_SECTION_LABELS,
+  RECIPE_SECTION_DESCRIPTIONS,
+  getOrderedSections,
+  getVisibleSections,
+  reorderSections,
+  toggleSectionVisibility,
+  updateSectionWidth,
+  resetToDefaultLayout,
+} from "./recipe-layout";

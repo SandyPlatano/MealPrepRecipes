@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -23,8 +24,8 @@ const DEFAULT_PREFS: KeyboardPreferences = {
 export function KeyboardShortcutsProvider() {
   const router = useRouter();
   const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
   const [prefs, setPrefs] = useState<KeyboardPreferences>(DEFAULT_PREFS);
-  const [darkMode, setDarkMode] = useState(false);
 
   // Track last toast time to prevent spam
   const lastToastRef = useRef<number>(0);
@@ -41,7 +42,7 @@ export function KeyboardShortcutsProvider() {
         // Fetch preferences from user_settings.preferences_v2 column
         const { data: settingsData, error } = await supabase
           .from("user_settings")
-          .select("preferences_v2, dark_mode")
+          .select("preferences_v2")
           .eq("user_id", user.id)
           .single();
 
@@ -54,7 +55,6 @@ export function KeyboardShortcutsProvider() {
               shortcuts: { ...DEFAULT_KEYBOARD_SHORTCUTS, ...prefsV2.keyboard.shortcuts },
             });
           }
-          setDarkMode(settingsData.dark_mode ?? false);
         }
       } catch (err) {
         // Silently fail - just use defaults
@@ -83,31 +83,12 @@ export function KeyboardShortcutsProvider() {
     return mapping;
   }, [prefs.shortcuts]);
 
-  // Toggle dark mode function
-  const toggleDarkMode = useCallback(async () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-
-    // Update the theme immediately via ThemeProvider
-    document.documentElement.classList.toggle("dark", newMode);
-
-    // Save to database
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (user) {
-        await supabase
-          .from("user_settings")
-          .update({ dark_mode: newMode })
-          .eq("user_id", user.id);
-      }
-    } catch (err) {
-      console.error("Failed to save dark mode:", err);
-    }
-
-    showShortcutToast(newMode ? "🌙 Dark Mode" : "☀️ Light Mode");
-  }, [darkMode, showShortcutToast]);
+  // Toggle dark mode using next-themes
+  const toggleDarkMode = useCallback(() => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+    showShortcutToast(newTheme === "dark" ? "🌙 Dark Mode" : "☀️ Light Mode");
+  }, [theme, setTheme, showShortcutToast]);
 
   // Handle the keyboard action
   const handleAction = useCallback(

@@ -19,6 +19,7 @@ import {
   updateServingSizePresetsAuto as updateServingSizePresets,
   updateEnergyModePreferencesAuto as updateEnergyModePreferences,
   updatePrivacyPreferencesAuto as updatePrivacyPreferences,
+  updateRecipeLayoutPreferencesAuto as updateRecipeLayoutPreferences,
 } from "@/app/actions/user-preferences";
 import type { UserSettings, UserProfile, MealTypeCustomization, PlannerViewSettings } from "@/types/settings";
 import type {
@@ -30,6 +31,7 @@ import type {
   AiPersonalityType,
   EnergyModePreferences,
   PrivacyPreferences,
+  RecipeLayoutPreferences,
 } from "@/types/user-preferences-v2";
 import {
   DEFAULT_USER_PREFERENCES_V2,
@@ -38,6 +40,7 @@ import {
   DEFAULT_KEYBOARD_PREFERENCES,
   DEFAULT_ENERGY_MODE_PREFERENCES,
   DEFAULT_PRIVACY_PREFERENCES,
+  DEFAULT_RECIPE_LAYOUT_PREFERENCES,
 } from "@/types/user-preferences-v2";
 import type { SettingsChange, SettingsChangeCategory } from "@/types/settings-history";
 import { getSettingLabel } from "@/lib/settings/setting-labels";
@@ -116,6 +119,9 @@ export interface SettingsContextValue extends SettingsState {
   // Planner view settings (auto-save)
   updatePlannerSettings: (partial: Partial<PlannerViewSettings>) => void;
 
+  // Recipe layout preferences (auto-save)
+  updateRecipeLayoutPrefs: (prefs: RecipeLayoutPreferences) => void;
+
   // Force immediate save
   saveNow: () => Promise<void>;
 
@@ -164,6 +170,7 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     energyModePrefs?: Partial<EnergyModePreferences>;
     privacyPrefs?: Partial<PrivacyPreferences>;
     plannerSettings?: Partial<PlannerViewSettings>;
+    recipeLayoutPrefs?: RecipeLayoutPreferences;
   }>({});
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -267,6 +274,11 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
       // Planner view settings
       if (changes.plannerSettings && Object.keys(changes.plannerSettings).length > 0) {
         savePromises.push(updatePlannerViewSettings(changes.plannerSettings));
+      }
+
+      // Recipe layout preferences
+      if (changes.recipeLayoutPrefs) {
+        savePromises.push(updateRecipeLayoutPreferences(changes.recipeLayoutPrefs));
       }
 
       const results = await Promise.all(savePromises);
@@ -579,6 +591,29 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     [scheduleSave]
   );
 
+  const updateRecipeLayoutPrefs = useCallback(
+    (prefs: RecipeLayoutPreferences) => {
+      // Optimistic update
+      setState((prev) => {
+        const currentLayout = prev.preferencesV2?.recipeLayout ?? DEFAULT_RECIPE_LAYOUT_PREFERENCES;
+        recordChange("preferencesV2.recipeLayout", currentLayout, prefs, "displayPrefs");
+        return {
+          ...prev,
+          preferencesV2: {
+            ...prev.preferencesV2,
+            recipeLayout: prefs,
+          },
+        };
+      });
+
+      // Queue for save (replaces entire layout)
+      pendingChanges.current.recipeLayoutPrefs = prefs;
+
+      scheduleSave();
+    },
+    [scheduleSave, recordChange]
+  );
+
   // ──────────────────────────────────────────────────────────────────────────
   // Undo Functionality
   // ──────────────────────────────────────────────────────────────────────────
@@ -681,6 +716,7 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     updateEnergyModePrefs,
     updatePrivacyPrefs,
     updatePlannerSettings,
+    updateRecipeLayoutPrefs,
     saveNow,
     // Undo functionality
     canUndo,
