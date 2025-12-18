@@ -39,6 +39,7 @@ export default function MealPlanningSettingsPage() {
     updateEnergyModePrefs,
   } = useSettings();
   const [googleAccount, setGoogleAccount] = useState<string | null>(null);
+  const [defaultServingSize, setDefaultServingSize] = useState<number>(2);
 
   // Energy mode preferences
   const energyPrefs = preferencesV2.energyMode;
@@ -56,10 +57,24 @@ export default function MealPlanningSettingsPage() {
     }
   }, []);
 
+  // Fetch recipe preferences
+  const fetchRecipePreferences = useCallback(async () => {
+    try {
+      const response = await fetch("/api/user/recipe-preferences");
+      if (response.ok) {
+        const data = await response.json();
+        setDefaultServingSize(data.default_serving_size || 2);
+      }
+    } catch (error) {
+      console.error("Failed to fetch recipe preferences:", error);
+    }
+  }, []);
+
   // Fetch on mount
   useEffect(() => {
     fetchGoogleStatus();
-  }, [fetchGoogleStatus]);
+    fetchRecipePreferences();
+  }, [fetchGoogleStatus, fetchRecipePreferences]);
 
   const handleGoogleConnectionChange = useCallback(() => {
     fetchGoogleStatus();
@@ -255,10 +270,11 @@ export default function MealPlanningSettingsPage() {
                 type="number"
                 min={1}
                 max={20}
-                value={preferencesV2?.recipe?.defaultServingSize ?? 2}
+                value={defaultServingSize}
                 onChange={(e) => {
                   const value = parseInt(e.target.value, 10);
                   if (!isNaN(value) && value >= 1 && value <= 20) {
+                    setDefaultServingSize(value);
                     updateRecipePreferences({ defaultServingSize: value });
                   }
                 }}
