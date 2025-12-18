@@ -69,10 +69,10 @@ export default async function PublicUserProfilePage({ params }: Props) {
           ) : (
             <div className="flex items-center gap-2">
               <Button variant="ghost" asChild>
-                <Link href="/auth/sign-in">Sign In</Link>
+                <Link href="/login">Sign In</Link>
               </Button>
               <Button asChild>
-                <Link href="/auth/sign-up">Sign Up</Link>
+                <Link href="/signup">Sign Up</Link>
               </Button>
             </div>
           )}

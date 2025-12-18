@@ -78,17 +78,18 @@ export function MobileSidebarSheet({
         </SheetHeader>
 
         <TooltipProvider delayDuration={0}>
-          {/* User Area - Top */}
-          <SidebarUserArea user={user} logoutAction={logoutAction} />
+          {/* User Area - Top (includes search icon) */}
+          <SidebarUserArea
+            user={user}
+            logoutAction={logoutAction}
+            onSearchClick={onSearchClick}
+          />
 
           {/* Scrollable Content */}
           <ScrollArea className="flex-1">
             <div className="py-2">
               {/* Quick Navigation */}
-              <SidebarQuickNav
-                onSearchClick={onSearchClick}
-                onNewRecipeClick={onNewRecipeClick}
-              />
+              <SidebarQuickNav onNewRecipeClick={onNewRecipeClick} />
 
               <SidebarDivider />
 

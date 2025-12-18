@@ -26,13 +26,14 @@ import { useSidebar } from "./sidebar-context";
 
 /**
  * Shared styling constants for consistent nav item appearance
+ * Using !important-style utilities to override Button defaults
  */
 const NAV_ITEM_CLASSES = {
-  base: "w-full justify-start gap-3 h-10 px-3 transition-all duration-150",
+  base: "w-full h-10 px-3 transition-all duration-150 flex items-center gap-3",
   inactive: "text-muted-foreground hover:text-foreground hover:bg-accent",
   iconOnly: "justify-center px-0",
   icon: "h-4 w-4 shrink-0",
-  label: "flex-1 truncate text-sm font-medium",
+  label: "flex-1 text-left truncate text-sm font-medium",
 };
 
 /**
@@ -56,17 +57,25 @@ function SidebarDropdownItem({
 }: SidebarDropdownItemProps) {
   const { isIconOnly } = useSidebar();
 
+  // Use a div wrapper to ensure consistent left alignment regardless of Button defaults
   const trigger = (
     <Button
       variant="ghost"
       className={cn(
-        NAV_ITEM_CLASSES.base,
+        "w-full h-10 px-3",
         NAV_ITEM_CLASSES.inactive,
-        isIconOnly && NAV_ITEM_CLASSES.iconOnly
+        isIconOnly && "px-0"
       )}
     >
-      <Icon className={NAV_ITEM_CLASSES.icon} />
-      {!isIconOnly && <span className={NAV_ITEM_CLASSES.label}>{label}</span>}
+      <span
+        className={cn(
+          "flex items-center gap-3 w-full",
+          isIconOnly && "justify-center"
+        )}
+      >
+        <Icon className={NAV_ITEM_CLASSES.icon} />
+        {!isIconOnly && <span className={NAV_ITEM_CLASSES.label}>{label}</span>}
+      </span>
     </Button>
   );
 
@@ -195,18 +204,26 @@ function SidebarExternalLink({ href, icon: Icon, label }: SidebarExternalLinkPro
     <Button
       variant="ghost"
       className={cn(
-        NAV_ITEM_CLASSES.base,
+        "w-full h-10 px-3",
         NAV_ITEM_CLASSES.inactive,
-        isIconOnly && NAV_ITEM_CLASSES.iconOnly
+        isIconOnly && "px-0"
       )}
       asChild
     >
-      <a href={href} target="_blank" rel="noopener noreferrer">
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cn(
+          "flex items-center gap-3 w-full",
+          isIconOnly && "justify-center"
+        )}
+      >
         <Icon className={NAV_ITEM_CLASSES.icon} />
         {!isIconOnly && (
           <>
             <span className={NAV_ITEM_CLASSES.label}>{label}</span>
-            <ExternalLink className="h-3 w-3 text-muted-foreground" />
+            <ExternalLink className="h-3 w-3 text-muted-foreground shrink-0" />
           </>
         )}
       </a>

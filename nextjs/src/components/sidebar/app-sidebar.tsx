@@ -137,8 +137,12 @@ export function AppSidebar({
         )}
         style={{ width: sidebarWidth }}
       >
-        {/* User Area - Top */}
-        <SidebarUserArea user={user} logoutAction={logoutAction} />
+        {/* User Area - Top (includes search icon) */}
+        <SidebarUserArea
+          user={user}
+          logoutAction={logoutAction}
+          onSearchClick={onSearchClick}
+        />
 
         {/* Scrollable Content */}
         <ScrollArea className="flex-1">

@@ -1,15 +1,14 @@
 "use client";
 
-import { Home, Search, Plus } from "lucide-react";
+import { Home, Plus } from "lucide-react";
 import { SidebarNavItem, SidebarActionItem } from "./sidebar-nav-item";
 
 interface SidebarQuickNavProps {
-  onSearchClick?: () => void;
+  onSearchClick?: () => void; // Kept for backwards compatibility, but search is now in header
   onNewRecipeClick?: () => void;
 }
 
 export function SidebarQuickNav({
-  onSearchClick,
   onNewRecipeClick,
 }: SidebarQuickNavProps) {
   return (
@@ -20,14 +19,6 @@ export function SidebarQuickNav({
         label="Home"
         exactMatch
       />
-      {onSearchClick && (
-        <SidebarActionItem
-          icon={Search}
-          label="Search"
-          shortcut="/"
-          onClick={onSearchClick}
-        />
-      )}
       {onNewRecipeClick && (
         <SidebarActionItem
           icon={Plus}

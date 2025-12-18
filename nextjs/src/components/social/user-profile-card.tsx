@@ -133,7 +133,7 @@ export function UserProfileCard({
               />
             ) : !currentUserId ? (
               <Button asChild>
-                <Link href="/auth/sign-in">Sign in to Follow</Link>
+                <Link href="/login">Sign in to Follow</Link>
               </Button>
             ) : null}
           </div>

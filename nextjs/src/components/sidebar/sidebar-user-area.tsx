@@ -10,6 +10,7 @@ import {
   User as UserIcon,
   PanelLeftClose,
   PanelLeft,
+  Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -31,9 +32,10 @@ import { useSidebar } from "./sidebar-context";
 interface SidebarUserAreaProps {
   user: User | null;
   logoutAction: () => Promise<void>;
+  onSearchClick?: () => void;
 }
 
-export function SidebarUserArea({ user, logoutAction }: SidebarUserAreaProps) {
+export function SidebarUserArea({ user, logoutAction, onSearchClick }: SidebarUserAreaProps) {
   const { isIconOnly, toggleCollapse, isCollapsed, closeMobile, isMobile } = useSidebar();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
@@ -71,10 +73,10 @@ export function SidebarUserArea({ user, logoutAction }: SidebarUserAreaProps) {
     </Avatar>
   );
 
-  // Collapsed view: just avatar with dropdown
+  // Collapsed view: avatar with dropdown + search icon
   if (isIconOnly) {
     return (
-      <div className="p-2 border-b flex items-center justify-center">
+      <div className="p-2 border-b flex flex-col items-center gap-2">
         <DropdownMenu>
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
@@ -117,6 +119,26 @@ export function SidebarUserArea({ user, logoutAction }: SidebarUserAreaProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {/* Search button in collapsed mode */}
+        {onSearchClick && (
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onSearchClick}
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="flex items-center gap-2">
+              <span>Search</span>
+              <kbd className="text-[10px] font-medium bg-muted px-1.5 py-0.5 rounded">/</kbd>
+            </TooltipContent>
+          </Tooltip>
+        )}
       </div>
     );
   }
@@ -124,7 +146,7 @@ export function SidebarUserArea({ user, logoutAction }: SidebarUserAreaProps) {
   // Expanded view: full user area with dropdown
   return (
     <div className="p-3 border-b">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -168,6 +190,26 @@ export function SidebarUserArea({ user, logoutAction }: SidebarUserAreaProps) {
           </DropdownMenuContent>
         </DropdownMenu>
 
+        {/* Search button */}
+        {onSearchClick && (
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onSearchClick}
+                className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <span>Search</span>
+              <kbd className="ml-2 text-[10px] bg-muted px-1.5 py-0.5 rounded">/</kbd>
+            </TooltipContent>
+          </Tooltip>
+        )}
+
         {/* Collapse toggle button */}
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
@@ -184,7 +226,7 @@ export function SidebarUserArea({ user, logoutAction }: SidebarUserAreaProps) {
               )}
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="right">
+          <TooltipContent side="bottom">
             <span>{isCollapsed ? "Expand sidebar" : "Collapse sidebar"}</span>
             <kbd className="ml-2 text-[10px] bg-muted px-1 py-0.5 rounded">⌘\</kbd>
           </TooltipContent>
