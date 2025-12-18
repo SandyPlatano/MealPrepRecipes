@@ -1,10 +1,19 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import type { VoiceReadoutSpeed } from "@/types/settings";
 
 interface VoiceReadoutOptions {
-  speed?: "slow" | "normal" | "fast";
+  speed?: VoiceReadoutSpeed;
   enabled?: boolean;
+  /** Specific voice name to use (optional) */
+  voiceName?: string;
+  /** Voice pitch: 0.5 - 2.0 (default: 1.0) */
+  pitch?: number;
+  /** Voice rate: 0.5 - 2.0 (overrides speed if provided) */
+  rate?: number;
+  /** Voice volume: 0 - 1 (default: 1.0) */
+  volume?: number;
 }
 
 interface VoiceReadoutReturn {
@@ -109,10 +118,21 @@ function processTextForSpeech(text: string): string {
 
 /**
  * Get the preferred voice for natural speech
- * Prioritizes Google and Samantha voices
+ * Prioritizes custom voice name if provided, otherwise uses system defaults
  */
-function getPreferredVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
+function getPreferredVoice(
+  voices: SpeechSynthesisVoice[],
+  voiceName?: string
+): SpeechSynthesisVoice | null {
   if (voices.length === 0) return null;
+
+  // If voiceName is specified, try to find it
+  if (voiceName && voiceName.trim()) {
+    const requestedVoice = voices.find((v) =>
+      v.name.toLowerCase().includes(voiceName.toLowerCase())
+    );
+    if (requestedVoice) return requestedVoice;
+  }
 
   // Preferred voice names in order of preference
   const preferredNames = [
@@ -154,7 +174,14 @@ function getPreferredVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice
  * ```
  */
 export function useVoiceReadout(options: VoiceReadoutOptions = {}): VoiceReadoutReturn {
-  const { speed = "normal", enabled = true } = options;
+  const {
+    speed = "normal",
+    enabled = true,
+    voiceName,
+    pitch = 1.0,
+    rate: customRate,
+    volume = 1.0,
+  } = options;
 
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
@@ -171,7 +198,7 @@ export function useVoiceReadout(options: VoiceReadoutOptions = {}): VoiceReadout
     // Load voices
     const loadVoices = () => {
       const voices = window.speechSynthesis.getVoices();
-      voiceRef.current = getPreferredVoice(voices);
+      voiceRef.current = getPreferredVoice(voices, voiceName);
     };
 
     // Voices might load asynchronously
@@ -181,7 +208,7 @@ export function useVoiceReadout(options: VoiceReadoutOptions = {}): VoiceReadout
     return () => {
       window.speechSynthesis.removeEventListener("voiceschanged", loadVoices);
     };
-  }, []);
+  }, [voiceName]);
 
   // Stop speech on unmount
   useEffect(() => {
@@ -224,9 +251,13 @@ export function useVoiceReadout(options: VoiceReadoutOptions = {}): VoiceReadout
 
       // Create new utterance
       const utterance = new SpeechSynthesisUtterance(processedText);
-      utterance.rate = SPEED_MAP[speed];
-      utterance.pitch = 1.0;
-      utterance.volume = 1.0;
+
+      // Use custom rate if provided, otherwise use speed preset
+      utterance.rate = customRate !== undefined ? customRate : SPEED_MAP[speed];
+
+      // Apply custom pitch and volume
+      utterance.pitch = pitch;
+      utterance.volume = volume;
 
       // Set preferred voice if available
       if (voiceRef.current) {
@@ -244,7 +275,7 @@ export function useVoiceReadout(options: VoiceReadoutOptions = {}): VoiceReadout
       // Speak
       window.speechSynthesis.speak(utterance);
     },
-    [isSupported, enabled, speed]
+    [isSupported, enabled, speed, customRate, pitch, volume]
   );
 
   const stop = useCallback(() => {

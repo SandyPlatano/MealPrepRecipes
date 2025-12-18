@@ -99,23 +99,101 @@ export type CookModeTheme = "system" | "light" | "dark";
 export type CookModeNavigationMode = "step-by-step" | "scrollable";
 export type VoiceReadoutSpeed = "slow" | "normal" | "fast";
 
+// ============================================================================
+// Enhanced Cook Mode Types
+// ============================================================================
+
+// Voice command action types
+export type VoiceCommandAction =
+  | "nextStep"
+  | "prevStep"
+  | "setTimer"
+  | "stopTimer"
+  | "repeat"
+  | "readIngredients"
+  | "pause"
+  | "resume";
+
+// Voice command customization - maps actions to trigger phrases
+export interface VoiceCommandMapping {
+  nextStep: string[];
+  prevStep: string[];
+  setTimer: string[];
+  stopTimer: string[];
+  repeat: string[];
+  readIngredients: string[];
+  pause: string[];
+  resume: string[];
+}
+
+// Audio/TTS settings
+export type AcknowledgmentSound = "beep" | "chime" | "ding" | "silent";
+export type TimerSoundType = "classic" | "gentle" | "urgent" | "melody";
+
+export interface CookModeAudioSettings {
+  ttsVoice: string;
+  ttsPitch: number;        // 0.5 - 2.0
+  ttsRate: number;         // 0.5 - 2.0
+  ttsVolume: number;       // 0 - 1
+  acknowledgmentSound: AcknowledgmentSound;
+  timerSound: TimerSoundType;
+}
+
+// Ingredient highlight styles
+export type IngredientHighlightStyle = "bold" | "underline" | "background" | "badge";
+export type StepTransition = "none" | "fade" | "slide";
+
+// Gesture action types
+export type GestureAction = "none" | "repeat" | "timer" | "ingredients" | "voice" | "fullscreen" | "settings" | "exit";
+
+// Timer settings
+export interface CookModeTimerSettings {
+  quickTimerPresets: number[];
+  autoDetectTimers: boolean;
+  showTimerInTitle: boolean;
+  vibrationOnComplete: boolean;
+  repeatTimerAlert: boolean;
+}
+
+// Custom user preset
+export interface CustomCookModePreset {
+  id: string;
+  name: string;
+  icon: string;
+  settings: CookModeSettings;
+  createdAt: string;
+  isDefault?: boolean;
+}
+
 export interface CookModeDisplaySettings {
   fontSize: CookModeFontSize;
   themeOverride: CookModeTheme;
   highContrast: boolean;
+  accentColor: string;
+  ingredientHighlightStyle: IngredientHighlightStyle;
+  stepTransition: StepTransition;
+  showStepNumbers: boolean;
+  showEstimatedTime: boolean;
 }
 
 export interface CookModeVoiceSettings {
   enabled: boolean;
-  wakeWord: string;
+  wakeWords: string[];              // Changed from single wakeWord
   autoReadSteps: boolean;
   readoutSpeed: VoiceReadoutSpeed;
+  commandMappings: VoiceCommandMapping;
+  commandTimeout: number;
+  confirmCommands: boolean;
 }
 
 export interface CookModeGestureSettings {
   swipeEnabled: boolean;
   tapToAdvance: boolean;
   hapticFeedback: boolean;
+  doubleTapAction: GestureAction;
+  longPressAction: GestureAction;
+  swipeUpAction: GestureAction;
+  swipeDownAction: GestureAction;
 }
 
 export interface CookModeVisibilitySettings {
@@ -141,6 +219,8 @@ export interface CookModeSettings {
   navigation: CookModeNavigationSettings;
   voice: CookModeVoiceSettings;
   gestures: CookModeGestureSettings;
+  audio: CookModeAudioSettings;
+  timers: CookModeTimerSettings;
 }
 
 export const DEFAULT_COOK_MODE_SETTINGS: CookModeSettings = {
@@ -148,6 +228,11 @@ export const DEFAULT_COOK_MODE_SETTINGS: CookModeSettings = {
     fontSize: "medium",
     themeOverride: "system",
     highContrast: false,
+    accentColor: "#f97316",
+    ingredientHighlightStyle: "bold",
+    stepTransition: "fade",
+    showStepNumbers: true,
+    showEstimatedTime: true,
   },
   visibility: {
     showIngredients: true,
@@ -164,14 +249,45 @@ export const DEFAULT_COOK_MODE_SETTINGS: CookModeSettings = {
   },
   voice: {
     enabled: false,
-    wakeWord: "hey chef",
+    wakeWords: ["hey chef", "okay chef", "yo chef"],
     autoReadSteps: false,
     readoutSpeed: "normal",
+    commandMappings: {
+      nextStep: ["next", "next step", "continue", "forward", "go", "next one"],
+      prevStep: ["back", "previous", "go back", "previous step", "last step", "before"],
+      setTimer: ["timer", "set timer", "start timer", "timer for"],
+      stopTimer: ["stop timer", "cancel timer", "stop", "clear timer"],
+      repeat: ["repeat", "say again", "what", "again", "huh", "pardon", "one more time"],
+      readIngredients: ["ingredients", "what do I need", "read ingredients", "list ingredients", "what ingredients"],
+      pause: ["pause", "hold", "wait", "hold on", "stop talking"],
+      resume: ["resume", "continue", "go ahead", "okay", "keep going", "go on"],
+    },
+    commandTimeout: 3000,
+    confirmCommands: true,
   },
   gestures: {
     swipeEnabled: true,
     tapToAdvance: false,
     hapticFeedback: true,
+    doubleTapAction: "repeat",
+    longPressAction: "ingredients",
+    swipeUpAction: "none",
+    swipeDownAction: "none",
+  },
+  audio: {
+    ttsVoice: "",
+    ttsPitch: 1.0,
+    ttsRate: 1.0,
+    ttsVolume: 1.0,
+    acknowledgmentSound: "beep",
+    timerSound: "classic",
+  },
+  timers: {
+    quickTimerPresets: [1, 3, 5, 10, 15, 20, 30],
+    autoDetectTimers: true,
+    showTimerInTitle: true,
+    vibrationOnComplete: true,
+    repeatTimerAlert: false,
   },
 };
 
@@ -316,6 +432,7 @@ export const DEFAULT_RECIPE_PREFERENCES: RecipePreferences = {
  */
 export interface UserSettingsPreferences {
   cookMode?: CookModeSettings;
+  cookModePresets?: CustomCookModePreset[];
   /** @deprecated Use mealTypeSettings instead */
   mealTypeEmojis?: MealTypeEmojiSettings;
   mealTypeSettings?: MealTypeCustomization;

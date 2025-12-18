@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import type { VoiceCommandMapping, VoiceReadoutSpeed } from "@/types/settings";
+import { findMatchingCommand, extractTimerMinutes, DEFAULT_VOICE_COMMANDS } from "@/lib/default-voice-commands";
 
 /**
  * Browser compatibility interface for Web Speech API
@@ -68,9 +70,25 @@ export interface VoiceCommandsOptions {
   onRepeat: () => void;
   /** Callback for "read", "read step", "read it" commands */
   onReadStep: () => void;
+  /** Callback for "read ingredients" commands */
+  onReadIngredients?: () => void;
+  /** Callback for "pause" commands */
+  onPause?: () => void;
+  /** Callback for "resume" commands */
+  onResume?: () => void;
   /** Whether voice commands are enabled */
   enabled: boolean;
-  /** Wake word to activate voice commands (default: "hey chef") */
+  /** Wake words to activate voice commands (default: ["hey chef"]) */
+  wakeWords?: string[];
+  /** Custom command phrase mappings (defaults to DEFAULT_VOICE_COMMANDS) */
+  commandMappings?: VoiceCommandMapping;
+  /** Timeout in seconds to wait for command after wake word (default: 5) */
+  commandTimeout?: number;
+  /** Play confirmation sound when command is recognized (default: false) */
+  confirmCommands?: boolean;
+
+  // Backward compatibility - deprecated
+  /** @deprecated Use wakeWords instead */
   wakeWord?: string;
 }
 
@@ -133,60 +151,41 @@ function playAcknowledgmentSound(): void {
 }
 
 /**
- * Parse a voice command and extract the intent
+ * Play confirmation sound when command is recognized
  */
-function parseCommand(transcript: string): {
-  type: string;
-  minutes?: number;
-} | null {
-  const normalized = transcript.toLowerCase().trim();
+function playCommandConfirmationSound(): void {
+  try {
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
 
-  // Next step
-  if (normalized === "next" || normalized === "next step") {
-    return { type: "next" };
+    const audioContext = new AudioContextClass();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    // Quick confirmation beep (higher pitch than wake word)
+    oscillator.frequency.value = 1200; // Higher pitch
+    oscillator.type = "sine";
+    gainNode.gain.value = 0.2;
+
+    const now = audioContext.currentTime;
+    oscillator.start(now);
+
+    // Very quick beep
+    gainNode.gain.setValueAtTime(0.2, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+
+    oscillator.stop(now + 0.12);
+
+    // Cleanup
+    setTimeout(() => audioContext.close(), 200);
+  } catch {
+    // Audio not supported, silently fail
   }
-
-  // Previous step
-  if (
-    normalized === "back" ||
-    normalized === "previous" ||
-    normalized === "go back" ||
-    normalized === "previous step"
-  ) {
-    return { type: "previous" };
-  }
-
-  // Repeat
-  if (normalized === "repeat" || normalized === "say again") {
-    return { type: "repeat" };
-  }
-
-  // Read step
-  if (
-    normalized === "read" ||
-    normalized === "read step" ||
-    normalized === "read it"
-  ) {
-    return { type: "read" };
-  }
-
-  // Stop timer
-  if (normalized === "stop timer" || normalized === "cancel timer") {
-    return { type: "stopTimer" };
-  }
-
-  // Set timer - extract minutes
-  const timerMatch = normalized.match(
-    /(?:timer|set timer)\s+(\d+)\s+(?:minute|minutes)/i
-  );
-  if (timerMatch) {
-    const minutes = parseInt(timerMatch[1], 10);
-    if (!isNaN(minutes) && minutes > 0) {
-      return { type: "timer", minutes };
-    }
-  }
-
-  return null;
 }
 
 /**
@@ -228,8 +227,15 @@ export function useVoiceCommands({
   onStopTimer,
   onRepeat,
   onReadStep,
+  onReadIngredients,
+  onPause,
+  onResume,
   enabled,
-  wakeWord = "hey chef",
+  wakeWords: wakeWordsProp,
+  wakeWord: deprecatedWakeWord,
+  commandMappings = DEFAULT_VOICE_COMMANDS,
+  commandTimeout = 5,
+  confirmCommands = false,
 }: VoiceCommandsOptions): VoiceCommandsState {
   const [isListening, setIsListening] = useState(false);
   const [isAwaitingCommand, setIsAwaitingCommand] = useState(false);
@@ -258,42 +264,81 @@ export function useVoiceCommands({
     typeof window !== "undefined" &&
     !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
-  // Normalize wake word for comparison
-  const normalizedWakeWord = wakeWord.toLowerCase().trim();
+  // Handle backward compatibility for wake word
+  const wakeWords = wakeWordsProp || (deprecatedWakeWord ? [deprecatedWakeWord] : ["hey chef"]);
 
-  // Execute a parsed command
+  // Normalize wake words for comparison
+  const normalizedWakeWords = wakeWords.map(word => word.toLowerCase().trim());
+
+  // Execute a matched command action
   const executeCommand = useCallback(
-    (command: { type: string; minutes?: number }) => {
-      switch (command.type) {
-        case "next":
+    (action: string, transcript: string) => {
+      // Optionally play confirmation sound
+      if (confirmCommands) {
+        playCommandConfirmationSound();
+      }
+
+      switch (action) {
+        case "nextStep":
           onNextStep();
-          setLastCommand("next");
+          setLastCommand("next step");
           break;
-        case "previous":
+        case "prevStep":
           onPrevStep();
-          setLastCommand("previous");
+          setLastCommand("previous step");
           break;
         case "repeat":
           onRepeat();
           setLastCommand("repeat");
           break;
-        case "read":
+        case "readStep":
           onReadStep();
-          setLastCommand("read");
+          setLastCommand("read step");
+          break;
+        case "readIngredients":
+          if (onReadIngredients) {
+            onReadIngredients();
+            setLastCommand("read ingredients");
+          }
+          break;
+        case "pause":
+          if (onPause) {
+            onPause();
+            setLastCommand("pause");
+          }
+          break;
+        case "resume":
+          if (onResume) {
+            onResume();
+            setLastCommand("resume");
+          }
           break;
         case "stopTimer":
           onStopTimer();
           setLastCommand("stop timer");
           break;
-        case "timer":
-          if (command.minutes) {
-            onSetTimer(command.minutes);
-            setLastCommand(`timer ${command.minutes} minutes`);
+        case "setTimer": {
+          const minutes = extractTimerMinutes(transcript);
+          if (minutes) {
+            onSetTimer(minutes);
+            setLastCommand(`timer ${minutes} minutes`);
           }
           break;
+        }
       }
     },
-    [onNextStep, onPrevStep, onRepeat, onReadStep, onStopTimer, onSetTimer]
+    [
+      onNextStep,
+      onPrevStep,
+      onRepeat,
+      onReadStep,
+      onReadIngredients,
+      onPause,
+      onResume,
+      onStopTimer,
+      onSetTimer,
+      confirmCommands,
+    ]
   );
 
   // Handle speech recognition result
@@ -305,9 +350,9 @@ export function useVoiceCommands({
 
       if (isAwaitingCommandRef.current) {
         // We're listening for a command
-        const command = parseCommand(normalized);
-        if (command) {
-          executeCommand(command);
+        const matchedAction = findMatchingCommand(normalized, commandMappings);
+        if (matchedAction) {
+          executeCommand(matchedAction, transcript);
           // Clear the awaiting command state
           setIsAwaitingCommand(false);
           isAwaitingCommandRef.current = false;
@@ -318,22 +363,26 @@ export function useVoiceCommands({
         }
       } else {
         // We're listening for the wake word
-        if (normalized.includes(normalizedWakeWord)) {
+        const isWakeWord = normalizedWakeWords.some(word =>
+          normalized.includes(word)
+        );
+
+        if (isWakeWord) {
           // Wake word detected!
           playAcknowledgmentSound();
           setIsAwaitingCommand(true);
           isAwaitingCommandRef.current = true;
 
-          // Set timeout to exit awaiting command mode
+          // Set timeout to exit awaiting command mode (convert to milliseconds)
           commandTimeoutRef.current = setTimeout(() => {
             setIsAwaitingCommand(false);
             isAwaitingCommandRef.current = false;
             commandTimeoutRef.current = null;
-          }, 5000); // 5 seconds to give a command
+          }, commandTimeout * 1000);
         }
       }
     },
-    [normalizedWakeWord, executeCommand]
+    [normalizedWakeWords, commandMappings, commandTimeout, executeCommand]
   );
 
   // Start listening for voice commands

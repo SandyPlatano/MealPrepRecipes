@@ -614,6 +614,7 @@ export async function updateShowRecipeSources(showRecipeSources: boolean) {
 
 import type {
   CookModeSettings,
+  CustomCookModePreset,
   MealTypeEmojiSettings,
   MealTypeCustomization,
   MealTypeKey,
@@ -1483,4 +1484,339 @@ export async function updateRecipeExportPreferences(
   revalidatePath("/app/settings");
 
   return { error: null };
+}
+
+// ============================================================================
+// Custom Cook Mode Preset Actions
+// ============================================================================
+
+/**
+ * Get all custom cook mode presets for the current user
+ */
+export async function getCustomCookModePresets(): Promise<{
+  error: string | null;
+  data: CustomCookModePreset[];
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: null, data: [] };
+  }
+
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!settings?.preferences) {
+    return { error: null, data: [] };
+  }
+
+  const preferences = settings.preferences as UserSettingsPreferences;
+  const presets = preferences.cookModePresets || [];
+
+  return { error: null, data: presets };
+}
+
+/**
+ * Save a new custom cook mode preset
+ */
+export async function saveCustomCookModePreset(
+  preset: Omit<CustomCookModePreset, "id" | "createdAt">
+): Promise<{
+  error: string | null;
+  data: CustomCookModePreset | null;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated", data: null };
+  }
+
+  // Get existing preferences
+  const { data: existingData } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
+  const existingPresets = existingPreferences.cookModePresets || [];
+
+  // Create new preset with id and timestamp
+  const newPreset: CustomCookModePreset = {
+    ...preset,
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+  };
+
+  // Append to existing presets
+  const updatedPresets = [...existingPresets, newPreset];
+
+  // Update preferences
+  const updatedPreferences: UserSettingsPreferences = {
+    ...existingPreferences,
+    cookModePresets: updatedPresets,
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message, data: null };
+  }
+
+  revalidatePath("/app/settings");
+
+  return { error: null, data: newPreset };
+}
+
+/**
+ * Update an existing custom cook mode preset
+ */
+export async function updateCustomCookModePreset(
+  id: string,
+  updates: Partial<Omit<CustomCookModePreset, "id" | "createdAt">>
+): Promise<{
+  error: string | null;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get existing preferences
+  const { data: existingData } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
+  const existingPresets = existingPreferences.cookModePresets || [];
+
+  // Find and update the preset
+  const presetIndex = existingPresets.findIndex((p) => p.id === id);
+  if (presetIndex === -1) {
+    return { error: "Preset not found" };
+  }
+
+  const updatedPresets = [...existingPresets];
+  updatedPresets[presetIndex] = {
+    ...updatedPresets[presetIndex],
+    ...updates,
+  };
+
+  // Update preferences
+  const updatedPreferences: UserSettingsPreferences = {
+    ...existingPreferences,
+    cookModePresets: updatedPresets,
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app/settings");
+
+  return { error: null };
+}
+
+/**
+ * Delete a custom cook mode preset
+ */
+export async function deleteCustomCookModePreset(
+  id: string
+): Promise<{
+  error: string | null;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get existing preferences
+  const { data: existingData } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
+  const existingPresets = existingPreferences.cookModePresets || [];
+
+  // Filter out the preset
+  const updatedPresets = existingPresets.filter((p) => p.id !== id);
+
+  // Update preferences
+  const updatedPreferences: UserSettingsPreferences = {
+    ...existingPreferences,
+    cookModePresets: updatedPresets,
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app/settings");
+
+  return { error: null };
+}
+
+/**
+ * Set a preset as the default (unset any previous default)
+ */
+export async function setDefaultCookModePreset(
+  id: string | null  // null to clear default
+): Promise<{
+  error: string | null;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get existing preferences
+  const { data: existingData } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
+  const existingPresets = existingPreferences.cookModePresets || [];
+
+  // Update all presets to set isDefault accordingly
+  const updatedPresets = existingPresets.map((p) => ({
+    ...p,
+    isDefault: id === null ? false : p.id === id,
+  }));
+
+  // If setting a default, verify the preset exists
+  if (id !== null && !updatedPresets.some((p) => p.id === id)) {
+    return { error: "Preset not found" };
+  }
+
+  // Update preferences
+  const updatedPreferences: UserSettingsPreferences = {
+    ...existingPreferences,
+    cookModePresets: updatedPresets,
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app/settings");
+
+  return { error: null };
+}
+
+/**
+ * Duplicate an existing preset with a new name
+ */
+export async function duplicateCookModePreset(
+  id: string,
+  newName: string
+): Promise<{
+  error: string | null;
+  data: CustomCookModePreset | null;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated", data: null };
+  }
+
+  // Get existing preferences
+  const { data: existingData } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
+  const existingPresets = existingPreferences.cookModePresets || [];
+
+  // Find the preset to duplicate
+  const presetToDuplicate = existingPresets.find((p) => p.id === id);
+  if (!presetToDuplicate) {
+    return { error: "Preset not found", data: null };
+  }
+
+  // Create duplicate with new id, name, and createdAt
+  const duplicatedPreset: CustomCookModePreset = {
+    ...presetToDuplicate,
+    id: crypto.randomUUID(),
+    name: newName,
+    createdAt: new Date().toISOString(),
+    isDefault: false, // Duplicates are never default
+  };
+
+  // Append to existing presets
+  const updatedPresets = [...existingPresets, duplicatedPreset];
+
+  // Update preferences
+  const updatedPreferences: UserSettingsPreferences = {
+    ...existingPreferences,
+    cookModePresets: updatedPresets,
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message, data: null };
+  }
+
+  revalidatePath("/app/settings");
+
+  return { error: null, data: duplicatedPreset };
 }
