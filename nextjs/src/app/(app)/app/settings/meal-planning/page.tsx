@@ -18,6 +18,7 @@ import { GoogleCalendarButton } from "@/components/settings/google-calendar-butt
 import { MealTypeCustomizationSettings } from "@/components/settings/meal-type-customization";
 import { ServingSizePresetsManager } from "@/components/settings/serving-size-presets-manager";
 import { CustomMealTypesManager } from "@/components/settings/custom-meal-types-manager";
+import { CustomRecipeTypesManager } from "@/components/settings/custom-recipe-types-manager";
 import { SpoonSelector } from "@/components/energy-mode";
 import type { PlannerViewDensity } from "@/types/settings";
 import type { EnergyLevel } from "@/types/energy-mode";
@@ -297,7 +298,7 @@ export default function MealPlanningSettingsPage() {
             label="Custom Recipe Types"
             description="Create custom recipe categories"
           >
-            <div className="text-sm text-muted-foreground">Coming soon</div>
+            <CustomRecipeTypesManager />
           </SettingRow>
 
           <SettingRow

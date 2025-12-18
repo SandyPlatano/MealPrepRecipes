@@ -295,6 +295,105 @@ export async function updateFolder(
 }
 
 /**
+ * Duplicate a folder (creates a copy with same properties and recipes)
+ */
+export async function duplicateFolder(
+  folderId: string
+): Promise<{ error: string | null; data: RecipeFolder | null }> {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household?.household_id) {
+    return { error: "Not authenticated", data: null };
+  }
+
+  const supabase = await createClient();
+
+  // Get the folder to duplicate
+  const { data: originalFolder, error: fetchError } = await supabase
+    .from("recipe_folders")
+    .select("*")
+    .eq("id", folderId)
+    .eq("household_id", household.household_id)
+    .single();
+
+  if (fetchError || !originalFolder) {
+    return { error: "Folder not found", data: null };
+  }
+
+  // Get recipe members from the original folder
+  const { data: recipeMembers } = await supabase
+    .from("recipe_folder_members")
+    .select("recipe_id")
+    .eq("folder_id", folderId);
+
+  // Generate unique name for copy
+  const { data: existingFolders } = await supabase
+    .from("recipe_folders")
+    .select("name")
+    .eq("household_id", household.household_id)
+    .like("name", `${originalFolder.name}%`);
+
+  let copyNumber = 1;
+  let newName = `${originalFolder.name} (Copy)`;
+
+  // Check for existing copies and increment number
+  while (existingFolders?.some(f => f.name === newName)) {
+    copyNumber++;
+    newName = `${originalFolder.name} (Copy ${copyNumber})`;
+  }
+
+  // Get max sort_order for new folder
+  const { data: sortOrderFolders } = await supabase
+    .from("recipe_folders")
+    .select("sort_order")
+    .eq("household_id", household.household_id)
+    .is("parent_folder_id", originalFolder.parent_folder_id)
+    .order("sort_order", { ascending: false })
+    .limit(1);
+
+  const maxOrder = sortOrderFolders?.[0]?.sort_order ?? 0;
+
+  // Create the duplicate folder
+  const { data: newFolder, error: createError } = await supabase
+    .from("recipe_folders")
+    .insert({
+      household_id: household.household_id,
+      created_by_user_id: user.id,
+      name: newName,
+      emoji: originalFolder.emoji,
+      color: originalFolder.color,
+      parent_folder_id: originalFolder.parent_folder_id,
+      category_id: originalFolder.category_id,
+      cover_recipe_id: originalFolder.cover_recipe_id,
+      sort_order: maxOrder + 1,
+      is_smart: false, // Duplicates are always regular folders
+      smart_filters: null,
+    })
+    .select()
+    .single();
+
+  if (createError || !newFolder) {
+    return { error: createError?.message || "Failed to create folder", data: null };
+  }
+
+  // Copy recipe memberships if there are any
+  if (recipeMembers && recipeMembers.length > 0) {
+    const memberInserts = recipeMembers.map(member => ({
+      folder_id: newFolder.id,
+      recipe_id: member.recipe_id,
+    }));
+
+    await supabase
+      .from("recipe_folder_members")
+      .insert(memberInserts);
+  }
+
+  revalidatePath("/app/recipes");
+  revalidateTag(`folders-${household.household_id}`);
+  return { error: null, data: newFolder as RecipeFolder };
+}
+
+/**
  * Delete a folder (cascade deletes children and memberships)
  */
 export async function deleteFolder(

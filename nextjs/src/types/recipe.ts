@@ -2,13 +2,22 @@
 
 import type { RecipeNutrition } from "./nutrition";
 
-export type RecipeType =
-  | "Dinner"
-  | "Baking"
-  | "Breakfast"
-  | "Dessert"
-  | "Snack"
-  | "Side Dish";
+/**
+ * RecipeType is now a string to support custom recipe types.
+ * Default system types are: "Dinner", "Baking", "Breakfast", "Dessert", "Snack", "Side Dish"
+ * Custom types can be any string defined by the user.
+ */
+export type RecipeType = string;
+
+/** Default system recipe types for fallback/display when custom types aren't loaded */
+export const DEFAULT_RECIPE_TYPES = [
+  "Dinner",
+  "Breakfast",
+  "Baking",
+  "Dessert",
+  "Snack",
+  "Side Dish",
+] as const;
 
 export interface Recipe {
   id: string;

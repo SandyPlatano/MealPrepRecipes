@@ -22,6 +22,8 @@ import {
 import { Loader2, Plus, X, Upload, AlertCircle, Sparkles } from "lucide-react";
 import { createRecipe, updateRecipe, uploadRecipeImage } from "@/app/actions/recipes";
 import type { Recipe, RecipeType, RecipeFormData } from "@/types/recipe";
+import { DEFAULT_RECIPE_TYPES } from "@/types/recipe";
+import { useCustomRecipeTypes } from "@/hooks/use-custom-recipe-types";
 import { toast } from "sonner";
 import Image from "next/image";
 import { ALLERGEN_TYPES, detectAllergens, mergeAllergens, getAllergenDisplayName } from "@/lib/allergen-detector";
@@ -34,19 +36,13 @@ interface RecipeFormProps {
   recipe?: Recipe;
   initialData?: RecipeFormData;
   nutritionEnabled?: boolean;
+  householdId?: string | null;
   onSaveSuccess?: () => void;
 }
 
-const recipeTypes: RecipeType[] = [
-  "Dinner",
-  "Breakfast",
-  "Baking",
-  "Dessert",
-  "Snack",
-  "Side Dish",
-];
-
-export function RecipeForm({ recipe, initialData, nutritionEnabled = false, onSaveSuccess }: RecipeFormProps) {
+export function RecipeForm({ recipe, initialData, nutritionEnabled = false, householdId, onSaveSuccess }: RecipeFormProps) {
+  // Fetch custom recipe types for the household
+  const { recipeTypes: customRecipeTypes, isLoading: typesLoading } = useCustomRecipeTypes(householdId);
   const router = useRouter();
   const isEditing = !!recipe;
   const errorRef = useRef<HTMLDivElement>(null);

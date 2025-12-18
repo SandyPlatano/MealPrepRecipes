@@ -352,6 +352,23 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     };
   }, []);
 
+  // Flush pending changes before page unload to prevent data loss
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const hasPendingChanges = Object.keys(pendingChanges.current).length > 0;
+
+      if (hasPendingChanges && saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+        // Fire and forget - best effort save
+        executeSave();
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [executeSave]);
+
   // ──────────────────────────────────────────────────────────────────────────
   // Update Functions
   // ──────────────────────────────────────────────────────────────────────────

@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { MacroGoalsSection } from "@/components/settings/macro-goals-section";
 import { CustomBadgesSection } from "@/components/settings/custom-badges-section";
 import { SubstitutionsSection } from "@/components/settings/substitutions-section";
-import { AlertTriangle, Ruler, Plus, X } from "lucide-react";
+import { AlertTriangle, Ruler, Plus, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UnitSystem } from "@/types/settings";
 import type { MacroGoals, MacroGoalPreset } from "@/types/nutrition";
@@ -99,32 +99,54 @@ export default function DietarySettingsPage() {
         title="Allergen Alerts"
         description="Get warnings when recipes contain allergens"
       >
-        <SettingRow
-          id="setting-allergen-alerts"
-          label="Track Allergens"
-          description="Select allergens you want to be warned about"
-        >
-          <div className="flex flex-wrap gap-2 max-w-sm">
+        <div className="py-4 px-2 -mx-2">
+          <div className="space-y-1 mb-4">
+            <label className="text-sm font-medium">Track Allergens</label>
+            <p className="text-xs text-muted-foreground">
+              Select allergens you want to be warned about when viewing recipes
+            </p>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {ALLERGENS.map((allergen) => {
               const isActive = settings.allergen_alerts?.includes(allergen);
               return (
-                <Badge
+                <button
                   key={allergen}
-                  variant={isActive ? "default" : "outline"}
-                  className={cn(
-                    "cursor-pointer transition-all",
-                    isActive
-                      ? "bg-destructive hover:bg-destructive/80"
-                      : "hover:bg-accent"
-                  )}
+                  type="button"
                   onClick={() => toggleAllergen(allergen)}
+                  className={cn(
+                    "flex items-center gap-3 p-3 rounded-lg border text-left transition-all",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    isActive
+                      ? "border-amber-500/50 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-500/30"
+                      : "border-border bg-card hover:bg-accent/50"
+                  )}
                 >
-                  {allergen}
-                </Badge>
+                  <div
+                    className={cn(
+                      "flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors",
+                      isActive
+                        ? "border-amber-500 bg-amber-500 text-white"
+                        : "border-muted-foreground/30"
+                    )}
+                  >
+                    {isActive && <Check className="h-3 w-3" />}
+                  </div>
+                  <span
+                    className={cn(
+                      "text-sm font-medium",
+                      isActive
+                        ? "text-amber-700 dark:text-amber-300"
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    {allergen}
+                  </span>
+                </button>
               );
             })}
           </div>
-        </SettingRow>
+        </div>
 
         <SettingRow
           id="setting-dietary-restrictions"

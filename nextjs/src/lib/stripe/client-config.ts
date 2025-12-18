@@ -39,6 +39,7 @@ export const SUBSCRIPTION_TIERS = {
       recipes: 50,
       householdMembers: 3,
       pantryScans: 0,
+      customRecipeTypes: 10,
     },
   },
   pro: {
@@ -59,6 +60,7 @@ export const SUBSCRIPTION_TIERS = {
       recipes: 500,
       householdMembers: 5,
       pantryScans: 10,
+      customRecipeTypes: 10,
     },
   },
   premium: {
@@ -80,6 +82,7 @@ export const SUBSCRIPTION_TIERS = {
       recipes: Infinity,
       householdMembers: 10,
       pantryScans: Infinity,
+      customRecipeTypes: 10,
     },
   },
 } as const;

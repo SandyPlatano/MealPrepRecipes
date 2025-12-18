@@ -97,20 +97,28 @@ function SidebarDropdownItem({
 }
 
 export function SidebarBottomNav() {
-  const { isIconOnly } = useSidebar();
-
   return (
-    <div className="mt-auto border-t p-2 space-y-0.5">
-      <SidebarNavItem
-        href="/app/settings"
-        icon={Settings}
-        label="Settings"
-        pinnableType="page"
-        pinnableId="settings"
-      />
-      <SidebarModeToggle />
-      <ThemeToggle />
-      <HelpButton />
+    <div className="mt-auto border-t bg-muted/30 dark:bg-muted/10">
+      {/* Settings Group */}
+      <div className="p-2 space-y-0.5">
+        <SidebarNavItem
+          href="/app/settings"
+          icon={Settings}
+          label="Settings"
+          pinnableType="page"
+          pinnableId="settings"
+        />
+        <SidebarModeToggle />
+        <ThemeToggle />
+      </div>
+
+      {/* Subtle divider */}
+      <div className="mx-3 h-px bg-border/50" />
+
+      {/* Help - separated */}
+      <div className="p-2">
+        <HelpButton />
+      </div>
     </div>
   );
 }

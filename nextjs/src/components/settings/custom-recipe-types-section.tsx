@@ -39,6 +39,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
   getCustomRecipeTypes,
+  getCustomRecipeTypeUsage,
   createCustomRecipeType,
   updateCustomRecipeType,
   deleteCustomRecipeType,
@@ -187,6 +188,7 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
   const [isSaving, setIsSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<CustomRecipeType | null>(null);
   const [reassignTarget, setReassignTarget] = useState<string>("");
+  const [usage, setUsage] = useState<{ count: number; limit: number } | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -195,21 +197,30 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
     })
   );
 
-  // Load recipe types
+  // Load recipe types and usage
   const loadRecipeTypes = async () => {
     setIsLoading(true);
-    const result = await getCustomRecipeTypes(householdId);
-    if (result.error) {
+    const [typesResult, usageResult] = await Promise.all([
+      getCustomRecipeTypes(householdId),
+      getCustomRecipeTypeUsage(householdId),
+    ]);
+    if (typesResult.error) {
       toast.error("Failed to load recipe types");
     } else {
-      setRecipeTypes(result.data || []);
+      setRecipeTypes(typesResult.data || []);
+    }
+    if (!usageResult.error && usageResult.data) {
+      setUsage(usageResult.data);
     }
     setIsLoading(false);
   };
 
   useEffect(() => {
     loadRecipeTypes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [householdId]);
+
+  const isAtLimit = usage ? usage.count >= usage.limit : false;
 
   // Open create dialog
   const handleCreate = () => {
@@ -367,12 +378,23 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
           <p className="text-sm text-muted-foreground">
             Customize your recipe categories with emojis and colors
           </p>
+          {usage && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {usage.count} of {usage.limit} custom types used
+            </p>
+          )}
         </div>
-        <Button onClick={handleCreate}>
+        <Button onClick={handleCreate} disabled={isAtLimit}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Recipe Type
+          {isAtLimit ? "Limit Reached" : "Add Recipe Type"}
         </Button>
       </div>
+
+      {isAtLimit && (
+        <div className="text-sm text-amber-600 bg-amber-50 dark:bg-amber-950/20 dark:text-amber-400 px-3 py-2 rounded-md">
+          You've reached the maximum of {usage?.limit} custom recipe types. Delete an existing type to add a new one.
+        </div>
+      )}
 
       {/* Sortable list */}
       <DndContext

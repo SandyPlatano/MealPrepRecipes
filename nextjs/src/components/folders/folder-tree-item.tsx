@@ -7,20 +7,16 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronRight, Pencil, FolderPlus, Trash2 } from "lucide-react";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import type { FolderWithChildren } from "@/types/folder";
-import { deleteFolder } from "@/app/actions/folders";
+import type { FolderWithChildren, FolderCategory } from "@/types/folder";
+import type { PinnedItem } from "@/types/user-preferences-v2";
+import { updateFolder } from "@/app/actions/folders";
+import { pinSidebarItemAuto, unpinSidebarItemAuto } from "@/app/actions/sidebar-preferences";
 import { EditFolderDialog } from "./edit-folder-dialog";
 import { CreateFolderDialog } from "./create-folder-dialog";
+import { FolderContextMenu } from "./folder-context-menu";
 
 interface FolderTreeItemProps {
   folder: FolderWithChildren;
@@ -29,6 +25,8 @@ interface FolderTreeItemProps {
   onChildSelect: (id: string) => void;
   activeChildId: string | null;
   allFolders: FolderWithChildren[];
+  categories: FolderCategory[];
+  pinnedItems: PinnedItem[];
   depth?: number;
 }
 
@@ -39,6 +37,8 @@ export function FolderTreeItem({
   onChildSelect,
   activeChildId,
   allFolders,
+  categories,
+  pinnedItems,
   depth = 0,
 }: FolderTreeItemProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -52,88 +52,115 @@ export function FolderTreeItem({
     (child) => child.id === activeChildId
   );
 
+  // Check if this folder is pinned
+  const isPinned = pinnedItems.some(
+    (item) => item.type === "folder" && item.id === folder.id
+  );
+
   // Auto-expand if a child is active
   if (isChildActive && !isOpen) {
     setIsOpen(true);
   }
 
-  const handleDelete = () => {
-    startTransition(async () => {
-      const result = await deleteFolder(folder.id);
-      if (result.error) {
-        toast.error(result.error);
-      } else {
-        toast.success("Folder deleted");
-      }
+  const handleChangeColor = async (color: string) => {
+    const result = await updateFolder(folder.id, { color });
+    if (result.error) {
+      throw new Error(result.error);
+    }
+  };
+
+  const handleChangeEmoji = async (emoji: string) => {
+    const result = await updateFolder(folder.id, { emoji });
+    if (result.error) {
+      throw new Error(result.error);
+    }
+  };
+
+  const handleMoveToCategory = async (categoryId: string | null) => {
+    const result = await updateFolder(folder.id, { category_id: categoryId });
+    if (result.error) {
+      throw new Error(result.error);
+    }
+  };
+
+  const handlePin = async () => {
+    const result = await pinSidebarItemAuto({
+      type: "folder",
+      id: folder.id,
+      name: folder.name,
+      emoji: folder.emoji || undefined,
     });
+    if (result.error) {
+      toast.error("Failed to pin folder");
+    } else {
+      toast.success("Folder pinned");
+    }
+  };
+
+  const handleUnpin = async () => {
+    const result = await unpinSidebarItemAuto(folder.id);
+    if (result.error) {
+      toast.error("Failed to unpin folder");
+    } else {
+      toast.success("Folder unpinned");
+    }
   };
 
   return (
     <>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <ContextMenu>
-          <ContextMenuTrigger asChild>
-            <div
-              className={cn(
-                "flex items-center group",
-                depth > 0 && "ml-4"
-              )}
-            >
-              {hasChildren && (
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0">
-                    <ChevronRight
-                      className={cn(
-                        "h-3 w-3 transition-transform",
-                        isOpen && "rotate-90"
-                      )}
-                    />
-                  </Button>
-                </CollapsibleTrigger>
-              )}
-              {!hasChildren && <div className="w-6" />}
-
-              <Button
-                variant={isActive ? "secondary" : "ghost"}
-                className="flex-1 justify-start h-10 px-2"
-                onClick={onSelect}
-                disabled={isPending}
-              >
-                {folder.color && (
-                  <span
-                    className="w-2.5 h-2.5 rounded-full mr-2 shrink-0"
-                    style={{ backgroundColor: folder.color }}
-                  />
-                )}
-                {folder.emoji && <span className="mr-1.5">{folder.emoji}</span>}
-                {!folder.color && !folder.emoji && (
-                  <span className="w-4 h-4 mr-1.5 text-muted-foreground">📁</span>
-                )}
-                <span className="truncate">{folder.name}</span>
-              </Button>
-            </div>
-          </ContextMenuTrigger>
-          <ContextMenuContent>
-            <ContextMenuItem onClick={() => setEditDialogOpen(true)}>
-              <Pencil className="h-4 w-4 mr-2" />
-              Edit Folder
-            </ContextMenuItem>
-            {depth === 0 && (
-              <ContextMenuItem onClick={() => setCreateSubfolderOpen(true)}>
-                <FolderPlus className="h-4 w-4 mr-2" />
-                Add Subfolder
-              </ContextMenuItem>
+        <FolderContextMenu
+          folder={folder}
+          categories={categories}
+          isPinned={isPinned}
+          onEdit={() => setEditDialogOpen(true)}
+          onAddSubfolder={() => setCreateSubfolderOpen(true)}
+          onPin={handlePin}
+          onUnpin={handleUnpin}
+          onChangeColor={handleChangeColor}
+          onChangeEmoji={handleChangeEmoji}
+          onMoveToCategory={handleMoveToCategory}
+        >
+          <div
+            className={cn(
+              "flex items-center group",
+              depth > 0 && "ml-4"
             )}
-            <ContextMenuSeparator />
-            <ContextMenuItem
-              className="text-destructive"
-              onClick={handleDelete}
+          >
+            {hasChildren && (
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0">
+                  <ChevronRight
+                    className={cn(
+                      "h-3 w-3 transition-transform",
+                      isOpen && "rotate-90"
+                    )}
+                  />
+                </Button>
+              </CollapsibleTrigger>
+            )}
+            {!hasChildren && <div className="w-6" />}
+
+            <Button
+              variant={isActive ? "secondary" : "ghost"}
+              className="flex-1 justify-start h-10 px-2"
+              onClick={onSelect}
+              disabled={isPending}
             >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete Folder
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenu>
+              {folder.color && (
+                <span
+                  className="w-2.5 h-2.5 rounded-full mr-2 shrink-0"
+                  style={{ backgroundColor: folder.color }}
+                />
+              )}
+              {folder.emoji && <span className="mr-1.5">{folder.emoji}</span>}
+              {!folder.color && !folder.emoji && (
+                <span className="w-4 h-4 mr-1.5 text-muted-foreground">📁</span>
+              )}
+              <span className="truncate">{folder.name}</span>
+            </Button>
+          </div>
+        </FolderContextMenu>
 
         {hasChildren && (
           <CollapsibleContent>
@@ -146,6 +173,8 @@ export function FolderTreeItem({
                 onChildSelect={onChildSelect}
                 activeChildId={activeChildId}
                 allFolders={allFolders}
+                categories={categories}
+                pinnedItems={pinnedItems}
                 depth={depth + 1}
               />
             ))}

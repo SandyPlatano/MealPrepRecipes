@@ -71,6 +71,7 @@ export function MobileSidebarSheet({
       <SheetContent
         side="left"
         className="w-[85vw] max-w-none p-0 flex flex-col"
+        hideCloseButton
       >
         <SheetHeader className="sr-only">
           <SheetTitle>Navigation Menu</SheetTitle>

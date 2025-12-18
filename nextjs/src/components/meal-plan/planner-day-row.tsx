@@ -12,7 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Eye, Pencil, ChefHat, CalendarOff } from "lucide-react";
+import { Plus, Trash2, Eye, Pencil, ChefHat, CalendarOff, ChevronRight } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { RecipePickerModal } from "./recipe-picker-modal";
 import { MealSlotHeader } from "./meal-slot-header";
 import { MealTypeSelector } from "./meal-type-selector";
@@ -192,7 +197,6 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                       showNutrition={viewSettings?.showNutritionBadges !== false}
                       showPrepTime={viewSettings?.showPrepTime !== false}
                       compact={viewSettings?.density === "compact"}
-                      showMealTypeHeaders={viewSettings?.showMealTypeHeaders !== false}
                     />
                   ))}
                 </div>
@@ -257,8 +261,6 @@ interface RecipeRowProps {
   showNutrition?: boolean;
   showPrepTime?: boolean;
   compact?: boolean;
-  /** When true, meal type selector shows compact mode (dot + emoji only, no label) */
-  showMealTypeHeaders?: boolean;
 }
 
 function RecipeRow({
@@ -274,7 +276,6 @@ function RecipeRow({
   showNutrition = true,
   showPrepTime = true,
   compact = false,
-  showMealTypeHeaders = true,
 }: RecipeRowProps) {
 
   // Default colors for cooks (fallback)
@@ -314,6 +315,7 @@ function RecipeRow({
   const [isUpdating, setIsUpdating] = useState(false);
   const [isUpdatingMealType, setIsUpdatingMealType] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   const handleCookChange = async (value: string) => {
     setIsUpdating(true);
@@ -343,185 +345,187 @@ function RecipeRow({
   };
 
   return (
-    <div
-      className={cn(
-        "group flex flex-col gap-3 rounded-lg border bg-card/50 transition-all border-l-4",
-        "hover:bg-card hover:shadow-sm hover:border-primary/30",
-        // Large desktop: single row layout
-        "xl:flex-row xl:items-center xl:gap-4",
-        // Compact mode: tighter padding
-        compact ? "p-2 gap-2 xl:p-2 xl:gap-3" : "p-3 xl:p-3",
-        isRemoving && "opacity-50"
-      )}
-      style={{
-        borderLeftColor: mealAccentColor,
-      }}
-    >
-      {/* Recipe Title & Meta - Always on top row */}
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="flex-1 min-w-0">
-          <p className={cn(
-            "font-medium truncate",
-            compact ? "text-sm" : "text-sm md:text-base"
-          )} title={assignment.recipe.title}>
-            {assignment.recipe.title}
-          </p>
-          {/* Only show meta row if there's something to display */}
-          {(showPrepTime && assignment.recipe.prep_time) || (showNutrition && nutrition) ? (
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
-              {showPrepTime && assignment.recipe.prep_time && (
-                <span className="text-xs text-muted-foreground">
-                  {assignment.recipe.prep_time}
-                </span>
-              )}
-              {showNutrition && nutrition && (
-                <>
-                  {nutrition.calories && (
-                    <Badge variant="outline" className="text-[11px] font-mono px-1.5 py-0.5 h-5">
-                      {Math.round(nutrition.calories)} cal
-                    </Badge>
-                  )}
-                  {nutrition.protein_g && (
-                    <Badge variant="outline" className="text-[11px] font-mono px-1.5 py-0.5 h-5">
-                      {Math.round(nutrition.protein_g)}g protein
-                    </Badge>
-                  )}
-                </>
-              )}
-            </div>
-          ) : null}
-        </div>
-
-        {/* Action buttons - Always visible with title on mobile, grouped on desktop */}
-        <div className="flex items-center gap-1 xl:hidden">
-          <Link href={`/app/recipes/${assignment.recipe.id}`} target="_blank">
+    <Collapsible open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+      <div
+        className={cn(
+          "group flex flex-col gap-2 rounded-lg border bg-card/50 transition-all border-l-4",
+          "hover:bg-card hover:shadow-sm hover:border-primary/30",
+          compact ? "p-2" : "p-3",
+          isRemoving && "opacity-50"
+        )}
+        style={{
+          borderLeftColor: mealAccentColor,
+        }}
+      >
+        {/* Title Row - Always visible */}
+        <div className="flex items-center gap-2">
+          {/* Chevron Toggle */}
+          <CollapsibleTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              className="h-10 w-10 md:h-9 md:w-9"
-              title="View Recipe"
+              className={cn(
+                "h-8 w-8 flex-shrink-0 -ml-1",
+                "hover:bg-muted/50",
+                compact && "h-7 w-7"
+              )}
+              aria-label={isDetailsOpen ? "Collapse details" : "Expand details"}
             >
-              <Eye className="h-5 w-5 md:h-4 md:w-4" />
+              <ChevronRight
+                className={cn(
+                  "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                  isDetailsOpen && "rotate-90"
+                )}
+              />
             </Button>
-          </Link>
+          </CollapsibleTrigger>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-10 w-10 md:h-9 md:w-9"
-            onClick={onSwap}
-            title="Change Recipe"
-          >
-            <Pencil className="h-5 w-5 md:h-4 md:w-4" />
-          </Button>
+          {/* Recipe Title & Meta */}
+          <div className="flex-1 min-w-0">
+            <p
+              className={cn(
+                "font-medium truncate",
+                compact ? "text-sm" : "text-sm md:text-base"
+              )}
+              title={assignment.recipe.title}
+            >
+              {assignment.recipe.title}
+            </p>
+            {/* Meta row */}
+            {(showPrepTime && assignment.recipe.prep_time) || (showNutrition && nutrition) ? (
+              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                {showPrepTime && assignment.recipe.prep_time && (
+                  <span className="text-xs text-muted-foreground">
+                    {assignment.recipe.prep_time}
+                  </span>
+                )}
+                {showNutrition && nutrition && (
+                  <>
+                    {nutrition.calories && (
+                      <Badge variant="outline" className="text-[11px] font-mono px-1.5 py-0.5 h-5">
+                        {Math.round(nutrition.calories)} cal
+                      </Badge>
+                    )}
+                    {nutrition.protein_g && (
+                      <Badge variant="outline" className="text-[11px] font-mono px-1.5 py-0.5 h-5">
+                        {Math.round(nutrition.protein_g)}g protein
+                      </Badge>
+                    )}
+                  </>
+                )}
+              </div>
+            ) : null}
+          </div>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-10 w-10 md:h-9 md:w-9 hover:bg-destructive/10 hover:text-destructive"
-            onClick={handleRemove}
-            disabled={isRemoving}
-            title="Remove"
-          >
-            <Trash2 className="h-5 w-5 md:h-4 md:w-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Selectors Row - Full width on mobile/tablet, inline on large desktop */}
-      <div className="flex items-center gap-2 md:gap-3">
-        {/* Meal Type Selector */}
-        <div className="flex-1 md:flex-none md:w-[140px] lg:w-[160px] xl:w-[150px]">
-          <MealTypeSelector
-            value={assignment.meal_type}
-            onChange={handleMealTypeChange}
-            disabled={isUpdatingMealType}
-            className="h-10 md:h-9 text-sm md:text-xs"
-            compact={showMealTypeHeaders}
-            mealTypeSettings={mealTypeSettings}
-          />
-        </div>
-
-        {/* Cook Selector */}
-        <div className="flex-1 md:flex-none md:w-[160px] lg:w-[180px] xl:w-[170px] min-w-0">
-          {(() => {
-            const cookColor = getCookColor(assignment.cook);
-            return (
-              <Select
-                value={assignment.cook || "none"}
-                onValueChange={handleCookChange}
-                disabled={isUpdating}
+          {/* Action buttons - always visible */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <Link href={`/app/recipes/${assignment.recipe.id}`} target="_blank">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn("h-9 w-9", compact && "h-8 w-8")}
+                title="View Recipe"
               >
-                <SelectTrigger
-                  className="h-10 md:h-9 text-sm md:text-xs min-w-0 [&>span]:min-w-0 [&>span]:truncate"
-                  style={cookColor ? {
-                    borderLeft: `3px solid ${cookColor}`,
-                  } : undefined}
-                >
-                  <ChefHat className="h-4 w-4 md:h-3.5 md:w-3.5 mr-1.5 flex-shrink-0" />
-                  <SelectValue placeholder="Assign cook" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No cook assigned</SelectItem>
-                  {cookNames.map((name) => {
-                    const color = getCookColor(name);
-                    return (
-                      <SelectItem key={name} value={name}>
-                        <span className="flex items-center gap-2">
-                          {color && (
-                            <span
-                              className="h-2.5 w-2.5 rounded-full flex-shrink-0"
-                              style={{ backgroundColor: color }}
-                              aria-hidden="true"
-                            />
-                          )}
-                          {name}
-                        </span>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            );
-          })()}
-        </div>
+                <Eye className={cn("h-4 w-4", compact && "h-3.5 w-3.5")} />
+              </Button>
+            </Link>
 
-        {/* Action buttons - Only on large desktop, inline with selectors */}
-        <div className="hidden xl:flex items-center gap-1">
-          <Link href={`/app/recipes/${assignment.recipe.id}`} target="_blank">
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9"
-              title="View Recipe"
+              className={cn("h-9 w-9", compact && "h-8 w-8")}
+              onClick={onSwap}
+              title="Change Recipe"
             >
-              <Eye className="h-4 w-4" />
+              <Pencil className={cn("h-4 w-4", compact && "h-3.5 w-3.5")} />
             </Button>
-          </Link>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9"
-            onClick={onSwap}
-            title="Change Recipe"
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 hover:bg-destructive/10 hover:text-destructive"
-            onClick={handleRemove}
-            disabled={isRemoving}
-            title="Remove"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "h-9 w-9 hover:bg-destructive/10 hover:text-destructive",
+                compact && "h-8 w-8"
+              )}
+              onClick={handleRemove}
+              disabled={isRemoving}
+              title="Remove"
+            >
+              <Trash2 className={cn("h-4 w-4", compact && "h-3.5 w-3.5")} />
+            </Button>
+          </div>
         </div>
+
+        {/* Collapsible Details Panel */}
+        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200">
+          <div
+            className={cn(
+              "flex items-center gap-2 pt-2 pl-7 border-t border-border/50 mt-1",
+              compact && "pt-1.5 mt-0.5 pl-6"
+            )}
+          >
+            {/* Meal Type Selector */}
+            <div className="flex-1 min-w-0 max-w-[180px]">
+              <MealTypeSelector
+                value={assignment.meal_type}
+                onChange={handleMealTypeChange}
+                disabled={isUpdatingMealType}
+                className={cn("h-9 text-sm", compact && "h-8 text-xs")}
+                compact={false}
+                mealTypeSettings={mealTypeSettings}
+              />
+            </div>
+
+            {/* Cook Selector */}
+            <div className="flex-1 min-w-0 max-w-[200px]">
+              {(() => {
+                const cookColor = getCookColor(assignment.cook);
+                return (
+                  <Select
+                    value={assignment.cook || "none"}
+                    onValueChange={handleCookChange}
+                    disabled={isUpdating}
+                  >
+                    <SelectTrigger
+                      className={cn(
+                        "h-9 text-sm min-w-0 [&>span]:min-w-0 [&>span]:truncate",
+                        compact && "h-8 text-xs"
+                      )}
+                      style={cookColor ? {
+                        borderLeft: `3px solid ${cookColor}`,
+                      } : undefined}
+                    >
+                      <ChefHat className={cn("h-4 w-4 mr-1.5 flex-shrink-0", compact && "h-3.5 w-3.5")} />
+                      <SelectValue placeholder="Assign cook" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No cook assigned</SelectItem>
+                      {cookNames.map((name) => {
+                        const color = getCookColor(name);
+                        return (
+                          <SelectItem key={name} value={name}>
+                            <span className="flex items-center gap-2">
+                              {color && (
+                                <span
+                                  className="h-2.5 w-2.5 rounded-full flex-shrink-0"
+                                  style={{ backgroundColor: color }}
+                                  aria-hidden="true"
+                                />
+                              )}
+                              {name}
+                            </span>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                );
+              })()}
+            </div>
+          </div>
+        </CollapsibleContent>
       </div>
-    </div>
+    </Collapsible>
   );
 }
 

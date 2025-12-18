@@ -4,6 +4,44 @@ import { createClient } from "@/lib/supabase/server";
 import { getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
 import { revalidatePath } from "next/cache";
 import type { CustomRecipeType, CustomRecipeTypeFormData } from "@/types/custom-recipe-type";
+import { SUBSCRIPTION_TIERS } from "@/lib/stripe/client-config";
+
+const CUSTOM_RECIPE_TYPE_LIMIT = SUBSCRIPTION_TIERS.free.limits.customRecipeTypes;
+
+/**
+ * Get the current usage of custom recipe types for a household
+ * Returns the count of custom (non-system) types and the limit
+ */
+export async function getCustomRecipeTypeUsage(householdId: string): Promise<{
+  data: { count: number; limit: number } | null;
+  error: string | null;
+}> {
+  const { user, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user) {
+    return { error: "Not authenticated", data: null };
+  }
+
+  const supabase = await createClient();
+
+  const { count, error } = await supabase
+    .from("custom_recipe_types")
+    .select("*", { count: "exact", head: true })
+    .eq("household_id", householdId)
+    .eq("is_system", false);
+
+  if (error) {
+    return { error: error.message, data: null };
+  }
+
+  return {
+    error: null,
+    data: {
+      count: count ?? 0,
+      limit: CUSTOM_RECIPE_TYPE_LIMIT,
+    },
+  };
+}
 
 /**
  * Get all custom recipe types for a household
@@ -64,6 +102,24 @@ export async function createCustomRecipeType(
   }
 
   const supabase = await createClient();
+
+  // Check limit before creating
+  const { count: existingCount, error: countError } = await supabase
+    .from("custom_recipe_types")
+    .select("*", { count: "exact", head: true })
+    .eq("household_id", householdId)
+    .eq("is_system", false);
+
+  if (countError) {
+    return { error: countError.message, data: null };
+  }
+
+  if ((existingCount ?? 0) >= CUSTOM_RECIPE_TYPE_LIMIT) {
+    return {
+      error: `You've reached the maximum of ${CUSTOM_RECIPE_TYPE_LIMIT} custom recipe types. Delete an existing type to add a new one.`,
+      data: null,
+    };
+  }
 
   // Generate slug from name
   const slug = formData.name
