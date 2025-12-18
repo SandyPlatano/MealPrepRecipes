@@ -82,8 +82,12 @@ export function CookingMode({
   dismissedHints = [],
   basePath = "/app",
 }: CookingModeProps) {
+  // Defensive: ensure arrays are never null/undefined
+  const safeIngredients = recipe.ingredients || [];
+  const safeInstructions = recipe.instructions || [];
+
   // Convert ingredients to user's preferred unit system
-  const displayIngredients = convertIngredientsToSystem(recipe.ingredients, userUnitSystem);
+  const displayIngredients = convertIngredientsToSystem(safeIngredients, userUnitSystem);
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const originalThemeRef = useRef(theme);
@@ -101,7 +105,7 @@ export function CookingMode({
   // Cooking state
   const [currentStep, setCurrentStep] = useState(0);
   const [checkedIngredients, setCheckedIngredients] = useState<boolean[]>(
-    new Array(recipe.ingredients.length).fill(false)
+    new Array(safeIngredients.length).fill(false)
   );
   const [timerMinutes, setTimerMinutes] = useState<number>(0);
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
@@ -109,12 +113,12 @@ export function CookingMode({
   const [timerTotal, setTimerTotal] = useState<number>(0);
 
   // Get current step text for voice readout
-  const currentStepText = recipe.instructions[currentStep] || "";
+  const currentStepText = safeInstructions[currentStep] || "";
 
   // Get highlighted ingredients for current step
   const highlightedIngredientIndices = getHighlightedIngredientIndices(
     currentStepText,
-    recipe.ingredients
+    safeIngredients
   );
 
   // Voice readout hook
@@ -136,10 +140,10 @@ export function CookingMode({
   }, [currentStep]);
 
   const handleNextStep = useCallback(() => {
-    if (currentStep < recipe.instructions.length - 1) {
+    if (currentStep < safeInstructions.length - 1) {
       setCurrentStep(currentStep + 1);
     }
-  }, [currentStep, recipe.instructions.length]);
+  }, [currentStep, safeInstructions.length]);
 
   const startTimer = useCallback((minutes: number) => {
     setTimerMinutes(minutes);
@@ -315,11 +319,11 @@ export function CookingMode({
   // Auto-advance to next step
   const autoAdvanceStep = useCallback(() => {
     if (!settings.behavior.autoAdvance) return;
-    if (currentStep < recipe.instructions.length - 1) {
+    if (currentStep < safeInstructions.length - 1) {
       setCurrentStep((prev) => prev + 1);
       toast.info("Auto-advanced to next step");
     }
-  }, [settings.behavior.autoAdvance, currentStep, recipe.instructions.length]);
+  }, [settings.behavior.autoAdvance, currentStep, safeInstructions.length]);
 
   // Timer logic with sound and auto-advance
   useEffect(() => {
@@ -357,7 +361,7 @@ export function CookingMode({
   };
 
   const allIngredientsChecked = checkedIngredients.every((checked) => checked);
-  const progress = ((currentStep + 1) / recipe.instructions.length) * 100;
+  const progress = ((currentStep + 1) / safeInstructions.length) * 100;
 
   // Font size classes based on settings
   const fontSizeClass = FONT_SIZE_CLASSES[settings.display.fontSize];
@@ -473,7 +477,7 @@ export function CookingMode({
           {/* Center: Step Indicator (always visible, prominent) */}
           <div className="text-center">
             <span className="text-lg lg:text-xl font-bold">
-              Step {currentStep + 1} of {recipe.instructions.length}
+              Step {currentStep + 1} of {safeInstructions.length}
             </span>
           </div>
 
@@ -591,7 +595,7 @@ export function CookingMode({
                         "flex items-center justify-center",
                         "text-2xl lg:text-3xl font-bold font-mono",
                         "shadow-lg shadow-primary/25",
-                        currentStep === recipe.instructions.length - 1 && "ring-4 ring-primary/30"
+                        currentStep === safeInstructions.length - 1 && "ring-4 ring-primary/30"
                       )}
                     >
                       {currentStep + 1}
@@ -602,9 +606,9 @@ export function CookingMode({
                       </span>
                       <div className="flex items-center gap-3">
                         <span className="text-lg lg:text-xl font-semibold">
-                          {currentStep + 1} of {recipe.instructions.length}
+                          {currentStep + 1} of {safeInstructions.length}
                         </span>
-                        {currentStep === recipe.instructions.length - 1 && (
+                        {currentStep === safeInstructions.length - 1 && (
                           <Badge variant="default" className="gap-1">
                             <Check className="h-3 w-3" />
                             Final
@@ -615,7 +619,7 @@ export function CookingMode({
                   </div>
                   <div className={cn("prose dark:prose-invert max-w-none prose-p:leading-relaxed", proseSizeClass)}>
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {recipe.instructions[currentStep]}
+                      {safeInstructions[currentStep]}
                     </ReactMarkdown>
                   </div>
 
@@ -624,7 +628,7 @@ export function CookingMode({
                     <>
                       {/* Auto-detected Timers */}
                       {(() => {
-                        const detectedTimers = detectTimers(recipe.instructions[currentStep]);
+                        const detectedTimers = detectTimers(safeInstructions[currentStep]);
                         return detectedTimers.length > 0 ? (
                           <div className="flex flex-wrap gap-4 mt-10 pt-8 border-t">
                             <span className="text-muted-foreground mr-2">
@@ -679,7 +683,7 @@ export function CookingMode({
                 <Button
                   size="lg"
                   onClick={handleNextStep}
-                  disabled={currentStep === recipe.instructions.length - 1}
+                  disabled={currentStep === safeInstructions.length - 1}
                   className="flex-1 h-16 text-base rounded-xl shadow-lg shadow-primary/20 active:scale-[0.98] transition-all"
                 >
                   Next
@@ -690,7 +694,7 @@ export function CookingMode({
           ) : (
             /* Scrollable View */
             <CookModeScrollableView
-              instructions={recipe.instructions}
+              instructions={safeInstructions}
               currentStep={currentStep}
               onStepChange={setCurrentStep}
               onStartTimer={startTimer}
@@ -700,7 +704,7 @@ export function CookingMode({
           )}
 
           {/* Done button - visible in both modes when on final step */}
-          {currentStep === recipe.instructions.length - 1 && (
+          {currentStep === safeInstructions.length - 1 && (
             <Button
               size="lg"
               className="w-full"
