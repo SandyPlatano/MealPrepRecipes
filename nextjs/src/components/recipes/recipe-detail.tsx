@@ -592,13 +592,10 @@ export function RecipeDetail({
 
               {/* Unit toggle for non-scalable recipes */}
               {!canScale && (
-                <div className="flex gap-2">
-                  <UnitSystemToggle
-                    defaultSystem={effectiveUnitSystem}
-                    onSystemChange={setLocalUnitSystem}
-                    className="text-xs"
-                  />
-                </div>
+                <UnitSystemToggle
+                  defaultSystem={effectiveUnitSystem}
+                  onSystemChange={setLocalUnitSystem}
+                />
               )}
 
               {/* Serving Controls Row */}
@@ -638,11 +635,9 @@ export function RecipeDetail({
                     >
                       Family (4x)
                     </Button>
-                    <div className="w-px h-4 bg-border mx-1" />
                     <UnitSystemToggle
                       defaultSystem={effectiveUnitSystem}
                       onSystemChange={setLocalUnitSystem}
-                      className="text-xs"
                     />
                   </div>
                   {/* Serving size input */}

@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Scale } from "lucide-react";
+import { Ruler } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import type { UnitSystem } from "@/lib/ingredient-scaler";
 
 interface UnitSystemToggleProps {
@@ -18,8 +18,9 @@ interface UnitSystemToggleProps {
 }
 
 /**
- * Toggle button for switching between metric and imperial unit systems
- * Used on recipe detail pages for quick per-recipe override of global preference
+ * Segmented control for switching between metric and imperial unit systems
+ * Uses a pill-shaped toggle that clearly shows both options and current selection
+ * Visually distinct from serving size buttons to avoid confusion
  */
 export function UnitSystemToggle({
   defaultSystem,
@@ -28,31 +29,57 @@ export function UnitSystemToggle({
 }: UnitSystemToggleProps) {
   const [currentSystem, setCurrentSystem] = useState(defaultSystem);
 
-  const toggleSystem = () => {
-    const newSystem = currentSystem === "imperial" ? "metric" : "imperial";
-    setCurrentSystem(newSystem);
-    onSystemChange(newSystem);
+  const selectSystem = (system: UnitSystem) => {
+    if (system !== currentSystem) {
+      setCurrentSystem(system);
+      onSystemChange(system);
+    }
   };
-
-  const displayLabel = currentSystem === "imperial" ? "US" : "Metric";
-  const switchToLabel = currentSystem === "imperial" ? "metric" : "US";
 
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleSystem}
-            className={className}
+          <div
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full bg-muted/60 border border-border/50 px-2 py-1",
+              className
+            )}
           >
-            <Scale className="h-4 w-4 mr-1.5" />
-            {displayLabel}
-          </Button>
+            {/* Icon label */}
+            <Ruler className="h-3.5 w-3.5 text-muted-foreground" />
+
+            {/* Segmented control */}
+            <div className="inline-flex rounded-full bg-background/80 p-0.5 shadow-inner">
+              <button
+                type="button"
+                onClick={() => selectSystem("imperial")}
+                className={cn(
+                  "px-2.5 py-0.5 text-xs font-medium rounded-full transition-all duration-200",
+                  currentSystem === "imperial"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                US
+              </button>
+              <button
+                type="button"
+                onClick={() => selectSystem("metric")}
+                className={cn(
+                  "px-2.5 py-0.5 text-xs font-medium rounded-full transition-all duration-200",
+                  currentSystem === "metric"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Metric
+              </button>
+            </div>
+          </div>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Switch to {switchToLabel} units</p>
+          <p>Switch measurement units</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
