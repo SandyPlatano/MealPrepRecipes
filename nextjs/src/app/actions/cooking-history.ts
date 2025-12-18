@@ -218,6 +218,7 @@ export async function quickRate(recipeId: string, rating: number) {
     .from("cooking_history")
     .insert({
       recipe_id: recipeId,
+      user_id: user.id,
       household_id: membership.household_id,
       cooked_by: user.id,
       cooked_at: new Date().toISOString(),
@@ -282,6 +283,7 @@ export async function rateRecipeWithNotes(
     .from("cooking_history")
     .insert({
       recipe_id: recipeId,
+      user_id: user.id,
       household_id: membership.household_id,
       cooked_by: user.id,
       cooked_at: new Date().toISOString(),
