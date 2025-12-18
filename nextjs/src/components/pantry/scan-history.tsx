@@ -127,8 +127,8 @@ export default function ScanHistory({ onReuseScan, maxItems = 10 }: ScanHistoryP
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="flex items-center gap-3 p-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 p-3 animate-pulse">
                 <Skeleton className="h-16 w-16 rounded-md" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-32" />

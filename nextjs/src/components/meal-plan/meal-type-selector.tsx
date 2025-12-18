@@ -83,7 +83,11 @@ export function MealTypeSelector({
             style={{ backgroundColor: currentColor }}
             aria-hidden="true"
           />
-          {currentEmoji && <span className="flex-shrink-0">{currentEmoji}</span>}
+          {useIcon ? (
+            <MealTypeIcon type={value ?? "other"} className="h-4 w-4 flex-shrink-0" />
+          ) : currentEmoji && (
+            <span className="flex-shrink-0">{currentEmoji}</span>
+          )}
           {!compact && <span className="truncate ml-0.5">{defaultConfig.label}</span>}
         </span>
       </SelectTrigger>
@@ -100,7 +104,11 @@ export function MealTypeSelector({
                   style={{ backgroundColor: typeColor }}
                   aria-hidden="true"
                 />
-                {typeEmoji && <span>{typeEmoji}</span>}
+                {useIcon ? (
+                  <MealTypeIcon type={type} className="h-4 w-4" />
+                ) : typeEmoji && (
+                  <span>{typeEmoji}</span>
+                )}
                 <span className="ml-0.5">{typeConfig.label}</span>
               </span>
             </SelectItem>

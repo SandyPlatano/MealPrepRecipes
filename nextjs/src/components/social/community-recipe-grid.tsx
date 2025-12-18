@@ -238,7 +238,7 @@ export function CommunityRecipeGrid({
 
 function RecipeCardSkeleton() {
   return (
-    <div className="rounded-lg border overflow-hidden">
+    <div className="rounded-lg border overflow-hidden animate-pulse">
       <Skeleton className="w-full h-48" />
       <div className="p-4 space-y-3">
         <Skeleton className="h-5 w-3/4" />

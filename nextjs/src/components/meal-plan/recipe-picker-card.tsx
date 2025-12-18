@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, Star, Clock } from "lucide-react";
+import { Check, Star, Clock, UtensilsCrossed } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
@@ -65,7 +65,7 @@ export function RecipePickerCard({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <div className="text-6xl opacity-20">🍽️</div>
+            <UtensilsCrossed className="h-12 w-12 text-muted-foreground/30" />
           </div>
         )}
       </div>

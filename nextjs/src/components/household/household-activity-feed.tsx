@@ -191,7 +191,7 @@ function renderMetadata(metadata: Record<string, unknown>, activityType: string)
 
 function ActivityItemSkeleton() {
   return (
-    <Card className="p-4">
+    <Card className="p-4 animate-pulse">
       <div className="flex gap-4">
         <Skeleton className="h-10 w-10 rounded-full" />
         <div className="flex-1 space-y-2">

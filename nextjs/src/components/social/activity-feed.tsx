@@ -202,7 +202,7 @@ function ActivityItem({ item }: { item: ActivityFeedItem }) {
 
 function ActivityItemSkeleton() {
   return (
-    <div className="flex gap-4 p-4 border rounded-lg">
+    <div className="flex gap-4 p-4 border rounded-lg animate-pulse">
       <Skeleton className="h-10 w-10 rounded-full" />
       <div className="flex-1 space-y-3">
         <div className="flex items-center gap-2">
