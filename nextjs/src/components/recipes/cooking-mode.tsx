@@ -667,11 +667,17 @@ export function CookingMode({
               <DropdownMenuItem
                 disabled={!voiceCommandsSupported}
                 onClick={() => {
+                  console.log("[CookingMode] Voice button clicked");
+                  console.log("[CookingMode] voiceCommandsSupported:", voiceCommandsSupported);
+                  console.log("[CookingMode] isListening:", isListening);
+                  console.log("[CookingMode] settings.voice:", settings.voice);
+
                   if (!voiceCommandsSupported) {
                     toast.error("Voice commands not supported in this browser. Try Chrome or Edge.");
                     return;
                   }
                   if (isListening) {
+                    console.log("[CookingMode] Stopping voice...");
                     stopListening();
                     setSettings((prev) => ({
                       ...prev,
@@ -679,6 +685,7 @@ export function CookingMode({
                     }));
                     toast.info("Voice commands disabled");
                   } else {
+                    console.log("[CookingMode] Starting voice...");
                     setSettings((prev) => ({
                       ...prev,
                       voice: { ...prev.voice, enabled: true },

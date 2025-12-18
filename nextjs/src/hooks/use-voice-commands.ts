@@ -348,9 +348,15 @@ export function useVoiceCommands({
       const transcript = event.results[last][0].transcript;
       const normalized = transcript.toLowerCase().trim();
 
+      console.log("[VoiceCommands] Heard:", transcript);
+      console.log("[VoiceCommands] isAwaitingCommand:", isAwaitingCommandRef.current);
+      console.log("[VoiceCommands] Wake words:", normalizedWakeWords);
+
       if (isAwaitingCommandRef.current) {
         // We're listening for a command
+        console.log("[VoiceCommands] Checking for command match...");
         const matchedAction = findMatchingCommand(normalized, commandMappings);
+        console.log("[VoiceCommands] Matched action:", matchedAction);
         if (matchedAction) {
           executeCommand(matchedAction, transcript);
           // Clear the awaiting command state
@@ -366,15 +372,18 @@ export function useVoiceCommands({
         const isWakeWord = normalizedWakeWords.some(word =>
           normalized.includes(word)
         );
+        console.log("[VoiceCommands] Is wake word match:", isWakeWord);
 
         if (isWakeWord) {
           // Wake word detected!
+          console.log("[VoiceCommands] Wake word detected! Playing sound...");
           playAcknowledgmentSound();
           setIsAwaitingCommand(true);
           isAwaitingCommandRef.current = true;
 
           // Set timeout to exit awaiting command mode (convert to milliseconds)
           commandTimeoutRef.current = setTimeout(() => {
+            console.log("[VoiceCommands] Command timeout reached");
             setIsAwaitingCommand(false);
             isAwaitingCommandRef.current = false;
             commandTimeoutRef.current = null;

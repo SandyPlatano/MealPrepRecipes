@@ -197,11 +197,7 @@ export function SidebarPinned() {
   }
 
   return (
-    <SidebarSection
-      title="Pinned"
-      defaultExpanded
-      collapsible={!isIconOnly}
-    >
+    <SidebarSection title="Pinned" defaultOpen>
       <div className="space-y-0.5">
         {pinnedItems.map((item) => (
           <PinnedItemRow
