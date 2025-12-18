@@ -62,10 +62,14 @@ export async function getRecipe(id: string) {
     .from("recipes")
     .select("*")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
   if (error) {
     return { error: error.message, data: null };
+  }
+
+  if (!data) {
+    return { error: "Recipe not found", data: null };
   }
 
   return { error: null, data: data as Recipe };
@@ -293,13 +297,13 @@ export async function toggleFavorite(recipeId: string) {
 
   const supabase = await createClient();
 
-  // Check if already favorited
+  // Check if already favorited (use maybeSingle since it might not exist)
   const { data: existing } = await supabase
     .from("favorites")
     .select("id")
     .eq("user_id", user.id)
     .eq("recipe_id", recipeId)
-    .single();
+    .maybeSingle();
 
   if (existing) {
     // Remove favorite

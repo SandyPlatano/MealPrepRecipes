@@ -57,42 +57,50 @@ export async function sendHouseholdInvitation(email: string): Promise<{
     return { error: "Only household owners can invite members", data: null };
   }
 
-  // Validate email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Validate email format with stricter regex
+  // Requires: local part, @ symbol, domain with at least one dot, TLD of 2+ chars
+  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
   if (!emailRegex.test(email)) {
     return { error: "Invalid email format", data: null };
+  }
+
+  // Additional check: email length should be reasonable
+  if (email.length > 254) {
+    return { error: "Email address too long", data: null };
   }
 
   const supabase = await createClient();
 
   // Check if user is already a member of this household
+  // Use maybeSingle since user might not exist yet
   const { data: existingProfile } = await supabase
     .from("profiles")
     .select("id")
     .eq("email", email.toLowerCase())
-    .single();
+    .maybeSingle();
 
   if (existingProfile) {
+    // Use maybeSingle since they might not be a member yet
     const { data: existingMember } = await supabase
       .from("household_members")
       .select("id")
       .eq("household_id", householdId)
       .eq("user_id", existingProfile.id)
-      .single();
+      .maybeSingle();
 
     if (existingMember) {
       return { error: "This user is already a member of your household", data: null };
     }
   }
 
-  // Check for existing pending invitation
+  // Check for existing pending invitation (might not exist - use maybeSingle)
   const { data: existingInvite } = await supabase
     .from("household_invitations")
     .select("id, status")
     .eq("household_id", householdId)
     .eq("email", email.toLowerCase())
     .eq("status", "pending")
-    .single();
+    .maybeSingle();
 
   if (existingInvite) {
     return { error: "An invitation has already been sent to this email", data: null };
@@ -122,12 +130,12 @@ export async function sendHouseholdInvitation(email: string): Promise<{
     return { error: error.message, data: null };
   }
 
-  // Get inviter's profile for the email
+  // Get inviter's profile for the email (should exist but use maybeSingle for safety)
   const { data: inviterProfile } = await supabase
     .from("profiles")
     .select("first_name, last_name, email")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
   const inviterName =
     inviterProfile?.first_name && inviterProfile?.last_name
@@ -295,12 +303,12 @@ export async function resendHouseholdInvitation(invitationId: string): Promise<{
     return { error: error.message, data: null };
   }
 
-  // Get inviter's profile for the email
+  // Get inviter's profile for the email (should exist but use maybeSingle for safety)
   const { data: inviterProfile } = await supabase
     .from("profiles")
     .select("first_name, last_name, email")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
   const inviterName =
     inviterProfile?.first_name && inviterProfile?.last_name
@@ -381,12 +389,12 @@ export async function acceptHouseholdInvitation(token: string): Promise<{
     return { error: "Invalid or expired invitation", householdId: null };
   }
 
-  // Check if user is already in a household
+  // Check if user is already in a household (might not be - use maybeSingle)
   const { data: existingMembership } = await supabase
     .from("household_members")
     .select("id")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (existingMembership) {
     return { error: "You are already a member of a household", householdId: null };
