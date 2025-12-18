@@ -123,16 +123,21 @@ function getRecipeIcon(recipeType: RecipeType) {
   }
 }
 
-// Filter tags to remove duplicates that appear in category or protein_type
+// Filter tags to remove duplicates that appear in recipe_type, category, or protein_type
 function getDisplayTags(recipe: Recipe): string[] {
   const excludedValues = new Set<string>();
 
-  // Exclude category if it exists (case-insensitive)
+  // Exclude recipe_type (e.g., "Side Dish" badge)
+  if (recipe.recipe_type) {
+    excludedValues.add(recipe.recipe_type.toLowerCase());
+  }
+
+  // Exclude category if it exists (e.g., "Vegan" badge)
   if (recipe.category) {
     excludedValues.add(recipe.category.toLowerCase());
   }
 
-  // Exclude protein_type if it exists (case-insensitive)
+  // Exclude protein_type if it exists (e.g., "vegan" subtitle)
   if (recipe.protein_type) {
     excludedValues.add(recipe.protein_type.toLowerCase());
   }

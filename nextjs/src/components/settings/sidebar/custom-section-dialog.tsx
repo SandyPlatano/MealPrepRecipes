@@ -110,7 +110,7 @@ export function CustomSectionDialog({
                     {emoji || <Smile className="h-5 w-5" />}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 z-[100]" align="start">
+                <PopoverContent className="w-auto p-0 z-[10000]" align="start">
                   <Picker
                     data={data}
                     onEmojiSelect={handleEmojiSelect}

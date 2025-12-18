@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Settings, HelpCircle, Moon, Sun, Monitor, PanelLeft, PanelLeftClose } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { Settings, HelpCircle, Moon, Sun, Monitor, PanelLeft, PanelLeftClose, ExternalLink } from "lucide-react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,78 @@ import {
 import { SidebarNavItem } from "./sidebar-nav-item";
 import { useSidebar } from "./sidebar-context";
 
+/**
+ * Shared styling constants for consistent nav item appearance
+ */
+const NAV_ITEM_CLASSES = {
+  base: "w-full justify-start gap-3 h-10 px-3 transition-all duration-150",
+  inactive: "text-muted-foreground hover:text-foreground hover:bg-accent",
+  iconOnly: "justify-center px-0",
+  icon: "h-4 w-4 shrink-0",
+  label: "flex-1 truncate text-sm font-medium",
+};
+
+/**
+ * Helper component for dropdown menu triggers styled as nav items.
+ * Ensures visual consistency with SidebarNavItem.
+ */
+interface SidebarDropdownItemProps {
+  icon: LucideIcon;
+  label: string;
+  children: React.ReactNode;
+  align?: "start" | "center" | "end";
+  side?: "top" | "right" | "bottom" | "left";
+}
+
+function SidebarDropdownItem({
+  icon: Icon,
+  label,
+  children,
+  align = "start",
+  side = "top",
+}: SidebarDropdownItemProps) {
+  const { isIconOnly } = useSidebar();
+
+  const trigger = (
+    <Button
+      variant="ghost"
+      className={cn(
+        NAV_ITEM_CLASSES.base,
+        NAV_ITEM_CLASSES.inactive,
+        isIconOnly && NAV_ITEM_CLASSES.iconOnly
+      )}
+    >
+      <Icon className={NAV_ITEM_CLASSES.icon} />
+      {!isIconOnly && <span className={NAV_ITEM_CLASSES.label}>{label}</span>}
+    </Button>
+  );
+
+  const dropdown = (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+      <DropdownMenuContent
+        align={isIconOnly ? "center" : align}
+        side={isIconOnly ? "right" : side}
+      >
+        {children}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
+  if (isIconOnly) {
+    return (
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>{dropdown}</TooltipTrigger>
+        <TooltipContent side="right">
+          <span>{label}</span>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return dropdown;
+}
+
 export function SidebarBottomNav() {
   const { isIconOnly } = useSidebar();
 
@@ -37,68 +110,35 @@ export function SidebarBottomNav() {
       />
       <SidebarModeToggle />
       <ThemeToggle />
-      {!isIconOnly && (
-        <HelpButton />
-      )}
+      <HelpButton />
     </div>
   );
 }
 
 function SidebarModeToggle() {
-  const { mode, setMode, isIconOnly } = useSidebar();
+  const { mode, setMode } = useSidebar();
   const Icon = mode === "expanded" ? PanelLeft : PanelLeftClose;
 
-  const content = (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className={cn(
-            "w-full justify-start gap-3 h-10 px-3",
-            "text-muted-foreground hover:text-foreground hover:bg-accent",
-            isIconOnly && "justify-center px-0"
-          )}
-        >
-          <Icon className="h-4 w-4 shrink-0" />
-          {!isIconOnly && (
-            <span className="flex-1 truncate text-sm font-medium">Sidebar</span>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align={isIconOnly ? "center" : "start"} side={isIconOnly ? "right" : "top"} className="w-56">
-        <DropdownMenuLabel>Sidebar Mode</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup value={mode} onValueChange={(v) => setMode(v as "expanded" | "collapsed")}>
-          <DropdownMenuRadioItem value="expanded">
-            <PanelLeft className="mr-2 h-4 w-4" />
-            Expanded
-          </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="collapsed">
-            <PanelLeftClose className="mr-2 h-4 w-4" />
-            Collapsed
-          </DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+  return (
+    <SidebarDropdownItem icon={Icon} label="Sidebar">
+      <DropdownMenuLabel>Sidebar Mode</DropdownMenuLabel>
+      <DropdownMenuSeparator />
+      <DropdownMenuRadioGroup value={mode} onValueChange={(v) => setMode(v as "expanded" | "collapsed")}>
+        <DropdownMenuRadioItem value="expanded">
+          <PanelLeft className="mr-2 h-4 w-4" />
+          Expanded
+        </DropdownMenuRadioItem>
+        <DropdownMenuRadioItem value="collapsed">
+          <PanelLeftClose className="mr-2 h-4 w-4" />
+          Collapsed
+        </DropdownMenuRadioItem>
+      </DropdownMenuRadioGroup>
+    </SidebarDropdownItem>
   );
-
-  if (isIconOnly) {
-    return (
-      <Tooltip delayDuration={0}>
-        <TooltipTrigger asChild>{content}</TooltipTrigger>
-        <TooltipContent side="right">
-          <span>Sidebar: {mode}</span>
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  return content;
 }
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-  const { isIconOnly } = useSidebar();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -112,47 +152,66 @@ function ThemeToggle() {
   const currentTheme = theme || "system";
   const Icon = currentTheme === "dark" ? Moon : currentTheme === "light" ? Sun : Monitor;
 
+  return (
+    <SidebarDropdownItem icon={Icon} label="Theme">
+      <DropdownMenuItem onClick={() => setTheme("light")}>
+        <Sun className="h-4 w-4 mr-2" />
+        Light
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => setTheme("dark")}>
+        <Moon className="h-4 w-4 mr-2" />
+        Dark
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => setTheme("system")}>
+        <Monitor className="h-4 w-4 mr-2" />
+        System
+      </DropdownMenuItem>
+    </SidebarDropdownItem>
+  );
+}
+
+/**
+ * Helper component for external link buttons styled as nav items.
+ * Ensures visual consistency with SidebarNavItem.
+ */
+interface SidebarExternalLinkProps {
+  href: string;
+  icon: LucideIcon;
+  label: string;
+}
+
+function SidebarExternalLink({ href, icon: Icon, label }: SidebarExternalLinkProps) {
+  const { isIconOnly } = useSidebar();
+
   const content = (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className={cn(
-            "w-full justify-start gap-3 h-10 px-3",
-            "text-muted-foreground hover:text-foreground hover:bg-accent",
-            "transition-all duration-150",
-            isIconOnly && "justify-center px-0"
-          )}
-        >
-          <Icon className="h-4 w-4 shrink-0" />
-          {!isIconOnly && (
-            <span className="flex-1 truncate text-sm font-medium">Theme</span>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align={isIconOnly ? "center" : "start"} side={isIconOnly ? "right" : "top"}>
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          <Sun className="h-4 w-4 mr-2" />
-          Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          <Moon className="h-4 w-4 mr-2" />
-          Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          <Monitor className="h-4 w-4 mr-2" />
-          System
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button
+      variant="ghost"
+      className={cn(
+        NAV_ITEM_CLASSES.base,
+        NAV_ITEM_CLASSES.inactive,
+        isIconOnly && NAV_ITEM_CLASSES.iconOnly
+      )}
+      asChild
+    >
+      <a href={href} target="_blank" rel="noopener noreferrer">
+        <Icon className={NAV_ITEM_CLASSES.icon} />
+        {!isIconOnly && (
+          <>
+            <span className={NAV_ITEM_CLASSES.label}>{label}</span>
+            <ExternalLink className="h-3 w-3 text-muted-foreground" />
+          </>
+        )}
+      </a>
+    </Button>
   );
 
   if (isIconOnly) {
     return (
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>{content}</TooltipTrigger>
-        <TooltipContent side="right">
-          <span>Theme: {currentTheme}</span>
+        <TooltipContent side="right" className="flex items-center gap-1.5">
+          <span>{label}</span>
+          <ExternalLink className="h-3 w-3 text-muted-foreground" />
         </TooltipContent>
       </Tooltip>
     );
@@ -163,23 +222,10 @@ function ThemeToggle() {
 
 function HelpButton() {
   return (
-    <Button
-      variant="ghost"
-      className={cn(
-        "w-full justify-start gap-3 h-10 px-3",
-        "text-muted-foreground hover:text-foreground hover:bg-accent",
-        "transition-all duration-150"
-      )}
-      asChild
-    >
-      <a
-        href="https://docs.example.com"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <HelpCircle className="h-4 w-4 shrink-0" />
-        <span className="flex-1 truncate text-sm font-medium">Help & Docs</span>
-      </a>
-    </Button>
+    <SidebarExternalLink
+      href="https://docs.example.com"
+      icon={HelpCircle}
+      label="Help & Docs"
+    />
   );
 }

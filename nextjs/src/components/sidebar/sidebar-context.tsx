@@ -19,6 +19,7 @@ import type {
 import {
   DEFAULT_SECTION_ORDER,
   DEFAULT_BUILTIN_SECTIONS,
+  isBuiltInSectionId,
 } from "@/types/sidebar-customization";
 import {
   normalizeSidebarPreferences,
@@ -38,6 +39,8 @@ import {
   deleteCustomSectionAuto,
   addCustomSectionItemAuto,
   removeCustomSectionItemAuto,
+  reorderSectionsAuto,
+  updateBuiltInSectionAuto,
 } from "@/app/actions/sidebar-section-actions";
 
 // Media query breakpoints
@@ -314,35 +317,47 @@ export function SidebarProvider({
 
   // Section customization actions
   const reorderSections = React.useCallback(async (newOrder: string[]) => {
+    const previousOrder = sectionOrder;
     setSectionOrder(newOrder);
-    // TODO: Call server action
-    // await reorderSectionsAuto(newOrder);
-    console.log("Reordering sections:", newOrder);
-  }, []);
+
+    const { error } = await reorderSectionsAuto(newOrder);
+    if (error) {
+      setSectionOrder(previousOrder);
+      console.error("Failed to reorder sections:", error);
+    }
+  }, [sectionOrder]);
 
   const toggleSectionVisibility = React.useCallback(async (sectionId: string) => {
-    setSections((prev) => {
-      const section = prev[sectionId];
-      if (!section) return prev;
+    const previousSections = sections;
+    const section = sections[sectionId];
+    if (!section) return;
 
-      return {
-        ...prev,
-        [sectionId]: {
-          ...section,
-          hidden: !section.hidden,
-        },
-      };
-    });
-    // TODO: Call server action
-    // await toggleSectionVisibilityAuto(sectionId);
-    console.log("Toggling section visibility:", sectionId);
-  }, []);
+    const newHidden = !section.hidden;
+
+    setSections((prev) => ({
+      ...prev,
+      [sectionId]: {
+        ...prev[sectionId],
+        hidden: newHidden,
+      },
+    }));
+
+    const { error } = isBuiltInSectionId(sectionId)
+      ? await updateBuiltInSectionAuto(sectionId, { hidden: newHidden })
+      : await updateCustomSectionAuto(sectionId, { hidden: newHidden });
+
+    if (error) {
+      setSections(previousSections);
+      console.error("Failed to toggle section visibility:", error);
+    }
+  }, [sections]);
 
   const updateSectionLabel = React.useCallback(async (sectionId: string, label: string) => {
-    setSections((prev) => {
-      const section = prev[sectionId];
-      if (!section) return prev;
+    const previousSections = sections;
+    const section = sections[sectionId];
+    if (!section) return;
 
+    setSections((prev) => {
       if (section.type === "custom") {
         return {
           ...prev,
@@ -361,16 +376,23 @@ export function SidebarProvider({
         };
       }
     });
-    // TODO: Call server action
-    // await updateSectionLabelAuto(sectionId, label);
-    console.log("Updating section label:", sectionId, label);
-  }, []);
+
+    const { error } = isBuiltInSectionId(sectionId)
+      ? await updateBuiltInSectionAuto(sectionId, { customTitle: label })
+      : await updateCustomSectionAuto(sectionId, { title: label });
+
+    if (error) {
+      setSections(previousSections);
+      console.error("Failed to update section label:", error);
+    }
+  }, [sections]);
 
   const updateSectionEmoji = React.useCallback(async (sectionId: string, emoji: string | null) => {
-    setSections((prev) => {
-      const section = prev[sectionId];
-      if (!section) return prev;
+    const previousSections = sections;
+    const section = sections[sectionId];
+    if (!section) return;
 
+    setSections((prev) => {
       if (section.type === "custom") {
         return {
           ...prev,
@@ -389,20 +411,40 @@ export function SidebarProvider({
         };
       }
     });
-    // TODO: Call server action
-    // await updateSectionEmojiAuto(sectionId, emoji);
-    console.log("Updating section emoji:", sectionId, emoji);
-  }, []);
+
+    const { error } = isBuiltInSectionId(sectionId)
+      ? await updateBuiltInSectionAuto(sectionId, { customEmoji: emoji })
+      : await updateCustomSectionAuto(sectionId, { emoji });
+
+    if (error) {
+      setSections(previousSections);
+      console.error("Failed to update section emoji:", error);
+    }
+  }, [sections]);
 
   const resetSection = React.useCallback(async (sectionId: BuiltInSectionId) => {
+    const previousSections = sections;
+    const defaultSection = DEFAULT_BUILTIN_SECTIONS[sectionId];
+
     setSections((prev) => ({
       ...prev,
-      [sectionId]: structuredClone(DEFAULT_BUILTIN_SECTIONS[sectionId]),
+      [sectionId]: structuredClone(defaultSection),
     }));
-    // TODO: Call server action
-    // await resetSectionAuto(sectionId);
-    console.log("Resetting section:", sectionId);
-  }, []);
+
+    // Reset to defaults by clearing custom values
+    const { error } = await updateBuiltInSectionAuto(sectionId, {
+      customTitle: null,
+      customIcon: null,
+      customEmoji: null,
+      hidden: defaultSection.hidden,
+      defaultCollapsed: defaultSection.defaultCollapsed,
+    });
+
+    if (error) {
+      setSections(previousSections);
+      console.error("Failed to reset section:", error);
+    }
+  }, [sections]);
 
   // Custom section actions
   const addCustomSection = React.useCallback(async (title: string): Promise<string | null> => {
