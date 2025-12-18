@@ -3,6 +3,8 @@
 import * as React from "react";
 import type { User } from "@supabase/supabase-js";
 import { cn } from "@/lib/utils";
+import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   SidebarProvider,
   useSidebar,
@@ -91,9 +93,22 @@ function AppShellContent({
       <div className="flex flex-col min-h-screen bg-background">
         {/* Mobile Header */}
         <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex items-center h-14 px-4 gap-4">
-            <MobileSidebarTrigger />
-            <h1 className="font-semibold text-lg">MealPrep</h1>
+          <div className="flex items-center justify-between h-14 px-4">
+            <div className="flex items-center gap-4">
+              <MobileSidebarTrigger />
+              <h1 className="font-semibold text-lg">MealPrep</h1>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("keyboard:openSearch"));
+              }}
+              className="h-9 w-9"
+              aria-label="Search"
+            >
+              <Search className="h-5 w-5" />
+            </Button>
           </div>
         </header>
 
@@ -114,6 +129,11 @@ function AppShellContent({
     );
   }
 
+  // Handler to open global search modal
+  const handleSearchClick = React.useCallback(() => {
+    window.dispatchEvent(new CustomEvent("keyboard:openSearch"));
+  }, []);
+
   // Desktop layout: sidebar + content (simple flex layout)
   return (
     <div className="flex min-h-screen bg-background">
@@ -121,6 +141,7 @@ function AppShellContent({
       <AppSidebar
         user={user}
         logoutAction={logoutAction}
+        onSearchClick={handleSearchClick}
         {...sidebarProps}
       />
 
