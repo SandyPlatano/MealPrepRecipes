@@ -55,7 +55,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
 import { RatingBadge } from "@/components/ui/rating-badge";
-import { QuickRatingPopover } from "@/components/recipes/quick-rating-popover";
+import { PersonalRatingDialog } from "@/components/recipes/personal-rating-dialog";
 import type { RecipeWithFavorite, RecipeWithFavoriteAndNutrition, RecipeType } from "@/types/recipe";
 import type { DayOfWeek } from "@/types/meal-plan";
 import type { FolderWithChildren } from "@/types/folder";
@@ -116,6 +116,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [showCookedDialog, setShowCookedDialog] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [servingMultiplier, setServingMultiplier] = useState<number>(1);
   const [customInput, setCustomInput] = useState<string>("");
   const [showCustomInput, setShowCustomInput] = useState(false);
@@ -384,24 +385,28 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                 className="flex items-center gap-1 ml-2 shrink-0"
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Rating Badge */}
-                <QuickRatingPopover
-                  recipeId={recipe.id}
-                  currentRating={currentRating}
-                  onRated={setCurrentRating}
-                >
-                  {currentRating ? (
-                    <RatingBadge rating={currentRating} size="sm" />
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground/50 hover:text-yellow-500"
-                    >
-                      <Star className="h-4 w-4" />
-                    </Button>
-                  )}
-                </QuickRatingPopover>
+                {/* Rating Button */}
+                {currentRating ? (
+                  <RatingBadge
+                    rating={currentRating}
+                    size="sm"
+                    onClick={() => setShowRatingDialog(true)}
+                  />
+                ) : (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground/50 hover:text-yellow-500"
+                        onClick={() => setShowRatingDialog(true)}
+                      >
+                        <Star className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Rate this recipe</TooltipContent>
+                  </Tooltip>
+                )}
 
                 {/* Favorite Button */}
                 <Tooltip>
@@ -645,6 +650,15 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
         recipeTitle={recipe.title}
         open={showCookedDialog}
         onOpenChange={setShowCookedDialog}
+      />
+
+      <PersonalRatingDialog
+        recipeId={recipe.id}
+        recipeTitle={recipe.title}
+        currentRating={currentRating}
+        open={showRatingDialog}
+        onOpenChange={setShowRatingDialog}
+        onRated={setCurrentRating}
       />
 
       <ShareExportSheet

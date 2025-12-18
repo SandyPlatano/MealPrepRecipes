@@ -69,7 +69,7 @@ export function CategorySection({
   return (
     <>
       <div className="pt-4">
-        <div className="flex items-center justify-between px-2 mb-2 group">
+        <div className="flex items-center justify-between px-2 mb-2">
           <p className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
             {category.emoji && <span>{category.emoji}</span>}
             {category.name}
@@ -78,7 +78,7 @@ export function CategorySection({
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+              className="h-6 w-6 text-muted-foreground hover:text-foreground"
               onClick={() => setCreateFolderOpen(true)}
               title="Add folder to this category"
             >
@@ -90,7 +90,7 @@ export function CategorySection({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 opacity-0 group-hover:opacity-100 focus:opacity-100 data-[state=open]:opacity-100 transition-opacity"
+                    className="h-6 w-6 text-muted-foreground hover:text-foreground"
                   >
                     <MoreHorizontal className="h-3 w-3" />
                   </Button>

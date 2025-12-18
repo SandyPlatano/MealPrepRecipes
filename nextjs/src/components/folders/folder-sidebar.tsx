@@ -125,7 +125,7 @@ export function FolderSidebar({
   return (
     <div
       className={cn(
-        "border-r bg-muted/30 transition-all duration-300 flex flex-col h-full",
+        "border-r bg-muted/30 transition-all duration-300 flex flex-col h-full overflow-hidden",
         isCollapsed ? "w-12" : "w-64"
       )}
     >
@@ -172,7 +172,7 @@ export function FolderSidebar({
 
             {/* Smart Folders Section */}
             <div className="pt-4">
-              <div className="flex items-center justify-between px-2 mb-2 group">
+              <div className="flex items-center justify-between px-2 mb-2">
                 <p className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                   <Sparkles className="h-3 w-3" />
                   Smart Folders
@@ -180,7 +180,7 @@ export function FolderSidebar({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                  className="h-6 w-6 text-muted-foreground hover:text-foreground"
                   onClick={() => setCreateSmartFolderOpen(true)}
                   title="Create smart folder"
                 >
@@ -194,25 +194,20 @@ export function FolderSidebar({
                   <Button
                     key={`system-${folder.id}`}
                     variant={isSmartFolderActive(folder.id, true) ? "secondary" : "ghost"}
-                    className="w-full justify-between h-10 pr-3"
+                    className="w-full justify-start h-10"
                     onClick={() => handleSmartFolderClick(folder.id, true)}
                   >
-                    <span className="flex items-center">
-                      {folder.emoji && <span className="mr-2">{folder.emoji}</span>}
-                      {!folder.emoji && folder.color && (
-                        <span
-                          className="w-3 h-3 rounded-full mr-2"
-                          style={{ backgroundColor: folder.color }}
-                        />
-                      )}
-                      {!folder.emoji && !folder.color && (
-                        <Sparkles className="h-3 w-3 mr-2 text-muted-foreground" />
-                      )}
-                      {folder.name}
-                    </span>
-                    <span className="text-xs text-muted-foreground tabular-nums min-w-[1.5rem] text-right">
-                      {smartFolderCounts[folder.id] ?? 0}
-                    </span>
+                    {folder.emoji && <span className="mr-2">{folder.emoji}</span>}
+                    {!folder.emoji && folder.color && (
+                      <span
+                        className="w-3 h-3 rounded-full mr-2"
+                        style={{ backgroundColor: folder.color }}
+                      />
+                    )}
+                    {!folder.emoji && !folder.color && (
+                      <Sparkles className="h-3 w-3 mr-2 text-muted-foreground" />
+                    )}
+                    {folder.name}
                   </Button>
                 ))}
 
@@ -224,25 +219,20 @@ export function FolderSidebar({
                   >
                     <Button
                       variant={isSmartFolderActive(folder.id, false) ? "secondary" : "ghost"}
-                      className="flex-1 justify-between h-10 pr-2"
+                      className="flex-1 justify-start h-10"
                       onClick={() => handleSmartFolderClick(folder.id, false)}
                     >
-                      <span className="flex items-center">
-                        {folder.emoji && <span className="mr-2">{folder.emoji}</span>}
-                        {!folder.emoji && folder.color && (
-                          <span
-                            className="w-3 h-3 rounded-full mr-2"
-                            style={{ backgroundColor: folder.color }}
-                          />
-                        )}
-                        {!folder.emoji && !folder.color && (
-                          <Sparkles className="h-3 w-3 mr-2 text-brand-coral" />
-                        )}
-                        <span className="truncate">{folder.name}</span>
-                      </span>
-                      <span className="text-xs text-muted-foreground tabular-nums min-w-[1.5rem] text-right">
-                        {smartFolderCounts[folder.id] ?? 0}
-                      </span>
+                      {folder.emoji && <span className="mr-2">{folder.emoji}</span>}
+                      {!folder.emoji && folder.color && (
+                        <span
+                          className="w-3 h-3 rounded-full mr-2"
+                          style={{ backgroundColor: folder.color }}
+                        />
+                      )}
+                      {!folder.emoji && !folder.color && (
+                        <Sparkles className="h-3 w-3 mr-2 text-brand-coral" />
+                      )}
+                      <span className="truncate">{folder.name}</span>
                     </Button>
 
                     {/* Edit/Delete Menu */}
