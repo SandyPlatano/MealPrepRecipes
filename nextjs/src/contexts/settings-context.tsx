@@ -31,7 +31,7 @@ import type {
   EnergyModePreferences,
   PrivacyPreferences,
 } from "@/types/user-preferences-v2";
-import { DEFAULT_USER_PREFERENCES_V2, DEFAULT_PRIVACY_PREFERENCES } from "@/types/user-preferences-v2";
+import { DEFAULT_USER_PREFERENCES_V2, DEFAULT_PRIVACY_PREFERENCES, DEFAULT_SOUND_PREFERENCES } from "@/types/user-preferences-v2";
 import type { SettingsChange, SettingsChangeCategory } from "@/types/settings-history";
 import { getSettingLabel } from "@/lib/settings/setting-labels";
 
@@ -392,15 +392,22 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     (partial: Partial<SoundPreferences>) => {
       // Record changes and optimistic update
       setState((prev) => {
+        // Defensive: ensure sounds object exists
+        const currentSounds = prev.preferencesV2?.sounds || DEFAULT_SOUND_PREFERENCES;
+
         Object.entries(partial).forEach(([key, value]) => {
-          const oldValue = prev.preferencesV2.sounds[key as keyof SoundPreferences];
-          recordChange(`preferencesV2.sounds.${key}`, oldValue, value, "soundPrefs");
+          // Only record if key is a valid SoundPreferences key
+          if (key in currentSounds) {
+            const oldValue = currentSounds[key as keyof SoundPreferences];
+            recordChange(`preferencesV2.sounds.${key}`, oldValue, value, "soundPrefs");
+          }
         });
+
         return {
           ...prev,
           preferencesV2: {
             ...prev.preferencesV2,
-            sounds: { ...prev.preferencesV2.sounds, ...partial },
+            sounds: { ...currentSounds, ...partial },
           },
         };
       });
@@ -591,13 +598,16 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
       };
     } else if (category === "soundPrefs") {
       const key = settingPath.split(".").pop() as keyof SoundPreferences;
-      setState((prev) => ({
-        ...prev,
-        preferencesV2: {
-          ...prev.preferencesV2,
-          sounds: { ...prev.preferencesV2.sounds, [key]: oldValue },
-        },
-      }));
+      setState((prev) => {
+        const currentSounds = prev.preferencesV2?.sounds || DEFAULT_SOUND_PREFERENCES;
+        return {
+          ...prev,
+          preferencesV2: {
+            ...prev.preferencesV2,
+            sounds: { ...currentSounds, [key]: oldValue },
+          },
+        };
+      });
       pendingChanges.current.soundPrefs = {
         ...pendingChanges.current.soundPrefs,
         [key]: oldValue,

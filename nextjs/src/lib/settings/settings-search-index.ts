@@ -452,16 +452,6 @@ export const SETTINGS_SEARCH_INDEX: SearchableSetting[] = [
     isAdvanced: false,
   },
   {
-    id: "volume",
-    label: "Volume",
-    description: "Sound effect volume level",
-    keywords: ["volume", "loud", "quiet", "sound", "level"],
-    category: "shortcuts",
-    path: "/app/settings/shortcuts",
-    componentId: "setting-volume",
-    isAdvanced: false,
-  },
-  {
     id: "keyboard-shortcuts",
     label: "Keyboard Shortcuts",
     description: "Enable keyboard shortcuts",

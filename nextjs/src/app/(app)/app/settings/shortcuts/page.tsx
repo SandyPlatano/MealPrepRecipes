@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SOUND_OPTIONS, type SoundPreset } from "@/types/user-preferences-v2";
+import { SOUND_OPTIONS, DEFAULT_SOUND_PREFERENCES, DEFAULT_KEYBOARD_PREFERENCES, type SoundPreset } from "@/types/user-preferences-v2";
 import { resetAllHints } from "@/app/actions/settings";
 import { playSound } from "@/lib/sounds";
 import { toast } from "sonner";
@@ -22,8 +22,9 @@ import { KeyboardShortcutsSection } from "@/components/settings/keyboard-shortcu
 
 export default function ShortcutsSettingsPage() {
   const { profile, preferencesV2, updateSoundPrefs, updateKeyboardPrefs } = useSettings();
-  const sounds = preferencesV2.sounds;
-  const keyboard = preferencesV2.keyboard;
+  // Defensive: ensure sounds and keyboard objects exist with defaults
+  const sounds = preferencesV2?.sounds ?? DEFAULT_SOUND_PREFERENCES;
+  const keyboard = preferencesV2?.keyboard ?? DEFAULT_KEYBOARD_PREFERENCES;
 
   const handleResetHints = async () => {
     const result = await resetAllHints();
