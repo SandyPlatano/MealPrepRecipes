@@ -88,6 +88,8 @@ import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import type { RecipeLayoutPreferences, RecipeSectionId } from "@/types/recipe-layout";
+import { DEFAULT_RECIPE_LAYOUT_PREFERENCES } from "@/types/recipe-layout";
 
 interface CookingHistoryEntry {
   id: string;
@@ -129,6 +131,7 @@ interface RecipeDetailProps {
   substitutions?: Map<string, Substitution[]>;
   currentUserId?: string;
   userUnitSystem?: UnitSystem;
+  layoutPrefs?: RecipeLayoutPreferences;
 }
 
 export function RecipeDetail({
@@ -142,6 +145,7 @@ export function RecipeDetail({
   substitutions = new Map(),
   currentUserId,
   userUnitSystem = "imperial",
+  layoutPrefs = DEFAULT_RECIPE_LAYOUT_PREFERENCES,
 }: RecipeDetailProps) {
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [currentRating, setCurrentRating] = useState<number | null>(recipe.rating);
@@ -334,6 +338,375 @@ export function RecipeDetail({
   };
 
   const lastCooked = localHistory.length > 0 ? localHistory[0].cooked_at : null;
+
+  // ============================================================================
+  // Section Render Helpers
+  // ============================================================================
+
+  const renderIngredientsSection = () => (
+    <div className="space-y-4">
+      {/* Title Row */}
+      <div className="flex items-baseline gap-2">
+        <h3 className="text-lg font-semibold">Ingredients</h3>
+        <Badge variant="secondary" className="text-xs">
+          {recipe.ingredients.length} items
+        </Badge>
+      </div>
+
+      {/* Unit toggle for non-scalable recipes */}
+      {!canScale && (
+        <UnitSystemToggle
+          defaultSystem={effectiveUnitSystem}
+          onSystemChange={setLocalUnitSystem}
+        />
+      )}
+
+      {/* Serving Controls Row */}
+      {canScale && (
+        <div className="space-y-3">
+          {/* Quick presets */}
+          <div className="flex gap-2 flex-wrap items-center">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setServingsPreset(0.5)}
+              className="text-xs"
+            >
+              Half
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setServingsPreset(1)}
+              className="text-xs"
+            >
+              Original
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setServingsPreset(2)}
+              className="text-xs"
+            >
+              Double
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setServingsPreset(4)}
+              className="text-xs"
+            >
+              Family (4x)
+            </Button>
+            <UnitSystemToggle
+              defaultSystem={effectiveUnitSystem}
+              onSystemChange={setLocalUnitSystem}
+            />
+          </div>
+          {/* Serving size input */}
+          <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2 w-fit">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            <Input
+              type="number"
+              min={1}
+              max={99}
+              value={servingsInputValue}
+              onChange={handleServingsInputChange}
+              onBlur={handleServingsInputBlur}
+              className="h-8 w-16 text-center font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <span className="text-sm text-muted-foreground">servings</span>
+          </div>
+        </div>
+      )}
+
+      {canScale && currentServings !== recipe.base_servings && (
+        <p className="text-xs text-muted-foreground italic">
+          Scaled from {recipe.base_servings} serving
+          {recipe.base_servings !== 1 ? "s" : ""}
+        </p>
+      )}
+
+      <ul className="space-y-2">
+        {displayIngredients.map((ingredient, index) => {
+          const ingredientSubs = substitutions.get(recipe.ingredients[index] || ingredient);
+          return (
+            <li key={index} className="flex items-start gap-2 group">
+              <span className="text-muted-foreground">•</span>
+              <div className="flex-1 flex items-center gap-2">
+                <span>{ingredient}</span>
+                {ingredientSubs && ingredientSubs.length > 0 && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <RefreshCw className="h-3 w-3 mr-1" />
+                        Swap
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80" align="start">
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium">Substitutions for {recipe.ingredients[index]}:</p>
+                        <ul className="space-y-2">
+                          {ingredientSubs.map((sub, subIndex) => (
+                            <li key={subIndex} className="text-sm">
+                              <div className="font-medium">{sub.substitute_ingredient}</div>
+                              {sub.notes && (
+                                <div className="text-xs text-muted-foreground">{sub.notes}</div>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+
+  const renderInstructionsSection = () => (
+    <div className="space-y-3">
+      <div>
+        <h3 className="text-lg font-semibold">Instructions</h3>
+        <p className="text-sm text-muted-foreground">
+          {recipe.instructions.length} steps
+        </p>
+      </div>
+      <ol className="space-y-4">
+        {recipe.instructions.map((instruction, index) => (
+          <li key={index} className="flex gap-3">
+            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm flex items-center justify-center font-medium">
+              {index + 1}
+            </span>
+            <div className="prose prose-sm dark:prose-invert max-w-none flex-1">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {instruction}
+              </ReactMarkdown>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+
+  const renderNutritionSection = () => {
+    if (!nutritionEnabled) return null;
+    return (
+      <div className="space-y-4">
+        {localNutrition ? (
+          <NutritionFactsCard
+            nutrition={localNutrition}
+            recipeId={recipe.id}
+            servings={recipe.base_servings || 4}
+            editable
+          />
+        ) : (
+          <div className="space-y-3">
+            <div className="text-center py-8 space-y-4">
+              <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                <Sparkles className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-semibold text-lg">No Nutrition Data</h3>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  Use AI to automatically extract nutrition information from the recipe ingredients.
+                </p>
+              </div>
+              <Button
+                onClick={handleExtractNutrition}
+                disabled={isExtractingNutrition}
+                className="mx-auto"
+              >
+                {isExtractingNutrition ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Extracting...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Extract Nutrition with AI
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderNotesSection = () => {
+    if (!recipe.notes) return null;
+    return (
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold">Notes</h3>
+        <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {recipe.notes}
+          </ReactMarkdown>
+        </div>
+      </div>
+    );
+  };
+
+  const renderCookingHistorySection = () => {
+    if (localHistory.length === 0) return null;
+    return (
+      <div className="space-y-3">
+        <div>
+          <h3 className="text-lg font-semibold">Cooking History</h3>
+          <p className="text-sm text-muted-foreground">
+            Made {localHistory.length} time
+            {localHistory.length !== 1 ? "s" : ""}
+          </p>
+        </div>
+        <ul className="space-y-3">
+          {localHistory.slice(0, 5).map((entry) => (
+            <li
+              key={entry.id}
+              className="flex items-center justify-between text-sm p-2 rounded-lg bg-muted/50"
+            >
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">
+                    {new Date(entry.cooked_at).toLocaleDateString(
+                      "en-US",
+                      {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      }
+                    )}
+                  </span>
+                  {(entry.cooked_by_profile?.first_name || entry.cooked_by_profile?.last_name) && (
+                    <span className="text-xs text-muted-foreground">
+                      by {[entry.cooked_by_profile.first_name, entry.cooked_by_profile.last_name].filter(Boolean).join(" ")}
+                    </span>
+                  )}
+                </div>
+                {entry.modifications && (
+                  <div className="text-xs">
+                    <span className="font-medium text-primary">Tweaks: </span>
+                    <span className="text-muted-foreground">{entry.modifications}</span>
+                  </div>
+                )}
+                {entry.notes && (
+                  <span className="text-muted-foreground text-xs">
+                    {entry.notes}
+                  </span>
+                )}
+              </div>
+              {entry.rating && (
+                <StarRating rating={entry.rating} readonly size="sm" />
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
+  const renderReviewsSection = () => {
+    if (!recipe.is_public) return null;
+    return (
+      <ReviewList
+        recipeId={recipe.id}
+        recipeOwnerId={recipe.user_id}
+        currentUserId={currentUserId}
+        avgRating={recipe.avg_rating}
+        reviewCount={recipe.review_count || 0}
+        isPublic={recipe.is_public}
+      />
+    );
+  };
+
+  // Map section IDs to render functions
+  const sectionRenderers: Record<RecipeSectionId, () => React.ReactNode> = {
+    ingredients: renderIngredientsSection,
+    instructions: renderInstructionsSection,
+    nutrition: renderNutritionSection,
+    notes: renderNotesSection,
+    "cooking-history": renderCookingHistorySection,
+    reviews: renderReviewsSection,
+  };
+
+  // Check if section should be rendered
+  const shouldRenderSection = (sectionId: RecipeSectionId): boolean => {
+    const config = layoutPrefs.sections[sectionId];
+    if (!config.visible) return false;
+
+    // Additional conditional checks based on data availability
+    switch (sectionId) {
+      case "nutrition":
+        return nutritionEnabled;
+      case "notes":
+        return !!recipe.notes;
+      case "cooking-history":
+        return localHistory.length > 0;
+      case "reviews":
+        return recipe.is_public;
+      default:
+        return true;
+    }
+  };
+
+  // Render all customizable sections based on layout preferences
+  const renderDynamicSections = () => {
+    const sections: React.ReactNode[] = [];
+    let i = 0;
+
+    while (i < layoutPrefs.sectionOrder.length) {
+      const sectionId = layoutPrefs.sectionOrder[i];
+      const config = layoutPrefs.sections[sectionId];
+
+      if (!shouldRenderSection(sectionId)) {
+        i++;
+        continue;
+      }
+
+      // Check if this and next section are both half-width and visible
+      const nextSectionId = layoutPrefs.sectionOrder[i + 1];
+      const nextConfig = nextSectionId ? layoutPrefs.sections[nextSectionId] : null;
+      const nextShouldRender = nextSectionId ? shouldRenderSection(nextSectionId) : false;
+
+      const isHalf = config.width === "half";
+      const nextIsHalf = nextConfig?.width === "half";
+
+      if (isHalf && nextIsHalf && nextShouldRender) {
+        // Render two half-width sections side-by-side
+        sections.push(
+          <div key={`${sectionId}-${nextSectionId}`}>
+            <div className="border-t" />
+            <div className="grid gap-8 md:grid-cols-2 pt-6">
+              <div>{sectionRenderers[sectionId]()}</div>
+              <div>{sectionRenderers[nextSectionId]()}</div>
+            </div>
+          </div>
+        );
+        i += 2;
+      } else {
+        // Render single full-width section
+        sections.push(
+          <div key={sectionId}>
+            <div className="border-t" />
+            <div className="pt-6">{sectionRenderers[sectionId]()}</div>
+          </div>
+        );
+        i++;
+      }
+    }
+
+    return sections;
+  };
 
   return (
     <>
@@ -584,298 +957,8 @@ export function RecipeDetail({
             </Button>
           </div>
 
-          <div className="border-t" />
-
-          {/* Ingredients & Instructions */}
-          <div className="grid gap-8 md:grid-cols-2">
-            {/* Ingredients */}
-            <div className="space-y-4">
-              {/* Title Row */}
-              <div className="flex items-baseline gap-2">
-                <h3 className="text-lg font-semibold">Ingredients</h3>
-                <Badge variant="secondary" className="text-xs">
-                  {recipe.ingredients.length} items
-                </Badge>
-              </div>
-
-              {/* Unit toggle for non-scalable recipes */}
-              {!canScale && (
-                <UnitSystemToggle
-                  defaultSystem={effectiveUnitSystem}
-                  onSystemChange={setLocalUnitSystem}
-                />
-              )}
-
-              {/* Serving Controls Row */}
-              {canScale && (
-                <div className="space-y-3">
-                  {/* Quick presets */}
-                  <div className="flex gap-2 flex-wrap items-center">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setServingsPreset(0.5)}
-                      className="text-xs"
-                    >
-                      Half
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setServingsPreset(1)}
-                      className="text-xs"
-                    >
-                      Original
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setServingsPreset(2)}
-                      className="text-xs"
-                    >
-                      Double
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setServingsPreset(4)}
-                      className="text-xs"
-                    >
-                      Family (4x)
-                    </Button>
-                    <UnitSystemToggle
-                      defaultSystem={effectiveUnitSystem}
-                      onSystemChange={setLocalUnitSystem}
-                    />
-                  </div>
-                  {/* Serving size input */}
-                  <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2 w-fit">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="number"
-                      min={1}
-                      max={99}
-                      value={servingsInputValue}
-                      onChange={handleServingsInputChange}
-                      onBlur={handleServingsInputBlur}
-                      className="h-8 w-16 text-center font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    />
-                    <span className="text-sm text-muted-foreground">servings</span>
-                  </div>
-                </div>
-              )}
-
-              {canScale && currentServings !== recipe.base_servings && (
-                <p className="text-xs text-muted-foreground italic">
-                  Scaled from {recipe.base_servings} serving
-                  {recipe.base_servings !== 1 ? "s" : ""}
-                </p>
-              )}
-
-              <ul className="space-y-2">
-                {displayIngredients.map((ingredient, index) => {
-                  const ingredientSubs = substitutions.get(recipe.ingredients[index] || ingredient);
-                  return (
-                    <li key={index} className="flex items-start gap-2 group">
-                      <span className="text-muted-foreground">•</span>
-                      <div className="flex-1 flex items-center gap-2">
-                        <span>{ingredient}</span>
-                        {ingredientSubs && ingredientSubs.length > 0 && (
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 px-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <RefreshCw className="h-3 w-3 mr-1" />
-                                Swap
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-80" align="start">
-                              <div className="space-y-2">
-                                <p className="text-sm font-medium">Substitutions for {recipe.ingredients[index]}:</p>
-                                <ul className="space-y-2">
-                                  {ingredientSubs.map((sub, subIndex) => (
-                                    <li key={subIndex} className="text-sm">
-                                      <div className="font-medium">{sub.substitute_ingredient}</div>
-                                      {sub.notes && (
-                                        <div className="text-xs text-muted-foreground">{sub.notes}</div>
-                                      )}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            </PopoverContent>
-                          </Popover>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-
-            {/* Instructions */}
-            <div className="space-y-3">
-              <div>
-                <h3 className="text-lg font-semibold">Instructions</h3>
-                <p className="text-sm text-muted-foreground">
-                  {recipe.instructions.length} steps
-                </p>
-              </div>
-              <ol className="space-y-4">
-                {recipe.instructions.map((instruction, index) => (
-                  <li key={index} className="flex gap-3">
-                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm flex items-center justify-center font-medium">
-                      {index + 1}
-                    </span>
-                    <div className="prose prose-sm dark:prose-invert max-w-none flex-1">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {instruction}
-                      </ReactMarkdown>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
-
-          {/* Nutrition Facts */}
-          {nutritionEnabled && (
-            <>
-              <div className="border-t" />
-              <div className="space-y-4">
-                {localNutrition ? (
-                  <NutritionFactsCard
-                    nutrition={localNutrition}
-                    recipeId={recipe.id}
-                    servings={recipe.base_servings || 4}
-                    editable
-                  />
-                ) : (
-                  <div className="space-y-3">
-                    <div className="text-center py-8 space-y-4">
-                      <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-                        <Sparkles className="h-8 w-8 text-muted-foreground" />
-                      </div>
-                      <div className="space-y-2">
-                        <h3 className="font-semibold text-lg">No Nutrition Data</h3>
-                        <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                          Use AI to automatically extract nutrition information from the recipe ingredients.
-                        </p>
-                      </div>
-                      <Button
-                        onClick={handleExtractNutrition}
-                        disabled={isExtractingNutrition}
-                        className="mx-auto"
-                      >
-                        {isExtractingNutrition ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Extracting...
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="mr-2 h-4 w-4" />
-                            Extract Nutrition with AI
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-
-          {/* Notes */}
-          {recipe.notes && (
-            <>
-              <div className="border-t" />
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold">Notes</h3>
-                <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {recipe.notes}
-                  </ReactMarkdown>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Cooking History */}
-          {localHistory.length > 0 && (
-            <>
-              <div className="border-t" />
-              <div className="space-y-3">
-                <div>
-                  <h3 className="text-lg font-semibold">Cooking History</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Made {localHistory.length} time
-                    {localHistory.length !== 1 ? "s" : ""}
-                  </p>
-                </div>
-                <ul className="space-y-3">
-                  {localHistory.slice(0, 5).map((entry) => (
-                    <li
-                      key={entry.id}
-                      className="flex items-center justify-between text-sm p-2 rounded-lg bg-muted/50"
-                    >
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">
-                            {new Date(entry.cooked_at).toLocaleDateString(
-                              "en-US",
-                              {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              }
-                            )}
-                          </span>
-                          {(entry.cooked_by_profile?.first_name || entry.cooked_by_profile?.last_name) && (
-                            <span className="text-xs text-muted-foreground">
-                              by {[entry.cooked_by_profile.first_name, entry.cooked_by_profile.last_name].filter(Boolean).join(" ")}
-                            </span>
-                          )}
-                        </div>
-                        {entry.modifications && (
-                          <div className="text-xs">
-                            <span className="font-medium text-primary">Tweaks: </span>
-                            <span className="text-muted-foreground">{entry.modifications}</span>
-                          </div>
-                        )}
-                        {entry.notes && (
-                          <span className="text-muted-foreground text-xs">
-                            {entry.notes}
-                          </span>
-                        )}
-                      </div>
-                      {entry.rating && (
-                        <StarRating rating={entry.rating} readonly size="sm" />
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </>
-          )}
-
-          {/* Community Reviews */}
-          {recipe.is_public && (
-            <>
-              <div className="border-t" />
-              <ReviewList
-                recipeId={recipe.id}
-                recipeOwnerId={recipe.user_id}
-                currentUserId={currentUserId}
-                avgRating={recipe.avg_rating}
-                reviewCount={recipe.review_count || 0}
-                isPublic={recipe.is_public}
-              />
-            </>
-          )}
+          {/* Dynamic Sections based on layout preferences */}
+          {renderDynamicSections()}
         </CardContent>
       </Card>
 

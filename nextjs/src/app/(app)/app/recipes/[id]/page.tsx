@@ -4,10 +4,12 @@ import { getRecipe, getFavorites, getRecipeHistory } from "@/app/actions/recipes
 import { getSettings } from "@/app/actions/settings";
 import { getRecipeNutrition, isNutritionTrackingEnabled } from "@/app/actions/nutrition";
 import { findSubstitutionsForIngredients } from "@/app/actions/substitutions";
+import { getUserPreferencesV2 } from "@/app/actions/user-preferences";
 import { RecipeDetail } from "@/components/recipes/recipe-detail";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { DEFAULT_RECIPE_LAYOUT_PREFERENCES } from "@/types/recipe-layout";
 
 interface RecipePageProps {
   params: Promise<{ id: string }>;
@@ -26,12 +28,13 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [recipeResult, favoritesResult, historyResult, settingsResult, nutritionTrackingResult] = await Promise.all([
+  const [recipeResult, favoritesResult, historyResult, settingsResult, nutritionTrackingResult, prefsResult] = await Promise.all([
     getRecipe(id),
     getFavorites(),
     getRecipeHistory(id),
     getSettings(),
     isNutritionTrackingEnabled(),
+    user?.id ? getUserPreferencesV2(user.id) : Promise.resolve({ error: null, data: null }),
   ]);
 
   if (recipeResult.error || !recipeResult.data) {
@@ -45,6 +48,7 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
   const userAllergenAlerts = settingsResult.data?.allergen_alerts || [];
   const customDietaryRestrictions = settingsResult.data?.custom_dietary_restrictions || [];
   const userUnitSystem = (settingsResult.data?.unit_system as "imperial" | "metric") || "imperial";
+  const layoutPrefs = prefsResult.data?.recipeLayout ?? DEFAULT_RECIPE_LAYOUT_PREFERENCES;
 
   // Fetch nutrition data if tracking is enabled
   const nutritionEnabled = nutritionTrackingResult.enabled || false;
@@ -85,6 +89,7 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
         substitutions={substitutions}
         currentUserId={user?.id}
         userUnitSystem={userUnitSystem}
+        layoutPrefs={layoutPrefs}
       />
     </div>
   );

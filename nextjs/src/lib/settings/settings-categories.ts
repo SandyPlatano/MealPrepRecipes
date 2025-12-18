@@ -8,12 +8,14 @@ import {
   Users,
   MessageSquareHeart,
   PanelLeft,
+  LayoutGrid,
   type LucideIcon,
 } from "lucide-react";
 
 export type SettingsCategoryId =
   | "profile"
   | "appearance"
+  | "recipe-layout"
   | "sidebar"
   | "meal-planning"
   | "dietary"
@@ -59,6 +61,14 @@ export const SETTINGS_CATEGORIES: SettingsCategory[] = [
     description: "Theme, colors, and display preferences",
     icon: Palette,
     path: "/app/settings/appearance",
+  },
+  {
+    id: "recipe-layout",
+    label: "Recipe Layout",
+    shortLabel: "Recipe",
+    description: "Customize recipe page sections, order, and visibility",
+    icon: LayoutGrid,
+    path: "/app/settings/recipe-layout",
   },
   {
     id: "sidebar",
