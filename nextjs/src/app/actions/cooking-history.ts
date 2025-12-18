@@ -33,6 +33,7 @@ export async function markAsCooked(input: MarkAsCookedInput) {
     .from("cooking_history")
     .insert({
       recipe_id: input.recipe_id,
+      user_id: user.id,
       household_id: membership.household_id,
       cooked_by: user.id,
       cooked_at: input.cooked_at || new Date().toISOString(),
