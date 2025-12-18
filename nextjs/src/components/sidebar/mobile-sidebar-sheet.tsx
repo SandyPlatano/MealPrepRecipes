@@ -65,7 +65,7 @@ export function MobileSidebarSheet({
           className="md:hidden h-10 w-10"
           aria-label="Open navigation menu"
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-4 w-4" />
         </Button>
       </SheetTrigger>
       <SheetContent
@@ -133,7 +133,7 @@ export function MobileSidebarTrigger() {
       className="h-10 w-10"
       aria-label="Open navigation menu"
     >
-      <Menu className="h-5 w-5" />
+      <Menu className="h-4 w-4" />
     </Button>
   );
 }

@@ -230,9 +230,9 @@ export function MobileDayAccordion({
           {!isPast && (
             <>
               <Button
-                variant="outline"
+                variant="ghost"
                 size="lg"
-                className="w-full border-dashed h-12 text-base"
+                className="w-full border-2 border-dashed h-12 text-base hover:border-primary hover:bg-primary/5"
                 onClick={() => setPickerOpen(true)}
               >
                 <Plus className="h-5 w-5 mr-2" />

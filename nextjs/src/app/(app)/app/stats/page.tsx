@@ -2,7 +2,8 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Apple, Leaf, ArrowRight, TrendingUp, DollarSign, Flame } from "lucide-react";
+import { IconBadge } from "@/components/ui/icon-badge";
+import { Apple, ArrowRight, TrendingUp, DollarSign, Flame } from "lucide-react";
 import { STATS_CATEGORIES } from "@/lib/stats/stats-categories";
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export default function StatsOverviewPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">Stats Overview</h1>
+        <h1 className="text-2xl font-bold tracking-tight font-mono">Stats Overview</h1>
         <p className="text-muted-foreground">
           Track your progress, nutrition goals, and environmental impact.
         </p>
@@ -30,25 +31,25 @@ export default function StatsOverviewPage() {
           label="This Week"
           value="Active"
           icon={TrendingUp}
-          iconColor="text-blue-500"
+          iconColor="text-primary"
         />
         <QuickStatCard
           label="Meals Planned"
           value="12"
           icon={Flame}
-          iconColor="text-orange-500"
+          iconColor="text-primary"
         />
         <QuickStatCard
           label="On Target"
           value="85%"
           icon={Apple}
-          iconColor="text-green-500"
+          iconColor="text-sage-500"
         />
         <QuickStatCard
           label="Saved"
           value="$24"
           icon={DollarSign}
-          iconColor="text-amber-500"
+          iconColor="text-primary"
         />
       </div>
 
@@ -61,9 +62,7 @@ export default function StatsOverviewPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <Icon className="h-5 w-5 text-primary" />
-                    </div>
+                    <IconBadge icon={Icon} color="primary" size="lg" />
                     <div>
                       <CardTitle className="text-lg">{category.label}</CardTitle>
                       <CardDescription className="text-sm">
@@ -90,9 +89,7 @@ export default function StatsOverviewPage() {
       <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
         <CardContent className="py-6">
           <div className="flex items-start gap-4">
-            <div className="p-2 rounded-full bg-primary/10">
-              <TrendingUp className="h-5 w-5 text-primary" />
-            </div>
+            <IconBadge icon={TrendingUp} color="primary" size="lg" className="rounded-full" />
             <div>
               <h3 className="font-semibold">Pro Tip</h3>
               <p className="text-sm text-muted-foreground mt-1">

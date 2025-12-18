@@ -38,7 +38,7 @@ export function CTASection() {
                 className="text-base md:text-lg px-8 py-6 bg-white text-primary hover:bg-white/90 shadow-xl transition-all duration-200 hover:-translate-y-0.5"
               >
                 Start planning free
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>

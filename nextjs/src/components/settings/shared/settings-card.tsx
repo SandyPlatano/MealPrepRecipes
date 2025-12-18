@@ -46,7 +46,7 @@ export function SettingsCard({
     <Card
       id={id}
       className={cn(
-        "transition-all duration-300",
+        "group transition-colors",
         className
       )}
     >

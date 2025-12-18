@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Check, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DailyMacroSummary, MacroProgress } from "@/types/nutrition";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface TodayHeroCardProps {
   todaySummary: DailyMacroSummary;
@@ -87,7 +88,7 @@ export function TodayHeroCard({
         </div>
 
         {hasNoMeals ? (
-          <EmptyState onQuickAddClick={onQuickAddClick} />
+          <TodayEmptyState onQuickAddClick={onQuickAddClick} />
         ) : (
           <>
             {/* Main Calorie Display */}
@@ -241,23 +242,26 @@ function MacroPill({
 /**
  * Empty state when no meals are planned
  */
-function EmptyState({ onQuickAddClick }: { onQuickAddClick?: () => void }) {
+function TodayEmptyState({ onQuickAddClick }: { onQuickAddClick?: () => void }) {
   return (
-    <div className="flex flex-col items-center py-8 text-center">
-      <div className="mb-4 rounded-full bg-muted p-4">
-        <TrendingUp className="h-8 w-8 text-muted-foreground" />
-      </div>
-      <h3 className="text-lg font-medium">No meals planned today</h3>
-      <p className="mt-1 max-w-[280px] text-sm text-muted-foreground">
-        Add meals to your plan or log macros directly to start tracking.
-      </p>
-      {onQuickAddClick && (
-        <Button onClick={onQuickAddClick} className="mt-4 gap-2">
-          <Plus className="h-4 w-4" />
-          Quick Add Macros
-        </Button>
-      )}
-    </div>
+    <EmptyState
+      icon={
+        <div className="rounded-full bg-muted p-4">
+          <TrendingUp className="h-8 w-8 text-muted-foreground" />
+        </div>
+      }
+      title="No meals planned today"
+      description="Add meals to your plan or log macros directly to start tracking."
+      size="sm"
+      action={
+        onQuickAddClick ? (
+          <Button onClick={onQuickAddClick} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Quick Add Macros
+          </Button>
+        ) : undefined
+      }
+    />
   );
 }
 

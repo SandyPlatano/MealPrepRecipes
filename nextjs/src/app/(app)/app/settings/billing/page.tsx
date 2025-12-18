@@ -163,7 +163,7 @@ export default function BillingSettingsPage() {
 
       {/* Current Plan */}
       <SettingSection title="Current Plan">
-        <Card>
+        <Card className="group transition-colors">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -236,7 +236,7 @@ export default function BillingSettingsPage() {
           <div className="grid gap-4 md:grid-cols-2">
             {/* Pro Plan */}
             {currentTier === "free" && (
-              <Card className="border-2 border-primary relative">
+              <Card className="group border-2 border-primary relative hover:border-primary/70 transition-colors">
                 <div className="absolute -top-3 left-4 bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded">
                   Recommended
                 </div>
@@ -277,7 +277,7 @@ export default function BillingSettingsPage() {
             )}
 
             {/* Premium Plan */}
-            <Card>
+            <Card className="group hover:border-primary/50 transition-colors">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Crown className="h-5 w-5 text-yellow-500" />
@@ -320,7 +320,7 @@ export default function BillingSettingsPage() {
       {/* Free tier info */}
       {currentTier === "free" && (
         <SettingSection title="Your Current Features">
-          <Card>
+          <Card className="group transition-colors">
             <CardContent className="pt-6">
               <ul className="space-y-2">
                 {SUBSCRIPTION_TIERS.free.features.map((feature, idx) => (

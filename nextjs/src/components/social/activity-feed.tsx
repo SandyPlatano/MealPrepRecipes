@@ -7,6 +7,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
 import { ChefHat, Star, UtensilsCrossed, Loader2 } from "lucide-react";
 import { getActivityFeed } from "@/app/actions/follows";
 import type { ActivityFeedItem } from "@/types/social";
@@ -72,16 +73,16 @@ export function ActivityFeed({ initialItems = [] }: ActivityFeedProps) {
 
   if (items.length === 0) {
     return (
-      <div className="text-center py-12">
-        <UtensilsCrossed className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-        <h3 className="text-lg font-medium mb-2">Your feed is empty</h3>
-        <p className="text-muted-foreground mb-4">
-          Follow some chefs to see their latest recipes and activity here!
-        </p>
-        <Button asChild>
-          <Link href="/app/discover">Discover Chefs</Link>
-        </Button>
-      </div>
+      <EmptyState
+        icon={<UtensilsCrossed className="h-12 w-12 text-muted-foreground/50" />}
+        title="Your feed is empty"
+        description="Follow some chefs to see their latest recipes and activity here!"
+        action={
+          <Button asChild>
+            <Link href="/app/discover">Discover Chefs</Link>
+          </Button>
+        }
+      />
     );
   }
 

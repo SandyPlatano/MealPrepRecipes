@@ -115,6 +115,8 @@ import {
 import { Confetti } from "@/components/ui/confetti";
 import { SubstitutionButton } from "./substitution-button";
 import { SubstitutionSheet } from "./substitution-sheet";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ShoppingCart } from "lucide-react";
 
 interface ShoppingListViewProps {
   shoppingList: ShoppingListWithItems;
@@ -683,8 +685,8 @@ export function ShoppingListView({
 
             {/* Clear All Items */}
             <Button
-              variant="outline"
-              className="flex-1 text-destructive hover:text-destructive"
+              variant="destructive-outline"
+              className="flex-1"
               onClick={() => setClearAllDialogOpen(true)}
             >
               <Trash2 className="h-4 w-4 mr-2" />
@@ -775,28 +777,22 @@ export function ShoppingListView({
 
       {/* Shopping List Items by Category */}
       {totalCount === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <div className="max-w-sm mx-auto space-y-4">
-              <div className="text-5xl">🛒</div>
-              <div>
-                <p className="text-lg font-medium">No items on your list</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Generate from your meal plan or add items manually
-                </p>
-              </div>
-              <Button 
-                variant="outline" 
-                onClick={handleGenerateFromPlan}
-                disabled={isGenerating}
-                className="mt-2"
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? "animate-spin" : ""}`} />
-                Generate from This Week
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <EmptyState
+          variant="card"
+          icon={<ShoppingCart className="h-12 w-12 text-muted-foreground" />}
+          title="Your shopping list is empty"
+          description="Generate a shopping list from your meal plan or add items manually"
+          action={
+            <Button
+              variant="outline"
+              onClick={handleGenerateFromPlan}
+              disabled={isGenerating}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? "animate-spin" : ""}`} />
+              Generate from This Week
+            </Button>
+          }
+        />
       ) : (
         <DndContext
           sensors={sensors}

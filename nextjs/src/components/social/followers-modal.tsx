@@ -10,6 +10,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Loader2, Users } from "lucide-react";
 import { UserProfileCard } from "./user-profile-card";
 import { getFollowers, getFollowing } from "@/app/actions/follows";
@@ -172,7 +173,13 @@ export function FollowersModal({
                 ))}
               </div>
             ) : followers.length === 0 ? (
-              <EmptyState text="No followers yet" />
+              <EmptyState
+                icon={<Users className="h-8 w-8 text-muted-foreground/50" />}
+                title="No followers yet"
+                description=""
+                variant="compact"
+                size="sm"
+              />
             ) : (
               <div className="space-y-1 max-h-[400px] overflow-y-auto">
                 {followers.map((profile) => (
@@ -219,7 +226,13 @@ export function FollowersModal({
                 ))}
               </div>
             ) : following.length === 0 ? (
-              <EmptyState text="Not following anyone" />
+              <EmptyState
+                icon={<Users className="h-8 w-8 text-muted-foreground/50" />}
+                title="Not following anyone"
+                description=""
+                variant="compact"
+                size="sm"
+              />
             ) : (
               <div className="space-y-1 max-h-[400px] overflow-y-auto">
                 {following.map((profile) => (
@@ -272,15 +285,6 @@ function UserCardSkeleton() {
         <Skeleton className="h-3 w-16" />
       </div>
       <Skeleton className="h-8 w-20" />
-    </div>
-  );
-}
-
-function EmptyState({ text }: { text: string }) {
-  return (
-    <div className="py-8 text-center">
-      <Users className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
-      <p className="text-muted-foreground">{text}</p>
     </div>
   );
 }

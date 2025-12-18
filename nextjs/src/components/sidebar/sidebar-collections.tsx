@@ -43,6 +43,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
 import { toast } from "sonner";
 import { SidebarSection } from "./sidebar-section";
 import { useSidebar } from "./sidebar-context";
@@ -271,9 +272,24 @@ export function SidebarCollections({
               />
             ))}
             {systemSmartFolders.length === 0 && userSmartFolders.length === 0 && (
-              <p className="text-xs text-muted-foreground px-3 py-2 text-center">
-                No smart folders yet
-              </p>
+              <EmptyState
+                icon={<Sparkles className="h-8 w-8 text-muted-foreground" />}
+                title="No smart folders yet"
+                description="Create smart folders to organize recipes automatically"
+                variant="default"
+                size="sm"
+                action={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCreateSmartFolderOpen(true)}
+                    className="mt-2"
+                  >
+                    <Plus className="h-3 w-3 mr-2" />
+                    Create Smart Folder
+                  </Button>
+                }
+              />
             )}
           </div>
         </div>

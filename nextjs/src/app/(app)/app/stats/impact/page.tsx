@@ -10,7 +10,7 @@ export default function ImpactPage() {
   return (
     <div className="space-y-6 pb-24 md:pb-8">
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">Your Impact</h1>
+        <h1 className="text-2xl font-bold tracking-tight font-mono">Your Impact</h1>
         <p className="text-muted-foreground">
           See how your meal planning habits are reducing food waste and saving money.
         </p>

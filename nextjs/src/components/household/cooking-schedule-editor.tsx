@@ -42,6 +42,7 @@ import {
 import { useCookingScheduleRealtime } from "@/hooks/use-household-realtime";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { EmptyState } from "@/components/ui/empty-state";
 
 // ============================================================================
 // Types
@@ -326,15 +327,13 @@ function CookingScheduleSkeleton() {
 // Empty State
 // ============================================================================
 
-function EmptyState() {
+function CookingScheduleEmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <ChefHat className="h-12 w-12 text-muted-foreground mb-4" />
-      <h3 className="text-lg font-semibold mb-2">No Cooking Schedule Yet</h3>
-      <p className="text-sm text-muted-foreground max-w-md">
-        Click on any cell to assign household members or custom cooks to meals throughout the week.
-      </p>
-    </div>
+    <EmptyState
+      icon={<ChefHat className="h-12 w-12 text-muted-foreground" />}
+      title="No Cooking Schedule Yet"
+      description="Click on any cell to assign household members or custom cooks to meals throughout the week."
+    />
   );
 }
 
@@ -439,7 +438,7 @@ export function CookingScheduleEditor({ householdId }: CookingScheduleEditorProp
         </CardHeader>
         <CardContent>
           {!hasAnySchedules ? (
-            <EmptyState />
+            <CookingScheduleEmptyState />
           ) : (
             <div className="space-y-4 overflow-x-auto">
               {/* Header Row */}

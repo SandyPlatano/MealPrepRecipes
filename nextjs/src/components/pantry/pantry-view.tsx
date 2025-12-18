@@ -18,6 +18,7 @@ import {
   removePantryItemById,
   clearPantry,
 } from "@/app/actions/pantry";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   type PantryItem,
   INGREDIENT_CATEGORIES,
@@ -180,22 +181,12 @@ export function PantryView({ initialItems }: PantryViewProps) {
 
       {/* Pantry Items by Category */}
       {totalCount === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <div className="max-w-sm mx-auto space-y-4">
-              <div className="text-5xl">
-                <Cookie className="h-12 w-12 mx-auto text-muted-foreground" />
-              </div>
-              <div>
-                <p className="text-lg font-medium">Your pantry is empty</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Add items you always have on hand. They&apos;ll be hidden from
-                  your shopping list so you don&apos;t buy duplicates.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={<Cookie className="h-12 w-12 text-muted-foreground" />}
+          title="Your pantry is empty"
+          description="Add items you always have on hand. They'll be hidden from your shopping list so you don't buy duplicates."
+          variant="card"
+        />
       ) : (
         <div className="space-y-4">
           {sortedCategories.map((category) => (

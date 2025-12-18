@@ -11,6 +11,10 @@ import { RecipesPageClient } from "@/components/recipes/recipes-page-client";
 import { ContextualHint } from "@/components/hints/contextual-hint";
 import { HINT_IDS, HINT_CONTENT } from "@/lib/hints";
 import type { FolderWithChildren, FolderCategoryWithFolders } from "@/types/folder";
+import { EmptyState } from "@/components/ui/empty-state";
+import { UtensilsCrossed } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function RecipesPage() {
   const supabase = await createClient();
@@ -125,23 +129,36 @@ export default async function RecipesPage() {
         description={HINT_CONTENT[HINT_IDS.RECIPES_INTRO].description}
       />
 
-      <Suspense fallback={<div>Loading recipes...</div>}>
-        <RecipesPageClient
-          recipes={recipesWithFavorites}
-          recipeCookCounts={recipeCookCounts}
-          recentlyCookedIds={recentlyCookedIds}
-          userAllergenAlerts={userAllergenAlerts}
-          customDietaryRestrictions={customDietaryRestrictions}
-          customBadges={customBadges}
-          folders={folders}
-          categories={categories}
-          folderMemberships={folderMemberships}
-          systemSmartFolders={systemSmartFolders}
-          userSmartFolders={userSmartFolders}
-          cookingHistoryContext={cookingHistoryContext}
-          pinnedItems={pinnedItems}
+      {recipes.length === 0 ? (
+        <EmptyState
+          icon={<UtensilsCrossed className="h-12 w-12 text-muted-foreground" />}
+          title="No recipes yet"
+          description="Create your first recipe or discover recipes from the community"
+          action={
+            <Button asChild>
+              <Link href="/app/recipes/new">Create Recipe</Link>
+            </Button>
+          }
         />
-      </Suspense>
+      ) : (
+        <Suspense fallback={<div>Loading recipes...</div>}>
+          <RecipesPageClient
+            recipes={recipesWithFavorites}
+            recipeCookCounts={recipeCookCounts}
+            recentlyCookedIds={recentlyCookedIds}
+            userAllergenAlerts={userAllergenAlerts}
+            customDietaryRestrictions={customDietaryRestrictions}
+            customBadges={customBadges}
+            folders={folders}
+            categories={categories}
+            folderMemberships={folderMemberships}
+            systemSmartFolders={systemSmartFolders}
+            userSmartFolders={userSmartFolders}
+            cookingHistoryContext={cookingHistoryContext}
+            pinnedItems={pinnedItems}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

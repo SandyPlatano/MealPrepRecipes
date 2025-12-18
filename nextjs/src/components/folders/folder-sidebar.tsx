@@ -20,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   ChevronLeft,
   ChevronRight,
@@ -265,9 +266,24 @@ export function FolderSidebar({
 
                 {/* Empty state for smart folders */}
                 {systemSmartFolders.length === 0 && userSmartFolders.length === 0 && (
-                  <p className="text-xs text-muted-foreground px-2 py-3 text-center">
-                    No smart folders yet
-                  </p>
+                  <EmptyState
+                    icon={<Sparkles className="h-8 w-8 text-muted-foreground" />}
+                    title="No smart folders yet"
+                    description="Create smart folders to organize recipes automatically"
+                    variant="default"
+                    size="sm"
+                    action={
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCreateSmartFolderOpen(true)}
+                        className="mt-2"
+                      >
+                        <Plus className="h-3 w-3 mr-2" />
+                        Create Smart Folder
+                      </Button>
+                    }
+                  />
                 )}
               </div>
             </div>

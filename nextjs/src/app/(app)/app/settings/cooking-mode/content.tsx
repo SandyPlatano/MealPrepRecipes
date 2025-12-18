@@ -254,7 +254,7 @@ export function CookModeSettingsContent({
       />
 
       {/* Try Now Button */}
-      <Card>
+      <Card className="group hover:border-primary/50 transition-colors">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -294,7 +294,7 @@ export function CookModeSettingsContent({
           {COOK_MODE_PRESETS.map((preset) => {
             const Icon = PRESET_ICONS[preset.icon as keyof typeof PRESET_ICONS];
             return (
-              <Card key={preset.key} className="hover:border-primary transition-colors">
+              <Card key={preset.key} className="group hover:border-primary/50 transition-colors">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
@@ -329,7 +329,7 @@ export function CookModeSettingsContent({
               {customPresets.map((preset) => {
                 const Icon = PRESET_ICONS[preset.icon as keyof typeof PRESET_ICONS] || Star;
                 return (
-                  <Card key={preset.id} className="hover:border-primary transition-colors">
+                  <Card key={preset.id} className="group hover:border-primary/50 transition-colors">
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2">

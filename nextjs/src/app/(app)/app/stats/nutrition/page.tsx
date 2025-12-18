@@ -58,7 +58,7 @@ export default async function NutritionPage() {
     <div className="space-y-6 pb-24 md:pb-8">
       {/* Simplified Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Nutrition</h1>
+        <h1 className="text-2xl font-bold tracking-tight font-mono">Nutrition</h1>
         <div className="flex gap-2">
           {showCosts && (
             <Button asChild variant="ghost" size="sm">

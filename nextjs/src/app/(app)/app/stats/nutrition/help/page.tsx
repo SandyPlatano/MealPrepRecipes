@@ -26,7 +26,7 @@ export default function NutritionHelpPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Nutrition Tracking Help</h1>
+          <h1 className="text-2xl font-bold tracking-tight font-mono">Nutrition Tracking Help</h1>
           <p className="text-muted-foreground mt-1">
             Quick guide to using nutrition tracking features
           </p>

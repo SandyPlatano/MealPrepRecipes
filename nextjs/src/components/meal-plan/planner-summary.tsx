@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { MealAssignmentWithRecipe, DayOfWeek } from "@/types/meal-plan";
 import { DAYS_OF_WEEK } from "@/types/meal-plan";
 import type {
@@ -484,24 +485,21 @@ function RepetitionWarningSection({ warnings }: RepetitionWarningSectionProps) {
   );
 }
 
-function EmptyState() {
+function PlannerEmptyState() {
   return (
     <div className="animate-slide-up-fade py-8">
-      <Card className="border-dashed">
-        <CardContent className="flex flex-col items-center justify-center py-8 text-center">
-          <CalendarDays className="h-12 w-12 text-muted-foreground/50 mb-4" />
-          <h3 className="font-mono font-semibold text-lg mb-2">
-            No meals planned yet
-          </h3>
-          <p className="text-sm text-muted-foreground max-w-sm mb-4">
-            Start adding recipes to your week by clicking on any day above, or
-            browse your recipes to add them to your plan.
-          </p>
+      <EmptyState
+        icon={<CalendarDays className="h-12 w-12 text-muted-foreground/50" />}
+        title="No meals planned yet"
+        description="Start adding recipes to your week by clicking on any day above, or browse your recipes to add them to your plan."
+        action={
           <Button variant="outline" asChild>
             <Link href="/app/recipes">Browse Recipes</Link>
           </Button>
-        </CardContent>
-      </Card>
+        }
+        variant="card"
+        className="border-dashed"
+      />
     </div>
   );
 }
@@ -630,7 +628,7 @@ export function PlannerSummary({
 
   // Show empty state if no meals planned
   if (totalMeals === 0) {
-    return <EmptyState />;
+    return <PlannerEmptyState />;
   }
 
   return (
