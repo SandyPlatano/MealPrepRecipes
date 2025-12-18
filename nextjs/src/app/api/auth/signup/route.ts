@@ -1,10 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit, getIpAddress } from "@/lib/rate-limit-redis";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting: 3 signup attempts per hour per IP (spam prevention)
+    const ip = getIpAddress(request);
+    const rateLimitResult = await rateLimit({
+      identifier: `signup-${ip}`,
+      limit: 3,
+      windowMs: 60 * 60 * 1000, // 1 hour
+    });
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        {
+          error: "Too many signup attempts. Please try again later.",
+          retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000),
+        },
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+            "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+            "X-RateLimit-Reset": rateLimitResult.reset.toString(),
+            "Retry-After": Math.ceil((rateLimitResult.reset - Date.now()) / 1000).toString(),
+          },
+        }
+      );
+    }
+
     const { email, password, name } = await request.json();
 
     if (!email) {

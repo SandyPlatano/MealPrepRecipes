@@ -1,10 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit, getIpAddress } from "@/lib/rate-limit-redis";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting: 5 login attempts per minute per IP (brute force protection)
+    const ip = getIpAddress(request);
+    const rateLimitResult = await rateLimit({
+      identifier: `login-${ip}`,
+      limit: 5,
+      windowMs: 60 * 1000, // 1 minute
+    });
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        {
+          error: "Too many login attempts. Please wait a minute.",
+          retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000),
+        },
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+            "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+            "X-RateLimit-Reset": rateLimitResult.reset.toString(),
+            "Retry-After": Math.ceil((rateLimitResult.reset - Date.now()) / 1000).toString(),
+          },
+        }
+      );
+    }
+
     const { email, password } = await request.json();
 
     if (!email || !password) {
