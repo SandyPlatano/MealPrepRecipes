@@ -31,7 +31,7 @@ export async function getOrCreateShoppingList() {
     .from("household_members")
     .select("household_id")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (!membership) {
     return { error: "No household found", data: null };
@@ -47,7 +47,7 @@ export async function getOrCreateShoppingList() {
     .select("*")
     .eq("household_id", membership.household_id)
     .eq("week_start", weekStartStr)
-    .single();
+    .maybeSingle();
 
   if (!mealPlan) {
     // Create meal plan for this week
@@ -112,7 +112,7 @@ export async function getShoppingListWithItems(): Promise<{
     .from("household_members")
     .select("household_id")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (!membership) {
     return { error: "No household found", data: null };
@@ -197,7 +197,7 @@ export async function toggleShoppingListItem(itemId: string) {
     .from("shopping_list_items")
     .select("is_checked")
     .eq("id", itemId)
-    .single();
+    .maybeSingle();
 
   if (!item) {
     return { error: "Item not found" };
@@ -580,7 +580,7 @@ export async function generateMultiWeekShoppingList(
     .from("household_members")
     .select("household_id")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (!membership) {
     return { error: "No household found", data: null, itemCount: 0 };

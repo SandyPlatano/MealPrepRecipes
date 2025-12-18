@@ -19,7 +19,7 @@ export async function getProfile() {
     .from("profiles")
     .select("*")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
   if (error) {
     return { error: error.message, data: null };
@@ -92,7 +92,7 @@ export async function getSettings() {
       email_notifications
     `)
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   // If select failed due to missing column, try without email_notifications
   if (selectError && selectError.message?.includes("email_notifications")) {
@@ -118,7 +118,7 @@ export async function getSettings() {
         updated_at
       `)
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
     
     if (retryError) {
       // If still fails, return defaults
@@ -300,7 +300,7 @@ export async function updateSettings(settings: {
     .from("user_settings")
     .select("*")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   // Prepare settings for save - merge existing with new, ensure array fields are arrays (never null)
   const settingsToSave: Record<string, unknown> = {
@@ -379,7 +379,7 @@ export async function getHouseholdInfo() {
     .from("households")
     .select("id, name, created_at")
     .eq("id", household.household_id)
-    .single();
+    .maybeSingle();
 
   // Get household members
   const { data: members } = await supabase
@@ -453,7 +453,7 @@ export async function deleteAccount() {
       .from("subscriptions")
       .select("stripe_subscription_id")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
 
     if (subscription?.stripe_subscription_id) {
       try {
@@ -501,7 +501,7 @@ export async function dismissHint(hintId: string) {
     .from("user_settings")
     .select("dismissed_hints")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const currentHints = settings?.dismissed_hints || [];
 
@@ -581,7 +581,7 @@ export async function updateShowRecipeSources(showRecipeSources: boolean) {
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const currentPreferences = (settings?.preferences as Record<string, unknown>) || {};
 
@@ -657,7 +657,7 @@ export async function getCookModeSettings(): Promise<{
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (!settings?.preferences) {
     return { error: null, data: DEFAULT_COOK_MODE_SETTINGS };
@@ -732,7 +732,7 @@ export async function updateCookModeSettings(
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const existingPreferences = (existingData?.preferences ||
     {}) as UserSettingsPreferences;
@@ -819,7 +819,7 @@ export async function getMealTypeEmojiSettings(): Promise<{
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (!settings?.preferences) {
     return { error: null, data: DEFAULT_MEAL_TYPE_EMOJIS };
@@ -864,7 +864,7 @@ export async function updateMealTypeEmojiSettings(
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const existingPreferences = (existingData?.preferences ||
     {}) as UserSettingsPreferences;
@@ -963,7 +963,7 @@ export async function getMealTypeCustomization(): Promise<{
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (!settings?.preferences) {
     return { error: null, data: DEFAULT_MEAL_TYPE_SETTINGS };
@@ -1000,7 +1000,7 @@ export async function updateMealTypeSetting(
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
   const existingSettings = migrateToFullSettings(
@@ -1059,7 +1059,7 @@ export async function updateMealTypeCustomization(
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
   const existingSettings = migrateToFullSettings(
@@ -1118,7 +1118,7 @@ export async function resetMealTypeCustomization(): Promise<{ error: string | nu
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
 
@@ -1170,7 +1170,7 @@ export async function getPlannerViewSettings(): Promise<{
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (!settings?.preferences) {
     return { error: null, data: DEFAULT_PLANNER_VIEW_SETTINGS };
@@ -1215,7 +1215,7 @@ export async function updatePlannerViewSettings(
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const existingPreferences = (existingData?.preferences ||
     {}) as UserSettingsPreferences;
@@ -1269,7 +1269,7 @@ export async function resetPlannerViewSettings(): Promise<{ error: string | null
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
 
@@ -1320,7 +1320,7 @@ export async function getRecipePreferences(): Promise<{
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (!settings?.preferences) {
     return { error: null, data: DEFAULT_RECIPE_PREFERENCES };
@@ -1365,7 +1365,7 @@ export async function updateRecipePreferences(
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const existingPreferences = (existingData?.preferences ||
     {}) as UserSettingsPreferences;
@@ -1425,7 +1425,7 @@ export async function getRecipeExportPreferences(): Promise<{
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (!settings?.preferences) {
     return { error: null, data: DEFAULT_RECIPE_EXPORT_PREFERENCES };
@@ -1470,7 +1470,7 @@ export async function updateRecipeExportPreferences(
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const existingPreferences = (existingData?.preferences ||
     {}) as UserSettingsPreferences;
@@ -1529,7 +1529,7 @@ export async function getCustomCookModePresets(): Promise<{
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (!settings?.preferences) {
     return { error: null, data: [] };
@@ -1565,7 +1565,7 @@ export async function saveCustomCookModePreset(
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
   const existingPresets = existingPreferences.cookModePresets || [];
@@ -1624,7 +1624,7 @@ export async function updateCustomCookModePreset(
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
   const existingPresets = existingPreferences.cookModePresets || [];
@@ -1684,7 +1684,7 @@ export async function deleteCustomCookModePreset(
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
   const existingPresets = existingPreferences.cookModePresets || [];
@@ -1735,7 +1735,7 @@ export async function setDefaultCookModePreset(
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
   const existingPresets = existingPreferences.cookModePresets || [];
@@ -1796,7 +1796,7 @@ export async function duplicateCookModePreset(
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
   const existingPresets = existingPreferences.cookModePresets || [];
@@ -1864,7 +1864,7 @@ export async function getCalendarPreferences(): Promise<{
     .from("user_settings")
     .select("preferences, calendar_event_time, calendar_event_duration_minutes, calendar_excluded_days")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (!settings?.preferences) {
     // Fallback to column values during migration period
@@ -1923,7 +1923,7 @@ export async function updateCalendarPreferences(
     .from("user_settings")
     .select("preferences")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
   const existingCalendar = existingPreferences.calendar || DEFAULT_CALENDAR_PREFERENCES;
@@ -1986,7 +1986,7 @@ export async function addCustomDietaryRestriction(
     .from("user_settings")
     .select("custom_dietary_restrictions")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const current = settings?.custom_dietary_restrictions || [];
 
@@ -2032,7 +2032,7 @@ export async function removeCustomDietaryRestriction(
     .from("user_settings")
     .select("custom_dietary_restrictions")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const current = settings?.custom_dietary_restrictions || [];
   const updated = current.filter((r: string) => r !== restriction);

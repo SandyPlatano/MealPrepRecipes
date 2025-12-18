@@ -55,15 +55,16 @@ export async function getRecipeNutrition(recipeId: string): Promise<{
       .from("recipe_nutrition")
       .select("*")
       .eq("recipe_id", recipeId)
-      .single();
+      .maybeSingle();
 
     if (error) {
-      if (error.code === "PGRST116") {
-        // No nutrition data found - not an error, just return null
-        return { data: null, error: null };
-      }
       console.error("Error fetching recipe nutrition:", error);
       return { data: null, error: error.message };
+    }
+
+    // maybeSingle returns null if not found, which is expected
+    if (!data) {
+      return { data: null, error: null };
     }
 
     return { data, error: null };

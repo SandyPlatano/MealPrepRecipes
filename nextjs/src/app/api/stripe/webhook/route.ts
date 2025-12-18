@@ -39,6 +39,23 @@ export async function POST(request: NextRequest) {
 
   const supabase = await createClient();
 
+  // Check if this event has already been processed (idempotency)
+  const { data: existingEvent, error: checkError } = await supabase
+    .from('webhook_events')
+    .select('id')
+    .eq('event_id', event.id)
+    .maybeSingle();
+
+  if (checkError) {
+    console.error('Error checking for existing webhook event:', checkError);
+    // Continue processing even if check fails - better to risk duplicate than miss event
+  }
+
+  if (existingEvent) {
+    console.log(`Event ${event.id} already processed, returning 200 OK`);
+    return NextResponse.json({ received: true, duplicate: true });
+  }
+
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
@@ -157,6 +174,22 @@ export async function POST(request: NextRequest) {
 
       default:
         console.log(`Unhandled event type: ${event.type}`);
+    }
+
+    // Record that this event has been processed successfully
+    const { error: insertError } = await supabase
+      .from('webhook_events')
+      .insert({
+        event_id: event.id,
+        event_type: event.type,
+        processed_at: new Date().toISOString(),
+        created_at: new Date().toISOString()
+      });
+
+    if (insertError) {
+      // Log but don't fail the webhook - the event was processed successfully
+      // If this is a duplicate insert error, that's actually fine (race condition handled)
+      console.error('Error recording webhook event (non-fatal):', insertError);
     }
 
     return NextResponse.json({ received: true });
