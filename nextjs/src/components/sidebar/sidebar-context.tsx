@@ -3,27 +3,46 @@
 import * as React from "react";
 import {
   getSidebarState,
-  setSidebarWidth,
-  setSidebarCollapsed,
+  setSidebarWidth as setStorageWidth,
+  setSidebarCollapsed as setStorageCollapsed,
   SIDEBAR_DIMENSIONS,
 } from "@/lib/sidebar/sidebar-storage";
+import type { PinnedItem, SidebarMode, SidebarPreferences } from "@/types/user-preferences-v2";
+import { DEFAULT_SIDEBAR_PREFERENCES } from "@/types/user-preferences-v2";
+import {
+  getSidebarPreferencesAuto,
+  updateSidebarPreferencesAuto,
+  pinSidebarItemAuto,
+  unpinSidebarItemAuto,
+  reorderPinnedItemsAuto,
+} from "@/app/actions/sidebar-preferences";
 
 // Media query breakpoints
 const MOBILE_BREAKPOINT = 768;
 const TABLET_BREAKPOINT = 1024;
 
 interface SidebarContextValue {
-  // State
+  // Core state
   width: number;
   isCollapsed: boolean;
   isMobileOpen: boolean;
   isMobile: boolean;
   isTablet: boolean;
 
+  // Mode & hover (synced)
+  mode: SidebarMode;
+  hoverExpand: boolean;
+  pinnedItems: PinnedItem[];
+
+  // Hover state (local)
+  isHovered: boolean;
+  setIsHovered: (hovered: boolean) => void;
+
   // Derived
   isIconOnly: boolean;
+  isExpanded: boolean; // True when showing full sidebar (mode=expanded OR hover-expanded)
 
-  // Actions
+  // Core actions
   setWidth: (width: number) => void;
   toggleCollapse: () => void;
   collapse: () => void;
@@ -31,6 +50,17 @@ interface SidebarContextValue {
   openMobile: () => void;
   closeMobile: () => void;
   toggleMobile: () => void;
+
+  // Synced actions
+  setMode: (mode: SidebarMode) => Promise<void>;
+  toggleHoverExpand: () => Promise<void>;
+  pinItem: (item: Omit<PinnedItem, "addedAt">) => Promise<void>;
+  unpinItem: (itemId: string) => Promise<void>;
+  reorderPinned: (itemIds: string[]) => Promise<void>;
+  isPinned: (itemId: string) => boolean;
+
+  // Loading state
+  isLoading: boolean;
 }
 
 const SidebarContext = React.createContext<SidebarContextValue | null>(null);
@@ -39,20 +69,37 @@ interface SidebarProviderProps {
   children: React.ReactNode;
   defaultWidth?: number;
   defaultCollapsed?: boolean;
+  initialPreferences?: SidebarPreferences;
 }
 
 export function SidebarProvider({
   children,
   defaultWidth = SIDEBAR_DIMENSIONS.DEFAULT_WIDTH,
   defaultCollapsed = false,
+  initialPreferences,
 }: SidebarProviderProps) {
-  // Initialize state from localStorage (client-side only)
+  // Core state (localStorage-based for responsiveness)
   const [width, setWidthState] = React.useState(defaultWidth);
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [isMobileOpen, setIsMobileOpen] = React.useState(false);
   const [isMobile, setIsMobile] = React.useState(false);
   const [isTablet, setIsTablet] = React.useState(false);
   const [isInitialized, setIsInitialized] = React.useState(false);
+
+  // Synced preferences state
+  const [mode, setModeState] = React.useState<SidebarMode>(
+    initialPreferences?.mode || DEFAULT_SIDEBAR_PREFERENCES.mode
+  );
+  const [hoverExpand, setHoverExpandState] = React.useState(
+    initialPreferences?.hoverExpand ?? DEFAULT_SIDEBAR_PREFERENCES.hoverExpand
+  );
+  const [pinnedItems, setPinnedItems] = React.useState<PinnedItem[]>(
+    initialPreferences?.pinnedItems || DEFAULT_SIDEBAR_PREFERENCES.pinnedItems
+  );
+
+  // Hover state (local only)
+  const [isHovered, setIsHovered] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   // Initialize from localStorage on mount
   React.useEffect(() => {
@@ -61,6 +108,20 @@ export function SidebarProvider({
     setIsCollapsed(stored.isCollapsed);
     setIsInitialized(true);
   }, []);
+
+  // Fetch synced preferences on mount (if not provided initially)
+  React.useEffect(() => {
+    if (!initialPreferences) {
+      getSidebarPreferencesAuto().then(({ data }) => {
+        setModeState(data.mode);
+        setHoverExpandState(data.hoverExpand);
+        setPinnedItems(data.pinnedItems);
+        if (data.width) {
+          setWidthState(data.width);
+        }
+      });
+    }
+  }, [initialPreferences]);
 
   // Media query listeners
   React.useEffect(() => {
@@ -168,6 +229,32 @@ export function SidebarProvider({
     setIsMobileOpen((prev) => !prev);
   }, []);
 
+  const toggleHoverExpand = React.useCallback(() => {
+    setHoverExpand((prev) => !prev);
+  }, []);
+
+  // Pinning actions
+  const pinItem = React.useCallback(async (item: Omit<PinnedItem, "addedAt">) => {
+    const newItem: PinnedItem = {
+      ...item,
+      addedAt: new Date().toISOString(),
+    };
+    setPinnedItems((prev) => [...prev, newItem]);
+    // TODO: Persist to database or localStorage
+  }, []);
+
+  const unpinItem = React.useCallback(async (id: string) => {
+    setPinnedItems((prev) => prev.filter((item) => item.id !== id));
+    // TODO: Persist to database or localStorage
+  }, []);
+
+  const isPinned = React.useCallback(
+    (id: string) => {
+      return pinnedItems.some((item) => item.id === id);
+    },
+    [pinnedItems]
+  );
+
   // Derived state
   const isIconOnly = isCollapsed || width <= SIDEBAR_DIMENSIONS.MIN_WIDTH;
 
@@ -179,6 +266,10 @@ export function SidebarProvider({
       isMobile,
       isTablet,
       isIconOnly,
+      mode,
+      hoverExpand,
+      isHovered,
+      pinnedItems,
       setWidth,
       toggleCollapse,
       collapse,
@@ -186,6 +277,12 @@ export function SidebarProvider({
       openMobile,
       closeMobile,
       toggleMobile,
+      setMode,
+      toggleHoverExpand,
+      setIsHovered,
+      pinItem,
+      unpinItem,
+      isPinned,
     }),
     [
       width,
@@ -194,6 +291,10 @@ export function SidebarProvider({
       isMobile,
       isTablet,
       isIconOnly,
+      mode,
+      hoverExpand,
+      isHovered,
+      pinnedItems,
       setWidth,
       toggleCollapse,
       collapse,
@@ -201,6 +302,10 @@ export function SidebarProvider({
       openMobile,
       closeMobile,
       toggleMobile,
+      toggleHoverExpand,
+      pinItem,
+      unpinItem,
+      isPinned,
     ]
   );
 

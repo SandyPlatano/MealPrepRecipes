@@ -81,6 +81,7 @@ export interface UserPreferencesV2 {
   customAiPrompt: string | null;
   energyMode: EnergyModePreferences;
   privacy: PrivacyPreferences;
+  sidebar: SidebarPreferences;
 }
 
 // ============================================================================
@@ -137,6 +138,18 @@ export const DEFAULT_PRIVACY_PREFERENCES: PrivacyPreferences = {
   consentTimestamp: null,
 };
 
+// Sidebar Preferences
+export type SidebarMode = "expanded" | "collapsed";
+
+export const DEFAULT_SIDEBAR_PREFERENCES: SidebarPreferences = {
+  mode: "expanded",
+  hoverExpand: true,
+  width: 260,
+  pinnedItems: [],
+  hiddenItems: [],
+  pinnedSectionExpanded: true,
+};
+
 export const DEFAULT_USER_PREFERENCES_V2: UserPreferencesV2 = {
   display: DEFAULT_DISPLAY_PREFERENCES,
   sounds: DEFAULT_SOUND_PREFERENCES,
@@ -146,6 +159,7 @@ export const DEFAULT_USER_PREFERENCES_V2: UserPreferencesV2 = {
   customAiPrompt: null,
   energyMode: DEFAULT_ENERGY_MODE_PREFERENCES,
   privacy: DEFAULT_PRIVACY_PREFERENCES,
+  sidebar: DEFAULT_SIDEBAR_PREFERENCES,
 };
 
 // ============================================================================
@@ -242,6 +256,37 @@ export const ACCENT_COLOR_PALETTE = [
   { key: "purple", color: "#a855f7", label: "Purple" },
   { key: "violet", color: "#8b5cf6", label: "Violet" },
 ] as const;
+
+// ============================================================================
+// Sidebar Preferences (Phase 6 Enhancement)
+// ============================================================================
+
+export type PinnableItemType =
+  | "page"
+  | "recipe"
+  | "folder"
+  | "smart_folder"
+  | "category"
+  | "custom_link";
+
+export interface PinnedItem {
+  type: PinnableItemType;
+  id: string;
+  name?: string;        // For recipes, custom links
+  emoji?: string;       // For folders
+  url?: string;         // For custom links
+  icon?: string;        // Custom icon name
+  addedAt: string;      // ISO timestamp
+}
+
+export interface SidebarPreferences {
+  mode: SidebarMode;
+  hoverExpand: boolean;
+  width: number;
+  pinnedItems: PinnedItem[];
+  hiddenItems: string[];
+  pinnedSectionExpanded: boolean;
+}
 
 // Re-export energy mode types for convenience
 export type { EnergyModePreferences } from "./energy-mode";

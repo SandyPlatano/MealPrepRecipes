@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
+import { Pin, PinOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +12,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { useSidebar } from "./sidebar-context";
+import type { PinnableItemType } from "@/types/user-preferences-v2";
 
 interface SidebarNavItemProps {
   href: string;
@@ -21,6 +29,9 @@ interface SidebarNavItemProps {
   shortcut?: string;
   exactMatch?: boolean;
   onClick?: () => void;
+  // For pinning support
+  pinnableType?: PinnableItemType;
+  pinnableId?: string;
 }
 
 export function SidebarNavItem({
@@ -31,9 +42,11 @@ export function SidebarNavItem({
   shortcut,
   exactMatch = false,
   onClick,
+  pinnableType,
+  pinnableId,
 }: SidebarNavItemProps) {
   const pathname = usePathname();
-  const { isIconOnly, closeMobile, isMobile } = useSidebar();
+  const { isIconOnly, closeMobile, isMobile, isPinned, pinItem, unpinItem } = useSidebar();
 
   // Determine if this item is active
   const isActive = exactMatch
@@ -48,7 +61,20 @@ export function SidebarNavItem({
     onClick?.();
   };
 
-  const content = (
+  const canPin = pinnableType && pinnableId;
+  const itemIsPinned = canPin ? isPinned(pinnableId) : false;
+
+  const handlePin = async () => {
+    if (!canPin) return;
+    await pinItem({ type: pinnableType, id: pinnableId, name: label });
+  };
+
+  const handleUnpin = async () => {
+    if (!pinnableId) return;
+    await unpinItem(pinnableId);
+  };
+
+  const buttonContent = (
     <Button
       variant="ghost"
       asChild
@@ -97,11 +123,35 @@ export function SidebarNavItem({
     </Button>
   );
 
+  // Context menu wrapper
+  const contentWithContextMenu = canPin ? (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        {buttonContent}
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        {itemIsPinned ? (
+          <ContextMenuItem onClick={handleUnpin}>
+            <PinOff className="mr-2 h-4 w-4" />
+            Unpin from sidebar
+          </ContextMenuItem>
+        ) : (
+          <ContextMenuItem onClick={handlePin}>
+            <Pin className="mr-2 h-4 w-4" />
+            Pin to sidebar
+          </ContextMenuItem>
+        )}
+      </ContextMenuContent>
+    </ContextMenu>
+  ) : (
+    buttonContent
+  );
+
   // Wrap with tooltip when collapsed
   if (isIconOnly) {
     return (
       <Tooltip delayDuration={0}>
-        <TooltipTrigger asChild>{content}</TooltipTrigger>
+        <TooltipTrigger asChild>{contentWithContextMenu}</TooltipTrigger>
         <TooltipContent side="right" className="flex items-center gap-2">
           <span>{label}</span>
           {badge !== undefined && (
@@ -119,7 +169,7 @@ export function SidebarNavItem({
     );
   }
 
-  return content;
+  return contentWithContextMenu;
 }
 
 // Action button variant (not a link)

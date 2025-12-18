@@ -20,6 +20,7 @@ import {
   DEFAULT_KEYBOARD_PREFERENCES,
   DEFAULT_ENERGY_MODE_PREFERENCES,
   DEFAULT_PRIVACY_PREFERENCES,
+  DEFAULT_SIDEBAR_PREFERENCES,
 } from "@/types/user-preferences-v2";
 
 // ============================================================================
@@ -74,6 +75,10 @@ export async function getUserPreferencesV2(
       privacy: {
         ...DEFAULT_PRIVACY_PREFERENCES,
         ...(prefs.privacy || {}),
+      },
+      sidebar: {
+        ...DEFAULT_SIDEBAR_PREFERENCES,
+        ...(prefs.sidebar || {}),
       },
     },
   };
