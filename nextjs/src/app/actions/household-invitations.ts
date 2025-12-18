@@ -135,7 +135,7 @@ export async function sendHouseholdInvitation(email: string): Promise<{
       : inviterProfile?.first_name || inviterProfile?.email || "Someone";
 
   // Generate invite link
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
   const inviteLink = `${baseUrl}/invite/${token}`;
 
   // Send email notification
@@ -303,7 +303,7 @@ export async function resendHouseholdInvitation(invitationId: string): Promise<{
       : inviterProfile?.first_name || inviterProfile?.email || "Someone";
 
   // Generate invite link
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
   const inviteLink = `${baseUrl}/invite/${token}`;
 
   // Send email notification
@@ -418,6 +418,6 @@ export async function acceptHouseholdInvitation(token: string): Promise<{
  * Get the invitation link URL for sharing
  */
 export async function getInvitationLink(token: string): Promise<string> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
   return `${baseUrl}/invite/${token}`;
 }
