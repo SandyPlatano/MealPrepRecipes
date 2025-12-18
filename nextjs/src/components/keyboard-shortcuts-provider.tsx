@@ -38,26 +38,23 @@ export function KeyboardShortcutsProvider() {
 
         if (!user) return;
 
-        // Fetch keyboard preferences from user_preferences_v2
-        const { data, error } = await supabase
-          .from("user_preferences_v2")
-          .select("keyboard")
-          .eq("user_id", user.id)
-          .single();
-
-        if (!error && data?.keyboard) {
-          setPrefs(data.keyboard as KeyboardPreferences);
-        }
-
-        // Fetch dark mode setting
-        const { data: settingsData } = await supabase
+        // Fetch preferences from user_settings.preferences_v2 column
+        const { data: settingsData, error } = await supabase
           .from("user_settings")
-          .select("dark_mode")
+          .select("preferences_v2, dark_mode")
           .eq("user_id", user.id)
           .single();
 
-        if (settingsData) {
-          setDarkMode(settingsData.dark_mode);
+        if (!error && settingsData) {
+          // Extract keyboard preferences from the JSONB column
+          const prefsV2 = settingsData.preferences_v2 as { keyboard?: KeyboardPreferences } | null;
+          if (prefsV2?.keyboard) {
+            setPrefs({
+              enabled: prefsV2.keyboard.enabled ?? true,
+              shortcuts: { ...DEFAULT_KEYBOARD_SHORTCUTS, ...prefsV2.keyboard.shortcuts },
+            });
+          }
+          setDarkMode(settingsData.dark_mode ?? false);
         }
       } catch (err) {
         // Silently fail - just use defaults

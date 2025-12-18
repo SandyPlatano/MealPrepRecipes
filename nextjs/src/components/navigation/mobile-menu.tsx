@@ -20,12 +20,15 @@ import {
   Settings,
   Activity,
   Sparkles,
+  ChefHat,
+  BarChart3,
+  Package,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuickCook } from "@/components/quick-cook/quick-cook-provider";
 
-type IconKey = "plan" | "recipes" | "shop" | "history" | "favorites" | "settings" | "nutrition";
+type IconKey = "plan" | "recipes" | "shop" | "history" | "favorites" | "settings" | "nutrition" | "prep" | "stats" | "pantry";
 
 const iconMap: Record<IconKey, LucideIcon> = {
   plan: Calendar,
@@ -35,6 +38,9 @@ const iconMap: Record<IconKey, LucideIcon> = {
   favorites: History,
   settings: Settings,
   nutrition: Activity,
+  prep: ChefHat,
+  stats: BarChart3,
+  pantry: Package,
 };
 
 type NavItem = {

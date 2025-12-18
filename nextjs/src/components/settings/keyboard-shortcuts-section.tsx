@@ -210,16 +210,15 @@ export function KeyboardShortcutsSection({
                     <div className="flex items-center gap-2">
                       {isEditing ? (
                         <>
-                          <div
-                            className="px-3 py-1.5 bg-primary/10 border-2 border-primary rounded-md min-w-[60px] text-center"
+                          <input
+                            type="text"
+                            className="px-3 py-1.5 bg-primary/10 border-2 border-primary rounded-md min-w-[60px] text-center text-sm font-mono focus:outline-none"
                             onKeyDown={(e) => handleKeyDown(e, action.key)}
-                            tabIndex={0}
+                            value={pendingKey ? formatKey(pendingKey) : ""}
+                            placeholder="Press key..."
+                            readOnly
                             autoFocus
-                          >
-                            <kbd className="text-sm font-mono">
-                              {pendingKey ? formatKey(pendingKey) : "Press key..."}
-                            </kbd>
-                          </div>
+                          />
                           <Button
                             size="sm"
                             variant="ghost"

@@ -12,10 +12,11 @@ import {
   Package,
   Activity,
   ChefHat,
+  BarChart3,
   type LucideIcon,
 } from "lucide-react";
 
-type IconKey = "plan" | "recipes" | "shop" | "pantry" | "favorites" | "settings" | "nutrition" | "prep";
+type IconKey = "plan" | "recipes" | "shop" | "pantry" | "favorites" | "settings" | "nutrition" | "prep" | "stats";
 
 const iconMap: Record<IconKey, LucideIcon> = {
   plan: Calendar,
@@ -26,6 +27,7 @@ const iconMap: Record<IconKey, LucideIcon> = {
   settings: Settings,
   nutrition: Activity,
   prep: ChefHat,
+  stats: BarChart3,
 };
 
 type NavItem = {
@@ -74,6 +76,7 @@ export function AppNav({
         "/app/history",
         "/app/pantry",
         "/app/nutrition",
+        "/app/stats",
         "/app/prep",
       ];
       if (excludedRoutes.some(route => pathname === route || pathname.startsWith(`${route}/`))) {

@@ -11,7 +11,7 @@ import { QuickCookHeaderTrigger } from '@/components/quick-cook/quick-cook-provi
 type NavItem = {
   href: string;
   label: string;
-  iconKey: 'plan' | 'recipes' | 'shop' | 'pantry' | 'favorites' | 'settings' | 'nutrition';
+  iconKey: 'plan' | 'recipes' | 'shop' | 'pantry' | 'favorites' | 'settings' | 'nutrition' | 'prep' | 'stats';
 };
 
 interface AppHeaderProps {

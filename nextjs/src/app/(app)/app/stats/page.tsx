@@ -1,0 +1,131 @@
+import { Metadata } from "next";
+import Link from "next/link";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Apple, Leaf, ArrowRight, TrendingUp, DollarSign, Flame } from "lucide-react";
+import { STATS_CATEGORIES } from "@/lib/stats/stats-categories";
+
+export const metadata: Metadata = {
+  title: "Stats | Meal Prep OS",
+  description: "View your meal planning statistics, nutrition tracking, and sustainability impact",
+};
+
+export default function StatsOverviewPage() {
+  // Get non-overview categories for the cards
+  const featureCategories = STATS_CATEGORIES.filter((cat) => cat.id !== "overview");
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="text-2xl font-bold tracking-tight">Stats Overview</h1>
+        <p className="text-muted-foreground">
+          Track your progress, nutrition goals, and environmental impact.
+        </p>
+      </div>
+
+      {/* Quick Stats Summary */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <QuickStatCard
+          label="This Week"
+          value="Active"
+          icon={TrendingUp}
+          iconColor="text-blue-500"
+        />
+        <QuickStatCard
+          label="Meals Planned"
+          value="12"
+          icon={Flame}
+          iconColor="text-orange-500"
+        />
+        <QuickStatCard
+          label="On Target"
+          value="85%"
+          icon={Apple}
+          iconColor="text-green-500"
+        />
+        <QuickStatCard
+          label="Saved"
+          value="$24"
+          icon={DollarSign}
+          iconColor="text-amber-500"
+        />
+      </div>
+
+      {/* Feature Cards */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {featureCategories.map((category) => {
+          const Icon = category.icon;
+          return (
+            <Card key={category.id} className="group hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">{category.label}</CardTitle>
+                      <CardDescription className="text-sm">
+                        {category.description}
+                      </CardDescription>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Button asChild variant="outline" className="w-full group-hover:bg-accent">
+                  <Link href={category.path}>
+                    View {category.label}
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Tips Section */}
+      <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
+        <CardContent className="py-6">
+          <div className="flex items-start gap-4">
+            <div className="p-2 rounded-full bg-primary/10">
+              <TrendingUp className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Pro Tip</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Plan your meals consistently to build streaks and maximize your sustainability impact.
+                Every meal planned is a step toward reducing food waste!
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+interface QuickStatCardProps {
+  label: string;
+  value: string;
+  icon: React.ElementType;
+  iconColor: string;
+}
+
+function QuickStatCard({ label, value, icon: Icon, iconColor }: QuickStatCardProps) {
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <div className="flex items-center gap-3">
+          <Icon className={`h-5 w-5 ${iconColor}`} />
+          <div>
+            <p className="text-xs text-muted-foreground">{label}</p>
+            <p className="text-lg font-bold">{value}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
