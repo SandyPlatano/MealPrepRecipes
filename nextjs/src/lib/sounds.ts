@@ -20,16 +20,15 @@ function getAudioContext(): AudioContext {
 }
 
 /**
- * Play a sound preset at the given volume
+ * Play a sound preset at system volume
  * @param sound - The sound preset to play
- * @param volume - Volume from 0-100
  */
-export function playSound(sound: SoundPreset, volume: number = 50): void {
+export function playSound(sound: SoundPreset): void {
   if (sound === "none" || typeof window === "undefined") return;
 
   const ctx = getAudioContext();
   const masterGain = ctx.createGain();
-  masterGain.gain.value = volume / 100;
+  masterGain.gain.value = 1.0; // Full volume - uses system volume
   masterGain.connect(ctx.destination);
 
   switch (sound) {

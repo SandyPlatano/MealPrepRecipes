@@ -181,14 +181,20 @@ export function CookingMode({
     }
   }, [currentStep, settings.voice.enabled, settings.voice.autoReadSteps, voiceReadoutSupported, readCurrentStep]);
 
-  // Start/stop voice listening based on settings
+  // Stop voice listening when disabled (e.g., from settings sheet)
+  // Starting is handled directly in the mic button onClick
   useEffect(() => {
-    if (settings.voice.enabled && !isListening) {
-      startListening();
-    } else if (!settings.voice.enabled && isListening) {
+    if (!settings.voice.enabled && isListening) {
       stopListening();
     }
-  }, [settings.voice.enabled, isListening, startListening, stopListening]);
+  }, [settings.voice.enabled, isListening, stopListening]);
+
+  // Show error toast when voice fails
+  useEffect(() => {
+    if (voiceError) {
+      toast.error(voiceError);
+    }
+  }, [voiceError]);
 
   // Handle theme override
   useEffect(() => {
@@ -431,11 +437,12 @@ export function CookingMode({
                   }));
                   toast.info("Voice commands disabled");
                 } else {
-                  // Enable voice and start listening
+                  // Enable voice and start listening DIRECTLY (avoids stale closure issues)
                   setSettings((prev) => ({
                     ...prev,
                     voice: { ...prev.voice, enabled: true },
                   }));
+                  startListening(); // Call directly, don't wait for useEffect
                   toast.success(`Voice commands enabled! Say "${settings.voice.wakeWord}" to start.`);
                 }
               }}

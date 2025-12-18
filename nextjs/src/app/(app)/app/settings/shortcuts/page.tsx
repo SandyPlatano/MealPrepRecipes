@@ -6,7 +6,6 @@ import { SettingRow, SettingSection } from "@/components/settings/shared/setting
 import { AdvancedToggle } from "@/components/settings/shared/advanced-toggle";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -18,7 +17,7 @@ import { SOUND_OPTIONS, type SoundPreset } from "@/types/user-preferences-v2";
 import { resetAllHints } from "@/app/actions/settings";
 import { playSound } from "@/lib/sounds";
 import { toast } from "sonner";
-import { Volume2, RotateCcw, Play } from "lucide-react";
+import { RotateCcw, Play } from "lucide-react";
 import { KeyboardShortcutsSection } from "@/components/settings/keyboard-shortcuts-section";
 
 export default function ShortcutsSettingsPage() {
@@ -40,7 +39,7 @@ export default function ShortcutsSettingsPage() {
       toast.info("This sound is silent");
       return;
     }
-    playSound(sound, sounds.volume);
+    playSound(sound);
   };
 
   return (
@@ -66,26 +65,6 @@ export default function ShortcutsSettingsPage() {
 
         {sounds.enabled && (
           <>
-            <SettingRow
-              id="setting-volume"
-              label="Volume"
-              description="Sound effect volume (0-100)"
-            >
-              <div className="flex items-center gap-2">
-                <Volume2 className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="number"
-                  min={0}
-                  max={100}
-                  step={5}
-                  value={sounds.volume}
-                  onChange={(e) => updateSoundPrefs({ volume: Number(e.target.value) })}
-                  className="w-20"
-                />
-                <span className="text-sm text-muted-foreground">%</span>
-              </div>
-            </SettingRow>
-
             <SettingRow
               id="setting-timer-sound"
               label="Timer Sound"

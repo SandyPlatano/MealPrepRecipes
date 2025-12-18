@@ -32,7 +32,6 @@ const SETTING_LABELS: Record<string, string> = {
 
   // Sound Preferences
   "preferencesV2.sounds.enabled": "Sounds",
-  "preferencesV2.sounds.volume": "Volume",
   "preferencesV2.sounds.timerComplete": "Timer Sound",
   "preferencesV2.sounds.notification": "Notification Sound",
   "preferencesV2.sounds.achievement": "Achievement Sound",

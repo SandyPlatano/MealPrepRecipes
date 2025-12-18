@@ -46,7 +46,6 @@ export interface SoundPreferences {
   timerComplete: SoundPreset;
   notification: SoundPreset;
   achievement: SoundPreset;
-  volume: number; // 0-100
 }
 
 // Serving Size Presets
@@ -104,7 +103,6 @@ export const DEFAULT_SOUND_PREFERENCES: SoundPreferences = {
   timerComplete: "chime",
   notification: "ping",
   achievement: "fanfare",
-  volume: 80,
 };
 
 export const DEFAULT_SERVING_SIZE_PRESETS: ServingSizePreset[] = [

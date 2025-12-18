@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -54,13 +53,8 @@ export function SoundsSection({
       return;
     }
 
-    // Play the actual sound using Web Audio API
-    playSoundEffect(sound, preferences.volume);
-  };
-
-  const handleVolumeChange = (value: string) => {
-    const volume = parseInt(value, 10);
-    handleUpdate({ volume });
+    // Play the actual sound using Web Audio API (at system volume)
+    playSoundEffect(sound);
   };
 
   return (
@@ -88,29 +82,6 @@ export function SoundsSection({
 
       {preferences.enabled && (
         <>
-          {/* Volume Slider */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label>Volume</Label>
-              <span className="text-sm text-muted-foreground">
-                {preferences.volume}%
-              </span>
-            </div>
-            <div className="flex items-center gap-4">
-              <VolumeX className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <Input
-                type="range"
-                min="0"
-                max="100"
-                step="5"
-                value={preferences.volume}
-                onChange={(e) => handleVolumeChange(e.target.value)}
-                className="flex-1"
-              />
-              <Volume2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            </div>
-          </div>
-
           {/* Timer Complete Sound */}
           <Card className="p-4">
             <div className="space-y-3">
