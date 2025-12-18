@@ -214,8 +214,17 @@ export function updateSectionWidth(
 }
 
 /**
- * Reset to default layout
+ * Reset to default layout (returns deep copy to prevent mutations)
  */
 export function resetToDefaultLayout(): RecipeLayoutPreferences {
-  return { ...DEFAULT_RECIPE_LAYOUT_PREFERENCES };
+  return {
+    sections: Object.fromEntries(
+      Object.entries(DEFAULT_RECIPE_SECTIONS).map(([key, value]) => [
+        key,
+        { ...value },
+      ])
+    ) as Record<RecipeSectionId, RecipeSectionConfig>,
+    sectionOrder: [...DEFAULT_RECIPE_SECTION_ORDER],
+    schemaVersion: CURRENT_RECIPE_LAYOUT_SCHEMA_VERSION,
+  };
 }

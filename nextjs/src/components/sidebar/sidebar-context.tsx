@@ -17,7 +17,6 @@ import type {
   CustomSectionItem,
 } from "@/types/sidebar-customization";
 import {
-  DEFAULT_SIDEBAR_PREFERENCES_V2,
   DEFAULT_SECTION_ORDER,
   DEFAULT_BUILTIN_SECTIONS,
 } from "@/types/sidebar-customization";
@@ -33,6 +32,13 @@ import {
   unpinSidebarItemAuto,
   reorderPinnedItemsAuto,
 } from "@/app/actions/sidebar-preferences";
+import {
+  createCustomSectionAuto,
+  updateCustomSectionAuto,
+  deleteCustomSectionAuto,
+  addCustomSectionItemAuto,
+  removeCustomSectionItemAuto,
+} from "@/app/actions/sidebar-section-actions";
 
 // Media query breakpoints
 const MOBILE_BREAKPOINT = 768;
@@ -137,7 +143,8 @@ export function SidebarProvider({
   const [reducedMotion, setReducedMotion] = React.useState(false);
 
   // Loading state
-  const [isLoading, setIsLoading] = React.useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isLoading, _setIsLoading] = React.useState(false);
 
   // Initialize from localStorage on mount
   React.useEffect(() => {
@@ -405,24 +412,49 @@ export function SidebarProvider({
     );
     const newSection = createCustomSection(title, maxSortOrder + 1);
 
+    // Optimistic update
     setSections((prev) => ({
       ...prev,
       [newSection.id]: newSection,
     }));
     setSectionOrder((prev) => [...prev, newSection.id]);
 
-    // TODO: Call server action
-    // await addCustomSectionAuto(newSection);
-    console.log("Adding custom section:", newSection);
+    // Persist to database
+    const { error, sectionId } = await createCustomSectionAuto({
+      type: "custom",
+      title: newSection.title,
+      emoji: newSection.emoji,
+      icon: newSection.icon,
+      items: newSection.items,
+      hidden: newSection.hidden,
+      defaultCollapsed: newSection.defaultCollapsed,
+    });
 
-    return newSection.id;
+    if (error) {
+      console.error("Failed to create custom section:", error);
+      // Rollback optimistic update on error
+      setSections((prev) =>
+        Object.fromEntries(
+          Object.entries(prev).filter(([key]) => key !== newSection.id)
+        ) as Record<string, SectionConfig>
+      );
+      setSectionOrder((prev) => prev.filter((id) => id !== newSection.id));
+      return null;
+    }
+
+    return sectionId || newSection.id;
   }, [sections]);
 
   const updateCustomSection = React.useCallback(
     async (sectionId: string, updates: Partial<CustomSectionConfig>) => {
+      // Store previous state for rollback
+      let previousSection: SectionConfig | undefined;
+
       setSections((prev) => {
         const section = prev[sectionId];
         if (!section || section.type !== "custom") return prev;
+
+        previousSection = section;
 
         return {
           ...prev,
@@ -432,30 +464,67 @@ export function SidebarProvider({
           },
         };
       });
-      // TODO: Call server action
-      // await updateCustomSectionAuto(sectionId, updates);
-      console.log("Updating custom section:", sectionId, updates);
+
+      // Persist to database
+      const { error } = await updateCustomSectionAuto(sectionId, updates);
+
+      if (error) {
+        console.error("Failed to update custom section:", error);
+        // Rollback on error
+        if (previousSection) {
+          setSections((prev) => ({
+            ...prev,
+            [sectionId]: previousSection!,
+          }));
+        }
+      }
     },
     []
   );
 
   const removeCustomSection = React.useCallback(async (sectionId: string) => {
-    setSections((prev) => {
-      const { [sectionId]: removed, ...rest } = prev;
-      return rest;
-    });
-    setSectionOrder((prev) => prev.filter((id) => id !== sectionId));
+    // Store previous state for rollback
+    let previousSection: SectionConfig | undefined;
+    let previousOrder: string[] = [];
 
-    // TODO: Call server action
-    // await removeCustomSectionAuto(sectionId);
-    console.log("Removing custom section:", sectionId);
+    setSections((prev) => {
+      previousSection = prev[sectionId];
+      return Object.fromEntries(
+        Object.entries(prev).filter(([key]) => key !== sectionId)
+      ) as Record<string, SectionConfig>;
+    });
+    setSectionOrder((prev) => {
+      previousOrder = prev;
+      return prev.filter((id) => id !== sectionId);
+    });
+
+    // Persist to database
+    const { error } = await deleteCustomSectionAuto(sectionId);
+
+    if (error) {
+      console.error("Failed to delete custom section:", error);
+      // Rollback on error
+      if (previousSection) {
+        setSections((prev) => ({
+          ...prev,
+          [sectionId]: previousSection!,
+        }));
+        setSectionOrder(previousOrder);
+      }
+    }
   }, []);
 
   const addCustomSectionItem = React.useCallback(
     async (sectionId: string, item: Omit<CustomSectionItem, "id" | "sortOrder">) => {
+      // Generate temp ID for optimistic update
+      const tempItemId = crypto.randomUUID();
+      let previousSection: SectionConfig | undefined;
+
       setSections((prev) => {
         const section = prev[sectionId];
         if (!section || section.type !== "custom") return prev;
+
+        previousSection = section;
 
         const maxSortOrder = Math.max(
           ...section.items.map((i) => i.sortOrder),
@@ -464,7 +533,7 @@ export function SidebarProvider({
 
         const newItem: CustomSectionItem = {
           ...item,
-          id: crypto.randomUUID(),
+          id: tempItemId,
           sortOrder: maxSortOrder + 1,
         } as CustomSectionItem;
 
@@ -477,18 +546,32 @@ export function SidebarProvider({
         };
       });
 
-      // TODO: Call server action
-      // await addCustomSectionItemAuto(sectionId, item);
-      console.log("Adding custom section item:", sectionId, item);
+      // Persist to database
+      const { error } = await addCustomSectionItemAuto(sectionId, item);
+
+      if (error) {
+        console.error("Failed to add custom section item:", error);
+        // Rollback on error
+        if (previousSection) {
+          setSections((prev) => ({
+            ...prev,
+            [sectionId]: previousSection!,
+          }));
+        }
+      }
     },
     []
   );
 
   const removeCustomSectionItem = React.useCallback(
     async (sectionId: string, itemId: string) => {
+      let previousSection: SectionConfig | undefined;
+
       setSections((prev) => {
         const section = prev[sectionId];
         if (!section || section.type !== "custom") return prev;
+
+        previousSection = section;
 
         return {
           ...prev,
@@ -499,9 +582,19 @@ export function SidebarProvider({
         };
       });
 
-      // TODO: Call server action
-      // await removeCustomSectionItemAuto(sectionId, itemId);
-      console.log("Removing custom section item:", sectionId, itemId);
+      // Persist to database
+      const { error } = await removeCustomSectionItemAuto(sectionId, itemId);
+
+      if (error) {
+        console.error("Failed to remove custom section item:", error);
+        // Rollback on error
+        if (previousSection) {
+          setSections((prev) => ({
+            ...prev,
+            [sectionId]: previousSection!,
+          }));
+        }
+      }
     },
     []
   );

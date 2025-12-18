@@ -9,11 +9,13 @@ import {
   ExternalLink,
   Smile,
   X,
+  ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -36,6 +38,8 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { LinkPresetGrid } from "./link-preset-grid";
+import type { LinkPreset } from "@/lib/sidebar/link-presets";
 import {
   DndContext,
   closestCenter,
@@ -94,6 +98,8 @@ const INITIAL_FORM: NewLinkForm = {
   openInNewTab: true,
 };
 
+type DialogView = "presets" | "preset-form" | "custom";
+
 export function CustomLinkEditor({
   section,
   onAddItem,
@@ -104,6 +110,8 @@ export function CustomLinkEditor({
   const [form, setForm] = useState<NewLinkForm>(INITIAL_FORM);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dialogView, setDialogView] = useState<DialogView>("presets");
+  const [activeTab, setActiveTab] = useState<"quick" | "custom">("quick");
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -196,7 +204,30 @@ export function CustomLinkEditor({
     setForm(INITIAL_FORM);
     setShowEmojiPicker(false);
     setIsAddingLink(false);
+    setDialogView("presets");
+    setActiveTab("quick");
   };
+
+  const handleSelectPreset = (preset: LinkPreset) => {
+    setForm({
+      type: "internal",
+      label: preset.label,
+      url: preset.href,
+      emoji: preset.emoji,
+      openInNewTab: false,
+    });
+    setDialogView("preset-form");
+  };
+
+  const handleBackToPresets = () => {
+    setForm(INITIAL_FORM);
+    setDialogView("presets");
+  };
+
+  // Get existing hrefs from section items to disable already-added presets
+  const existingHrefs = section.items
+    .filter((item) => isInternalLinkItem(item))
+    .map((item) => (item as { href: string }).href);
 
   return (
     <div className="space-y-3">
@@ -255,141 +286,260 @@ export function CustomLinkEditor({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            {/* Link Type */}
-            <div className="space-y-2">
-              <Label>Link Type</Label>
-              <Select
-                value={form.type}
-                onValueChange={(value: LinkType) =>
-                  setForm((prev) => ({ ...prev, type: value, url: "" }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="internal">
-                    <div className="flex items-center gap-2">
-                      <LinkIcon className="h-4 w-4" />
-                      <span>App Page</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="external">
-                    <div className="flex items-center gap-2">
-                      <ExternalLink className="h-4 w-4" />
-                      <span>External URL</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Preset Form View (after selecting a preset) */}
+          {dialogView === "preset-form" ? (
+            <>
+              <div className="space-y-4 py-2">
+                {/* Back Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBackToPresets}
+                  className="text-muted-foreground -ml-2"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Back to presets
+                </Button>
 
-            {/* Label */}
-            <div className="space-y-2">
-              <Label htmlFor="link-label">Label</Label>
-              <Input
-                id="link-label"
-                value={form.label}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, label: e.target.value }))
-                }
-                placeholder="e.g., My Recipes, Blog"
-              />
-            </div>
+                {/* Label */}
+                <div className="space-y-2">
+                  <Label htmlFor="link-label">Label</Label>
+                  <Input
+                    id="link-label"
+                    value={form.label}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, label: e.target.value }))
+                    }
+                    placeholder="e.g., My Recipes"
+                  />
+                </div>
 
-            {/* URL/Path */}
-            <div className="space-y-2">
-              <Label htmlFor="link-url">
-                {form.type === "internal" ? "App Path" : "URL"}
-              </Label>
-              <Input
-                id="link-url"
-                value={form.url}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, url: e.target.value }))
-                }
-                placeholder={
-                  form.type === "internal"
-                    ? "/app/recipes"
-                    : "https://example.com"
-                }
-              />
-              {form.type === "internal" && (
-                <p className="text-xs text-muted-foreground">
-                  Start with / for app pages (e.g., /app/recipes, /app/planner)
-                </p>
-              )}
-            </div>
+                {/* App Path */}
+                <div className="space-y-2">
+                  <Label htmlFor="link-url">App Path</Label>
+                  <Input
+                    id="link-url"
+                    value={form.url}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, url: e.target.value }))
+                    }
+                    placeholder="/app/recipes"
+                  />
+                </div>
 
-            {/* Emoji */}
-            <div className="space-y-2">
-              <Label>Icon (Optional)</Label>
-              <div className="flex items-center gap-2">
-                <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "h-10 w-10 text-lg",
-                        !form.emoji && "text-muted-foreground"
-                      )}
-                    >
-                      {form.emoji || <Smile className="h-4 w-4" />}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 z-[100]" align="start">
-                    <Picker
-                      data={data}
-                      onEmojiSelect={handleEmojiSelect}
-                      theme="auto"
-                      previewPosition="none"
-                      skinTonePosition="search"
-                    />
-                  </PopoverContent>
-                </Popover>
+                {/* Emoji */}
+                <div className="space-y-2">
+                  <Label>Icon (Optional)</Label>
+                  <div className="flex items-center gap-2">
+                    <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "h-10 w-10 text-lg",
+                            !form.emoji && "text-muted-foreground"
+                          )}
+                        >
+                          {form.emoji || <Smile className="h-4 w-4" />}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 z-[100]" align="start">
+                        <Picker
+                          data={data}
+                          onEmojiSelect={handleEmojiSelect}
+                          theme="auto"
+                          previewPosition="none"
+                          skinTonePosition="search"
+                        />
+                      </PopoverContent>
+                    </Popover>
 
-                {form.emoji && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleClearEmoji}
-                    className="h-8 w-8"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
+                    {form.emoji && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleClearEmoji}
+                        className="h-8 w-8"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
 
-            {/* Open in New Tab (external only) */}
-            {form.type === "external" && (
-              <div className="flex items-center justify-between">
-                <Label htmlFor="new-tab" className="text-sm">
-                  Open in new tab
-                </Label>
-                <Switch
-                  id="new-tab"
-                  checked={form.openInNewTab}
-                  onCheckedChange={(checked) =>
-                    setForm((prev) => ({ ...prev, openInNewTab: checked }))
-                  }
-                />
-              </div>
-            )}
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={handleCloseDialog} disabled={isSubmitting}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleAddLink}
-              disabled={isSubmitting || !form.label.trim() || !form.url.trim()}
+              <DialogFooter>
+                <Button variant="outline" onClick={handleCloseDialog} disabled={isSubmitting}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleAddLink}
+                  disabled={isSubmitting || !form.label.trim() || !form.url.trim()}
+                >
+                  {isSubmitting ? "Adding..." : "Add Link"}
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            /* Tabbed View (Quick Add / Custom Link) */
+            <Tabs
+              value={activeTab}
+              onValueChange={(value) => setActiveTab(value as "quick" | "custom")}
+              className="w-full"
             >
-              {isSubmitting ? "Adding..." : "Add Link"}
-            </Button>
-          </DialogFooter>
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="quick">Quick Add</TabsTrigger>
+                <TabsTrigger value="custom">Custom Link</TabsTrigger>
+              </TabsList>
+
+              {/* Quick Add Tab - Preset Grid */}
+              <TabsContent value="quick" className="mt-0">
+                <LinkPresetGrid
+                  existingHrefs={existingHrefs}
+                  onSelectPreset={handleSelectPreset}
+                />
+              </TabsContent>
+
+              {/* Custom Link Tab - Full Form */}
+              <TabsContent value="custom" className="mt-0">
+                <div className="space-y-4 py-2">
+                  {/* Link Type */}
+                  <div className="space-y-2">
+                    <Label>Link Type</Label>
+                    <Select
+                      value={form.type}
+                      onValueChange={(value: LinkType) =>
+                        setForm((prev) => ({ ...prev, type: value, url: "" }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="internal">
+                          <div className="flex items-center gap-2">
+                            <LinkIcon className="h-4 w-4" />
+                            <span>App Page</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="external">
+                          <div className="flex items-center gap-2">
+                            <ExternalLink className="h-4 w-4" />
+                            <span>External URL</span>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Label */}
+                  <div className="space-y-2">
+                    <Label htmlFor="custom-link-label">Label</Label>
+                    <Input
+                      id="custom-link-label"
+                      value={form.label}
+                      onChange={(e) =>
+                        setForm((prev) => ({ ...prev, label: e.target.value }))
+                      }
+                      placeholder="e.g., My Recipes, Blog"
+                    />
+                  </div>
+
+                  {/* URL/Path */}
+                  <div className="space-y-2">
+                    <Label htmlFor="custom-link-url">
+                      {form.type === "internal" ? "App Path" : "URL"}
+                    </Label>
+                    <Input
+                      id="custom-link-url"
+                      value={form.url}
+                      onChange={(e) =>
+                        setForm((prev) => ({ ...prev, url: e.target.value }))
+                      }
+                      placeholder={
+                        form.type === "internal"
+                          ? "/app/recipes"
+                          : "https://example.com"
+                      }
+                    />
+                    {form.type === "internal" && (
+                      <p className="text-xs text-muted-foreground">
+                        Start with / for app pages (e.g., /app/recipes, /app/planner)
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Emoji */}
+                  <div className="space-y-2">
+                    <Label>Icon (Optional)</Label>
+                    <div className="flex items-center gap-2">
+                      <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "h-10 w-10 text-lg",
+                              !form.emoji && "text-muted-foreground"
+                            )}
+                          >
+                            {form.emoji || <Smile className="h-4 w-4" />}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 z-[100]" align="start">
+                          <Picker
+                            data={data}
+                            onEmojiSelect={handleEmojiSelect}
+                            theme="auto"
+                            previewPosition="none"
+                            skinTonePosition="search"
+                          />
+                        </PopoverContent>
+                      </Popover>
+
+                      {form.emoji && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={handleClearEmoji}
+                          className="h-8 w-8"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Open in New Tab (external only) */}
+                  {form.type === "external" && (
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="new-tab" className="text-sm">
+                        Open in new tab
+                      </Label>
+                      <Switch
+                        id="new-tab"
+                        checked={form.openInNewTab}
+                        onCheckedChange={(checked) =>
+                          setForm((prev) => ({ ...prev, openInNewTab: checked }))
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <DialogFooter className="mt-4">
+                  <Button variant="outline" onClick={handleCloseDialog} disabled={isSubmitting}>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleAddLink}
+                    disabled={isSubmitting || !form.label.trim() || !form.url.trim()}
+                  >
+                    {isSubmitting ? "Adding..." : "Add Link"}
+                  </Button>
+                </DialogFooter>
+              </TabsContent>
+            </Tabs>
+          )}
         </DialogContent>
       </Dialog>
     </div>

@@ -40,6 +40,7 @@ import {
   Eye,
   CheckCircle2,
   Star,
+  LayoutGrid,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -67,6 +68,8 @@ import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
 import { MarkCookedDialog } from "@/components/recipes/mark-cooked-dialog";
 import { RecipeExportOnlyDialog } from "@/components/recipes/export/recipe-export-only-dialog";
 import { RecipeShareDialog } from "@/components/recipes/export/recipe-share-dialog";
+import { RecipeLayoutCustomizer } from "@/components/recipes/recipe-layout-customizer";
+import { updateRecipeLayoutPreferencesAuto } from "@/app/actions/user-preferences";
 import { ReviewList } from "@/components/social/review-list";
 import { RatingBadge } from "@/components/ui/rating-badge";
 import { QuickRatingPopover } from "@/components/recipes/quick-rating-popover";
@@ -120,6 +123,26 @@ function getRecipeIcon(recipeType: RecipeType) {
   }
 }
 
+// Filter tags to remove duplicates that appear in category or protein_type
+function getDisplayTags(recipe: Recipe): string[] {
+  const excludedValues = new Set<string>();
+
+  // Exclude category if it exists (case-insensitive)
+  if (recipe.category) {
+    excludedValues.add(recipe.category.toLowerCase());
+  }
+
+  // Exclude protein_type if it exists (case-insensitive)
+  if (recipe.protein_type) {
+    excludedValues.add(recipe.protein_type.toLowerCase());
+  }
+
+  // Filter tags to remove duplicates
+  return recipe.tags.filter(
+    (tag) => !excludedValues.has(tag.toLowerCase())
+  );
+}
+
 interface RecipeDetailProps {
   recipe: Recipe;
   isFavorite: boolean;
@@ -152,11 +175,13 @@ export function RecipeDetail({
   const [showCookedDialog, setShowCookedDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [showLayoutCustomizer, setShowLayoutCustomizer] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isExtractingNutrition, setIsExtractingNutrition] = useState(false);
   const [localNutrition, setLocalNutrition] = useState<RecipeNutrition | null>(nutrition);
   const [localHistory, setLocalHistory] = useState(history);
+  const [localLayoutPrefs, setLocalLayoutPrefs] = useState(layoutPrefs);
   const router = useRouter();
 
   // Check if recipe was cooked today
@@ -222,10 +247,17 @@ export function RecipeDetail({
     }
   };
 
-  const handleExportPDF = () => {
-    // Open dedicated print page
-    window.open(`/app/recipes/${recipe.id}/print`, "_blank");
-    toast.success("Opening print view...");
+  const handleLayoutUpdate = async (newPrefs: RecipeLayoutPreferences) => {
+    // Optimistic update
+    setLocalLayoutPrefs(newPrefs);
+
+    // Save to server
+    const result = await updateRecipeLayoutPreferencesAuto(newPrefs);
+    if (result.error) {
+      toast.error("Failed to save layout");
+      // Revert on error
+      setLocalLayoutPrefs(layoutPrefs);
+    }
   };
 
   const handleDelete = async () => {
@@ -639,10 +671,11 @@ export function RecipeDetail({
     reviews: renderReviewsSection,
   };
 
-  // Check if section should be rendered
+  // Check if section should be rendered (uses localLayoutPrefs for optimistic updates)
   const shouldRenderSection = (sectionId: RecipeSectionId): boolean => {
-    const config = layoutPrefs.sections[sectionId];
-    if (!config.visible) return false;
+    const config = localLayoutPrefs.sections[sectionId];
+    // Defensive check for missing section config (schema migration edge case)
+    if (!config || !config.visible) return false;
 
     // Additional conditional checks based on data availability
     switch (sectionId) {
@@ -659,23 +692,24 @@ export function RecipeDetail({
     }
   };
 
-  // Render all customizable sections based on layout preferences
+  // Render all customizable sections based on layout preferences (uses localLayoutPrefs for optimistic updates)
   const renderDynamicSections = () => {
     const sections: React.ReactNode[] = [];
     let i = 0;
 
-    while (i < layoutPrefs.sectionOrder.length) {
-      const sectionId = layoutPrefs.sectionOrder[i];
-      const config = layoutPrefs.sections[sectionId];
+    while (i < localLayoutPrefs.sectionOrder.length) {
+      const sectionId = localLayoutPrefs.sectionOrder[i];
+      const config = localLayoutPrefs.sections[sectionId];
 
-      if (!shouldRenderSection(sectionId)) {
+      // Skip if section config is missing or shouldn't render
+      if (!config || !shouldRenderSection(sectionId)) {
         i++;
         continue;
       }
 
       // Check if this and next section are both half-width and visible
-      const nextSectionId = layoutPrefs.sectionOrder[i + 1];
-      const nextConfig = nextSectionId ? layoutPrefs.sections[nextSectionId] : null;
+      const nextSectionId = localLayoutPrefs.sectionOrder[i + 1];
+      const nextConfig = nextSectionId ? localLayoutPrefs.sections[nextSectionId] : null;
       const nextShouldRender = nextSectionId ? shouldRenderSection(nextSectionId) : false;
 
       const isHalf = config.width === "half";
@@ -799,10 +833,26 @@ export function RecipeDetail({
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Recipe
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowLayoutCustomizer(true)}>
+                      <LayoutGrid className="h-4 w-4 mr-2" />
+                      Customize Layout
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setShowExportDialog(true)}>
                       <Download className="h-4 w-4 mr-2" />
                       Export
                     </DropdownMenuItem>
+                    {recipe.source_url && (
+                      <DropdownMenuItem asChild>
+                        <a
+                          href={recipe.source_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          View Source
+                        </a>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem
                       onClick={() => setDeleteDialogOpen(true)}
                       className="text-destructive focus:text-destructive"
@@ -905,16 +955,19 @@ export function RecipeDetail({
             </Alert>
           )}
 
-          {/* Tags */}
-          {recipe.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {recipe.tags.map((tag) => (
-                <Badge key={tag} variant="secondary">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
+          {/* Tags (filtered to remove duplicates from category/protein_type) */}
+          {(() => {
+            const displayTags = getDisplayTags(recipe);
+            return displayTags.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {displayTags.map((tag) => (
+                  <Badge key={tag} variant="secondary">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            ) : null;
+          })()}
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-2">
@@ -939,18 +992,6 @@ export function RecipeDetail({
                 Start Cooking Mode
               </Link>
             </Button>
-            {recipe.source_url && (
-              <Button variant="outline" asChild>
-                <a
-                  href={recipe.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  View Source
-                </a>
-              </Button>
-            )}
             <Button variant="outline" onClick={() => setShowShareDialog(true)}>
               <Share2 className="mr-2 h-4 w-4" />
               Share
@@ -1012,6 +1053,14 @@ export function RecipeDetail({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Layout Customizer Dialog */}
+      <RecipeLayoutCustomizer
+        open={showLayoutCustomizer}
+        onOpenChange={setShowLayoutCustomizer}
+        layoutPrefs={localLayoutPrefs}
+        onUpdate={handleLayoutUpdate}
+      />
     </>
   );
 }
