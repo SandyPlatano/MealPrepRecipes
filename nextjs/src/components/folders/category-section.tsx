@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Pencil, Trash2, FolderPlus } from "lucide-react";
 import { toast } from "sonner";
-import type { FolderCategoryWithFolders, FolderWithChildren, ActiveFolderFilter } from "@/types/folder";
+import type { FolderCategoryWithFolders, FolderWithChildren, ActiveFolderFilter, FolderCategory } from "@/types/folder";
+import type { PinnedItem } from "@/types/user-preferences-v2";
 import { deleteFolderCategory } from "@/app/actions/folders";
 import { FolderTreeItem } from "./folder-tree-item";
 import { CategoryDialog } from "./category-dialog";
@@ -32,6 +33,8 @@ interface CategorySectionProps {
   activeFilter: ActiveFolderFilter;
   onFilterChange: (filter: ActiveFolderFilter) => void;
   allFolders: FolderWithChildren[];
+  allCategories: FolderCategory[];
+  pinnedItems: PinnedItem[];
 }
 
 export function CategorySection({
@@ -39,6 +42,8 @@ export function CategorySection({
   activeFilter,
   onFilterChange,
   allFolders,
+  allCategories,
+  pinnedItems,
 }: CategorySectionProps) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -133,6 +138,8 @@ export function CategorySection({
                 }
                 activeChildId={activeChildId}
                 allFolders={allFolders}
+                categories={allCategories}
+                pinnedItems={pinnedItems}
               />
             ))}
           </div>

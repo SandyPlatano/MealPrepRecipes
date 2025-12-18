@@ -322,16 +322,30 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
               <Select
                 value={recipeType}
                 onValueChange={(value) => setRecipeType(value as RecipeType)}
+                disabled={typesLoading}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder={typesLoading ? "Loading..." : "Select type"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {recipeTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
+                  {customRecipeTypes.length > 0 ? (
+                    // Use custom recipe types from the household
+                    customRecipeTypes.map((type) => (
+                      <SelectItem key={type.id} value={type.name}>
+                        <span className="flex items-center gap-2">
+                          {type.emoji && <span>{type.emoji}</span>}
+                          <span>{type.name}</span>
+                        </span>
+                      </SelectItem>
+                    ))
+                  ) : (
+                    // Fallback to default types if custom types not loaded
+                    DEFAULT_RECIPE_TYPES.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>

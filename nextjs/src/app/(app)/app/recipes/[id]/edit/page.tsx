@@ -34,7 +34,7 @@ export default async function EditRecipePage({ params }: EditRecipePageProps) {
         </div>
       </div>
 
-      <RecipeForm recipe={result.data} />
+      <RecipeForm recipe={result.data} householdId={result.data.household_id} />
     </div>
   );
 }

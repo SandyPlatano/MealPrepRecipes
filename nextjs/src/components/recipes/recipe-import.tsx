@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { RecipeForm } from "./recipe-form";
+import { useSettings } from "@/contexts/settings-context";
 import type { RecipeFormData } from "@/types/recipe";
 import { getNetworkErrorMessage, cn } from "@/lib/utils";
 import { createRecipe } from "@/app/actions/recipes";
@@ -55,6 +56,9 @@ interface ImportStats {
 }
 
 export function RecipeImport() {
+  const { household } = useSettings();
+  const householdId = household?.household?.id ?? null;
+
   const [mode, setMode] = useState<ImportMode>("paste");
   const [pasteText, setPasteText] = useState("");
   const [urlInputs, setUrlInputs] = useState<string[]>([""]);
@@ -555,6 +559,7 @@ export function RecipeImport() {
           key={currentReviewIndex}
           initialData={currentRecipe}
           nutritionEnabled={nutritionEnabled}
+          householdId={householdId}
           onSaveSuccess={handleRecipeSaved}
         />
       </div>
@@ -584,7 +589,7 @@ export function RecipeImport() {
             </Button>
           </div>
         </div>
-        <RecipeForm initialData={parsedRecipe} nutritionEnabled={nutritionEnabled} />
+        <RecipeForm initialData={parsedRecipe} nutritionEnabled={nutritionEnabled} householdId={householdId} />
       </div>
     );
   }
@@ -620,7 +625,7 @@ export function RecipeImport() {
       </div>
 
       {/* Manual Entry */}
-      {mode === "manual" && <RecipeForm nutritionEnabled={nutritionEnabled} />}
+      {mode === "manual" && <RecipeForm nutritionEnabled={nutritionEnabled} householdId={householdId} />}
 
       {/* Paste Text */}
       {mode === "paste" && (

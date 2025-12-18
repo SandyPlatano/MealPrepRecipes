@@ -40,6 +40,7 @@ import type {
   FolderCategory,
 } from "@/types/folder";
 import type { SystemSmartFolder } from "@/types/smart-folder";
+import type { PinnedItem } from "@/types/user-preferences-v2";
 import { CategorySection } from "./category-section";
 import { CategoryDialog } from "./category-dialog";
 import { SmartFolderDialog } from "./smart-folder-dialog";
@@ -55,6 +56,8 @@ interface FolderSidebarProps {
   systemSmartFolders: SystemSmartFolder[];
   userSmartFolders: FolderWithChildren[];
   smartFolderCounts: Record<string, number>;
+  // Pinned items
+  pinnedItems: PinnedItem[];
 }
 
 export function FolderSidebar({
@@ -66,6 +69,7 @@ export function FolderSidebar({
   systemSmartFolders,
   userSmartFolders,
   smartFolderCounts,
+  pinnedItems,
 }: FolderSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [createCategoryOpen, setCreateCategoryOpen] = useState(false);
@@ -276,6 +280,8 @@ export function FolderSidebar({
                 activeFilter={activeFilter}
                 onFilterChange={onFilterChange}
                 allFolders={folders}
+                allCategories={allCategories}
+                pinnedItems={pinnedItems}
               />
             ))}
 
