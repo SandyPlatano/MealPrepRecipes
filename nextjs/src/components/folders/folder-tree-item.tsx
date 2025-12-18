@@ -7,14 +7,14 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronRight, MoreHorizontal, Pencil, FolderPlus, Trash2 } from "lucide-react";
+import { ChevronRight, Pencil, FolderPlus, Trash2 } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import type { FolderWithChildren } from "@/types/folder";
@@ -71,77 +71,69 @@ export function FolderTreeItem({
   return (
     <>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <div
-          className={cn(
-            "flex items-center group",
-            depth > 0 && "ml-4"
-          )}
-        >
-          {hasChildren && (
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0">
-                <ChevronRight
-                  className={cn(
-                    "h-3 w-3 transition-transform",
-                    isOpen && "rotate-90"
-                  )}
-                />
-              </Button>
-            </CollapsibleTrigger>
-          )}
-          {!hasChildren && <div className="w-6" />}
-
-          <Button
-            variant={isActive ? "secondary" : "ghost"}
-            className="flex-1 justify-start h-10 px-2"
-            onClick={onSelect}
-            disabled={isPending}
-          >
-            {folder.color && (
-              <span
-                className="w-2.5 h-2.5 rounded-full mr-2 shrink-0"
-                style={{ backgroundColor: folder.color }}
-              />
-            )}
-            {folder.emoji && <span className="mr-1.5">{folder.emoji}</span>}
-            {!folder.color && !folder.emoji && (
-              <span className="w-4 h-4 mr-1.5 text-muted-foreground">📁</span>
-            )}
-            <span className="truncate">{folder.name}</span>
-          </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-muted-foreground hover:text-foreground"
-              >
-                <MoreHorizontal className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
-                <Pencil className="h-4 w-4 mr-2" />
-                Edit Folder
-              </DropdownMenuItem>
-              {depth === 0 && (
-                <DropdownMenuItem onClick={() => setCreateSubfolderOpen(true)}>
-                  <FolderPlus className="h-4 w-4 mr-2" />
-                  Add Subfolder
-                </DropdownMenuItem>
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <div
+              className={cn(
+                "flex items-center group",
+                depth > 0 && "ml-4"
               )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="text-destructive"
-                onClick={handleDelete}
+            >
+              {hasChildren && (
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0">
+                    <ChevronRight
+                      className={cn(
+                        "h-3 w-3 transition-transform",
+                        isOpen && "rotate-90"
+                      )}
+                    />
+                  </Button>
+                </CollapsibleTrigger>
+              )}
+              {!hasChildren && <div className="w-6" />}
+
+              <Button
+                variant={isActive ? "secondary" : "ghost"}
+                className="flex-1 justify-start h-10 px-2"
+                onClick={onSelect}
+                disabled={isPending}
               >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Folder
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                {folder.color && (
+                  <span
+                    className="w-2.5 h-2.5 rounded-full mr-2 shrink-0"
+                    style={{ backgroundColor: folder.color }}
+                  />
+                )}
+                {folder.emoji && <span className="mr-1.5">{folder.emoji}</span>}
+                {!folder.color && !folder.emoji && (
+                  <span className="w-4 h-4 mr-1.5 text-muted-foreground">📁</span>
+                )}
+                <span className="truncate">{folder.name}</span>
+              </Button>
+            </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuItem onClick={() => setEditDialogOpen(true)}>
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit Folder
+            </ContextMenuItem>
+            {depth === 0 && (
+              <ContextMenuItem onClick={() => setCreateSubfolderOpen(true)}>
+                <FolderPlus className="h-4 w-4 mr-2" />
+                Add Subfolder
+              </ContextMenuItem>
+            )}
+            <ContextMenuSeparator />
+            <ContextMenuItem
+              className="text-destructive"
+              onClick={handleDelete}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Folder
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
 
         {hasChildren && (
           <CollapsibleContent>

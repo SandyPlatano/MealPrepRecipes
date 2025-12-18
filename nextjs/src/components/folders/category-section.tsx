@@ -3,12 +3,12 @@
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontal, Pencil, Trash2, FolderPlus } from "lucide-react";
+import { Pencil, Trash2, FolderPlus } from "lucide-react";
 import { toast } from "sonner";
 import type { FolderCategoryWithFolders, FolderWithChildren, ActiveFolderFilter } from "@/types/folder";
 import { deleteFolderCategory } from "@/app/actions/folders";
@@ -69,56 +69,50 @@ export function CategorySection({
   return (
     <>
       <div className="pt-4">
-        <div className="flex items-center justify-between px-2 mb-2">
-          <p className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-            {category.emoji && <span>{category.emoji}</span>}
-            {category.name}
-          </p>
-          <div className="flex items-center gap-0.5">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 text-muted-foreground hover:text-foreground"
-              onClick={() => setCreateFolderOpen(true)}
-              title="Add folder to this category"
-            >
-              <FolderPlus className="h-3 w-3" />
-            </Button>
-            {(canEdit || canDelete) && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 text-muted-foreground hover:text-foreground"
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <div className="flex items-center justify-between px-2 mb-2 cursor-default">
+              <p className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                {category.emoji && <span>{category.emoji}</span>}
+                {category.name}
+              </p>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCreateFolderOpen(true);
+                }}
+                title="Add folder to this category"
+              >
+                <FolderPlus className="h-3 w-3" />
+              </Button>
+            </div>
+          </ContextMenuTrigger>
+          {(canEdit || canDelete) && (
+            <ContextMenuContent>
+              {canEdit && (
+                <ContextMenuItem onClick={() => setEditDialogOpen(true)}>
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Edit Category
+                </ContextMenuItem>
+              )}
+              {canDelete && (
+                <>
+                  <ContextMenuSeparator />
+                  <ContextMenuItem
+                    className="text-destructive"
+                    onClick={() => setDeleteDialogOpen(true)}
                   >
-                    <MoreHorizontal className="h-3 w-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {canEdit && (
-                    <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
-                      <Pencil className="h-4 w-4 mr-2" />
-                      Edit Category
-                    </DropdownMenuItem>
-                  )}
-                  {canDelete && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={() => setDeleteDialogOpen(true)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete Category
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
-        </div>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Category
+                  </ContextMenuItem>
+                </>
+              )}
+            </ContextMenuContent>
+          )}
+        </ContextMenu>
 
         {category.folders.length === 0 ? (
           <p className="text-xs text-muted-foreground px-2 py-3 text-center">
