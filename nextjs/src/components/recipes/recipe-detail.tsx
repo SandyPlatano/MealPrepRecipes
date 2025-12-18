@@ -361,28 +361,36 @@ export function RecipeDetail({
             <TooltipProvider>
               <div className="flex items-center gap-2">
                 {/* Rating Badge */}
-                <QuickRatingPopover
-                  recipeId={recipe.id}
-                  currentRating={currentRating}
-                  onRated={setCurrentRating}
-                >
-                  {currentRating ? (
+                {currentRating ? (
+                  <QuickRatingPopover
+                    recipeId={recipe.id}
+                    currentRating={currentRating}
+                    onRated={setCurrentRating}
+                  >
                     <RatingBadge rating={currentRating} size="md" />
-                  ) : (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-muted-foreground/50 hover:text-yellow-500"
+                  </QuickRatingPopover>
+                ) : (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span>
+                        <QuickRatingPopover
+                          recipeId={recipe.id}
+                          currentRating={currentRating}
+                          onRated={setCurrentRating}
                         >
-                          <Star className="h-5 w-5" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Rate this recipe</TooltipContent>
-                    </Tooltip>
-                  )}
-                </QuickRatingPopover>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-muted-foreground/50 hover:text-yellow-500"
+                          >
+                            <Star className="h-5 w-5" />
+                          </Button>
+                        </QuickRatingPopover>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Rate this recipe</TooltipContent>
+                  </Tooltip>
+                )}
 
                 {/* Favorite Button */}
                 <Tooltip>

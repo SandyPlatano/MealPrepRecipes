@@ -38,9 +38,13 @@ export const RatingBadge = forwardRef<HTMLButtonElement, RatingBadgeProps>(
         ref={ref}
         type="button"
         onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onClick?.();
+          // Only stop propagation if there's a custom onClick handler
+          // This allows the PopoverTrigger to work when no onClick is provided
+          if (onClick) {
+            e.preventDefault();
+            e.stopPropagation();
+            onClick();
+          }
         }}
         className={cn(
           "inline-flex items-center gap-1 rounded-md transition-colors",
