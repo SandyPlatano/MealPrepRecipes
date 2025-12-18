@@ -129,20 +129,29 @@ export function SidebarBottomNav() {
           <Button
             variant="ghost"
             className={cn(
-              "w-full h-7 px-2.5 flex items-center justify-between",
-              "text-muted-foreground/60 hover:text-muted-foreground hover:bg-transparent",
-              isIconOnly && "px-0 justify-center"
+              "w-full h-7 px-2.5 flex items-center gap-2",
+              "hover:bg-transparent",
+              isIconOnly && "px-0 justify-center",
+              // Orange styling when collapsed, muted when expanded
+              isCollapsed
+                ? "text-brand-coral hover:text-brand-coral"
+                : "text-muted-foreground/60 hover:text-muted-foreground"
             )}
           >
+            {/* Gear icon - always visible */}
+            <Settings className="h-3 w-3 shrink-0" />
+
             {!isIconOnly && (
-              <span className="text-[11px] uppercase tracking-wider font-medium">
+              <span className="text-[11px] uppercase tracking-wider font-medium flex-1 text-left">
                 Settings
               </span>
             )}
+
+            {/* Chevron indicator */}
             {isCollapsed ? (
-              <ChevronUp className="h-3 w-3" />
+              <ChevronUp className="h-3 w-3 shrink-0" />
             ) : (
-              <ChevronDown className="h-3 w-3" />
+              <ChevronDown className="h-3 w-3 shrink-0" />
             )}
           </Button>
         </CollapsibleTrigger>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -52,6 +53,7 @@ export function SmartFolderDialog({
   folder,
   categories = [],
 }: SmartFolderDialogProps) {
+  const router = useRouter();
   const isEditing = !!folder;
   const [isPending, startTransition] = useTransition();
 
@@ -160,6 +162,8 @@ export function SmartFolderDialog({
       } else {
         toast.success(isEditing ? "Smart folder updated" : "Smart folder created");
         onOpenChange(false);
+        // Force refresh to update the sidebar with new folder
+        router.refresh();
       }
     });
   };

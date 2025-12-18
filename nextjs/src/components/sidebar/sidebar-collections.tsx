@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import {
   Folders,
   BookOpen,
@@ -13,6 +13,7 @@ import {
   Plus,
   Pencil,
   Trash2,
+  MoreHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,13 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -48,7 +56,9 @@ import { toast } from "sonner";
 import { SidebarSection } from "./sidebar-section";
 import { useSidebar } from "./sidebar-context";
 import { SmartFolderDialog } from "@/components/folders/smart-folder-dialog";
+import { CreateFolderDialog } from "@/components/folders/create-folder-dialog";
 import { deleteSmartFolder } from "@/app/actions/smart-folders";
+import { deleteFolder } from "@/app/actions/folders";
 import { getIconComponent } from "@/lib/sidebar/sidebar-icons";
 import type {
   FolderWithChildren,
@@ -78,6 +88,7 @@ export function SidebarCollections({
   customEmoji,
 }: SidebarCollectionsProps) {
   const { isIconOnly, closeMobile, isMobile } = useSidebar();
+  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -86,6 +97,10 @@ export function SidebarCollections({
   const [editingSmartFolder, setEditingSmartFolder] = useState<FolderWithChildren | null>(null);
   const [deletingSmartFolder, setDeletingSmartFolder] = useState<FolderWithChildren | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // Regular folder management state
+  const [createFolderOpen, setCreateFolderOpen] = useState(false);
+  const [deletingFolder, setDeletingFolder] = useState<FolderWithChildren | null>(null);
 
   // Check if we're on the recipes page
   const isOnRecipesPage = pathname === "/app/recipes" || pathname.startsWith("/app/recipes/");
@@ -134,10 +149,30 @@ export function SidebarCollections({
         toast.error(result.error);
       } else {
         toast.success("Smart folder deleted");
+        router.refresh();
       }
       setDeletingSmartFolder(null);
     });
   };
+
+  // Handle delete regular folder
+  const handleDeleteFolder = () => {
+    if (!deletingFolder) return;
+
+    startTransition(async () => {
+      const result = await deleteFolder(deletingFolder.id);
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Folder deleted");
+        router.refresh();
+      }
+      setDeletingFolder(null);
+    });
+  };
+
+  // Get all folders for CreateFolderDialog
+  const allFolders: FolderWithChildren[] = categories.flatMap((c) => c.folders);
 
   // Build categories array for SmartFolderDialog
   const allCategories: FolderCategory[] = categories.map((c) => ({
@@ -294,6 +329,25 @@ export function SidebarCollections({
           </div>
         </div>
 
+        {/* Folders Header */}
+        <div className="pt-2">
+          <div className="flex items-center justify-between px-3 py-1">
+            <p className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+              <FolderOpen className="h-3 w-3" />
+              Folders
+            </p>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-5 w-5 text-muted-foreground hover:text-foreground"
+              onClick={() => setCreateFolderOpen(true)}
+              title="Create folder"
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+
         {/* Categories */}
         {categories.map((category) => (
           <CategoryItem
@@ -301,6 +355,8 @@ export function SidebarCollections({
             category={category}
             isFilterActive={isFilterActive}
             onItemClick={handleClick}
+            onDeleteFolder={(folder) => setDeletingFolder(folder)}
+            onCreateFolder={() => setCreateFolderOpen(true)}
           />
         ))}
       </div>
@@ -337,6 +393,39 @@ export function SidebarCollections({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteSmartFolder}
+              disabled={isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Create Regular Folder Dialog */}
+      <CreateFolderDialog
+        open={createFolderOpen}
+        onOpenChange={setCreateFolderOpen}
+        folders={allFolders}
+      />
+
+      {/* Delete Regular Folder Confirmation Dialog */}
+      <AlertDialog
+        open={deletingFolder !== null}
+        onOpenChange={(open) => !open && setDeletingFolder(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this folder?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the &quot;{deletingFolder?.name}&quot; folder.
+              Your recipes will not be affected - they will remain in your collection.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteFolder}
               disabled={isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
@@ -418,21 +507,41 @@ function SmartFolderItem(props: SmartFolderItemProps) {
     );
   }
 
-  // User folders - render with context menu
+  // User folders - render with context menu and three-dot dropdown
   const { folder, isActive, onClick, onEdit, onDelete, onCreateNew } = props;
   const params = new URLSearchParams({
     filter: "smart",
     id: folder.id,
   });
 
+  // Shared menu content for both context menu and dropdown
+  const menuContent = (
+    <>
+      <DropdownMenuItem onClick={onEdit}>
+        <Pencil className="h-4 w-4 mr-2" />
+        Edit Smart Folder
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={onCreateNew}>
+        <Plus className="h-4 w-4 mr-2" />
+        Add Smart Folder
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem
+        className="text-destructive focus:text-destructive"
+        onClick={onDelete}
+      >
+        <Trash2 className="h-4 w-4 mr-2" />
+        Delete Smart Folder
+      </DropdownMenuItem>
+    </>
+  );
+
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          asChild
+        <div
           className={cn(
-            "w-full justify-start gap-3 h-9 px-3 relative",
+            "group flex items-center gap-1 h-9 px-3 relative rounded-md",
             "transition-all duration-150",
             isActive && [
               "bg-primary/10 text-primary",
@@ -442,7 +551,12 @@ function SmartFolderItem(props: SmartFolderItemProps) {
             !isActive && "text-muted-foreground hover:text-foreground hover:bg-accent"
           )}
         >
-          <Link href={`/app/recipes?${params.toString()}`} onClick={onClick}>
+          {/* Folder link */}
+          <Link
+            href={`/app/recipes?${params.toString()}`}
+            onClick={onClick}
+            className="flex items-center gap-3 flex-1 min-w-0"
+          >
             {folder.emoji ? (
               <span className="text-sm">{folder.emoji}</span>
             ) : folder.color ? (
@@ -455,7 +569,24 @@ function SmartFolderItem(props: SmartFolderItemProps) {
             )}
             <span className="flex-1 truncate text-sm">{folder.name}</span>
           </Link>
-        </Button>
+
+          {/* Three-dot menu - visible on hover */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0 transition-opacity"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {menuContent}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuItem onClick={onEdit}>
@@ -484,9 +615,17 @@ interface CategoryItemProps {
   category: FolderCategoryWithFolders;
   isFilterActive: (type: string, id?: string, system?: boolean) => boolean;
   onItemClick: () => void;
+  onDeleteFolder: (folder: FolderWithChildren) => void;
+  onCreateFolder: () => void;
 }
 
-function CategoryItem({ category, isFilterActive, onItemClick }: CategoryItemProps) {
+function CategoryItem({
+  category,
+  isFilterActive,
+  onItemClick,
+  onDeleteFolder,
+  onCreateFolder,
+}: CategoryItemProps) {
   const [isOpen, setIsOpen] = React.useState(true);
 
   if (category.folders.length === 0) return null;
@@ -516,6 +655,9 @@ function CategoryItem({ category, isFilterActive, onItemClick }: CategoryItemPro
             folder={folder}
             isActive={isFilterActive("folder", folder.id)}
             onClick={onItemClick}
+            onDelete={onDeleteFolder}
+            onCreateNew={onCreateFolder}
+            isFilterActive={isFilterActive}
           />
         ))}
       </CollapsibleContent>
@@ -528,10 +670,21 @@ interface FolderItemProps {
   folder: FolderWithChildren;
   isActive: boolean;
   onClick: () => void;
+  onDelete: (folder: FolderWithChildren) => void;
+  onCreateNew: () => void;
   depth?: number;
+  isFilterActive: (type: string, id?: string, system?: boolean) => boolean;
 }
 
-function FolderItem({ folder, isActive, onClick, depth = 0 }: FolderItemProps) {
+function FolderItem({
+  folder,
+  isActive,
+  onClick,
+  onDelete,
+  onCreateNew,
+  depth = 0,
+  isFilterActive,
+}: FolderItemProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const hasChildren = folder.children && folder.children.length > 0;
 
@@ -541,11 +694,9 @@ function FolderItem({ folder, isActive, onClick, depth = 0 }: FolderItemProps) {
   });
 
   const content = (
-    <Button
-      variant="ghost"
-      asChild
+    <div
       className={cn(
-        "w-full justify-start gap-2 h-9 px-3 relative",
+        "group flex items-center gap-1 h-9 px-3 relative rounded-md",
         "transition-all duration-150",
         depth > 0 && "ml-4",
         isActive && [
@@ -556,7 +707,12 @@ function FolderItem({ folder, isActive, onClick, depth = 0 }: FolderItemProps) {
         !isActive && "text-muted-foreground hover:text-foreground hover:bg-accent"
       )}
     >
-      <Link href={`/app/recipes?${params.toString()}`} onClick={onClick}>
+      {/* Folder link */}
+      <Link
+        href={`/app/recipes?${params.toString()}`}
+        onClick={onClick}
+        className="flex items-center gap-2 flex-1 min-w-0"
+      >
         {folder.emoji ? (
           <span className="text-sm">{folder.emoji}</span>
         ) : folder.color ? (
@@ -569,12 +725,40 @@ function FolderItem({ folder, isActive, onClick, depth = 0 }: FolderItemProps) {
         )}
         <span className="flex-1 truncate text-sm">{folder.name}</span>
         {folder.recipe_count > 0 && (
-          <span className="ml-auto text-xs text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {folder.recipe_count}
           </span>
         )}
       </Link>
-    </Button>
+
+      {/* Three-dot menu - visible on hover */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0 transition-opacity"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuItem onClick={onCreateNew}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Folder
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="text-destructive focus:text-destructive"
+            onClick={() => onDelete(folder)}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete Folder
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 
   if (!hasChildren) {
@@ -601,9 +785,12 @@ function FolderItem({ folder, isActive, onClick, depth = 0 }: FolderItemProps) {
           <FolderItem
             key={child.id}
             folder={child}
-            isActive={false} // TODO: check active state
+            isActive={isFilterActive("folder", child.id)}
             onClick={onClick}
+            onDelete={onDelete}
+            onCreateNew={onCreateNew}
             depth={depth + 1}
+            isFilterActive={isFilterActive}
           />
         ))}
       </CollapsibleContent>

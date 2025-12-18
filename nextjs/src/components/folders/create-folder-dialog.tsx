@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,7 @@ export function CreateFolderDialog({
   parentFolderId,
   defaultCategoryId,
 }: CreateFolderDialogProps) {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [emoji, setEmoji] = useState<string | null>(null);
   const [color, setColor] = useState<string | null>(null);
@@ -71,6 +73,8 @@ export function CreateFolderDialog({
         setColor(null);
         setParentId(null);
         setCategoryId(defaultCategoryId || null);
+        // Force refresh to update the sidebar with new folder
+        router.refresh();
       }
     });
   };
