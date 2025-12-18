@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { NutritionFactsCard } from "@/components/nutrition";
@@ -26,8 +27,6 @@ import {
   Salad,
   ExternalLink,
   History,
-  Plus,
-  Minus,
   Play,
   MoreVertical,
   Download,

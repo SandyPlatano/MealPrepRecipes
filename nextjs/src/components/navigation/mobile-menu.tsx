@@ -19,14 +19,12 @@ import {
   History,
   Settings,
   Activity,
-  Sparkles,
   ChefHat,
   BarChart3,
   Package,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useQuickCook } from "@/components/quick-cook/quick-cook-provider";
 
 type IconKey = "plan" | "recipes" | "shop" | "history" | "favorites" | "settings" | "nutrition" | "prep" | "stats" | "pantry";
 
@@ -57,7 +55,6 @@ interface MobileMenuProps {
 
 export function MobileMenu({ navItems, settingsItem, logoutAction }: MobileMenuProps) {
   const pathname = usePathname();
-  const { openQuickCook } = useQuickCook();
 
   // Get all hrefs to check for more specific routes
   const allHrefs = [...navItems.map(item => item.href), settingsItem.href];

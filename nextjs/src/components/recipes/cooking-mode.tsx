@@ -44,6 +44,7 @@ import { DEFAULT_COOK_MODE_SETTINGS } from "@/types/settings";
 import { CookModeSettingsSheet } from "./cook-mode-settings-sheet";
 import { CookModeScrollableView } from "./cook-mode-scrollable-view";
 import { CookModeWizard } from "./cook-mode-wizard";
+import { CookModeIngredientsSheet } from "./cook-mode-ingredients-sheet";
 import { HINT_IDS } from "@/lib/hints";
 import { cn } from "@/lib/utils";
 import { useVoiceCommands } from "@/hooks/use-voice-commands";
@@ -387,7 +388,7 @@ export function CookingMode({
   return (
     <div
       className={cn(
-        "min-h-screen bg-background p-4 lg:p-8",
+        "min-h-screen bg-background p-6 lg:p-10",
         fontSizeClass,
         settings.display.highContrast && "contrast-more"
       )}
@@ -399,6 +400,41 @@ export function CookingMode({
         settings={settings}
         onSettingsChange={setSettings}
       />
+
+      {/* Mobile Ingredients Sheet */}
+      <CookModeIngredientsSheet
+        isOpen={ingredientsSheetOpen}
+        onClose={() => setIngredientsSheetOpen(false)}
+        ingredients={displayIngredients}
+        checkedIngredients={checkedIngredients}
+        highlightedIndices={highlightedIngredientIndices}
+        onToggleIngredient={toggleIngredient}
+      />
+
+      {/* Mobile FAB for Ingredients - Only visible on mobile/tablet */}
+      {settings.visibility.showIngredients && (
+        <button
+          onClick={() => setIngredientsSheetOpen(true)}
+          className={cn(
+            "fixed bottom-8 right-6 z-40 lg:hidden",
+            "h-16 w-16 rounded-full",
+            "bg-primary text-primary-foreground",
+            "shadow-xl shadow-primary/30",
+            "flex items-center justify-center",
+            "active:scale-95 transition-all duration-200",
+            "hover:shadow-2xl hover:shadow-primary/40"
+          )}
+          aria-label="View ingredients"
+        >
+          <UtensilsCrossed className="h-7 w-7" />
+          {/* Badge showing how many ingredients needed for this step */}
+          {highlightedIngredientIndices.size > 0 && (
+            <span className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-destructive text-destructive-foreground text-xs font-bold flex items-center justify-center">
+              {highlightedIngredientIndices.size}
+            </span>
+          )}
+        </button>
+      )}
 
       {/* Voice Listening Indicator - Fixed position */}
       {settings.voice.enabled && isListening && (
@@ -421,133 +457,161 @@ export function CookingMode({
         </div>
       )}
 
-      {/* Header */}
-      <div className="max-w-6xl mx-auto mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <Button variant="ghost" onClick={() => router.back()}>
-            <X className="h-5 w-5" />
+      {/* Simplified Header - Clean, focused design */}
+      <div className="max-w-6xl mx-auto mb-10">
+        <div className="flex items-center justify-between mb-6">
+          {/* Back Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.back()}
+            className="h-12 w-12"
+          >
+            <X className="h-6 w-6" />
           </Button>
-          <div className="flex items-center gap-2">
-            {/* Voice Commands Toggle Button - Always visible */}
-            <Button
-              variant={isListening ? "default" : "ghost"}
-              size="icon"
-              disabled={!voiceCommandsSupported}
-              onClick={() => {
-                if (!voiceCommandsSupported) {
-                  toast.error("Voice commands not supported in this browser. Try Chrome or Edge.");
-                  return;
-                }
-                if (isListening) {
-                  // Stop listening and disable voice
-                  stopListening();
-                  setSettings((prev) => ({
-                    ...prev,
-                    voice: { ...prev.voice, enabled: false },
-                  }));
-                  toast.info("Voice commands disabled");
-                } else {
-                  // Enable voice and start listening DIRECTLY (avoids stale closure issues)
-                  setSettings((prev) => ({
-                    ...prev,
-                    voice: { ...prev.voice, enabled: true },
-                  }));
-                  startListening(); // Call directly, don't wait for useEffect
-                  toast.success(`Voice commands enabled! Say "${settings.voice.wakeWord}" to start.`);
-                }
-              }}
-              title={
-                !voiceCommandsSupported
-                  ? "Voice commands not supported in this browser"
-                  : isListening
-                    ? "Stop voice commands"
-                    : voiceError
-                      ? `Voice error: ${voiceError}`
-                      : `Start voice commands (say "${settings.voice.wakeWord}")`
-              }
-            >
-              {isListening ? (
-                <Mic className="h-5 w-5" />
-              ) : (
-                <MicOff className={cn("h-5 w-5", voiceError && "text-destructive")} />
-              )}
-            </Button>
-            {/* Read Step Button */}
-            {voiceReadoutSupported && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={isSpeaking ? stopSpeaking : readCurrentStep}
-                title={isSpeaking ? "Stop reading" : "Read step aloud"}
-              >
-                <Volume2 className={cn("h-5 w-5", isSpeaking && "text-primary animate-pulse")} />
-              </Button>
-            )}
-            <Badge variant="outline">Cooking Mode</Badge>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleFullscreen}
-              title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-            >
-              {isFullscreen ? (
-                <Minimize className="h-5 w-5" />
-              ) : (
-                <Maximize className="h-5 w-5" />
-              )}
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSettingsOpen(true)}
-              title="Settings"
-            >
-              <Settings2 className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-        <h1 className="text-3xl lg:text-4xl font-mono font-bold">{recipe.title}</h1>
 
-        {/* Progress bar - conditional */}
+          {/* Center: Step Indicator (always visible, prominent) */}
+          <div className="text-center">
+            <span className="text-lg lg:text-xl font-bold">
+              Step {currentStep + 1} of {recipe.instructions.length}
+            </span>
+          </div>
+
+          {/* Right: Dropdown Menu for secondary controls */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-12 w-12">
+                <MoreVertical className="h-6 w-6" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              {/* Voice Commands */}
+              <DropdownMenuItem
+                disabled={!voiceCommandsSupported}
+                onClick={() => {
+                  if (!voiceCommandsSupported) {
+                    toast.error("Voice commands not supported in this browser. Try Chrome or Edge.");
+                    return;
+                  }
+                  if (isListening) {
+                    stopListening();
+                    setSettings((prev) => ({
+                      ...prev,
+                      voice: { ...prev.voice, enabled: false },
+                    }));
+                    toast.info("Voice commands disabled");
+                  } else {
+                    setSettings((prev) => ({
+                      ...prev,
+                      voice: { ...prev.voice, enabled: true },
+                    }));
+                    startListening();
+                    toast.success(`Voice commands enabled! Say "${settings.voice.wakeWord}" to start.`);
+                  }
+                }}
+              >
+                {isListening ? (
+                  <Mic className="h-4 w-4 mr-2" />
+                ) : (
+                  <MicOff className="h-4 w-4 mr-2" />
+                )}
+                {isListening ? "Disable Voice Commands" : "Enable Voice Commands"}
+              </DropdownMenuItem>
+
+              {/* Read Step Aloud */}
+              {voiceReadoutSupported && (
+                <DropdownMenuItem onClick={isSpeaking ? stopSpeaking : readCurrentStep}>
+                  <Volume2 className={cn("h-4 w-4 mr-2", isSpeaking && "text-primary")} />
+                  {isSpeaking ? "Stop Reading" : "Read Step Aloud"}
+                </DropdownMenuItem>
+              )}
+
+              <DropdownMenuSeparator />
+
+              {/* Fullscreen */}
+              <DropdownMenuItem onClick={toggleFullscreen}>
+                {isFullscreen ? (
+                  <Minimize className="h-4 w-4 mr-2" />
+                ) : (
+                  <Maximize className="h-4 w-4 mr-2" />
+                )}
+                {isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              {/* Settings */}
+              <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
+                <Settings2 className="h-4 w-4 mr-2" />
+                Settings
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Recipe Title */}
+        <h1 className="text-3xl lg:text-4xl font-mono font-bold mb-6">{recipe.title}</h1>
+
+        {/* Enhanced Progress bar - thicker, more visible */}
         {settings.visibility.showProgress && (
-          <>
-            <div className="mt-3 h-2.5 bg-muted rounded-full overflow-hidden">
+          <div className="mt-4">
+            <div className="h-3 lg:h-4 bg-muted/50 rounded-full overflow-hidden">
               <div
-                className="h-full bg-primary transition-all duration-300"
+                className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-500 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className="text-muted-foreground mt-2">
-              Step {currentStep + 1} of {recipe.instructions.length}
-            </p>
-          </>
+          </div>
         )}
       </div>
 
       <div
         className={cn(
-          "max-w-6xl mx-auto grid gap-8",
-          settings.visibility.showIngredients && "lg:grid-cols-[1fr_350px]"
+          "max-w-6xl mx-auto grid gap-10 lg:gap-12",
+          settings.visibility.showIngredients && "lg:grid-cols-[1fr_400px]"
         )}
       >
         {/* Main Content */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           {settings.navigation.mode === "step-by-step" ? (
             <>
               {/* Step-by-Step View with Swipe Support */}
               <div ref={swipeRef as React.RefObject<HTMLDivElement>}>
-                <Card className={cn("p-6 lg:p-10", isSwiping && "opacity-90 scale-[0.99] transition-transform")}>
-                  <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm lg:text-base font-medium text-muted-foreground">
-                      STEP {currentStep + 1}
-                    </span>
-                    {currentStep === recipe.instructions.length - 1 && (
-                      <Badge variant="default" className="gap-1">
-                        <Check className="h-3 w-3" />
-                        Final Step
-                      </Badge>
-                    )}
+                <Card className={cn("p-8 lg:p-12", isSwiping && "opacity-90 scale-[0.99] transition-transform")}>
+                  <div className="space-y-8">
+                  {/* Step Number Hero - Large, prominent, easy to scan */}
+                  <div className="flex items-center gap-6">
+                    <div
+                      className={cn(
+                        "flex-shrink-0",
+                        "w-16 h-16 lg:w-20 lg:h-20",
+                        "rounded-2xl lg:rounded-3xl",
+                        "bg-gradient-to-br from-primary to-primary/80",
+                        "text-primary-foreground",
+                        "flex items-center justify-center",
+                        "text-2xl lg:text-3xl font-bold font-mono",
+                        "shadow-lg shadow-primary/25",
+                        currentStep === recipe.instructions.length - 1 && "ring-4 ring-primary/30"
+                      )}
+                    >
+                      {currentStep + 1}
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm text-muted-foreground uppercase tracking-wider font-medium">
+                        Step
+                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg lg:text-xl font-semibold">
+                          {currentStep + 1} of {recipe.instructions.length}
+                        </span>
+                        {currentStep === recipe.instructions.length - 1 && (
+                          <Badge variant="default" className="gap-1">
+                            <Check className="h-3 w-3" />
+                            Final
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
                   </div>
                   <div className={cn("prose dark:prose-invert max-w-none prose-p:leading-relaxed", proseSizeClass)}>
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -562,7 +626,7 @@ export function CookingMode({
                       {(() => {
                         const detectedTimers = detectTimers(recipe.instructions[currentStep]);
                         return detectedTimers.length > 0 ? (
-                          <div className="flex flex-wrap gap-3 mt-8 pt-6 border-t">
+                          <div className="flex flex-wrap gap-4 mt-10 pt-8 border-t">
                             <span className="text-muted-foreground mr-2">
                               Detected timers:
                             </span>
@@ -582,7 +646,7 @@ export function CookingMode({
                       })()}
 
                       {/* Quick Timer Buttons */}
-                      <div className="flex flex-wrap gap-3 mt-6 pt-6 border-t">
+                      <div className="flex flex-wrap gap-4 mt-8 pt-6 border-t">
                         <span className="text-muted-foreground mr-2">Quick timers:</span>
                         {[5, 10, 15, 20, 30].map((mins) => (
                           <Button
@@ -600,14 +664,14 @@ export function CookingMode({
                 </Card>
               </div>
 
-              {/* Navigation */}
-              <div className="flex gap-3">
+              {/* Navigation - Enhanced for touch */}
+              <div className="flex gap-4">
                 <Button
                   variant="outline"
                   size="lg"
                   onClick={handlePrevStep}
                   disabled={currentStep === 0}
-                  className="flex-1 h-14"
+                  className="flex-1 h-16 text-base rounded-xl border-2"
                 >
                   <ChevronLeft className="h-5 w-5 mr-2" />
                   Previous
@@ -616,7 +680,7 @@ export function CookingMode({
                   size="lg"
                   onClick={handleNextStep}
                   disabled={currentStep === recipe.instructions.length - 1}
-                  className="flex-1 h-14"
+                  className="flex-1 h-16 text-base rounded-xl shadow-lg shadow-primary/20 active:scale-[0.98] transition-all"
                 >
                   Next
                   <ChevronRight className="h-5 w-5 ml-2" />
@@ -651,41 +715,46 @@ export function CookingMode({
           )}
         </div>
 
-        {/* Sidebar - only show if ingredients are visible */}
+        {/* Sidebar - only show on desktop if ingredients are visible */}
         {settings.visibility.showIngredients && (
-          <div className="space-y-6">
+          <div className="hidden lg:block space-y-8">
             {/* Timer display (always visible if timer is running) */}
             {(timerTotal > 0 || timerRunning) && (
-              <Card className="p-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <Timer className="h-5 w-5 text-primary" />
-                    <span className="font-medium">Timer</span>
+              <Card className="p-8">
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <Timer className="h-6 w-6 text-primary" />
+                    <span className="text-lg font-semibold">Timer</span>
                   </div>
                   <div className="text-center">
-                    <div className="text-5xl font-mono font-bold">
+                    <div className={cn(
+                      "text-6xl font-mono font-bold tabular-nums",
+                      timerRunning && "text-primary"
+                    )}>
                       {String(timerMinutes).padStart(2, "0")}:
                       {String(timerSeconds).padStart(2, "0")}
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-3 justify-center">
                     <Button
                       variant="outline"
-                      size="icon"
+                      size="lg"
                       onClick={toggleTimer}
+                      className="h-12 w-12"
                     >
                       {timerRunning ? (
-                        <Pause className="h-4 w-4" />
+                        <Pause className="h-5 w-5" />
                       ) : (
-                        <Play className="h-4 w-4" />
+                        <Play className="h-5 w-5" />
                       )}
                     </Button>
                     <Button
                       variant="outline"
-                      size="icon"
+                      size="lg"
                       onClick={resetTimer}
+                      className="h-12 w-12"
                     >
-                      <RotateCcw className="h-4 w-4" />
+                      <RotateCcw className="h-5 w-5" />
                     </Button>
                   </div>
                 </div>
@@ -693,13 +762,13 @@ export function CookingMode({
             )}
 
             {/* Ingredients Checklist with Current Step Highlighting */}
-            <Card className="p-6">
-              <div className="space-y-5">
+            <Card className="p-8">
+              <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-semibold">Ingredients</span>
                   <div className="flex items-center gap-2">
                     {highlightedIngredientIndices.size > 0 && (
-                      <Badge variant="secondary" className="gap-1 text-xs">
+                      <Badge variant="secondary" className="gap-1 text-sm">
                         {highlightedIngredientIndices.size} for this step
                       </Badge>
                     )}
@@ -711,14 +780,14 @@ export function CookingMode({
                     )}
                   </div>
                 </div>
-                <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                <div className="space-y-4 max-h-[500px] overflow-y-auto">
                   {displayIngredients.map((ingredient, index) => {
                     const isHighlighted = highlightedIngredientIndices.has(index);
                     return (
                       <div
                         key={index}
                         className={cn(
-                          "flex items-start gap-3 rounded-md p-2 -m-2 transition-colors",
+                          "flex items-start gap-4 rounded-lg p-3 -m-3 transition-colors",
                           isHighlighted && !checkedIngredients[index] && "bg-primary/10 ring-1 ring-primary/20"
                         )}
                       >
@@ -726,12 +795,12 @@ export function CookingMode({
                           id={`ingredient-${index}`}
                           checked={checkedIngredients[index]}
                           onCheckedChange={() => toggleIngredient(index)}
-                          className="mt-0.5 h-5 w-5"
+                          className="mt-0.5 h-6 w-6"
                         />
                         <label
                           htmlFor={`ingredient-${index}`}
                           className={cn(
-                            "leading-relaxed cursor-pointer flex-1",
+                            "text-base leading-relaxed cursor-pointer flex-1",
                             checkedIngredients[index] && "line-through text-muted-foreground",
                             isHighlighted && !checkedIngredients[index] && "font-medium text-primary"
                           )}

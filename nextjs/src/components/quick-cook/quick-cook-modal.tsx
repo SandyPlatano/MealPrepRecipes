@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { QuickCookInput } from './quick-cook-input';
-import { QuickCookResult } from './quick-cook-result';
+import { QuickCookResultCompact } from './quick-cook-result-compact';
 import type {
   QuickCookRequest,
   QuickCookSuggestion,
@@ -117,7 +117,7 @@ export function QuickCookModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2">
@@ -155,7 +155,7 @@ export function QuickCookModal({
 
           {/* Result State */}
           {state === 'result' && suggestion && (
-            <QuickCookResult
+            <QuickCookResultCompact
               suggestion={suggestion}
               remainingUses={remainingUses}
               onRegenerate={handleRegenerate}

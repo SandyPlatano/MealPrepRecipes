@@ -4,7 +4,9 @@ import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Shuffle, Clock, Star, ChefHat, Sparkles, Search, ArrowLeft } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Shuffle, Clock, Star, ChefHat, Sparkles, Search, ArrowLeft, Zap } from "lucide-react";
+import { useQuickCook } from "@/components/quick-cook/quick-cook-provider";
 import type { RecipeWithFavorite } from "@/types/recipe";
 import { RecipeCard } from "./recipe-card";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,6 +24,7 @@ export function RecipeDiscovery({ recipes, recentlyCookedIds }: RecipeDiscoveryP
   const [mode, setMode] = useState<DiscoveryMode | null>(null);
   const [ingredientSearch, setIngredientSearch] = useState("");
   const [discovered, setDiscovered] = useState<RecipeWithFavorite[]>([]);
+  const { openQuickCook } = useQuickCook();
 
   // Filter helpers
   const notRecentlyCooked = useMemo(() => {
@@ -161,9 +164,37 @@ export function RecipeDiscovery({ recipes, recentlyCookedIds }: RecipeDiscoveryP
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
+        {/* What Now? - AI-Powered */}
+        <Card
+          className="hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer group bg-gradient-to-br from-coral-50 to-orange-50 dark:from-coral-950/30 dark:to-orange-950/30 border-coral-200 dark:border-coral-800"
+          onClick={openQuickCook}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-full bg-coral-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                <Zap className="h-6 w-6 text-coral-500" />
+              </div>
+              <div>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  What Now?
+                  <Badge variant="secondary" className="text-[10px] bg-coral-100 text-coral-700 dark:bg-coral-900/50 dark:text-coral-300">
+                    AI
+                  </Badge>
+                </CardTitle>
+                <CardDescription>Get a personalized suggestion</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Tell us your time and energy level, and we&apos;ll suggest the perfect meal.
+            </p>
+          </CardContent>
+        </Card>
+
         {/* Surprise Me */}
-        <Card 
-          className="hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer group" 
+        <Card
+          className="hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer group"
           onClick={handleSurprise}
         >
           <CardHeader>
