@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useCallback, useEffect } from "react";
 import { useSettings } from "@/contexts/settings-context";
 import { SettingsHeader } from "@/components/settings/layout/settings-header";
 import { SettingRow, SettingSection } from "@/components/settings/shared/setting-row";
@@ -35,16 +34,32 @@ export default function MealPlanningSettingsPage() {
     updatePlannerSettings,
     updateEnergyModePrefs,
   } = useSettings();
-  const router = useRouter();
   const [googleAccount, setGoogleAccount] = useState<string | null>(null);
 
   // Energy mode preferences
   const energyPrefs = preferencesV2.energyMode;
 
+  // Fetch Google Calendar connection status
+  const fetchGoogleStatus = useCallback(async () => {
+    try {
+      const response = await fetch("/api/google-calendar/status");
+      if (response.ok) {
+        const data = await response.json();
+        setGoogleAccount(data.connectedAccount);
+      }
+    } catch (error) {
+      console.error("Failed to fetch Google Calendar status:", error);
+    }
+  }, []);
+
+  // Fetch on mount
+  useEffect(() => {
+    fetchGoogleStatus();
+  }, [fetchGoogleStatus]);
+
   const handleGoogleConnectionChange = useCallback(() => {
-    // Refresh page to get updated connection status
-    router.refresh();
-  }, [router]);
+    fetchGoogleStatus();
+  }, [fetchGoogleStatus]);
 
   return (
     <div className="space-y-8">

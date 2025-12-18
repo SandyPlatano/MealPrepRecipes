@@ -68,7 +68,7 @@ export async function getSettings() {
 
   // Try to get existing settings
   // Explicitly select columns to avoid schema cache issues with missing columns
-  // Note: recipe_export_preferences and unit_system are stored in the 'preferences' JSONB column, not as separate columns
+  // Note: recipe_export_preferences and unit_system should be stored in the 'preferences' JSONB column, not as separate columns
   // eslint-disable-next-line prefer-const -- selectError is not reassigned but settings is
   let { data: settings, error: selectError } = await supabase
     .from("user_settings")
