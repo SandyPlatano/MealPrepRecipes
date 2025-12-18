@@ -6,6 +6,7 @@ import {
   Keyboard,
   Database,
   Users,
+  MessageSquareHeart,
   type LucideIcon,
 } from "lucide-react";
 
@@ -16,7 +17,8 @@ export type SettingsCategoryId =
   | "dietary"
   | "shortcuts"
   | "data"
-  | "household";
+  | "household"
+  | "feedback";
 
 export interface SettingsCategory {
   id: SettingsCategoryId;
@@ -83,6 +85,14 @@ export const SETTINGS_CATEGORIES: SettingsCategory[] = [
     description: "Household members and shared settings",
     icon: Users,
     path: "/app/settings/household",
+  },
+  {
+    id: "feedback",
+    label: "Feedback",
+    shortLabel: "Feedback",
+    description: "Share your thoughts and help improve the app",
+    icon: MessageSquareHeart,
+    path: "/app/settings/feedback",
   },
 ];
 

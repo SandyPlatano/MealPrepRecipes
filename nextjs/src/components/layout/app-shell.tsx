@@ -4,11 +4,6 @@ import * as React from "react";
 import type { User } from "@supabase/supabase-js";
 import { cn } from "@/lib/utils";
 import {
-  ResizablePanelGroup,
-  ResizablePanel,
-  ResizableHandle,
-} from "@/components/ui/resizable";
-import {
   SidebarProvider,
   useSidebar,
   AppSidebar,
@@ -45,11 +40,6 @@ export function AppShell(props: AppShellProps) {
   );
 }
 
-// Default panel sizes (percentages)
-const DEFAULT_SIDEBAR_PERCENT = 18;
-const MIN_SIDEBAR_PERCENT = 4;
-const MAX_SIDEBAR_PERCENT = 28;
-
 function AppShellContent({
   children,
   user,
@@ -61,7 +51,7 @@ function AppShellContent({
   shoppingListCount,
   favoritesCount,
 }: AppShellProps) {
-  const { isMobile, setWidth, isCollapsed } = useSidebar();
+  const { isMobile, isCollapsed, width } = useSidebar();
   const [mounted, setMounted] = React.useState(false);
 
   // Handle SSR - mount state
@@ -78,20 +68,15 @@ function AppShellContent({
     favoritesCount,
   };
 
-  // Handle resize events
-  const handleLayout = React.useCallback((layout: { [panelId: string]: number }) => {
-    if (layout["sidebar"] !== undefined && typeof window !== "undefined") {
-      const newWidth = (layout["sidebar"] / 100) * window.innerWidth;
-      setWidth(newWidth);
-    }
-  }, [setWidth]);
+  // Calculate sidebar width
+  const sidebarWidth = isCollapsed ? SIDEBAR_DIMENSIONS.MIN_WIDTH : width;
 
   // Show loading state during SSR/hydration
   if (!mounted) {
     return (
       <div className="flex min-h-screen bg-background">
         <div className="w-[260px] border-r bg-muted/30 shrink-0" />
-        <main className="flex-1">
+        <main className="flex-1 min-w-0">
           <div className="container mx-auto w-full px-4 py-8">
             {children}
           </div>
@@ -129,49 +114,22 @@ function AppShellContent({
     );
   }
 
-  // Desktop layout: resizable sidebar + content
+  // Desktop layout: sidebar + content (simple flex layout)
   return (
     <div className="flex min-h-screen bg-background">
-      <ResizablePanelGroup
-        direction="horizontal"
-        className="min-h-screen"
-        onLayoutChange={handleLayout}
-      >
-        {/* Sidebar Panel */}
-        <ResizablePanel
-          id="sidebar"
-          defaultSize={isCollapsed ? MIN_SIDEBAR_PERCENT : DEFAULT_SIDEBAR_PERCENT}
-          minSize={MIN_SIDEBAR_PERCENT}
-          maxSize={MAX_SIDEBAR_PERCENT}
-          collapsible
-          collapsedSize={MIN_SIDEBAR_PERCENT}
-          className="min-w-[60px]"
-        >
-          <AppSidebar
-            user={user}
-            logoutAction={logoutAction}
-            {...sidebarProps}
-          />
-        </ResizablePanel>
+      {/* Sidebar - fixed width, doesn't shrink */}
+      <AppSidebar
+        user={user}
+        logoutAction={logoutAction}
+        {...sidebarProps}
+      />
 
-        {/* Resize Handle */}
-        <ResizableHandle
-          withHandle
-          className="w-1 bg-transparent hover:bg-primary/20 transition-colors"
-        />
-
-        {/* Main Content Panel */}
-        <ResizablePanel
-          id="main"
-          defaultSize={100 - (isCollapsed ? MIN_SIDEBAR_PERCENT : DEFAULT_SIDEBAR_PERCENT)}
-        >
-          <main className="flex-1 h-full overflow-y-auto">
-            <div className="container mx-auto w-full px-4 py-8">
-              {children}
-            </div>
-          </main>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+      {/* Main Content - takes remaining space */}
+      <main className="flex-1 min-w-0 h-screen overflow-y-auto">
+        <div className="container mx-auto w-full px-4 py-8">
+          {children}
+        </div>
+      </main>
     </div>
   );
 }

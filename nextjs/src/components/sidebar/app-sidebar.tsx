@@ -60,9 +60,9 @@ export function AppSidebar({
         aria-label="Main navigation"
         aria-expanded={!isCollapsed}
         className={cn(
-          "flex flex-col h-full bg-muted/30 border-r",
+          "flex flex-col h-screen bg-muted/30 border-r",
           "transition-[width] duration-200 ease-out",
-          "shrink-0 overflow-hidden"
+          "shrink-0 overflow-hidden sticky top-0"
         )}
         style={{ width: sidebarWidth }}
       >
