@@ -24,7 +24,7 @@ export function SidebarQuickNav({
         <SidebarActionItem
           icon={Search}
           label="Search"
-          shortcut="⌘K"
+          shortcut="/"
           onClick={onSearchClick}
         />
       )}

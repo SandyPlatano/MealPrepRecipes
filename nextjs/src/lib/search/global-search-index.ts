@@ -51,14 +51,14 @@ export const GLOBAL_ACTIONS_INDEX: SearchableAction[] = [
     href: "/app/settings",
   },
   {
-    id: "go-community",
-    label: "Go to Community",
-    description: "Discover recipes from other cooks",
+    id: "go-discover",
+    label: "Discover Recipes",
+    description: "Explore recipes from other cooks",
     keywords: ["community", "discover", "explore", "social", "public", "browse"],
     category: "navigation",
     icon: "Users",
     behavior: "navigate",
-    href: "/app/community",
+    href: "/app/recipes/discover",
   },
   {
     id: "go-pantry",

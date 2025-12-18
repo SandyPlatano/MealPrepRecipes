@@ -115,7 +115,7 @@ export function GlobalSearchProvider({ children }: GlobalSearchProviderProps) {
             .filter(Boolean)
             .join(" ") || profile.bio || undefined,
           imageUrl: profile.avatar_url,
-          href: `/cook/${profile.username}`,
+          href: `/profile/${profile.username}`,
           profile,
         });
       }
