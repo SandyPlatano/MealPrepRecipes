@@ -49,17 +49,19 @@ export async function POST(request: NextRequest) {
           const tier = session.metadata?.tier;
 
           if (userId && tier) {
-            // Update user's subscription in database
+            // Upsert subscription in the subscriptions table
             const { error: updateError } = await supabase
-              .from('user_settings')
+              .from('subscriptions')
               .upsert({
                 user_id: userId,
-                subscription_tier: tier,
+                tier: tier,
                 stripe_customer_id: session.customer as string,
                 stripe_subscription_id: session.subscription as string,
-                subscription_status: 'active',
-                subscription_started_at: new Date().toISOString(),
+                status: 'active',
+                cancel_at_period_end: false,
                 updated_at: new Date().toISOString()
+              }, {
+                onConflict: 'user_id'
               });
 
             if (updateError) {
@@ -73,13 +75,15 @@ export async function POST(request: NextRequest) {
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
         const periodEnd = (subscription as unknown as { current_period_end: number }).current_period_end;
+        const cancelAtPeriodEnd = (subscription as unknown as { cancel_at_period_end: boolean }).cancel_at_period_end;
 
-        // Update subscription status
+        // Update subscription status in subscriptions table
         const { error: updateError } = await supabase
-          .from('user_settings')
+          .from('subscriptions')
           .update({
-            subscription_status: subscription.status,
-            subscription_current_period_end: new Date(periodEnd * 1000).toISOString(),
+            status: subscription.status,
+            current_period_end: new Date(periodEnd * 1000).toISOString(),
+            cancel_at_period_end: cancelAtPeriodEnd || false,
             updated_at: new Date().toISOString()
           })
           .eq('stripe_subscription_id', subscription.id);
@@ -93,13 +97,12 @@ export async function POST(request: NextRequest) {
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
 
-        // Downgrade to free tier
+        // Downgrade to free tier in subscriptions table
         const { error: updateError } = await supabase
-          .from('user_settings')
+          .from('subscriptions')
           .update({
-            subscription_tier: 'free',
-            subscription_status: 'canceled',
-            subscription_ended_at: new Date().toISOString(),
+            tier: 'free',
+            status: 'canceled',
             updated_at: new Date().toISOString()
           })
           .eq('stripe_subscription_id', subscription.id);
@@ -115,17 +118,17 @@ export async function POST(request: NextRequest) {
         const invoiceSubscriptionId = (invoice as unknown as { subscription: string | null }).subscription;
 
         if (invoiceSubscriptionId) {
-          // Update last payment date
+          // Ensure subscription is marked as active after successful payment
           const { error: updateError } = await supabase
-            .from('user_settings')
+            .from('subscriptions')
             .update({
-              last_payment_date: new Date().toISOString(),
+              status: 'active',
               updated_at: new Date().toISOString()
             })
             .eq('stripe_subscription_id', invoiceSubscriptionId);
 
           if (updateError) {
-            console.error('Error updating payment date:', updateError);
+            console.error('Error updating subscription status:', updateError);
           }
         }
         break;
@@ -136,11 +139,11 @@ export async function POST(request: NextRequest) {
         const failedSubscriptionId = (invoice as unknown as { subscription: string | null }).subscription;
 
         if (failedSubscriptionId) {
-          // Mark subscription as past_due
+          // Mark subscription as past_due in subscriptions table
           const { error: updateError } = await supabase
-            .from('user_settings')
+            .from('subscriptions')
             .update({
-              subscription_status: 'past_due',
+              status: 'past_due',
               updated_at: new Date().toISOString()
             })
             .eq('stripe_subscription_id', failedSubscriptionId);

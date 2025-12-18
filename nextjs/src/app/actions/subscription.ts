@@ -30,18 +30,11 @@ export async function getSubscriptionData(): Promise<{
     return { error: "Not authenticated", data: null };
   }
 
-  // Get subscription from database
+  // Get subscription from database (includes stripe_customer_id)
   const { data: subscription } = await supabase
     .from("subscriptions")
     .select("*")
     .eq("user_id", user.id)
-    .maybeSingle();
-
-  // Get stripe customer ID from profile
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("stripe_customer_id")
-    .eq("id", user.id)
     .maybeSingle();
 
   if (!subscription) {
@@ -52,7 +45,7 @@ export async function getSubscriptionData(): Promise<{
         status: null,
         currentPeriodEnd: null,
         cancelAtPeriodEnd: false,
-        stripeCustomerId: profile?.stripe_customer_id || null,
+        stripeCustomerId: null,
       },
     };
   }
@@ -64,7 +57,7 @@ export async function getSubscriptionData(): Promise<{
       status: subscription.status,
       currentPeriodEnd: subscription.current_period_end,
       cancelAtPeriodEnd: subscription.cancel_at_period_end || false,
-      stripeCustomerId: profile?.stripe_customer_id || null,
+      stripeCustomerId: subscription.stripe_customer_id || null,
     },
   };
 }
