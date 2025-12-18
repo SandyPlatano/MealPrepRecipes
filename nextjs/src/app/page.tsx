@@ -178,7 +178,7 @@ export default function Home() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl text-cream">Pro</CardTitle>
                 <div className="pt-2">
-                  <span className="text-3xl font-mono font-bold text-cream">$5</span>
+                  <span className="text-3xl font-mono font-bold text-cream">$7</span>
                   <span className="text-cream/60 text-sm">/mo</span>
                 </div>
               </CardHeader>
