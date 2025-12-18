@@ -696,6 +696,14 @@ export async function getCookModeSettings(): Promise<{
         ...DEFAULT_COOK_MODE_SETTINGS.gestures,
         ...cookMode.gestures,
       },
+      audio: {
+        ...DEFAULT_COOK_MODE_SETTINGS.audio,
+        ...cookMode.audio,
+      },
+      timers: {
+        ...DEFAULT_COOK_MODE_SETTINGS.timers,
+        ...cookMode.timers,
+      },
     },
   };
 }
@@ -754,6 +762,14 @@ export async function updateCookModeSettings(
     gestures: {
       ...existingCookMode.gestures,
       ...(newSettings.gestures || {}),
+    },
+    audio: {
+      ...existingCookMode.audio,
+      ...(newSettings.audio || {}),
+    },
+    timers: {
+      ...existingCookMode.timers,
+      ...(newSettings.timers || {}),
     },
   };
 
