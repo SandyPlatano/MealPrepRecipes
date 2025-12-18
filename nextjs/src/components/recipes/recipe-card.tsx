@@ -399,7 +399,11 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-muted-foreground/50 hover:text-yellow-500"
-                        onClick={() => setShowRatingDialog(true)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setShowRatingDialog(true);
+                        }}
                       >
                         <Star className="h-4 w-4" />
                       </Button>

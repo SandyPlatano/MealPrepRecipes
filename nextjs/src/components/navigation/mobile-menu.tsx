@@ -114,17 +114,6 @@ export function MobileMenu({ navItems, settingsItem, logoutAction }: MobileMenuP
             );
           })}
 
-          {/* Quick Cook button - prominent placement */}
-          <SheetClose asChild>
-            <Button
-              onClick={openQuickCook}
-              className="w-full justify-start text-base bg-coral-500 hover:bg-coral-600 text-white mt-2"
-            >
-              <Sparkles className="mr-3 h-4 w-4" />
-              What now?
-            </Button>
-          </SheetClose>
-
           <div className="border-t my-3" />
           <SheetClose asChild>
             <Link href={settingsItem.href}>

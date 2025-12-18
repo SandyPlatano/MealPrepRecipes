@@ -6,7 +6,6 @@ import { AppNav } from './app-nav';
 import { MobileMenu } from './mobile-menu';
 import { SettingsButton } from './settings-button';
 import { ScrollHeader } from './scroll-header';
-import { QuickCookHeaderTrigger } from '@/components/quick-cook/quick-cook-provider';
 
 type NavItem = {
   href: string;
@@ -21,7 +20,7 @@ interface AppHeaderProps {
 }
 
 /**
- * Client-side app header with Quick Cook trigger integration.
+ * Client-side app header.
  * Separates client-side interactivity from the server layout.
  */
 export function AppHeader({ navItems, settingsItem, logoutAction }: AppHeaderProps) {
@@ -33,10 +32,9 @@ export function AppHeader({ navItems, settingsItem, logoutAction }: AppHeaderPro
         </Link>
 
         <div className="flex items-center gap-3">
-          {/* Desktop Navigation + Quick Cook + Settings grouped */}
+          {/* Desktop Navigation + Settings grouped */}
           <div className="hidden md:flex items-center gap-3">
             <AppNav items={navItems} variant="desktop" />
-            <QuickCookHeaderTrigger />
             <SettingsButton />
           </div>
 

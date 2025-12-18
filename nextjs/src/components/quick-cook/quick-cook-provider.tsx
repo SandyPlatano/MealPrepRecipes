@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useCallback, createContext, useContext, type ReactNode } from 'react';
-import { usePathname } from 'next/navigation';
-import { QuickCookModal, QuickCookFAB, QuickCookNavButton } from './quick-cook-modal';
+import { QuickCookModal } from './quick-cook-modal';
+import { saveQuickCookRecipe } from '@/app/actions/recipes';
 import type { QuickCookSuggestion } from '@/types/quick-cook';
 
 interface QuickCookContextValue {
@@ -28,29 +28,24 @@ interface QuickCookProviderProps {
 
 /**
  * Provider component that manages Quick Cook modal state.
- * Renders:
- * - The modal (available app-wide)
- * - Navigation button (in the header, desktop only)
- * - FAB (on homepage only, mobile-first)
+ * The modal is available app-wide and triggered from the Discovery page.
  */
 export function QuickCookProvider({
   children,
   householdSize = 2,
 }: QuickCookProviderProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname();
 
   const openQuickCook = useCallback(() => setIsOpen(true), []);
   const closeQuickCook = useCallback(() => setIsOpen(false), []);
 
   const handleSaveRecipe = async (suggestion: QuickCookSuggestion) => {
-    // TODO: Implement actual save to recipes functionality
-    // This would call a server action to save the recipe
-    console.log('Save recipe:', suggestion.title);
+    const result = await saveQuickCookRecipe(suggestion);
+    if (result.error) {
+      throw new Error(result.error);
+    }
+    closeQuickCook();
   };
-
-  // Show FAB only on the main app page (meal planner)
-  const showFAB = pathname === '/app' || pathname === '/app/plan';
 
   return (
     <QuickCookContext.Provider value={{ openQuickCook, closeQuickCook, isOpen }}>
@@ -63,18 +58,7 @@ export function QuickCookProvider({
         householdSize={householdSize}
         onSaveRecipe={handleSaveRecipe}
       />
-
-      {/* FAB - only on homepage */}
-      {showFAB && <QuickCookFAB onClick={openQuickCook} />}
     </QuickCookContext.Provider>
   );
 }
 
-/**
- * Navigation trigger button for the header.
- * Use this in the app layout header.
- */
-export function QuickCookHeaderTrigger() {
-  const { openQuickCook } = useQuickCook();
-  return <QuickCookNavButton onClick={openQuickCook} />;
-}

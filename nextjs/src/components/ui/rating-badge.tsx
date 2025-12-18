@@ -38,9 +38,8 @@ export const RatingBadge = forwardRef<HTMLButtonElement, RatingBadgeProps>(
         ref={ref}
         type="button"
         onClick={(e) => {
-          // Only prevent default to stop link navigation, don't stop propagation
-          // so that PopoverTrigger can receive the event
           e.preventDefault();
+          e.stopPropagation();
           onClick?.();
         }}
         className={cn(

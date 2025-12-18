@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCachedUser, getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
 import { revalidatePath, revalidateTag } from "next/cache";
 import type { Recipe, RecipeFormData } from "@/types/recipe";
+import type { QuickCookSuggestion } from "@/types/quick-cook";
 import { randomUUID } from "crypto";
 import { isNutritionTrackingEnabled, extractNutritionForRecipeInternal } from "./nutrition";
 
@@ -132,6 +133,32 @@ export async function createRecipe(formData: RecipeFormData) {
   revalidatePath("/app/recipes");
   revalidateTag(`recipes-${authUser.id}`);
   return { error: null, data: data as Recipe };
+}
+
+// Save a Quick Cook AI suggestion as a recipe
+export async function saveQuickCookRecipe(suggestion: QuickCookSuggestion) {
+  // Convert QuickCookSuggestion to RecipeFormData
+  const formData: RecipeFormData = {
+    title: suggestion.title,
+    recipe_type: "Dinner", // Default type for AI suggestions
+    category: suggestion.cuisine || null,
+    protein_type: suggestion.protein_type || null,
+    prep_time: suggestion.active_time ? `${suggestion.active_time} min` : null,
+    cook_time: suggestion.total_time && suggestion.active_time
+      ? `${suggestion.total_time - suggestion.active_time} min`
+      : null,
+    servings: `${suggestion.servings}`,
+    base_servings: suggestion.servings,
+    ingredients: suggestion.ingredients.map(
+      (i) => `${i.quantity} ${i.item}${i.notes ? ` (${i.notes})` : ""}`
+    ),
+    instructions: suggestion.instructions,
+    tags: suggestion.tags || [],
+    notes: `AI-suggested recipe: "${suggestion.reason}"`,
+    allergen_tags: [],
+  };
+
+  return createRecipe(formData);
 }
 
 // Update an existing recipe
