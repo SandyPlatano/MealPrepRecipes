@@ -22,9 +22,11 @@ import {
   ChefHat,
   BarChart3,
   Package,
+  Search,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useGlobalSearch } from "@/contexts/global-search-context";
 
 type IconKey = "plan" | "recipes" | "shop" | "history" | "favorites" | "settings" | "nutrition" | "prep" | "stats" | "pantry";
 
@@ -55,6 +57,7 @@ interface MobileMenuProps {
 
 export function MobileMenu({ navItems, settingsItem, logoutAction }: MobileMenuProps) {
   const pathname = usePathname();
+  const { openSearch } = useGlobalSearch();
 
   // Get all hrefs to check for more specific routes
   const allHrefs = [...navItems.map(item => item.href), settingsItem.href];
@@ -88,6 +91,23 @@ export function MobileMenu({ navItems, settingsItem, logoutAction }: MobileMenuP
           <SheetTitle className="font-mono text-left">Menu</SheetTitle>
         </SheetHeader>
         <div className="flex flex-col gap-2 mt-6">
+          {/* Search Button */}
+          <SheetClose asChild>
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-base hover:bg-primary/5"
+              onClick={openSearch}
+            >
+              <Search className="mr-3 h-4 w-4" />
+              Search
+              <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                /
+              </kbd>
+            </Button>
+          </SheetClose>
+
+          <div className="border-t my-2" />
+
           {navItems.map((item) => {
             const Icon = iconMap[item.iconKey];
             const active = isActive(item.href);

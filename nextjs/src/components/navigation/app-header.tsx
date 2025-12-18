@@ -36,8 +36,9 @@ export function AppHeader({ navItems, settingsItem, logoutAction }: AppHeaderPro
             <SettingsButton />
           </div>
 
-          {/* Mobile: Show notification bell */}
-          <div className="md:hidden">
+          {/* Mobile: Show search and notification bell */}
+          <div className="md:hidden flex items-center gap-1">
+            <SearchButton />
             <NotificationBell />
           </div>
 

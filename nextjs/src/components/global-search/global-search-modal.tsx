@@ -6,7 +6,7 @@
  * Notion-style command palette for searching recipes, quick actions, and people.
  */
 
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect, useState } from "react";
 import { useGlobalSearch } from "@/contexts/global-search-context";
 import {
   Dialog,
@@ -217,6 +217,7 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function GlobalSearchModal() {
+  const [isMounted, setIsMounted] = useState(false);
   const {
     isOpen,
     closeSearch,
@@ -233,6 +234,11 @@ export function GlobalSearchModal() {
   } = useGlobalSearch();
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Avoid hydration mismatch by only rendering after mount
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Focus input when modal opens
   useEffect(() => {
@@ -302,15 +308,18 @@ export function GlobalSearchModal() {
   const actionStartIndex = recipeResults.length;
   const profileStartIndex = recipeResults.length + actionResults.length;
 
+  // Don't render during SSR to avoid hydration issues
+  if (!isMounted) {
+    return null;
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && closeSearch()}>
       <DialogContent
         className="max-w-2xl p-0 gap-0 overflow-hidden"
         onKeyDown={handleKeyDown}
       >
-        <VisuallyHidden>
-          <DialogTitle>Search</DialogTitle>
-        </VisuallyHidden>
+        <DialogTitle className="sr-only">Search</DialogTitle>
 
         {/* Search Input */}
         <div className="flex items-center gap-3 px-4 py-3 border-b">
