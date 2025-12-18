@@ -5,6 +5,7 @@ import { BrandLogoCompact } from '@/components/brand/logo';
 import { AppNav, type NavItem } from './app-nav';
 import { MobileMenu } from './mobile-menu';
 import { SettingsButton } from './settings-button';
+import { SearchButton } from './search-button';
 import { ScrollHeader } from './scroll-header';
 import { NotificationBell } from '@/components/notifications';
 
@@ -27,9 +28,10 @@ export function AppHeader({ navItems, settingsItem, logoutAction }: AppHeaderPro
         </Link>
 
         <div className="flex items-center gap-3">
-          {/* Desktop Navigation + Notifications + Settings grouped */}
+          {/* Desktop Navigation + Search + Notifications + Settings grouped */}
           <div className="hidden md:flex items-center gap-3">
             <AppNav items={navItems} variant="desktop" />
+            <SearchButton />
             <NotificationBell />
             <SettingsButton />
           </div>
