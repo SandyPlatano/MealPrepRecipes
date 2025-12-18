@@ -11,3 +11,4 @@ export { SidebarMealPlan } from "./sidebar-meal-plan";
 export { SidebarCollections } from "./sidebar-collections";
 export { SidebarBottomNav } from "./sidebar-bottom-nav";
 export { SidebarCustomSection } from "./sidebar-custom-section";
+export { SidebarResizeHandle } from "./sidebar-resize-handle";

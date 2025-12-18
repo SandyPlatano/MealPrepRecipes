@@ -13,6 +13,7 @@ import { SidebarMealPlan } from "./sidebar-meal-plan";
 import { SidebarCollections } from "./sidebar-collections";
 import { SidebarBottomNav } from "./sidebar-bottom-nav";
 import { SidebarDivider } from "./sidebar-section";
+import { SidebarResizeHandle } from "./sidebar-resize-handle";
 import type {
   FolderWithChildren,
   FolderCategoryWithFolders,
@@ -131,7 +132,7 @@ export function AppSidebar({
         aria-label="Main navigation"
         aria-expanded={!isCollapsed}
         className={cn(
-          "flex flex-col h-screen bg-muted/30 border-r",
+          "relative flex flex-col h-screen bg-muted/30 border-r",
           "shrink-0 overflow-hidden sticky top-0"
         )}
         style={{ width: sidebarWidth }}
@@ -148,6 +149,9 @@ export function AppSidebar({
 
         {/* Bottom Navigation - Settings, Theme, Help */}
         <SidebarBottomNav />
+
+        {/* Resize Handle */}
+        <SidebarResizeHandle />
       </aside>
     </TooltipProvider>
   );

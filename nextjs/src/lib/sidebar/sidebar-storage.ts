@@ -12,6 +12,42 @@ export const SIDEBAR_DIMENSIONS = {
   COLLAPSE_THRESHOLD: 100, // Auto-collapse below this width
 } as const;
 
+/**
+ * Snap presets for drag-to-resize functionality
+ */
+export const SIDEBAR_PRESETS = {
+  ICON_ONLY: { width: 60, label: "Icon Only" },
+  COMPACT: { width: 180, label: "Compact" },
+  DEFAULT: { width: 260, label: "Default" },
+  WIDE: { width: 360, label: "Wide" },
+} as const;
+
+export type SidebarPreset = typeof SIDEBAR_PRESETS[keyof typeof SIDEBAR_PRESETS];
+
+/** Snap when within this many pixels of a preset */
+export const SNAP_THRESHOLD = 20;
+
+/**
+ * Get the preset that matches a given width (if within threshold)
+ */
+export function getSnapPreset(width: number): SidebarPreset | null {
+  const presets = Object.values(SIDEBAR_PRESETS);
+  for (const preset of presets) {
+    if (Math.abs(width - preset.width) <= SNAP_THRESHOLD) {
+      return preset;
+    }
+  }
+  return null;
+}
+
+/**
+ * Snap a width to the nearest preset if within threshold
+ */
+export function snapToNearestPreset(width: number): number {
+  const preset = getSnapPreset(width);
+  return preset ? preset.width : width;
+}
+
 export interface SidebarStorageState {
   width: number;
   isCollapsed: boolean;
