@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { MealTypeIcon } from "@/components/ui/meal-type-icon";
 import { type MealType, getMealTypeConfig } from "@/types/meal-plan";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +13,8 @@ interface MealSlotHeaderProps {
   customEmoji?: string;
   /** Custom color override from user settings (hex color) */
   customColor?: string;
+  /** Use Lucide icon instead of emoji (overrides customEmoji) */
+  useIcon?: boolean;
 }
 
 /**
@@ -25,6 +28,7 @@ export function MealSlotHeader({
   className,
   customEmoji,
   customColor,
+  useIcon = false,
 }: MealSlotHeaderProps) {
   if (mealCount === 0) return null;
 
@@ -47,7 +51,9 @@ export function MealSlotHeader({
         borderLeft: `4px solid ${accentColor}`,
       } : undefined}
     >
-      {displayEmoji && (
+      {useIcon ? (
+        <MealTypeIcon type={mealType ?? "other"} className="h-5 w-5 md:h-6 md:w-6" />
+      ) : displayEmoji && (
         <span className="text-lg md:text-xl" aria-hidden="true">
           {displayEmoji}
         </span>

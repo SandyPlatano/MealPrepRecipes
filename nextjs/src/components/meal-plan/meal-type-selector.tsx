@@ -6,6 +6,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
+import { MealTypeIcon } from "@/components/ui/meal-type-icon";
 import { type MealType, MEAL_TYPE_CONFIG } from "@/types/meal-plan";
 import type { MealTypeCustomization, MealTypeKey } from "@/types/settings";
 
@@ -18,6 +19,8 @@ interface MealTypeSelectorProps {
   compact?: boolean;
   /** Full meal type settings including emoji and color */
   mealTypeSettings?: MealTypeCustomization;
+  /** Use Lucide icon instead of emoji */
+  useIcon?: boolean;
 }
 
 export function MealTypeSelector({
@@ -27,6 +30,7 @@ export function MealTypeSelector({
   className,
   compact = false,
   mealTypeSettings,
+  useIcon = false,
 }: MealTypeSelectorProps) {
   const defaultConfig = MEAL_TYPE_CONFIG[value ?? "other"];
 

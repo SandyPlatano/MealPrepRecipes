@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { CartProvider } from "@/components/cart";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
@@ -28,12 +27,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
     >
       <TooltipProvider delayDuration={0}>
         <GlobalSearchProvider>
-          <CartProvider>
-            {children}
-            <ServiceWorkerRegistration />
-            <KeyboardShortcutsProvider />
-            <GlobalSearchModal />
-          </CartProvider>
+          {children}
+          <ServiceWorkerRegistration />
+          <KeyboardShortcutsProvider />
+          <GlobalSearchModal />
         </GlobalSearchProvider>
       </TooltipProvider>
     </ThemeProvider>
