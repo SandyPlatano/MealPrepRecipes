@@ -50,6 +50,8 @@ import { cn } from "@/lib/utils";
 import { useVoiceCommands } from "@/hooks/use-voice-commands";
 import { useVoiceReadout } from "@/hooks/use-voice-readout";
 import { useSwipeGesture } from "@/hooks/use-swipe-gesture";
+import { findMatchingCommand, DEFAULT_VOICE_COMMANDS } from "@/lib/default-voice-commands";
+import type { GestureAction } from "@/types/settings";
 
 interface CookingModeProps {
   recipe: Recipe;
@@ -125,6 +127,10 @@ export function CookingMode({
   const { speak, stop: stopSpeaking, isSpeaking, isSupported: voiceReadoutSupported } = useVoiceReadout({
     speed: settings.voice.readoutSpeed,
     enabled: settings.voice.enabled,
+    voiceName: settings.audio?.ttsVoice,
+    pitch: settings.audio?.ttsPitch,
+    rate: settings.audio?.ttsRate,
+    volume: settings.audio?.ttsVolume,
   });
 
   // Read current step aloud
@@ -160,6 +166,23 @@ export function CookingMode({
     setTimerTotal(0);
   }, []);
 
+  // Helper to read ingredients for current step
+  const readIngredientsForStep = useCallback(() => {
+    const stepIngredients: string[] = [];
+    highlightedIngredientIndices.forEach((index) => {
+      if (displayIngredients[index]) {
+        stepIngredients.push(displayIngredients[index]);
+      }
+    });
+
+    if (stepIngredients.length > 0) {
+      const ingredientList = stepIngredients.join(", ");
+      speak(`Ingredients for this step: ${ingredientList}`);
+    } else {
+      speak("No specific ingredients highlighted for this step");
+    }
+  }, [highlightedIngredientIndices, displayIngredients, speak]);
+
   // Voice commands hook
   const {
     isListening,
@@ -170,24 +193,134 @@ export function CookingMode({
     startListening,
     stopListening,
   } = useVoiceCommands({
+    wakeWords: settings.voice.wakeWords,
+    commandMappings: settings.voice.commandMappings,
+    commandTimeout: settings.voice.commandTimeout / 1000,
+    confirmCommands: settings.voice.confirmCommands,
     onNextStep: handleNextStep,
     onPrevStep: handlePrevStep,
     onSetTimer: startTimer,
     onStopTimer: resetTimer,
     onRepeat: readCurrentStep,
     onReadStep: readCurrentStep,
+    onReadIngredients: readIngredientsForStep,
+    onPause: () => {
+      stopSpeaking();
+    },
+    onResume: readCurrentStep,
     enabled: settings.voice.enabled,
-    wakeWord: settings.voice.wakeWord,
   });
 
-  // Swipe gesture hook for step navigation
+  // Execute gesture actions
+  const executeGestureAction = useCallback((action: GestureAction) => {
+    switch (action) {
+      case "none":
+        break;
+      case "repeat":
+        speak(currentStepText);
+        break;
+      case "timer":
+        // For now, just start a quick 5-minute timer
+        // Could be enhanced to open a timer picker
+        startTimer(5);
+        break;
+      case "ingredients":
+        setIngredientsSheetOpen(true);
+        break;
+      case "voice":
+        // Toggle voice listening
+        if (isListening) {
+          stopListening();
+        } else if (voiceCommandsSupported) {
+          startListening();
+        }
+        break;
+      case "fullscreen":
+        toggleFullscreen();
+        break;
+      case "settings":
+        setSettingsOpen(true);
+        break;
+      case "exit":
+        router.back();
+        break;
+    }
+  }, [currentStepText, speak, startTimer, isListening, stopListening, startListening, voiceCommandsSupported, router]);
+
+  // Swipe gesture hook for step navigation - with vertical swipe support
+  const [touchStartY, setTouchStartY] = useState<number>(0);
+  const [touchStartX, setTouchStartX] = useState<number>(0);
+
+  const handleSwipe = useCallback((direction: "left" | "right" | "up" | "down") => {
+    if (!settings.gestures.swipeEnabled) return;
+
+    switch (direction) {
+      case "left":
+        handleNextStep();
+        break;
+      case "right":
+        handlePrevStep();
+        break;
+      case "up":
+        executeGestureAction(settings.gestures.swipeUpAction);
+        break;
+      case "down":
+        executeGestureAction(settings.gestures.swipeDownAction);
+        break;
+    }
+
+    if (settings.gestures.hapticFeedback && navigator.vibrate) {
+      navigator.vibrate(30);
+    }
+  }, [settings.gestures, handleNextStep, handlePrevStep, executeGestureAction]);
+
   const { ref: swipeRef, isSwiping } = useSwipeGesture({
-    onSwipeLeft: handleNextStep, // Swipe left = next step
-    onSwipeRight: handlePrevStep, // Swipe right = previous step
+    onSwipeLeft: () => handleSwipe("left"),
+    onSwipeRight: () => handleSwipe("right"),
     threshold: 50,
     enabled: settings.gestures.swipeEnabled,
     hapticFeedback: settings.gestures.hapticFeedback,
   });
+
+  // Double-tap handler
+  const [lastTap, setLastTap] = useState<number>(0);
+
+  const handleTap = useCallback(() => {
+    const now = Date.now();
+    if (now - lastTap < 300) {
+      // Double tap detected
+      executeGestureAction(settings.gestures.doubleTapAction);
+      setLastTap(0);
+    } else {
+      setLastTap(now);
+      // Single tap logic (existing tapToAdvance)
+      if (settings.gestures.tapToAdvance) {
+        if (currentStep < safeInstructions.length - 1) {
+          setCurrentStep((prev) => prev + 1);
+        }
+      }
+    }
+  }, [lastTap, settings.gestures, currentStep, safeInstructions.length, executeGestureAction]);
+
+  // Long-press handler
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+
+  const handleTouchStart = useCallback(() => {
+    const timer = setTimeout(() => {
+      executeGestureAction(settings.gestures.longPressAction);
+      if (settings.gestures.hapticFeedback && navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    }, 500); // 500ms for long press
+    setLongPressTimer(timer);
+  }, [settings.gestures, executeGestureAction]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  }, [longPressTimer]);
 
   // Auto-read step when it changes (if enabled)
   useEffect(() => {
@@ -325,6 +458,20 @@ export function CookingMode({
     }
   }, [settings.behavior.autoAdvance, currentStep, safeInstructions.length]);
 
+  // Handle page title with timer
+  useEffect(() => {
+    if (settings.timers?.showTimerInTitle && timerRunning && (timerMinutes > 0 || timerSeconds > 0)) {
+      const timeStr = `${timerMinutes}:${timerSeconds.toString().padStart(2, "0")}`;
+      document.title = `${timeStr} - Cooking Mode`;
+    } else {
+      document.title = `Cooking ${recipe.title}`;
+    }
+
+    return () => {
+      document.title = "MealPrepRecipes";
+    };
+  }, [timerMinutes, timerSeconds, timerRunning, settings.timers?.showTimerInTitle, recipe.title]);
+
   // Timer logic with sound and auto-advance
   useEffect(() => {
     if (!timerRunning || (timerMinutes === 0 && timerSeconds === 0)) {
@@ -366,6 +513,33 @@ export function CookingMode({
   // Font size classes based on settings
   const fontSizeClass = FONT_SIZE_CLASSES[settings.display.fontSize];
   const proseSizeClass = PROSE_SIZE_CLASSES[settings.display.fontSize];
+
+  // Display customization helpers
+  const getHighlightStyle = useCallback((style: string) => {
+    switch (style) {
+      case "bold":
+        return "font-bold";
+      case "underline":
+        return "underline underline-offset-2";
+      case "background":
+        return `bg-[${settings.display.accentColor}]/20 px-1 rounded`;
+      case "badge":
+        return `inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-[${settings.display.accentColor}]/20`;
+      default:
+        return "font-semibold";
+    }
+  }, [settings.display.accentColor]);
+
+  const getTransitionClass = useCallback((transition: string) => {
+    switch (transition) {
+      case "fade":
+        return "transition-opacity duration-300";
+      case "slide":
+        return "transition-transform duration-300";
+      default:
+        return "";
+    }
+  }, []);
 
   // Handle wizard completion - apply new settings and close wizard
   const handleWizardComplete = useCallback((newSettings: CookModeSettings) => {
@@ -455,7 +629,7 @@ export function CookingMode({
             <span className="text-sm font-medium">
               {isAwaitingCommand
                 ? "Listening... say a command"
-                : `Say "${settings.voice.wakeWord}"`}
+                : `Say "${settings.voice.wakeWords?.[0] || "hey chef"}"`}
             </span>
           </div>
         </div>
@@ -510,7 +684,7 @@ export function CookingMode({
                       voice: { ...prev.voice, enabled: true },
                     }));
                     startListening();
-                    toast.success(`Voice commands enabled! Say "${settings.voice.wakeWord}" to start.`);
+                    toast.success(`Voice commands enabled! Say "${settings.voice.wakeWords?.[0] || "hey chef"}" to start.`);
                   }
                 }}
               >
@@ -580,8 +754,19 @@ export function CookingMode({
           {settings.navigation.mode === "step-by-step" ? (
             <>
               {/* Step-by-Step View with Swipe Support */}
-              <div ref={swipeRef as React.RefObject<HTMLDivElement>}>
-                <Card className={cn("p-8 lg:p-12", isSwiping && "opacity-90 scale-[0.99] transition-transform")}>
+              <div
+                ref={swipeRef as React.RefObject<HTMLDivElement>}
+                onClick={handleTap}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                onMouseDown={handleTouchStart}
+                onMouseUp={handleTouchEnd}
+              >
+                <Card className={cn(
+                  "p-8 lg:p-12",
+                  isSwiping && "opacity-90 scale-[0.99] transition-transform",
+                  getTransitionClass(settings.display.stepTransition)
+                )}>
                   <div className="space-y-8">
                   {/* Step Number Hero - Large, prominent, easy to scan */}
                   <div className="flex items-center gap-6">
@@ -652,7 +837,7 @@ export function CookingMode({
                       {/* Quick Timer Buttons */}
                       <div className="flex flex-wrap gap-4 mt-8 pt-6 border-t">
                         <span className="text-muted-foreground mr-2">Quick timers:</span>
-                        {[5, 10, 15, 20, 30].map((mins) => (
+                        {(settings.timers?.quickTimerPresets || [5, 10, 15, 20, 30]).map((mins) => (
                           <Button
                             key={mins}
                             variant="outline"

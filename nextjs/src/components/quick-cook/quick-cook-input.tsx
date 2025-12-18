@@ -85,7 +85,7 @@ export function QuickCookInput({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full overflow-hidden">
       {/* Progress indicator */}
       <div className="flex items-center justify-center gap-2">
         <div
@@ -123,21 +123,21 @@ export function QuickCookInput({
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 w-full">
             {TIME_OPTIONS.map((option) => (
               <Button
                 key={option.value}
                 variant="outline"
                 size="lg"
-                className={`h-auto py-4 flex flex-col items-center gap-1 ${
+                className={`h-auto py-3 sm:py-4 px-2 sm:px-4 flex flex-col items-center gap-1 ${
                   timeAvailable === option.value
                     ? 'border-coral-500 bg-coral-50 dark:bg-coral-950/20'
                     : ''
                 }`}
                 onClick={() => handleTimeSelect(option.value)}
               >
-                <span className="text-2xl font-bold">{option.label}</span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xl sm:text-2xl font-bold">{option.label}</span>
+                <span className="text-xs text-muted-foreground text-center">
                   {option.description}
                 </span>
               </Button>
@@ -162,28 +162,28 @@ export function QuickCookInput({
             </p>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 w-full">
             {(Object.entries(ENERGY_LEVEL_CONFIG) as [EnergyLevel, typeof ENERGY_LEVEL_CONFIG.zombie][]).map(
               ([level, config]) => (
                 <Button
                   key={level}
                   variant="outline"
                   size="lg"
-                  className={`w-full h-auto py-4 px-6 flex items-center gap-4 text-left ${
+                  className={`w-full h-auto py-3 sm:py-4 px-3 sm:px-4 flex items-center gap-3 text-left ${
                     energyLevel === level
                       ? 'border-coral-500 bg-coral-50 dark:bg-coral-950/20'
                       : ''
                   }`}
                   onClick={() => handleEnergySelect(level)}
                 >
-                  <span className="text-3xl">{config.emoji}</span>
-                  <div className="flex-1">
-                    <div className="font-semibold">{config.label}</div>
-                    <div className="text-sm text-muted-foreground">
+                  <span className="text-2xl sm:text-3xl flex-shrink-0">{config.emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold truncate">{config.label}</div>
+                    <div className="text-sm text-muted-foreground line-clamp-2">
                       {config.description}
                     </div>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                 </Button>
               )
             )}

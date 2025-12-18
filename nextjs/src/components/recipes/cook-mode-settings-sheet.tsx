@@ -14,6 +14,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import {
   ChevronDown,
   Settings2,
@@ -25,24 +26,53 @@ import {
   Moon,
   Monitor,
   Wand2,
+  Plus,
+  Settings,
+  Star,
+  Minus,
+  Sparkles,
+  Hand,
+  Focus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { updateCookModeSettings } from "@/app/actions/settings";
+import {
+  updateCookModeSettings,
+  getCustomCookModePresets,
+  saveCustomCookModePreset,
+  setDefaultCookModePreset
+} from "@/app/actions/settings";
 import { toast } from "sonner";
 import type {
   CookModeSettings,
   CookModeFontSize,
   CookModeTheme,
   CookModeNavigationMode,
+  CustomCookModePreset,
 } from "@/types/settings";
 import { COOK_MODE_PRESETS, getMatchingPreset } from "@/lib/cook-mode-presets";
 import { CookModeSettingsPreview } from "./cook-mode-settings-preview";
+import { CookModePresetEditor } from "./cook-mode-preset-editor";
 
 interface CookModeSettingsSheetProps {
   isOpen: boolean;
   onClose: () => void;
   settings: CookModeSettings;
   onSettingsChange: (settings: CookModeSettings) => void;
+}
+
+// Icon mapping for built-in presets
+const PRESET_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Minus,
+  Sparkles,
+  Hand,
+  Focus,
+};
+
+// Helper to get icon component from name
+function PresetIcon({ name, className }: { name: string; className?: string }) {
+  const IconComponent = PRESET_ICON_MAP[name];
+  if (!IconComponent) return null;
+  return <IconComponent className={className} />;
 }
 
 export function CookModeSettingsSheet({
@@ -53,11 +83,28 @@ export function CookModeSettingsSheet({
 }: CookModeSettingsSheetProps) {
   const [localSettings, setLocalSettings] = useState<CookModeSettings>(settings);
   const [isSaving, setIsSaving] = useState(false);
+  const [customPresets, setCustomPresets] = useState<CustomCookModePreset[]>([]);
+  const [loadingPresets, setLoadingPresets] = useState(true);
+  const [showPresetEditor, setShowPresetEditor] = useState(false);
 
   // Sync local settings when props change
   useEffect(() => {
     setLocalSettings(settings);
   }, [settings]);
+
+  // Load custom presets on mount
+  useEffect(() => {
+    async function loadPresets() {
+      const result = await getCustomCookModePresets();
+      if (!result.error) {
+        setCustomPresets(result.data);
+      }
+      setLoadingPresets(false);
+    }
+    if (isOpen) {
+      loadPresets();
+    }
+  }, [isOpen]);
 
   // Handle escape key
   useEffect(() => {
@@ -132,6 +179,31 @@ export function CookModeSettingsSheet({
     [onSettingsChange, saveSettings]
   );
 
+  // Apply a preset from settings object
+  const onApplyPreset = useCallback(
+    async (presetSettings: CookModeSettings) => {
+      setLocalSettings(presetSettings);
+      onSettingsChange(presetSettings);
+      saveSettings(presetSettings);
+      toast.success("Preset applied!");
+    },
+    [onSettingsChange, saveSettings]
+  );
+
+  // Handle save preset
+  const handleSavePreset = useCallback(
+    async (preset: Omit<CustomCookModePreset, "id" | "createdAt">) => {
+      const result = await saveCustomCookModePreset(preset);
+      if (!result.error && result.data) {
+        setCustomPresets((prev) => [...prev, result.data!]);
+        toast.success("Preset saved!");
+      } else {
+        toast.error("Failed to save preset");
+      }
+    },
+    []
+  );
+
   // Check if current settings match a preset
   const currentPreset = getMatchingPreset(localSettings);
 
@@ -199,6 +271,61 @@ export function CookModeSettingsSheet({
 
             {/* Right Column: All Settings */}
             <div className="space-y-4">
+              {/* Presets Section */}
+              <div className="space-y-3 pb-4 border-b">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Quick Presets</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPresetEditor(true)}
+                    className="h-8 px-2"
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Save Current
+                  </Button>
+                </div>
+
+                {/* Built-in Presets */}
+                <div className="grid grid-cols-2 gap-2">
+                  {COOK_MODE_PRESETS.map((preset) => (
+                    <Button
+                      key={preset.key}
+                      variant={currentPreset === preset.key ? "default" : "outline"}
+                      size="sm"
+                      className="justify-start h-9"
+                      onClick={() => onApplyPreset(preset.settings)}
+                    >
+                      <PresetIcon name={preset.icon} className="h-4 w-4 mr-2" />
+                      {preset.name}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* Custom Presets */}
+                {customPresets.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Your Presets</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {customPresets.map((preset) => (
+                        <Button
+                          key={preset.id}
+                          variant="outline"
+                          size="sm"
+                          className="justify-start h-9 relative"
+                          onClick={() => onApplyPreset(preset.settings)}
+                        >
+                          {preset.isDefault && (
+                            <Star className="h-3 w-3 absolute top-1 right-1 text-yellow-500 fill-yellow-500" />
+                          )}
+                          <span className="mr-2 text-base">{preset.icon}</span>
+                          <span className="truncate text-xs">{preset.name}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
               {/* Display Row - Font + Theme */}
               <div className="grid grid-cols-2 gap-3">
                 {/* Font Size */}
@@ -350,27 +477,32 @@ export function CookModeSettingsSheet({
                 </div>
               </div>
 
-              {/* Quick Presets - Inline */}
-              <div className="flex items-center gap-2 pt-2 border-t">
-                <Wand2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <div className="flex flex-wrap gap-1">
-                  {COOK_MODE_PRESETS.map((preset) => (
-                    <Button
-                      key={preset.key}
-                      variant={currentPreset === preset.key ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => applyPreset(preset.key)}
-                      className="h-6 text-[10px] px-2"
-                    >
-                      {preset.name}
-                    </Button>
-                  ))}
-                </div>
-              </div>
             </div>
+          </div>
+
+          {/* Link to Full Settings */}
+          <div className="mt-6 pt-4 border-t px-4">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                window.location.href = "/app/settings/cooking-mode";
+              }}
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              All Cooking Mode Settings
+            </Button>
           </div>
         </div>
       </div>
+
+      {/* Preset Editor Dialog */}
+      <CookModePresetEditor
+        open={showPresetEditor}
+        onOpenChange={setShowPresetEditor}
+        currentSettings={localSettings}
+        onSave={handleSavePreset}
+      />
     </>
   );
 }
