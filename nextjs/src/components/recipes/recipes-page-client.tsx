@@ -14,6 +14,7 @@ import type { CustomBadge } from "@/lib/nutrition/badge-calculator";
 import type { FolderWithChildren, FolderCategoryWithFolders, ActiveFolderFilter } from "@/types/folder";
 import type { SystemSmartFolder } from "@/types/smart-folder";
 import type { EvaluationContext } from "@/lib/smart-folders";
+import type { PinnedItem } from "@/types/user-preferences-v2";
 import { getRecipeFolderIds } from "@/app/actions/folders";
 import {
   filterRecipesBySmartFolder,
@@ -35,6 +36,8 @@ interface RecipesPageClientProps {
   systemSmartFolders: SystemSmartFolder[];
   userSmartFolders: FolderWithChildren[];
   cookingHistoryContext: EvaluationContext;
+  // Pinned items
+  pinnedItems: PinnedItem[];
 }
 
 export function RecipesPageClient({
@@ -50,6 +53,7 @@ export function RecipesPageClient({
   systemSmartFolders,
   userSmartFolders,
   cookingHistoryContext,
+  pinnedItems,
 }: RecipesPageClientProps) {
   const [discoverOpen, setDiscoverOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<ActiveFolderFilter>({
@@ -160,6 +164,7 @@ export function RecipesPageClient({
         systemSmartFolders={systemSmartFolders}
         userSmartFolders={userSmartFolders}
         smartFolderCounts={smartFolderCounts}
+        pinnedItems={pinnedItems}
       />
 
       {/* Main Content */}

@@ -5,6 +5,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import { KeyboardShortcutsProvider } from "@/components/keyboard-shortcuts-provider";
+import { GlobalSearchProvider } from "@/contexts/global-search-context";
+import { GlobalSearchModal } from "@/components/global-search";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -16,11 +18,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
       storageKey="theme"
     >
       <TooltipProvider delayDuration={0}>
-        <CartProvider>
-          {children}
-          <ServiceWorkerRegistration />
-          <KeyboardShortcutsProvider />
-        </CartProvider>
+        <GlobalSearchProvider>
+          <CartProvider>
+            {children}
+            <ServiceWorkerRegistration />
+            <KeyboardShortcutsProvider />
+            <GlobalSearchModal />
+          </CartProvider>
+        </GlobalSearchProvider>
       </TooltipProvider>
     </ThemeProvider>
   );

@@ -130,13 +130,8 @@ export function KeyboardShortcutsProvider() {
           break;
 
         case "search":
-          const searchInput = document.querySelector<HTMLInputElement>(
-            '[data-search-input="true"], input[placeholder*="Search"]'
-          );
-          if (searchInput) {
-            searchInput.focus();
-            showShortcutToast("🔍 Search");
-          }
+          // Dispatch event for GlobalSearchProvider to open the search modal
+          window.dispatchEvent(new CustomEvent("keyboard:openSearch"));
           break;
 
         case "toggleDarkMode":

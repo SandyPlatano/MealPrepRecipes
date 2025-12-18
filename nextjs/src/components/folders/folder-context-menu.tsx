@@ -162,7 +162,7 @@ export function FolderContextMenu({
           </ContextMenuItem>
 
           {/* Add Subfolder - only if not already a subfolder */}
-          {!folder.parent_id && (
+          {!folder.parent_folder_id && (
             <ContextMenuItem onClick={onAddSubfolder}>
               <FolderPlus className="mr-2 h-4 w-4" />
               Add Subfolder
@@ -198,7 +198,7 @@ export function FolderContextMenu({
                   {folder.category_id !== category.id && (
                     <span className="mr-6" />
                   )}
-                  <span className="mr-2">{category.icon}</span>
+                  {category.emoji && <span className="mr-2">{category.emoji}</span>}
                   {category.name}
                 </ContextMenuItem>
               ))}
