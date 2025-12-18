@@ -42,12 +42,15 @@ import type { Substitution, UserSubstitution } from "@/lib/substitutions";
 import { toast } from "sonner";
 
 interface SubstitutionsSectionProps {
+  /** ID for scroll targeting from sidebar navigation */
+  id?: string;
   initialUserSubstitutions: UserSubstitution[];
   defaultSubstitutions: Substitution[];
   className?: string;
 }
 
 export function SubstitutionsSection({
+  id,
   initialUserSubstitutions,
   defaultSubstitutions,
   className,
@@ -151,18 +154,23 @@ export function SubstitutionsSection({
   };
 
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <RefreshCw className="h-5 w-5" />
-          Ingredient Substitutions
-        </CardTitle>
-        <CardDescription>
-          Define ingredient substitutions to see alternatives when viewing recipes
-        </CardDescription>
+    <Card id={id} className={className}>
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+            <RefreshCw className="h-4 w-4 text-primary" />
+          </div>
+          <div className="space-y-0.5">
+            <CardTitle className="text-base">Ingredient Substitutions</CardTitle>
+            <CardDescription>
+              Define ingredient substitutions to see alternatives when viewing recipes
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
+      <Separator className="mb-0" />
 
-      <CardContent className="space-y-6">
+      <CardContent className="pt-6 space-y-6">
         {/* User's Custom Substitutions */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
