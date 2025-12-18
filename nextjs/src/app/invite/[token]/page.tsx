@@ -56,12 +56,12 @@ export default function InvitePage() {
 
   const handleSignIn = () => {
     // Redirect to sign in with a return URL back to this page
-    router.push(`/auth/sign-in?redirect=/invite/${token}`);
+    router.push(`/login?redirect=/invite/${token}`);
   };
 
   const handleSignUp = () => {
     // Redirect to sign up with a return URL back to this page
-    router.push(`/auth/sign-up?redirect=/invite/${token}`);
+    router.push(`/signup?redirect=/invite/${token}`);
   };
 
   return (

@@ -59,7 +59,8 @@ import { PersonalRatingDialog } from "@/components/recipes/personal-rating-dialo
 import type { RecipeWithFavorite, RecipeWithFavoriteAndNutrition, RecipeType } from "@/types/recipe";
 import type { DayOfWeek } from "@/types/meal-plan";
 import type { FolderWithChildren } from "@/types/folder";
-import { useCart } from "@/components/cart";
+import { addMealAssignment } from "@/app/actions/meal-plans";
+import { getWeekStart } from "@/types/meal-plan";
 import { AddToPlanSheet } from "./add-to-plan-sheet";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
@@ -121,8 +122,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
   const [customInput, setCustomInput] = useState<string>("");
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const { addToCart, addToCartWithAssignment, removeByRecipeId, isInCart } = useCart();
-  const inCart = isInCart(recipe.id);
+  const [isAddingToPlan, setIsAddingToPlan] = useState(false);
   const [showAddToPlanSheet, setShowAddToPlanSheet] = useState(false);
   const canScale = recipe.base_servings !== null && recipe.base_servings > 0;
   const router = useRouter();

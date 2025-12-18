@@ -138,7 +138,7 @@ export default async function PublicUserProfilePage({ params }: Props) {
                   </Button>
                 ) : !currentUser ? (
                   <Button asChild>
-                    <Link href={`/auth/sign-up?redirect=/u/${username}`}>
+                    <Link href={`/signup?redirect=/u/${username}`}>
                       Sign up to Follow
                     </Link>
                   </Button>
@@ -158,7 +158,7 @@ export default async function PublicUserProfilePage({ params }: Props) {
             </p>
             {!currentUser && (
               <Button asChild>
-                <Link href={`/auth/sign-up?redirect=/u/${username}`}>
+                <Link href={`/signup?redirect=/u/${username}`}>
                   Sign up to Follow
                 </Link>
               </Button>
@@ -219,7 +219,7 @@ export default async function PublicUserProfilePage({ params }: Props) {
                   Sign up to save recipes and follow {profile.username}
                 </p>
                 <Button asChild>
-                  <Link href={`/auth/sign-up?redirect=/u/${username}`}>
+                  <Link href={`/signup?redirect=/u/${username}`}>
                     Create Free Account
                   </Link>
                 </Button>
