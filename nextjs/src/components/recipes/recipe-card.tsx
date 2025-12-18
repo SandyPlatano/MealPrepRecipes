@@ -143,34 +143,39 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // Check if already in cart first
-    if (inCart) {
-      toast.info("Already on there");
-      return;
-    }
     // Open the sheet to select day and cook
     setShowAddToPlanSheet(true);
   };
 
-  const handleAddFromSheet = (day: DayOfWeek, cook: string | null, servingSize: number | null) => {
-    const added = addToCartWithAssignment(recipe, day, cook, servingSize);
-    if (added) {
-      triggerHaptic("success");
-      const servingsText = servingSize ? ` (${servingSize} servings)` : "";
-      const message = cook
-        ? `Added to ${day} for ${cook}${servingsText}`
-        : `Added to ${day}${servingsText}`;
-      toast.success(message);
-    } else {
-      toast.info("Already on there");
-    }
-  };
+  const handleAddFromSheet = async (day: DayOfWeek, cook: string | null, servingSize: number | null) => {
+    setIsAddingToPlan(true);
+    try {
+      const weekStart = getWeekStart(new Date());
+      const weekStartStr = weekStart.toISOString().split("T")[0];
 
-  const handleRemoveFromCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    removeByRecipeId(recipe.id);
-    toast.success("Removed");
+      const result = await addMealAssignment(
+        weekStartStr,
+        recipe.id,
+        day,
+        cook ?? undefined,
+        null, // mealType
+        servingSize
+      );
+
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        triggerHaptic("success");
+        const servingsText = servingSize ? ` (${servingSize} servings)` : "";
+        const message = cook
+          ? `Added to ${day} for ${cook}${servingsText}`
+          : `Added to ${day}${servingsText}`;
+        toast.success(message);
+      }
+    } finally {
+      setIsAddingToPlan(false);
+      setShowAddToPlanSheet(false);
+    }
   };
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
@@ -253,11 +258,6 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
 
   const handleDelete = async () => {
     setIsDeleting(true);
-    // Remove from cart if it's in cart
-    if (inCart) {
-      removeByRecipeId(recipe.id);
-    }
-    
     startTransition(async () => {
       const result = await deleteRecipe(recipe.id);
       if (result.error) {
@@ -443,12 +443,10 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                     <TooltipContent>More actions</TooltipContent>
                   </Tooltip>
                   <DropdownMenuContent align="end">
-                    {!inCart && (
-                      <DropdownMenuItem onClick={handleAddToCart}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add to This Week
-                      </DropdownMenuItem>
-                    )}
+                    <DropdownMenuItem onClick={handleAddToCart}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add to This Week
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleShare}>
                       <Share2 className="h-4 w-4 mr-2" />
                       Share Recipe
@@ -599,29 +597,19 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
               </div>
             )}
             
-            {inCart ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="secondary"
-                    className="w-full mt-4 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-colors"
-                    onClick={handleRemoveFromCart}
-                  >
-                    Remove from Plan
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Remove this recipe from your meal plan</TooltipContent>
-              </Tooltip>
-            ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="default" className="w-full mt-4 hover:scale-105 transition-transform" onClick={handleAddToCart}>
-                    Add to Plan
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Add this recipe to your weekly meal plan</TooltipContent>
-              </Tooltip>
-            )}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="default"
+                  className="w-full mt-4 hover:scale-105 transition-transform"
+                  onClick={handleAddToCart}
+                  disabled={isAddingToPlan}
+                >
+                  {isAddingToPlan ? "Adding..." : "Add to Plan"}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Add this recipe to your weekly meal plan</TooltipContent>
+            </Tooltip>
           </CardContent>
         </Card>
       </Link>
