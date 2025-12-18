@@ -93,7 +93,7 @@ export function FolderTreeItem({
 
           <Button
             variant={isActive ? "secondary" : "ghost"}
-            className="flex-1 justify-between h-10 px-2"
+            className="flex-1 justify-between h-10 px-2 pr-2"
             onClick={onSelect}
             disabled={isPending}
           >
@@ -110,7 +110,7 @@ export function FolderTreeItem({
               )}
               <span className="truncate">{folder.name}</span>
             </span>
-            <span className="text-xs text-muted-foreground ml-2 mr-1">
+            <span className="text-xs text-muted-foreground tabular-nums min-w-[1.5rem] text-right">
               {folder.recipe_count}
             </span>
           </Button>

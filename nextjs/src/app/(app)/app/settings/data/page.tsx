@@ -61,6 +61,11 @@ export default function DataSettingsPage() {
 
   // Handle export button click
   const handleExportClick = async () => {
+    if (!profile.id) {
+      toast.error("Please sign in to export recipes");
+      return;
+    }
+
     setIsLoadingExport(true);
     const result = await getRecipesForExport();
     setIsLoadingExport(false);
@@ -76,6 +81,11 @@ export default function DataSettingsPage() {
 
   // Handle import button click
   const handleImportClick = async () => {
+    if (!profile.id) {
+      toast.error("Please sign in to import recipes");
+      return;
+    }
+
     setIsLoadingImport(true);
     const result = await getExistingRecipeTitles();
     setIsLoadingImport(false);
@@ -127,7 +137,7 @@ export default function DataSettingsPage() {
           description="Help improve the app by sharing anonymous usage patterns"
         >
           <Switch
-            checked={preferencesV2.privacy.analyticsEnabled}
+            checked={preferencesV2?.privacy?.analyticsEnabled ?? false}
             onCheckedChange={(v) => updatePrivacyPrefs({ analyticsEnabled: v })}
           />
         </SettingRow>
@@ -138,7 +148,7 @@ export default function DataSettingsPage() {
           description="Send crash reports to help fix bugs faster"
         >
           <Switch
-            checked={preferencesV2.privacy.crashReporting}
+            checked={preferencesV2?.privacy?.crashReporting ?? false}
             onCheckedChange={(v) => updatePrivacyPrefs({ crashReporting: v })}
           />
         </SettingRow>
@@ -149,7 +159,7 @@ export default function DataSettingsPage() {
           description="Get AI-powered recipe suggestions based on your cooking history"
         >
           <Switch
-            checked={preferencesV2.privacy.personalizedRecommendations}
+            checked={preferencesV2?.privacy?.personalizedRecommendations ?? false}
             onCheckedChange={(v) => updatePrivacyPrefs({ personalizedRecommendations: v })}
           />
         </SettingRow>
@@ -286,14 +296,16 @@ export default function DataSettingsPage() {
         recipes={recipes}
       />
 
-      {/* Import Dialog */}
-      <BulkImportDialog
-        open={showImportDialog}
-        onOpenChange={setShowImportDialog}
-        existingTitles={existingTitles}
-        userId={profile.id}
-        onSuccess={handleImportSuccess}
-      />
+      {/* Import Dialog - only render if profile.id is valid */}
+      {profile.id && (
+        <BulkImportDialog
+          open={showImportDialog}
+          onOpenChange={setShowImportDialog}
+          existingTitles={existingTitles}
+          userId={profile.id}
+          onSuccess={handleImportSuccess}
+        />
+      )}
     </div>
   );
 }

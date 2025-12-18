@@ -31,7 +31,7 @@ import type {
   EnergyModePreferences,
   PrivacyPreferences,
 } from "@/types/user-preferences-v2";
-import { DEFAULT_USER_PREFERENCES_V2 } from "@/types/user-preferences-v2";
+import { DEFAULT_USER_PREFERENCES_V2, DEFAULT_PRIVACY_PREFERENCES } from "@/types/user-preferences-v2";
 import type { SettingsChange, SettingsChangeCategory } from "@/types/settings-history";
 import { getSettingLabel } from "@/lib/settings/setting-labels";
 
@@ -503,15 +503,16 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     (partial: Partial<PrivacyPreferences>) => {
       // Record changes and optimistic update
       setState((prev) => {
+        const currentPrivacy = prev.preferencesV2.privacy || DEFAULT_PRIVACY_PREFERENCES;
         Object.entries(partial).forEach(([key, value]) => {
-          const oldValue = prev.preferencesV2.privacy[key as keyof PrivacyPreferences];
+          const oldValue = currentPrivacy[key as keyof PrivacyPreferences];
           recordChange(`preferencesV2.privacy.${key}`, oldValue, value, "privacyPrefs");
         });
         return {
           ...prev,
           preferencesV2: {
             ...prev.preferencesV2,
-            privacy: { ...prev.preferencesV2.privacy, ...partial },
+            privacy: { ...currentPrivacy, ...partial },
           },
         };
       });

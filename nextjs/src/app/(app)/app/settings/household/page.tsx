@@ -223,7 +223,7 @@ export default function HouseholdSettingsPage() {
                 ) : (
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">
-                      {household.household?.name || "Unnamed Household"}
+                      {householdName || "Unnamed Household"}
                     </span>
                     <Button
                       size="icon"

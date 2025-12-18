@@ -151,6 +151,7 @@ export function CookingMode({
     isAwaitingCommand,
     lastCommand,
     error: voiceError,
+    isSupported: voiceCommandsSupported,
     startListening,
     stopListening,
   } = useVoiceCommands({
@@ -411,21 +412,49 @@ export function CookingMode({
             <X className="h-5 w-5" />
           </Button>
           <div className="flex items-center gap-2">
-            {/* Voice Status Indicator */}
-            {settings.voice.enabled && (
-              <Button
-                variant={isListening ? "default" : "outline"}
-                size="icon"
-                onClick={isListening ? stopListening : startListening}
-                title={isListening ? "Stop listening" : "Start voice commands"}
-              >
-                {isListening ? (
-                  <Mic className="h-5 w-5" />
-                ) : (
-                  <MicOff className="h-5 w-5" />
-                )}
-              </Button>
-            )}
+            {/* Voice Commands Toggle Button - Always visible */}
+            <Button
+              variant={isListening ? "default" : "ghost"}
+              size="icon"
+              disabled={!voiceCommandsSupported}
+              onClick={() => {
+                if (!voiceCommandsSupported) {
+                  toast.error("Voice commands not supported in this browser. Try Chrome or Edge.");
+                  return;
+                }
+                if (isListening) {
+                  // Stop listening and disable voice
+                  stopListening();
+                  setSettings((prev) => ({
+                    ...prev,
+                    voice: { ...prev.voice, enabled: false },
+                  }));
+                  toast.info("Voice commands disabled");
+                } else {
+                  // Enable voice and start listening
+                  setSettings((prev) => ({
+                    ...prev,
+                    voice: { ...prev.voice, enabled: true },
+                  }));
+                  toast.success(`Voice commands enabled! Say "${settings.voice.wakeWord}" to start.`);
+                }
+              }}
+              title={
+                !voiceCommandsSupported
+                  ? "Voice commands not supported in this browser"
+                  : isListening
+                    ? "Stop voice commands"
+                    : voiceError
+                      ? `Voice error: ${voiceError}`
+                      : `Start voice commands (say "${settings.voice.wakeWord}")`
+              }
+            >
+              {isListening ? (
+                <Mic className="h-5 w-5" />
+              ) : (
+                <MicOff className={cn("h-5 w-5", voiceError && "text-destructive")} />
+              )}
+            </Button>
             {/* Read Step Button */}
             {voiceReadoutSupported && (
               <Button

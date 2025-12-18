@@ -86,6 +86,8 @@ export interface VoiceCommandsState {
   lastCommand: string | null;
   /** Any error that occurred during voice recognition */
   error: string | null;
+  /** Whether speech recognition is supported in this browser */
+  isSupported: boolean;
   /** Start listening for voice commands */
   startListening: () => void;
   /** Stop listening for voice commands */
@@ -237,6 +239,11 @@ export function useVoiceCommands({
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const commandTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isAwaitingCommandRef = useRef(false);
+
+  // Check if SpeechRecognition is supported
+  const isSupported =
+    typeof window !== "undefined" &&
+    !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
   // Normalize wake word for comparison
   const normalizedWakeWord = wakeWord.toLowerCase().trim();
@@ -415,6 +422,7 @@ export function useVoiceCommands({
     isAwaitingCommand,
     lastCommand,
     error,
+    isSupported,
     startListening,
     stopListening,
   };

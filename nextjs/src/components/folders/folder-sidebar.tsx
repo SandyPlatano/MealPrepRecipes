@@ -158,14 +158,14 @@ export function FolderSidebar({
             {/* All Recipes */}
             <Button
               variant={isAllActive ? "secondary" : "ghost"}
-              className="w-full justify-between h-10"
+              className="w-full justify-between h-10 pr-3"
               onClick={() => onFilterChange({ type: "all" })}
             >
               <span className="flex items-center">
                 <BookOpen className="h-4 w-4 mr-2" />
                 All Recipes
               </span>
-              <span className="text-xs text-muted-foreground mr-1">
+              <span className="text-xs text-muted-foreground tabular-nums min-w-[1.5rem] text-right">
                 {totalRecipeCount}
               </span>
             </Button>
@@ -194,7 +194,7 @@ export function FolderSidebar({
                   <Button
                     key={`system-${folder.id}`}
                     variant={isSmartFolderActive(folder.id, true) ? "secondary" : "ghost"}
-                    className="w-full justify-between h-10"
+                    className="w-full justify-between h-10 pr-3"
                     onClick={() => handleSmartFolderClick(folder.id, true)}
                   >
                     <span className="flex items-center">
@@ -210,7 +210,7 @@ export function FolderSidebar({
                       )}
                       {folder.name}
                     </span>
-                    <span className="text-xs text-muted-foreground mr-1">
+                    <span className="text-xs text-muted-foreground tabular-nums min-w-[1.5rem] text-right">
                       {smartFolderCounts[folder.id] ?? 0}
                     </span>
                   </Button>
@@ -224,7 +224,7 @@ export function FolderSidebar({
                   >
                     <Button
                       variant={isSmartFolderActive(folder.id, false) ? "secondary" : "ghost"}
-                      className="flex-1 justify-between h-10 pr-1"
+                      className="flex-1 justify-between h-10 pr-2"
                       onClick={() => handleSmartFolderClick(folder.id, false)}
                     >
                       <span className="flex items-center">
@@ -240,7 +240,7 @@ export function FolderSidebar({
                         )}
                         <span className="truncate">{folder.name}</span>
                       </span>
-                      <span className="text-xs text-muted-foreground mr-1">
+                      <span className="text-xs text-muted-foreground tabular-nums min-w-[1.5rem] text-right">
                         {smartFolderCounts[folder.id] ?? 0}
                       </span>
                     </Button>

@@ -188,176 +188,185 @@ export function CookModeSettingsSheet({
           </Button>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-6">
-          {/* Live Preview - sticky on desktop */}
-          <div className="hidden md:block sticky top-0 z-10 pb-4 bg-background">
-            <CookModeSettingsPreview settings={localSettings} />
-          </div>
+        {/* Content - Integrated Layout */}
+        <div className="flex-1 overflow-y-auto px-4 pb-4">
+          {/* Two-Column Layout on Desktop */}
+          <div className="grid md:grid-cols-[280px_1fr] gap-4">
+            {/* Left Column: Preview */}
+            <div className="hidden md:block">
+              <CookModeSettingsPreview settings={localSettings} />
+            </div>
 
-          {/* Display Options */}
-          <SettingsSection icon={<Type className="h-4 w-4" />} title="Display">
-            {/* Font Size */}
-            <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">Font Size</Label>
-              <div className="grid grid-cols-3 gap-2">
-                {(["small", "medium", "large"] as CookModeFontSize[]).map(
-                  (size) => (
+            {/* Right Column: All Settings */}
+            <div className="space-y-4">
+              {/* Display Row - Font + Theme */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Font Size */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Type className="h-3 w-3" />
+                    Font Size
+                  </Label>
+                  <div className="flex gap-1">
+                    {(["small", "medium", "large"] as CookModeFontSize[]).map(
+                      (size) => (
+                        <Button
+                          key={size}
+                          variant={
+                            localSettings.display.fontSize === size
+                              ? "default"
+                              : "outline"
+                          }
+                          size="sm"
+                          onClick={() => updateSetting("display", "fontSize", size)}
+                          className="flex-1 capitalize h-8 text-xs px-2"
+                        >
+                          {size.charAt(0).toUpperCase()}
+                        </Button>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* Theme Override */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Theme</Label>
+                  <div className="flex gap-1">
+                    {(
+                      [
+                        { value: "system", icon: <Monitor className="h-3.5 w-3.5" /> },
+                        { value: "light", icon: <Sun className="h-3.5 w-3.5" /> },
+                        { value: "dark", icon: <Moon className="h-3.5 w-3.5" /> },
+                      ] as { value: CookModeTheme; icon: React.ReactNode }[]
+                    ).map(({ value, icon }) => (
+                      <Button
+                        key={value}
+                        variant={
+                          localSettings.display.themeOverride === value
+                            ? "default"
+                            : "outline"
+                        }
+                        size="sm"
+                        onClick={() =>
+                          updateSetting("display", "themeOverride", value)
+                        }
+                        className="flex-1 h-8 px-2"
+                      >
+                        {icon}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Navigation Mode */}
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Navigation className="h-3 w-3" />
+                  Navigation
+                </Label>
+                <div className="grid grid-cols-2 gap-1">
+                  {(
+                    [
+                      { value: "step-by-step", label: "Step by Step" },
+                      { value: "scrollable", label: "Scrollable" },
+                    ] as { value: CookModeNavigationMode; label: string }[]
+                  ).map(({ value, label }) => (
                     <Button
-                      key={size}
+                      key={value}
                       variant={
-                        localSettings.display.fontSize === size
+                        localSettings.navigation.mode === value
                           ? "default"
                           : "outline"
                       }
                       size="sm"
-                      onClick={() => updateSetting("display", "fontSize", size)}
-                      className="capitalize"
+                      onClick={() => updateSetting("navigation", "mode", value)}
+                      className="h-8 text-xs"
                     >
-                      {size}
+                      {label}
                     </Button>
-                  )
-                )}
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Theme Override */}
-            <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">
-                Theme Override
-              </Label>
-              <div className="grid grid-cols-3 gap-2">
-                {(
-                  [
-                    { value: "system", icon: <Monitor className="h-4 w-4" /> },
-                    { value: "light", icon: <Sun className="h-4 w-4" /> },
-                    { value: "dark", icon: <Moon className="h-4 w-4" /> },
-                  ] as { value: CookModeTheme; icon: React.ReactNode }[]
-                ).map(({ value, icon }) => (
-                  <Button
-                    key={value}
-                    variant={
-                      localSettings.display.themeOverride === value
-                        ? "default"
-                        : "outline"
+              {/* Toggles Grid - More Compact */}
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 pt-2 border-t">
+                {/* Visibility Toggles */}
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Eye className="h-3 w-3" />
+                    Show/Hide
+                  </Label>
+                  <CompactToggle
+                    label="Ingredients"
+                    checked={localSettings.visibility.showIngredients}
+                    onCheckedChange={(checked) =>
+                      updateSetting("visibility", "showIngredients", checked)
                     }
-                    size="sm"
-                    onClick={() =>
-                      updateSetting("display", "themeOverride", value)
+                  />
+                  <CompactToggle
+                    label="Timers"
+                    checked={localSettings.visibility.showTimers}
+                    onCheckedChange={(checked) =>
+                      updateSetting("visibility", "showTimers", checked)
                     }
-                    className="capitalize gap-1"
-                  >
-                    {icon}
-                    {value}
-                  </Button>
-                ))}
+                  />
+                  <CompactToggle
+                    label="Progress"
+                    checked={localSettings.visibility.showProgress}
+                    onCheckedChange={(checked) =>
+                      updateSetting("visibility", "showProgress", checked)
+                    }
+                  />
+                </div>
+
+                {/* Behavior Toggles */}
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Zap className="h-3 w-3" />
+                    Behavior
+                  </Label>
+                  <CompactToggle
+                    label="Screen Awake"
+                    checked={localSettings.behavior.keepScreenAwake}
+                    onCheckedChange={(checked) =>
+                      updateSetting("behavior", "keepScreenAwake", checked)
+                    }
+                  />
+                  <CompactToggle
+                    label="Timer Sounds"
+                    checked={localSettings.behavior.timerSounds}
+                    onCheckedChange={(checked) =>
+                      updateSetting("behavior", "timerSounds", checked)
+                    }
+                  />
+                  <CompactToggle
+                    label="Auto-Advance"
+                    checked={localSettings.behavior.autoAdvance}
+                    onCheckedChange={(checked) =>
+                      updateSetting("behavior", "autoAdvance", checked)
+                    }
+                  />
+                </div>
               </div>
-            </div>
-          </SettingsSection>
 
-          {/* Visibility Options */}
-          <SettingsSection icon={<Eye className="h-4 w-4" />} title="Show/Hide">
-            <ToggleSetting
-              label="Ingredients Sidebar"
-              description="Show the ingredient checklist"
-              checked={localSettings.visibility.showIngredients}
-              onCheckedChange={(checked) =>
-                updateSetting("visibility", "showIngredients", checked)
-              }
-            />
-            <ToggleSetting
-              label="Timer Section"
-              description="Show detected and quick timers"
-              checked={localSettings.visibility.showTimers}
-              onCheckedChange={(checked) =>
-                updateSetting("visibility", "showTimers", checked)
-              }
-            />
-            <ToggleSetting
-              label="Progress Bar"
-              description="Show step progress at top"
-              checked={localSettings.visibility.showProgress}
-              onCheckedChange={(checked) =>
-                updateSetting("visibility", "showProgress", checked)
-              }
-            />
-          </SettingsSection>
-
-          {/* Behavior Options */}
-          <SettingsSection icon={<Zap className="h-4 w-4" />} title="Behavior">
-            <ToggleSetting
-              label="Keep Screen Awake"
-              description="Prevent screen from sleeping"
-              checked={localSettings.behavior.keepScreenAwake}
-              onCheckedChange={(checked) =>
-                updateSetting("behavior", "keepScreenAwake", checked)
-              }
-            />
-            <ToggleSetting
-              label="Timer Sounds"
-              description="Play sound when timer completes"
-              checked={localSettings.behavior.timerSounds}
-              onCheckedChange={(checked) =>
-                updateSetting("behavior", "timerSounds", checked)
-              }
-            />
-            <ToggleSetting
-              label="Auto-Advance Steps"
-              description="Go to next step when timer ends"
-              checked={localSettings.behavior.autoAdvance}
-              onCheckedChange={(checked) =>
-                updateSetting("behavior", "autoAdvance", checked)
-              }
-            />
-          </SettingsSection>
-
-          {/* Navigation Mode */}
-          <SettingsSection
-            icon={<Navigation className="h-4 w-4" />}
-            title="Navigation"
-          >
-            <div className="grid grid-cols-2 gap-2">
-              {(
-                [
-                  { value: "step-by-step", label: "Step by Step" },
-                  { value: "scrollable", label: "Scrollable" },
-                ] as { value: CookModeNavigationMode; label: string }[]
-              ).map(({ value, label }) => (
-                <Button
-                  key={value}
-                  variant={
-                    localSettings.navigation.mode === value
-                      ? "default"
-                      : "outline"
-                  }
-                  size="sm"
-                  onClick={() => updateSetting("navigation", "mode", value)}
-                  className="h-12"
-                >
-                  {label}
-                </Button>
-              ))}
-            </div>
-          </SettingsSection>
-
-          {/* Quick Presets - Compact at bottom */}
-          <div className="pt-4 border-t">
-            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-3">
-              <Wand2 className="h-3.5 w-3.5" />
-              Quick Presets
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {COOK_MODE_PRESETS.map((preset) => (
-                <Button
-                  key={preset.key}
-                  variant={currentPreset === preset.key ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => applyPreset(preset.key)}
-                  className="h-8 text-xs"
-                >
-                  {preset.name}
-                </Button>
-              ))}
+              {/* Quick Presets - Inline */}
+              <div className="flex items-center gap-2 pt-2 border-t">
+                <Wand2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <div className="flex flex-wrap gap-1">
+                  {COOK_MODE_PRESETS.map((preset) => (
+                    <Button
+                      key={preset.key}
+                      variant={currentPreset === preset.key ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => applyPreset(preset.key)}
+                      className="h-6 text-[10px] px-2"
+                    >
+                      {preset.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -367,49 +376,27 @@ export function CookModeSettingsSheet({
 }
 
 /**
- * Settings section with icon and title
+ * Compact toggle setting - just label and switch inline
  */
-interface SettingsSectionProps {
-  icon: React.ReactNode;
-  title: string;
-  children: React.ReactNode;
-}
-
-function SettingsSection({ icon, title, children }: SettingsSectionProps) {
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2 text-sm font-medium">
-        {icon}
-        {title}
-      </div>
-      <div className="space-y-3 pl-6">{children}</div>
-    </div>
-  );
-}
-
-/**
- * Toggle setting with label and description
- */
-interface ToggleSettingProps {
+interface CompactToggleProps {
   label: string;
-  description: string;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
 }
 
-function ToggleSetting({
+function CompactToggle({
   label,
-  description,
   checked,
   onCheckedChange,
-}: ToggleSettingProps) {
+}: CompactToggleProps) {
   return (
     <div className="flex items-center justify-between">
-      <div>
-        <div className="text-sm font-medium">{label}</div>
-        <div className="text-xs text-muted-foreground">{description}</div>
-      </div>
-      <Switch checked={checked} onCheckedChange={onCheckedChange} />
+      <span className="text-sm">{label}</span>
+      <Switch
+        checked={checked}
+        onCheckedChange={onCheckedChange}
+        className="scale-90"
+      />
     </div>
   );
 }
