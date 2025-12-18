@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useSidebar, SIDEBAR_DIMENSIONS } from "./sidebar-context";
 import { SidebarUserArea } from "./sidebar-user-area";
 import { SidebarQuickNav } from "./sidebar-quick-nav";
+import { SidebarPinned } from "./sidebar-pinned";
 import { SidebarMealPlan } from "./sidebar-meal-plan";
 import { SidebarCollections } from "./sidebar-collections";
 import { SidebarBottomNav } from "./sidebar-bottom-nav";

@@ -146,12 +146,12 @@ export function SidebarProvider({
       const stored = getSidebarState();
       if (!stored.isCollapsed && stored.width === SIDEBAR_DIMENSIONS.DEFAULT_WIDTH) {
         setIsCollapsed(true);
-        setSidebarCollapsed(true);
+        setStorageCollapsed(true);
       }
     }
   }, [isTablet, isCollapsed, isInitialized]);
 
-  // Close mobile sidebar on route change or resize to desktop
+  // Close mobile sidebar on resize to desktop
   React.useEffect(() => {
     if (!isMobile && isMobileOpen) {
       setIsMobileOpen(false);
@@ -168,7 +168,7 @@ export function SidebarProvider({
         } else {
           setIsCollapsed((prev) => {
             const newValue = !prev;
-            setSidebarCollapsed(newValue);
+            setStorageCollapsed(newValue);
             return newValue;
           });
         }
@@ -179,79 +179,91 @@ export function SidebarProvider({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isMobile]);
 
-  // Actions
+  // Core actions
   const setWidth = React.useCallback((newWidth: number) => {
     const clampedWidth = Math.max(
       SIDEBAR_DIMENSIONS.MIN_WIDTH,
       Math.min(SIDEBAR_DIMENSIONS.MAX_WIDTH, newWidth)
     );
     setWidthState(clampedWidth);
-    setSidebarWidth(clampedWidth);
+    setStorageWidth(clampedWidth);
 
-    // Auto-collapse if width drops below threshold
     if (clampedWidth <= SIDEBAR_DIMENSIONS.COLLAPSE_THRESHOLD) {
       setIsCollapsed(true);
-      setSidebarCollapsed(true);
+      setStorageCollapsed(true);
     } else if (clampedWidth > SIDEBAR_DIMENSIONS.COLLAPSE_THRESHOLD && isCollapsed) {
-      // Auto-expand if width increases above threshold
       setIsCollapsed(false);
-      setSidebarCollapsed(false);
+      setStorageCollapsed(false);
     }
   }, [isCollapsed]);
 
   const toggleCollapse = React.useCallback(() => {
     setIsCollapsed((prev) => {
       const newValue = !prev;
-      setSidebarCollapsed(newValue);
+      setStorageCollapsed(newValue);
       return newValue;
     });
   }, []);
 
   const collapse = React.useCallback(() => {
     setIsCollapsed(true);
-    setSidebarCollapsed(true);
+    setStorageCollapsed(true);
   }, []);
 
   const expand = React.useCallback(() => {
     setIsCollapsed(false);
-    setSidebarCollapsed(false);
+    setStorageCollapsed(false);
   }, []);
 
-  const openMobile = React.useCallback(() => {
-    setIsMobileOpen(true);
+  const openMobile = React.useCallback(() => setIsMobileOpen(true), []);
+  const closeMobile = React.useCallback(() => setIsMobileOpen(false), []);
+  const toggleMobile = React.useCallback(() => setIsMobileOpen((prev) => !prev), []);
+
+  // Synced actions
+  const setMode = React.useCallback(async (newMode: SidebarMode) => {
+    setModeState(newMode);
+    // Also sync collapsed state with mode
+    const shouldCollapse = newMode === "collapsed";
+    setIsCollapsed(shouldCollapse);
+    setStorageCollapsed(shouldCollapse);
+    await updateSidebarPreferencesAuto({ mode: newMode });
   }, []);
 
-  const closeMobile = React.useCallback(() => {
-    setIsMobileOpen(false);
-  }, []);
+  const toggleHoverExpand = React.useCallback(async () => {
+    const newValue = !hoverExpand;
+    setHoverExpandState(newValue);
+    await updateSidebarPreferencesAuto({ hoverExpand: newValue });
+  }, [hoverExpand]);
 
-  const toggleMobile = React.useCallback(() => {
-    setIsMobileOpen((prev) => !prev);
-  }, []);
-
-  const toggleHoverExpand = React.useCallback(() => {
-    setHoverExpand((prev) => !prev);
-  }, []);
-
-  // Pinning actions
   const pinItem = React.useCallback(async (item: Omit<PinnedItem, "addedAt">) => {
+    // Optimistic update
     const newItem: PinnedItem = {
       ...item,
       addedAt: new Date().toISOString(),
     };
     setPinnedItems((prev) => [...prev, newItem]);
-    // TODO: Persist to database or localStorage
+    await pinSidebarItemAuto(item);
   }, []);
 
-  const unpinItem = React.useCallback(async (id: string) => {
-    setPinnedItems((prev) => prev.filter((item) => item.id !== id));
-    // TODO: Persist to database or localStorage
+  const unpinItem = React.useCallback(async (itemId: string) => {
+    // Optimistic update
+    setPinnedItems((prev) => prev.filter((p) => p.id !== itemId));
+    await unpinSidebarItemAuto(itemId);
+  }, []);
+
+  const reorderPinned = React.useCallback(async (itemIds: string[]) => {
+    // Optimistic update
+    setPinnedItems((prev) => {
+      const itemMap = new Map(prev.map((item) => [item.id, item]));
+      return itemIds
+        .map((id) => itemMap.get(id))
+        .filter((item): item is PinnedItem => item !== undefined);
+    });
+    await reorderPinnedItemsAuto(itemIds);
   }, []);
 
   const isPinned = React.useCallback(
-    (id: string) => {
-      return pinnedItems.some((item) => item.id === id);
-    },
+    (itemId: string) => pinnedItems.some((p) => p.id === itemId),
     [pinnedItems]
   );
 

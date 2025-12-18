@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Settings, HelpCircle, Moon, Sun, Monitor } from "lucide-react";
+import { Settings, HelpCircle, Moon, Sun, Monitor, PanelLeft, PanelLeftClose } from "lucide-react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
@@ -28,13 +33,77 @@ export function SidebarBottomNav() {
         href="/app/settings"
         icon={Settings}
         label="Settings"
+        pinnableType="page"
+        pinnableId="settings"
       />
+      <SidebarModeToggle />
       <ThemeToggle />
       {!isIconOnly && (
         <HelpButton />
       )}
     </div>
   );
+}
+
+function SidebarModeToggle() {
+  const { mode, setMode, hoverExpand, toggleHoverExpand, isIconOnly } = useSidebar();
+  const Icon = mode === "expanded" ? PanelLeft : PanelLeftClose;
+
+  const content = (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          className={cn(
+            "w-full justify-start gap-3 h-10 px-3",
+            "text-muted-foreground hover:text-foreground hover:bg-accent",
+            "transition-all duration-150",
+            isIconOnly && "justify-center px-0"
+          )}
+        >
+          <Icon className="h-4 w-4 shrink-0" />
+          {!isIconOnly && (
+            <span className="flex-1 truncate text-sm font-medium">Sidebar</span>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align={isIconOnly ? "center" : "start"} side={isIconOnly ? "right" : "top"} className="w-56">
+        <DropdownMenuLabel>Sidebar Mode</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuRadioGroup value={mode} onValueChange={(v) => setMode(v as "expanded" | "collapsed")}>
+          <DropdownMenuRadioItem value="expanded">
+            <PanelLeft className="mr-2 h-4 w-4" />
+            Expanded
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="collapsed">
+            <PanelLeftClose className="mr-2 h-4 w-4" />
+            Collapsed
+          </DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuCheckboxItem
+          checked={hoverExpand}
+          onCheckedChange={toggleHoverExpand}
+          disabled={mode === "expanded"}
+        >
+          Expand on hover
+        </DropdownMenuCheckboxItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
+  if (isIconOnly) {
+    return (
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>{content}</TooltipTrigger>
+        <TooltipContent side="right">
+          <span>Sidebar: {mode}</span>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return content;
 }
 
 function ThemeToggle() {
