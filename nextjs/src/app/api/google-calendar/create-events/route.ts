@@ -70,6 +70,14 @@ export async function POST(request: Request) {
       );
     }
 
+    // Extract calendar preferences from JSONB with fallback to old columns
+    const preferences = settings.preferences as { calendar?: { eventTime?: string; eventDurationMinutes?: number; excludedDays?: string[] } } | undefined;
+    const calendarPrefs = preferences?.calendar;
+
+    const eventTime = calendarPrefs?.eventTime || settings.calendar_event_time || "12:00";
+    const eventDuration = calendarPrefs?.eventDurationMinutes || settings.calendar_event_duration_minutes || 60;
+    const excludedDays = calendarPrefs?.excludedDays || settings.calendar_excluded_days || [];
+
     let accessToken = settings.google_access_token;
 
     // Check if token is expired and refresh if needed
@@ -112,14 +120,9 @@ export async function POST(request: Request) {
     const currentYear = new Date().getFullYear();
     const mondayDate = new Date(`${startDateStr}, ${currentYear}`);
 
-    // Get calendar settings with defaults
-    const globalEventTime = settings.calendar_event_time || "17:00:00"; // Default 5 PM
-    const eventDuration = settings.calendar_event_duration_minutes || 60; // Default 60 minutes
-    const excludedDays = settings.calendar_excluded_days || [];
-
     // Get meal type settings for meal-type-specific calendar times
-    const preferences = settings.preferences as { mealTypeSettings?: MealTypeCustomization } | null;
-    const mealTypeSettings: MealTypeCustomization = preferences?.mealTypeSettings || DEFAULT_MEAL_TYPE_SETTINGS;
+    const mealTypePreferences = settings.preferences as { mealTypeSettings?: MealTypeCustomization } | null;
+    const mealTypeSettings: MealTypeCustomization = mealTypePreferences?.mealTypeSettings || DEFAULT_MEAL_TYPE_SETTINGS;
 
     // Filter out items for excluded days
     const filteredItems = items.filter((item: Record<string, unknown>) => !excludedDays.includes(item.day as string));

@@ -6,6 +6,8 @@ import { SettingsHeader } from "@/components/settings/layout/settings-header";
 import { SettingRow, SettingSection } from "@/components/settings/shared/setting-row";
 import { AdvancedToggle } from "@/components/settings/shared/advanced-toggle";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -19,6 +21,8 @@ import { SpoonSelector } from "@/components/energy-mode";
 import type { PlannerViewDensity } from "@/types/settings";
 import type { EnergyLevel } from "@/types/energy-mode";
 import { ENERGY_LEVEL_LABELS, ENERGY_LEVEL_DESCRIPTIONS } from "@/types/energy-mode";
+import { updateRecipePreferences } from "@/app/actions/settings";
+import { cn } from "@/lib/utils";
 
 const DENSITY_OPTIONS: { value: PlannerViewDensity; label: string; description: string }[] = [
   { value: "compact", label: "Compact", description: "Minimal spacing" },
@@ -31,8 +35,10 @@ export default function MealPlanningSettingsPage() {
     plannerViewSettings,
     mealTypeSettings,
     preferencesV2,
+    calendarPreferences,
     updatePlannerSettings,
     updateEnergyModePrefs,
+    updateCalendarPrefs,
   } = useSettings();
   const [googleAccount, setGoogleAccount] = useState<string | null>(null);
 
@@ -246,7 +252,22 @@ export default function MealPlanningSettingsPage() {
             label="Default Serving Size"
             description="Default number of servings for new recipes"
           >
-            <div className="text-sm text-muted-foreground">4 servings</div>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min={1}
+                max={20}
+                value={preferencesV2?.recipe?.defaultServingSize ?? 2}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value, 10);
+                  if (!isNaN(value) && value >= 1 && value <= 20) {
+                    updateRecipePreferences({ defaultServingSize: value });
+                  }
+                }}
+                className="w-20"
+              />
+              <span className="text-sm text-muted-foreground">servings</span>
+            </div>
           </SettingRow>
 
           <SettingRow
@@ -280,7 +301,12 @@ export default function MealPlanningSettingsPage() {
             label="Default Event Time"
             description="When calendar events start by default"
           >
-            <div className="text-sm text-muted-foreground">12:00 PM</div>
+            <Input
+              type="time"
+              value={calendarPreferences?.eventTime || "12:00"}
+              onChange={(e) => updateCalendarPrefs({ eventTime: e.target.value })}
+              className="w-32"
+            />
           </SettingRow>
 
           <SettingRow
@@ -288,7 +314,22 @@ export default function MealPlanningSettingsPage() {
             label="Event Duration"
             description="How long calendar events last"
           >
-            <div className="text-sm text-muted-foreground">1 hour</div>
+            <Select
+              value={String(calendarPreferences?.eventDurationMinutes || 60)}
+              onValueChange={(value) => updateCalendarPrefs({ eventDurationMinutes: parseInt(value, 10) })}
+            >
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="15">15 min</SelectItem>
+                <SelectItem value="30">30 min</SelectItem>
+                <SelectItem value="45">45 min</SelectItem>
+                <SelectItem value="60">1 hour</SelectItem>
+                <SelectItem value="90">1.5 hours</SelectItem>
+                <SelectItem value="120">2 hours</SelectItem>
+              </SelectContent>
+            </Select>
           </SettingRow>
 
           <SettingRow
@@ -296,7 +337,30 @@ export default function MealPlanningSettingsPage() {
             label="Excluded Days"
             description="Days to skip when creating events"
           >
-            <div className="text-sm text-muted-foreground">None</div>
+            <div className="flex flex-wrap gap-2">
+              {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => {
+                const isExcluded = calendarPreferences?.excludedDays?.includes(day) ?? false;
+                return (
+                  <Badge
+                    key={day}
+                    variant={isExcluded ? "default" : "outline"}
+                    className={cn(
+                      "cursor-pointer transition-all",
+                      isExcluded ? "bg-destructive hover:bg-destructive/80" : "hover:bg-accent"
+                    )}
+                    onClick={() => {
+                      const current = calendarPreferences?.excludedDays || [];
+                      const updated = isExcluded
+                        ? current.filter((d) => d !== day)
+                        : [...current, day];
+                      updateCalendarPrefs({ excludedDays: updated });
+                    }}
+                  >
+                    {day.slice(0, 3)}
+                  </Badge>
+                );
+              })}
+            </div>
           </SettingRow>
         </SettingSection>
       </AdvancedToggle>

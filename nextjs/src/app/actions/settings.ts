@@ -68,7 +68,6 @@ export async function getSettings() {
 
   // Try to get existing settings
   // Explicitly select columns to avoid schema cache issues with missing columns
-  // Note: recipe_export_preferences and unit_system should be stored in the 'preferences' JSONB column, not as separate columns
   // eslint-disable-next-line prefer-const -- selectError is not reassigned but settings is
   let { data: settings, error: selectError } = await supabase
     .from("user_settings")
@@ -87,6 +86,7 @@ export async function getSettings() {
       google_connected_account,
       dismissed_hints,
       preferences,
+      unit_system,
       created_at,
       updated_at,
       email_notifications
@@ -113,6 +113,7 @@ export async function getSettings() {
         google_connected_account,
         dismissed_hints,
         preferences,
+        unit_system,
         created_at,
         updated_at
       `)
@@ -621,6 +622,7 @@ import type {
   PlannerViewSettings,
   RecipePreferences,
   RecipeExportPreferences,
+  CalendarPreferences,
   UserSettingsPreferences,
 } from "@/types/settings";
 import {
@@ -630,6 +632,7 @@ import {
   DEFAULT_PLANNER_VIEW_SETTINGS,
   DEFAULT_RECIPE_PREFERENCES,
   DEFAULT_RECIPE_EXPORT_PREFERENCES,
+  DEFAULT_CALENDAR_PREFERENCES,
 } from "@/types/settings";
 
 /**
@@ -1834,4 +1837,217 @@ export async function duplicateCookModePreset(
   revalidatePath("/app/settings");
 
   return { error: null, data: duplicatedPreset };
+}
+
+// ============================================================================
+// Calendar Preferences
+// ============================================================================
+
+/**
+ * Get calendar preferences from the preferences JSONB column
+ */
+export async function getCalendarPreferences(): Promise<{
+  error: string | null;
+  data: CalendarPreferences;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: null, data: DEFAULT_CALENDAR_PREFERENCES };
+  }
+
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("preferences, calendar_event_time, calendar_event_duration_minutes, calendar_excluded_days")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!settings?.preferences) {
+    // Fallback to column values during migration period
+    return {
+      error: null,
+      data: {
+        eventTime: settings?.calendar_event_time || DEFAULT_CALENDAR_PREFERENCES.eventTime,
+        eventDurationMinutes: settings?.calendar_event_duration_minutes || DEFAULT_CALENDAR_PREFERENCES.eventDurationMinutes,
+        excludedDays: settings?.calendar_excluded_days || DEFAULT_CALENDAR_PREFERENCES.excludedDays,
+      },
+    };
+  }
+
+  const preferences = settings.preferences as UserSettingsPreferences;
+  const calendar = preferences.calendar;
+
+  if (!calendar) {
+    // Fallback to column values during migration period
+    return {
+      error: null,
+      data: {
+        eventTime: settings?.calendar_event_time || DEFAULT_CALENDAR_PREFERENCES.eventTime,
+        eventDurationMinutes: settings?.calendar_event_duration_minutes || DEFAULT_CALENDAR_PREFERENCES.eventDurationMinutes,
+        excludedDays: settings?.calendar_excluded_days || DEFAULT_CALENDAR_PREFERENCES.excludedDays,
+      },
+    };
+  }
+
+  return {
+    error: null,
+    data: {
+      ...DEFAULT_CALENDAR_PREFERENCES,
+      ...calendar,
+    },
+  };
+}
+
+/**
+ * Update calendar preferences in the preferences JSONB column
+ */
+export async function updateCalendarPreferences(
+  newSettings: Partial<CalendarPreferences>
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get existing preferences
+  const { data: existingData } = await supabase
+    .from("user_settings")
+    .select("preferences")
+    .eq("user_id", user.id)
+    .single();
+
+  const existingPreferences = (existingData?.preferences || {}) as UserSettingsPreferences;
+  const existingCalendar = existingPreferences.calendar || DEFAULT_CALENDAR_PREFERENCES;
+
+  // Merge new settings with existing
+  const updatedCalendar: CalendarPreferences = {
+    ...existingCalendar,
+    ...newSettings,
+  };
+
+  // Update the preferences JSONB with the new calendar settings
+  const updatedPreferences: UserSettingsPreferences = {
+    ...existingPreferences,
+    calendar: updatedCalendar,
+  };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ preferences: updatedPreferences })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app");
+  revalidatePath("/app/settings");
+
+  return { error: null };
+}
+
+// ============================================================================
+// Custom Dietary Restrictions
+// ============================================================================
+
+/**
+ * Add a custom dietary restriction to the user's settings
+ */
+export async function addCustomDietaryRestriction(
+  restriction: string
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Validate input
+  const trimmed = restriction.trim();
+  if (!trimmed) {
+    return { error: "Restriction cannot be empty" };
+  }
+
+  // Get current restrictions
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("custom_dietary_restrictions")
+    .eq("user_id", user.id)
+    .single();
+
+  const current = settings?.custom_dietary_restrictions || [];
+
+  // Check for duplicates (case-insensitive)
+  if (current.some((r: string) => r.toLowerCase() === trimmed.toLowerCase())) {
+    return { error: "This restriction already exists" };
+  }
+
+  const updated = [...current, trimmed];
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ custom_dietary_restrictions: updated })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app/settings");
+  revalidatePath("/app/settings/dietary");
+
+  return { error: null };
+}
+
+/**
+ * Remove a custom dietary restriction from the user's settings
+ */
+export async function removeCustomDietaryRestriction(
+  restriction: string
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("custom_dietary_restrictions")
+    .eq("user_id", user.id)
+    .single();
+
+  const current = settings?.custom_dietary_restrictions || [];
+  const updated = current.filter((r: string) => r !== restriction);
+
+  const { error } = await supabase
+    .from("user_settings")
+    .update({ custom_dietary_restrictions: updated })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/app/settings");
+  revalidatePath("/app/settings/dietary");
+
+  return { error: null };
 }

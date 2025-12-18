@@ -10,7 +10,13 @@ import {
   type ReactNode,
 } from "react";
 import { toast } from "sonner";
-import { updateSettings, updatePlannerViewSettings } from "@/app/actions/settings";
+import {
+  updateSettings,
+  updatePlannerViewSettings,
+  updateCalendarPreferences,
+  addCustomDietaryRestriction,
+  removeCustomDietaryRestriction,
+} from "@/app/actions/settings";
 import {
   updateDisplayPreferencesAuto as updateDisplayPreferences,
   updateSoundPreferencesAuto as updateSoundPreferences,
@@ -21,7 +27,7 @@ import {
   updatePrivacyPreferencesAuto as updatePrivacyPreferences,
   updateRecipeLayoutPreferencesAuto as updateRecipeLayoutPreferences,
 } from "@/app/actions/user-preferences";
-import type { UserSettings, UserProfile, MealTypeCustomization, PlannerViewSettings } from "@/types/settings";
+import type { UserSettings, UserProfile, MealTypeCustomization, PlannerViewSettings, CalendarPreferences } from "@/types/settings";
 import type {
   UserPreferencesV2,
   DisplayPreferences,
@@ -78,6 +84,7 @@ export interface SettingsState {
   household: HouseholdData | null;
   mealTypeSettings: MealTypeCustomization | null;
   plannerViewSettings: PlannerViewSettings | null;
+  calendarPreferences: CalendarPreferences | null;
 }
 
 export interface SettingsContextValue extends SettingsState {
@@ -121,6 +128,13 @@ export interface SettingsContextValue extends SettingsState {
 
   // Recipe layout preferences (auto-save)
   updateRecipeLayoutPrefs: (prefs: RecipeLayoutPreferences) => void;
+
+  // Calendar preferences (auto-save)
+  updateCalendarPrefs: (partial: Partial<CalendarPreferences>) => void;
+
+  // Custom dietary restrictions (immediate save)
+  addDietaryRestriction: (restriction: string) => Promise<void>;
+  removeDietaryRestriction: (restriction: string) => Promise<void>;
 
   // Force immediate save
   saveNow: () => Promise<void>;
@@ -171,6 +185,7 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     privacyPrefs?: Partial<PrivacyPreferences>;
     plannerSettings?: Partial<PlannerViewSettings>;
     recipeLayoutPrefs?: RecipeLayoutPreferences;
+    calendarPrefs?: Partial<CalendarPreferences>;
   }>({});
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -274,6 +289,11 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
       // Planner view settings
       if (changes.plannerSettings && Object.keys(changes.plannerSettings).length > 0) {
         savePromises.push(updatePlannerViewSettings(changes.plannerSettings));
+      }
+
+      // Calendar preferences
+      if (changes.calendarPrefs && Object.keys(changes.calendarPrefs).length > 0) {
+        savePromises.push(updateCalendarPreferences(changes.calendarPrefs));
       }
 
       // Recipe layout preferences
@@ -614,6 +634,76 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     [scheduleSave, recordChange]
   );
 
+  const updateCalendarPrefs = useCallback(
+    (partial: Partial<CalendarPreferences>) => {
+      // Optimistic update
+      setState((prev) => ({
+        ...prev,
+        calendarPreferences: prev.calendarPreferences
+          ? { ...prev.calendarPreferences, ...partial }
+          : { eventTime: "12:00", eventDurationMinutes: 60, excludedDays: [], ...partial },
+      }));
+
+      // Queue for save
+      pendingChanges.current.calendarPrefs = {
+        ...pendingChanges.current.calendarPrefs,
+        ...partial,
+      };
+
+      scheduleSave();
+    },
+    [scheduleSave]
+  );
+
+  const addDietaryRestriction = useCallback(
+    async (restriction: string) => {
+      const result = await addCustomDietaryRestriction(restriction);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      // Optimistic update
+      setState((prev) => ({
+        ...prev,
+        settings: {
+          ...prev.settings,
+          custom_dietary_restrictions: [
+            ...(prev.settings.custom_dietary_restrictions || []),
+            restriction,
+          ],
+        },
+      }));
+
+      toast.success("Dietary restriction added");
+    },
+    []
+  );
+
+  const removeDietaryRestriction = useCallback(
+    async (restriction: string) => {
+      const result = await removeCustomDietaryRestriction(restriction);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      // Optimistic update
+      setState((prev) => ({
+        ...prev,
+        settings: {
+          ...prev.settings,
+          custom_dietary_restrictions: (
+            prev.settings.custom_dietary_restrictions || []
+          ).filter((r) => r !== restriction),
+        },
+      }));
+
+      toast.success("Dietary restriction removed");
+    },
+    []
+  );
+
   // ──────────────────────────────────────────────────────────────────────────
   // Undo Functionality
   // ──────────────────────────────────────────────────────────────────────────
@@ -717,6 +807,9 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     updatePrivacyPrefs,
     updatePlannerSettings,
     updateRecipeLayoutPrefs,
+    updateCalendarPrefs,
+    addDietaryRestriction,
+    removeDietaryRestriction,
     saveNow,
     // Undo functionality
     canUndo,
@@ -767,7 +860,24 @@ export function createDefaultSettingsState(): SettingsState {
       last_name: null,
       email: null,
       avatar_url: null,
+      cover_image_url: null,
       username: null,
+      bio: null,
+      cooking_philosophy: null,
+      profile_emoji: null,
+      currently_craving: null,
+      cook_with_me_status: null,
+      favorite_cuisine: null,
+      cooking_skill_level: null,
+      location: null,
+      website_url: null,
+      public_profile: false,
+      show_cooking_stats: true,
+      show_badges: true,
+      show_cook_photos: true,
+      show_reviews: true,
+      show_saved_recipes: false,
+      profile_accent_color: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     },

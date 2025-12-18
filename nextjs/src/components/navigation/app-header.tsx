@@ -6,6 +6,7 @@ import { AppNav, type NavItem } from './app-nav';
 import { MobileMenu } from './mobile-menu';
 import { SettingsButton } from './settings-button';
 import { ScrollHeader } from './scroll-header';
+import { NotificationBell } from '@/components/notifications';
 
 interface AppHeaderProps {
   navItems: NavItem[];
@@ -26,10 +27,16 @@ export function AppHeader({ navItems, settingsItem, logoutAction }: AppHeaderPro
         </Link>
 
         <div className="flex items-center gap-3">
-          {/* Desktop Navigation + Settings grouped */}
+          {/* Desktop Navigation + Notifications + Settings grouped */}
           <div className="hidden md:flex items-center gap-3">
             <AppNav items={navItems} variant="desktop" />
+            <NotificationBell />
             <SettingsButton />
+          </div>
+
+          {/* Mobile: Show notification bell */}
+          <div className="md:hidden">
+            <NotificationBell />
           </div>
 
           {/* Mobile Menu */}

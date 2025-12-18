@@ -247,6 +247,33 @@ export interface TrendingCacheEntry {
 }
 
 // ============================================
+// NOTIFICATION TYPES
+// ============================================
+
+export type NotificationType =
+  | "new_follower"
+  | "recipe_liked"
+  | "recipe_saved"
+  | "review_received"
+  | "review_helpful"
+  | "review_response"
+  | "recipe_cooked"
+  | "mention"
+  | "system";
+
+export interface SocialNotification {
+  id: string;
+  notification_type: NotificationType;
+  title: string;
+  body: string | null;
+  action_url: string | null;
+  is_read: boolean;
+  read_at: string | null;
+  created_at: string;
+  actor: RecipeAuthor | null;
+}
+
+// ============================================
 // API RESPONSE TYPES
 // ============================================
 

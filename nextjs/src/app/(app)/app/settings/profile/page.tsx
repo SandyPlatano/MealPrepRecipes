@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSettings } from "@/contexts/settings-context";
 import { SettingsHeader } from "@/components/settings/layout/settings-header";
 import { SettingRow, SettingSection } from "@/components/settings/shared/setting-row";
+import { ProfileSettingsForm } from "@/components/settings/profile-settings-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -173,8 +174,11 @@ export default function ProfileSettingsPage() {
     <div className="space-y-8">
       <SettingsHeader
         title="Profile & Account"
-        description="Your personal information and account settings"
+        description="Your personal information and account settings - Bonding over food"
       />
+
+      {/* Profile Customization */}
+      <ProfileSettingsForm profile={profile} />
 
       {/* Profile Information */}
       <SettingSection title="Profile Information">

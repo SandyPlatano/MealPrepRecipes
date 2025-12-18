@@ -80,7 +80,24 @@ export interface UserProfile {
   last_name: string | null;
   email: string | null;
   avatar_url: string | null;
+  cover_image_url: string | null;
   username: string | null;
+  bio: string | null;
+  cooking_philosophy: string | null;
+  profile_emoji: string | null;
+  currently_craving: string | null;
+  cook_with_me_status: CookWithMeStatus | null;
+  favorite_cuisine: string | null;
+  cooking_skill_level: CookingSkillLevel | null;
+  location: string | null;
+  website_url: string | null;
+  public_profile: boolean;
+  show_cooking_stats: boolean;
+  show_badges: boolean;
+  show_cook_photos: boolean;
+  show_reviews: boolean;
+  show_saved_recipes: boolean;
+  profile_accent_color: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -89,6 +106,77 @@ export interface ProfileFormData {
   first_name: string;
   last_name: string;
 }
+
+// ============================================================================
+// Profile Customization Types
+// ============================================================================
+
+export type CookWithMeStatus = "not_set" | "open" | "busy" | "looking";
+export type CookingSkillLevel = "beginner" | "home_cook" | "enthusiast" | "semi_pro" | "professional";
+
+export interface ProfileCustomizationSettings {
+  bio: string;
+  cooking_philosophy: string;
+  profile_emoji: string;
+  currently_craving: string;
+  cook_with_me_status: CookWithMeStatus;
+  favorite_cuisine: string;
+  cooking_skill_level: CookingSkillLevel;
+  location: string;
+  website_url: string;
+  profile_accent_color: string;
+}
+
+export interface ProfilePrivacySettings {
+  public_profile: boolean;
+  show_cooking_stats: boolean;
+  show_badges: boolean;
+  show_cook_photos: boolean;
+  show_reviews: boolean;
+  show_saved_recipes: boolean;
+}
+
+export const DEFAULT_PROFILE_CUSTOMIZATION: ProfileCustomizationSettings = {
+  bio: "",
+  cooking_philosophy: "",
+  profile_emoji: "👨‍🍳",
+  currently_craving: "",
+  cook_with_me_status: "not_set",
+  favorite_cuisine: "",
+  cooking_skill_level: "home_cook",
+  location: "",
+  website_url: "",
+  profile_accent_color: "#f97316",
+};
+
+export const DEFAULT_PROFILE_PRIVACY: ProfilePrivacySettings = {
+  public_profile: false,
+  show_cooking_stats: true,
+  show_badges: true,
+  show_cook_photos: true,
+  show_reviews: true,
+  show_saved_recipes: true,
+};
+
+export const FOOD_EMOJIS = [
+  "👨‍🍳", "👩‍🍳", "🍕", "🍔", "🌮", "🍣",
+  "🍜", "🥘", "🍰", "🧁", "🥗", "🍱"
+] as const;
+
+export const COOK_WITH_ME_STATUS_LABELS: Record<CookWithMeStatus, string> = {
+  not_set: "Not set",
+  open: "Open to cook together",
+  busy: "Busy cooking",
+  looking: "Looking for cooking partner",
+};
+
+export const COOKING_SKILL_LABELS: Record<CookingSkillLevel, string> = {
+  beginner: "Beginner",
+  home_cook: "Home Cook",
+  enthusiast: "Enthusiast",
+  semi_pro: "Semi-Pro",
+  professional: "Professional",
+};
 
 // ============================================================================
 // Cook Mode Settings Types
@@ -427,6 +515,28 @@ export const DEFAULT_RECIPE_PREFERENCES: RecipePreferences = {
   defaultServingSize: 2,
 };
 
+// ============================================================================
+// Calendar Preferences Settings Types
+// ============================================================================
+
+/**
+ * Calendar-related user preferences (event time, duration, excluded days)
+ */
+export interface CalendarPreferences {
+  /** Default time for calendar events in HH:MM format (e.g., "12:00") */
+  eventTime: string;
+  /** Default duration for calendar events in minutes */
+  eventDurationMinutes: number;
+  /** Days of the week to exclude when creating events */
+  excludedDays: string[];
+}
+
+export const DEFAULT_CALENDAR_PREFERENCES: CalendarPreferences = {
+  eventTime: "12:00",
+  eventDurationMinutes: 60,
+  excludedDays: [],
+};
+
 /**
  * Structure for user_settings.preferences JSONB column
  */
@@ -439,6 +549,7 @@ export interface UserSettingsPreferences {
   plannerView?: PlannerViewSettings;
   recipe?: RecipePreferences;
   recipeExport?: RecipeExportPreferences;
+  calendar?: CalendarPreferences;
 }
 
 /**

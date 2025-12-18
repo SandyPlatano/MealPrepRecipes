@@ -13,10 +13,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { MacroGoalsSection } from "@/components/settings/macro-goals-section";
 import { CustomBadgesSection } from "@/components/settings/custom-badges-section";
 import { SubstitutionsSection } from "@/components/settings/substitutions-section";
-import { AlertTriangle, Ruler } from "lucide-react";
+import { AlertTriangle, Ruler, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UnitSystem } from "@/types/settings";
 import type { MacroGoals, MacroGoalPreset } from "@/types/nutrition";
@@ -40,12 +42,15 @@ const ALLERGENS = [
 ];
 
 export default function DietarySettingsPage() {
-  const { settings, updateSettingsField, updateSettingsBatch } = useSettings();
+  const { settings, updateSettingsField, updateSettingsBatch, addDietaryRestriction, removeDietaryRestriction } = useSettings();
 
   // Substitutions state
   const [userSubstitutions, setUserSubstitutions] = useState<UserSubstitution[]>([]);
   const [defaultSubstitutions, setDefaultSubstitutions] = useState<Substitution[]>([]);
   const [substitutionsLoaded, setSubstitutionsLoaded] = useState(false);
+
+  // Custom dietary restrictions input state
+  const [newRestriction, setNewRestriction] = useState("");
 
   // Load substitutions data
   useEffect(() => {
@@ -126,17 +131,47 @@ export default function DietarySettingsPage() {
           label="Custom Restrictions"
           description="Additional dietary restrictions you track"
         >
-          <div className="text-sm text-muted-foreground">
+          <div className="space-y-2 max-w-md">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Add restriction (e.g., 'Low-Carb')"
+                value={newRestriction}
+                onChange={(e) => setNewRestriction(e.target.value)}
+                onKeyDown={async (e) => {
+                  if (e.key === "Enter" && newRestriction.trim()) {
+                    await addDietaryRestriction(newRestriction.trim());
+                    setNewRestriction("");
+                  }
+                }}
+              />
+              <Button
+                onClick={async () => {
+                  await addDietaryRestriction(newRestriction.trim());
+                  setNewRestriction("");
+                }}
+                disabled={!newRestriction.trim()}
+                size="sm"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+
             {settings.custom_dietary_restrictions?.length ? (
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-2">
                 {settings.custom_dietary_restrictions.map((r) => (
-                  <Badge key={r} variant="secondary">
+                  <Badge
+                    key={r}
+                    variant="secondary"
+                    className="cursor-pointer hover:bg-destructive/20"
+                    onClick={() => removeDietaryRestriction(r)}
+                  >
                     {r}
+                    <X className="ml-1 h-3 w-3" />
                   </Badge>
                 ))}
               </div>
             ) : (
-              "No custom restrictions"
+              <p className="text-sm text-muted-foreground">No custom restrictions</p>
             )}
           </div>
         </SettingRow>

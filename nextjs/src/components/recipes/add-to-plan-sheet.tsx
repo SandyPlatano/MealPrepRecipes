@@ -50,26 +50,28 @@ export function AddToPlanSheet({
     return () => setMounted(false);
   }, []);
 
-  // Load cook names and default serving size from user settings (localStorage)
+  // Load cook names and default serving size from user settings (API)
   useEffect(() => {
-    const stored = localStorage.getItem("user-settings");
-    if (stored) {
+    async function loadSettings() {
       try {
-        const settings = JSON.parse(stored);
-        if (settings.cook_names && settings.cook_names.length > 0) {
-          setCookNames(settings.cook_names);
-        }
-        if (settings.cook_colors) {
-          setCookColors(settings.cook_colors);
-        }
-        // Load default serving size from preferences
-        if (settings.preferences?.recipe?.defaultServingSize) {
-          setDefaultServingSize(settings.preferences.recipe.defaultServingSize);
+        const response = await fetch("/api/user/recipe-preferences");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.cook_names && data.cook_names.length > 0) {
+            setCookNames(data.cook_names);
+          }
+          if (data.cook_colors) {
+            setCookColors(data.cook_colors);
+          }
+          if (data.default_serving_size) {
+            setDefaultServingSize(data.default_serving_size);
+          }
         }
       } catch (e) {
         console.error("Failed to load settings", e);
       }
     }
+    loadSettings();
   }, []);
 
   // Handle escape key
