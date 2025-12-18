@@ -152,10 +152,15 @@ export async function sendHouseholdInvitation(email: string): Promise<{
       expiresInDays: 7,
     });
 
+    // Personalized from name with reply-to for direct responses
+    const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+    const personalizedFrom = `${inviterName} via Babe What's For Dinner <${fromEmail.includes("<") ? fromEmail.match(/<(.+)>/)?.[1] || "noreply@babewfd.com" : fromEmail}>`;
+
     const { error: emailError } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+      from: personalizedFrom,
       to: email.toLowerCase(),
       subject: `${inviterName} invited you to join their household`,
+      replyTo: inviterProfile?.email || undefined,
       html,
       text,
     });
@@ -320,10 +325,15 @@ export async function resendHouseholdInvitation(invitationId: string): Promise<{
       expiresInDays: 7,
     });
 
+    // Personalized from name with reply-to for direct responses
+    const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+    const personalizedFrom = `${inviterName} via Babe What's For Dinner <${fromEmail.includes("<") ? fromEmail.match(/<(.+)>/)?.[1] || "noreply@babewfd.com" : fromEmail}>`;
+
     const { error: emailError } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+      from: personalizedFrom,
       to: data.email,
       subject: `${inviterName} invited you to join their household`,
+      replyTo: inviterProfile?.email || undefined,
       html,
       text,
     });
