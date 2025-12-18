@@ -61,6 +61,12 @@ function AppShellContent({
     setMounted(true);
   }, []);
 
+  // IMPORTANT: All hooks must be called before any conditional returns
+  // Handler to open global search modal (used by desktop layout)
+  const handleSearchClick = React.useCallback(() => {
+    window.dispatchEvent(new CustomEvent("keyboard:openSearch"));
+  }, []);
+
   const sidebarProps: Omit<AppSidebarProps, "user" | "logoutAction"> = {
     categories,
     systemSmartFolders,
@@ -128,11 +134,6 @@ function AppShellContent({
       </div>
     );
   }
-
-  // Handler to open global search modal
-  const handleSearchClick = React.useCallback(() => {
-    window.dispatchEvent(new CustomEvent("keyboard:openSearch"));
-  }, []);
 
   // Desktop layout: sidebar + content (simple flex layout)
   return (
