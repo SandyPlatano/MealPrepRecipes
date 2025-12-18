@@ -181,6 +181,9 @@ export function RecipeDetail({
   const [currentServings, setCurrentServings] = useState(
     recipe.base_servings || 1
   );
+  const [servingsInputValue, setServingsInputValue] = useState(
+    String(recipe.base_servings || 1)
+  );
   const canScale = recipe.base_servings !== null && recipe.base_servings > 0;
   const scaledIngredients = canScale
     ? scaleIngredients(recipe.ingredients, recipe.base_servings!, currentServings)
@@ -270,18 +273,64 @@ export function RecipeDetail({
     }
   };
 
-  const incrementServings = () => {
-    setCurrentServings((prev) => Math.min(20, prev + 1));
-  };
-
-  const decrementServings = () => {
-    setCurrentServings((prev) => Math.max(1, prev - 1));
-  };
+  const MAX_SERVINGS = 99;
 
   const setServingsPreset = (multiplier: number) => {
     if (recipe.base_servings) {
-      setCurrentServings(Math.min(20, recipe.base_servings * multiplier));
+      const newServings = Math.min(MAX_SERVINGS, Math.round(recipe.base_servings * multiplier));
+      setCurrentServings(newServings);
+      setServingsInputValue(String(newServings));
     }
+  };
+
+  const handleServingsInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    // Allow empty string for typing
+    if (value === "") {
+      setServingsInputValue("");
+      return;
+    }
+
+    // Only allow digits
+    if (!/^\d+$/.test(value)) {
+      return;
+    }
+
+    const numValue = parseInt(value, 10);
+
+    // Block values over 99
+    if (numValue > MAX_SERVINGS) {
+      setServingsInputValue(String(MAX_SERVINGS));
+      setCurrentServings(MAX_SERVINGS);
+      return;
+    }
+
+    // Block zero - minimum is 1
+    if (numValue === 0) {
+      setServingsInputValue("0"); // Allow typing but don't update scaling
+      return;
+    }
+
+    setServingsInputValue(value);
+    setCurrentServings(numValue);
+  };
+
+  const handleServingsInputBlur = () => {
+    const numValue = parseInt(servingsInputValue, 10);
+
+    // If empty or invalid, revert to base_servings
+    if (servingsInputValue === "" || isNaN(numValue) || numValue < 1) {
+      const fallback = recipe.base_servings || 1;
+      setServingsInputValue(String(fallback));
+      setCurrentServings(fallback);
+      return;
+    }
+
+    // Clamp to valid range
+    const clampedValue = Math.min(MAX_SERVINGS, Math.max(1, numValue));
+    setServingsInputValue(String(clampedValue));
+    setCurrentServings(clampedValue);
   };
 
   const lastCooked = localHistory.length > 0 ? localHistory[0].cooked_at : null;
@@ -596,31 +645,19 @@ export function RecipeDetail({
                       className="text-xs"
                     />
                   </div>
-                  {/* Manual adjuster */}
+                  {/* Serving size input */}
                   <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2 w-fit">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={decrementServings}
-                      disabled={currentServings <= 1}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <div className="flex items-center gap-1 min-w-[80px] justify-center">
-                      <Users className="h-4 w-4" />
-                      <span className="font-semibold">{currentServings}</span>
-                      <span className="text-xs text-muted-foreground">servings</span>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={incrementServings}
-                      disabled={currentServings >= 20}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="number"
+                      min={1}
+                      max={99}
+                      value={servingsInputValue}
+                      onChange={handleServingsInputChange}
+                      onBlur={handleServingsInputBlur}
+                      className="h-8 w-16 text-center font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                    <span className="text-sm text-muted-foreground">servings</span>
                   </div>
                 </div>
               )}
