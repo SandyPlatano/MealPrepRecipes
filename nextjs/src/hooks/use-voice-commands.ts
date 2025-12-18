@@ -397,7 +397,7 @@ export function useVoiceCommands({
   // Start listening for voice commands
   // NOTE: Caller is responsible for checking if voice should be enabled
   // Do NOT check 'enabled' here - it causes stale closure issues
-  const startListening = useCallback(() => {
+  const startListening = useCallback(async () => {
     console.log("[VoiceCommands] startListening called");
 
     // Already listening - don't start again
@@ -418,6 +418,19 @@ export function useVoiceCommands({
     if (!SpeechRecognitionClass) {
       console.error("[VoiceCommands] SpeechRecognition not supported");
       setError("Speech recognition not supported in this browser");
+      return;
+    }
+
+    // Request microphone permission explicitly - this forces Chrome to show the prompt
+    console.log("[VoiceCommands] Requesting microphone permission...");
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Stop the stream immediately - we just needed the permission
+      stream.getTracks().forEach(track => track.stop());
+      console.log("[VoiceCommands] Microphone permission granted!");
+    } catch (permErr) {
+      console.error("[VoiceCommands] Microphone permission denied:", permErr);
+      setError("Microphone access denied. Please allow microphone access in your browser settings.");
       return;
     }
 
