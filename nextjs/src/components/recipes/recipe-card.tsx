@@ -404,6 +404,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                           e.stopPropagation();
                           setShowRatingDialog(true);
                         }}
+                        aria-label="Rate this recipe"
                       >
                         <Star className="h-4 w-4" />
                       </Button>
@@ -421,6 +422,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                       onClick={handleToggleFavorite}
                       className={isFavorite ? "text-red-500" : ""}
                       disabled={isPending}
+                      aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
                     >
                       <Heart
                         className={`h-4 w-4 ${isFavorite ? "fill-current" : ""} ${isPending ? "opacity-50" : ""}`}
@@ -435,7 +437,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" aria-label="More actions">
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>

@@ -20,7 +20,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles, Star } from "lucide-react";
+import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles, Star, Leaf, Wheat, Flame, Mountain, Ship, GlassWater, Milk, TrendingDown } from "lucide-react";
 import type { RecipeWithFavoriteAndNutrition, RecipeType } from "@/types/recipe";
 import type { CustomBadge } from "@/lib/nutrition/badge-calculator";
 import type { FolderWithChildren } from "@/types/folder";
@@ -47,6 +47,17 @@ const recipeTypes: RecipeType[] = [
   "Side Dish",
 ];
 
+const dietTypes = [
+  { label: "Vegan", icon: Leaf },
+  { label: "Vegetarian", icon: Leaf },
+  { label: "Keto", icon: Flame },
+  { label: "Paleo", icon: Mountain },
+  { label: "Mediterranean", icon: Ship },
+  { label: "Gluten-Free", icon: Wheat },
+  { label: "Dairy-Free", icon: Milk },
+  { label: "Low-Carb", icon: TrendingDown },
+];
+
 type SortOption = "recent" | "most-cooked" | "highest-rated" | "alphabetical";
 
 export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, userAllergenAlerts = [], customDietaryRestrictions = [], customBadges = [], onDiscoverClick, folderRecipeIds = null, folders = [], onAddToFolder }: RecipeGridProps) {
@@ -54,6 +65,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
   const [typeFilter, setTypeFilter] = useState<RecipeType | "all">("all");
   const [proteinTypeFilter, setProteinTypeFilter] = useState<string>("all");
   const [tagFilter, setTagFilter] = useState<string>("all");
+  const [dietFilter, setDietFilter] = useState<string | "all">("all");
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [ratingFilter, setRatingFilter] = useState<number[]>([]);
   const [ratedFilter, setRatedFilter] = useState<"all" | "rated" | "unrated">("all");
@@ -115,6 +127,14 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
         return false;
       }
 
+      // Diet filter (searches tags for matching diet type)
+      if (dietFilter !== "all") {
+        const hasDietTag = recipe.tags.some(
+          (tag) => tag.toLowerCase() === dietFilter.toLowerCase()
+        );
+        if (!hasDietTag) return false;
+      }
+
       // Favorites filter
       if (favoritesOnly && !recipe.is_favorite) {
         return false;
@@ -159,12 +179,13 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
     });
 
     return sorted;
-  }, [initialRecipes, search, typeFilter, proteinTypeFilter, tagFilter, favoritesOnly, ratingFilter, ratedFilter, sortBy, recipeCookCounts, folderRecipeIds]);
+  }, [initialRecipes, search, typeFilter, proteinTypeFilter, tagFilter, dietFilter, favoritesOnly, ratingFilter, ratedFilter, sortBy, recipeCookCounts, folderRecipeIds]);
 
   const hasActiveFilters =
     typeFilter !== "all" ||
     proteinTypeFilter !== "all" ||
     tagFilter !== "all" ||
+    dietFilter !== "all" ||
     favoritesOnly ||
     ratingFilter.length > 0 ||
     ratedFilter !== "all";
@@ -173,6 +194,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
     setTypeFilter("all");
     setProteinTypeFilter("all");
     setTagFilter("all");
+    setDietFilter("all");
     setFavoritesOnly(false);
     setRatingFilter([]);
     setRatedFilter("all");
@@ -188,6 +210,40 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
 
   return (
     <div className="space-y-6">
+      {/* Diet Type Quick Filters */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Diet Types</label>
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <button
+            onClick={() => setDietFilter("all")}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-full border text-sm font-medium whitespace-nowrap transition-all ${
+              dietFilter === "all"
+                ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                : "border-input hover:bg-accent"
+            }`}
+          >
+            All Diets
+          </button>
+          {dietTypes.map((diet) => {
+            const Icon = diet.icon;
+            return (
+              <button
+                key={diet.label}
+                onClick={() => setDietFilter(diet.label)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-full border text-sm font-medium whitespace-nowrap transition-all ${
+                  dietFilter === diet.label
+                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                    : "border-input hover:bg-accent"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                {diet.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Search and Filter Controls */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 max-w-2xl">
@@ -203,6 +259,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
             <button
               onClick={() => setSearch("")}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Clear search"
             >
               <X className="h-4 w-4" />
             </button>
@@ -231,8 +288,8 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
             <span className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full" />
           )}
         </Button>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="h-11 w-full sm:w-auto"
           onClick={onDiscoverClick}
         >
@@ -334,6 +391,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
                         ? "bg-yellow-50 border-yellow-300 text-yellow-700 dark:bg-yellow-950 dark:border-yellow-700 dark:text-yellow-300"
                         : "border-input hover:bg-accent"
                     }`}
+                    aria-label={`Filter by ${rating} star rating`}
                   >
                     <Star
                       className={`h-3.5 w-3.5 ${
@@ -369,7 +427,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
               {typeFilter !== "all" && (
                 <Badge variant="secondary" className="gap-1">
                   {typeFilter}
-                  <button onClick={() => setTypeFilter("all")}>
+                  <button onClick={() => setTypeFilter("all")} aria-label="Remove type filter">
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -377,7 +435,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
               {proteinTypeFilter !== "all" && (
                 <Badge variant="secondary" className="gap-1">
                   {proteinTypeFilter}
-                  <button onClick={() => setProteinTypeFilter("all")}>
+                  <button onClick={() => setProteinTypeFilter("all")} aria-label="Remove protein filter">
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -385,7 +443,15 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
               {tagFilter !== "all" && (
                 <Badge variant="secondary" className="gap-1">
                   {tagFilter}
-                  <button onClick={() => setTagFilter("all")}>
+                  <button onClick={() => setTagFilter("all")} aria-label="Remove tag filter">
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {dietFilter !== "all" && (
+                <Badge variant="secondary" className="gap-1">
+                  {dietFilter}
+                  <button onClick={() => setDietFilter("all")} aria-label="Remove diet filter">
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -393,7 +459,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
               {favoritesOnly && (
                 <Badge variant="secondary" className="gap-1">
                   Favorites
-                  <button onClick={() => setFavoritesOnly(false)}>
+                  <button onClick={() => setFavoritesOnly(false)} aria-label="Remove favorites filter">
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -402,7 +468,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
                 <Badge variant="secondary" className="gap-1">
                   <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                   {ratingFilter.sort((a, b) => b - a).join(", ")}
-                  <button onClick={() => setRatingFilter([])}>
+                  <button onClick={() => setRatingFilter([])} aria-label="Remove rating filter">
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -410,7 +476,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
               {ratedFilter !== "all" && (
                 <Badge variant="secondary" className="gap-1">
                   {ratedFilter === "rated" ? "Rated" : "Unrated"}
-                  <button onClick={() => setRatedFilter("all")}>
+                  <button onClick={() => setRatedFilter("all")} aria-label="Remove rated filter">
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>

@@ -13,9 +13,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { ChefHat, Plus, Users, ArrowRight, Check } from "lucide-react";
+import { ChefHat, Plus, Users, ArrowRight, Check, Activity, Target } from "lucide-react";
 import { updateProfile, updateSettings } from "@/app/actions/settings";
 import { toast } from "sonner";
+import type { MacroGoals, MacroGoalPreset } from "@/types/nutrition";
+import { MACRO_GOAL_PRESETS } from "@/types/nutrition";
 
 // Default colors for cooks
 const defaultColors = [
@@ -51,7 +53,12 @@ export function OnboardingDialog({
   const [cookColors, setCookColors] = useState<Record<string, string>>(currentCookColors);
   const [saving, setSaving] = useState(false);
 
-  const progress = (step / 3) * 100;
+  // Nutrition tracking state
+  const [nutritionEnabled, setNutritionEnabled] = useState(false);
+  const [selectedPreset, setSelectedPreset] = useState<MacroGoalPreset | null>(null);
+  const [macroGoals, setMacroGoals] = useState<MacroGoals>(MACRO_GOAL_PRESETS.maintenance);
+
+  const progress = (step / 4) * 100;
 
   const addCook = () => {
     setCookNames([...cookNames, ""]);
@@ -86,8 +93,15 @@ export function OnboardingDialog({
     return cookColors[cookName] || defaultColors[index % defaultColors.length];
   };
 
+  // Apply a nutrition goal preset
+  const applyPreset = (preset: Exclude<MacroGoalPreset, "custom">) => {
+    setMacroGoals(MACRO_GOAL_PRESETS[preset]);
+    setSelectedPreset(preset);
+    setNutritionEnabled(true);
+  };
+
   const handleNext = () => {
-    if (step < 3) {
+    if (step < 4) {
       setStep(step + 1);
     }
   };
@@ -107,19 +121,39 @@ export function OnboardingDialog({
         }
       }
 
-      // Save cook names and colors
+      // Save cook names, colors, and nutrition settings
       const filteredCookNames = cookNames.filter((n) => n.trim());
-      if (filteredCookNames.length > 0) {
-        // Build cook colors object with defaults for cooks without explicit colors
-        const finalCookColors: Record<string, string> = {};
-        filteredCookNames.forEach((name, index) => {
-          finalCookColors[name] = cookColors[name] || defaultColors[index % defaultColors.length];
-        });
 
-        const settingsResult = await updateSettings({
-          cook_names: filteredCookNames,
-          cook_colors: finalCookColors,
-        });
+      // Build cook colors object with defaults for cooks without explicit colors
+      const finalCookColors: Record<string, string> = {};
+      filteredCookNames.forEach((name, index) => {
+        finalCookColors[name] = cookColors[name] || defaultColors[index % defaultColors.length];
+      });
+
+      // Build settings object
+      const settingsToSave: {
+        cook_names?: string[];
+        cook_colors?: Record<string, string>;
+        macro_tracking_enabled?: boolean;
+        macro_goals?: MacroGoals;
+        macro_goal_preset?: MacroGoalPreset | null;
+      } = {};
+
+      if (filteredCookNames.length > 0) {
+        settingsToSave.cook_names = filteredCookNames;
+        settingsToSave.cook_colors = finalCookColors;
+      }
+
+      // Add nutrition settings if enabled
+      if (nutritionEnabled && selectedPreset) {
+        settingsToSave.macro_tracking_enabled = true;
+        settingsToSave.macro_goals = macroGoals;
+        settingsToSave.macro_goal_preset = selectedPreset;
+      }
+
+      // Save settings if there's anything to save
+      if (Object.keys(settingsToSave).length > 0) {
+        const settingsResult = await updateSettings(settingsToSave);
         if (settingsResult.error) {
           console.error("Settings save error:", settingsResult.error);
           toast.error(`Failed to save settings: ${settingsResult.error}`);
@@ -288,8 +322,88 @@ export function OnboardingDialog({
           </div>
         )}
 
-        {/* Step 3: Ready */}
+        {/* Step 3: Nutrition Goals (Optional) */}
         {step === 3 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Activity className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold">Track your nutrition?</h3>
+                <p className="text-sm text-muted-foreground">
+                  Optional: Set daily macro goals for meal planning.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2">
+                <Target className="h-4 w-4" />
+                Choose a goal
+              </Label>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant={selectedPreset === "weight_loss" ? "default" : "outline"}
+                  onClick={() => applyPreset("weight_loss")}
+                  className="h-auto flex-col items-start gap-1 px-3 py-2"
+                >
+                  <span className="font-semibold">Weight Loss</span>
+                  <span className="text-xs opacity-80">1800 cal • 140g protein</span>
+                </Button>
+                <Button
+                  variant={selectedPreset === "muscle_building" ? "default" : "outline"}
+                  onClick={() => applyPreset("muscle_building")}
+                  className="h-auto flex-col items-start gap-1 px-3 py-2"
+                >
+                  <span className="font-semibold">Muscle Building</span>
+                  <span className="text-xs opacity-80">2500 cal • 180g protein</span>
+                </Button>
+                <Button
+                  variant={selectedPreset === "maintenance" ? "default" : "outline"}
+                  onClick={() => applyPreset("maintenance")}
+                  className="h-auto flex-col items-start gap-1 px-3 py-2"
+                >
+                  <span className="font-semibold">Maintenance</span>
+                  <span className="text-xs opacity-80">2000 cal • 150g protein</span>
+                </Button>
+                <Button
+                  variant={!nutritionEnabled ? "secondary" : "outline"}
+                  onClick={() => {
+                    setNutritionEnabled(false);
+                    setSelectedPreset(null);
+                  }}
+                  className="h-auto flex-col items-start gap-1 px-3 py-2"
+                >
+                  <span className="font-semibold">Skip for now</span>
+                  <span className="text-xs opacity-80">Set up later in settings</span>
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                You can customize your goals anytime in Settings → Dietary.
+              </p>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setStep(2)}
+                className="flex-1"
+              >
+                Back
+              </Button>
+              <Button
+                onClick={handleNext}
+                className="flex-1"
+              >
+                Continue <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Ready */}
+        {step === 4 && (
           <div className="space-y-4">
             <div className="flex items-center gap-3 mb-6">
               <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
@@ -324,7 +438,7 @@ export function OnboardingDialog({
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                onClick={() => setStep(2)}
+                onClick={() => setStep(3)}
                 className="flex-1"
               >
                 Back

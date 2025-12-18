@@ -38,7 +38,20 @@ export async function startCookingSession(
 
   if (error) {
     console.error("Error starting cooking session:", error);
-    return { error: error.message, data: null };
+
+    // Provide more descriptive error messages
+    if (error.message.includes("function") && error.message.includes("does not exist")) {
+      return {
+        error: "Cooking mode database setup incomplete. Please contact support.",
+        data: null
+      };
+    }
+
+    if (error.message.includes("Recipe has no instructions")) {
+      return { error: "This recipe has no instructions to cook.", data: null };
+    }
+
+    return { error: `Failed to start cooking: ${error.message}`, data: null };
   }
 
   revalidatePath("/app/recipes/[id]/cook", "page");
@@ -63,7 +76,16 @@ export async function getActiveSession() {
 
   if (error) {
     console.error("Error getting active session:", error);
-    return { error: error.message, data: null };
+
+    // Provide more descriptive error messages
+    if (error.message.includes("function") && error.message.includes("does not exist")) {
+      return {
+        error: "Cooking mode database setup incomplete. Please contact support.",
+        data: null
+      };
+    }
+
+    return { error: `Failed to load session: ${error.message}`, data: null };
   }
 
   if (!data || data.length === 0) {
@@ -124,7 +146,24 @@ export async function navigateStep(
 
   if (error) {
     console.error("Error navigating step:", error);
-    return { error: error.message, data: null };
+
+    // Provide more descriptive error messages
+    if (error.message.includes("function") && error.message.includes("does not exist")) {
+      return {
+        error: "Cooking mode database setup incomplete. Please contact support.",
+        data: null
+      };
+    }
+
+    if (error.message.includes("Session not found")) {
+      return { error: "Cooking session not found. Please restart.", data: null };
+    }
+
+    if (error.message.includes("Unauthorized")) {
+      return { error: "You don't have permission to access this session.", data: null };
+    }
+
+    return { error: `Navigation failed: ${error.message}`, data: null };
   }
 
   // Get the updated instruction
@@ -180,7 +219,24 @@ export async function jumpToStep(sessionId: string, stepIndex: number) {
 
   if (error) {
     console.error("Error jumping to step:", error);
-    return { error: error.message, data: null };
+
+    // Provide more descriptive error messages
+    if (error.message.includes("function") && error.message.includes("does not exist")) {
+      return {
+        error: "Cooking mode database setup incomplete. Please contact support.",
+        data: null
+      };
+    }
+
+    if (error.message.includes("Session not found")) {
+      return { error: "Cooking session not found. Please restart.", data: null };
+    }
+
+    if (error.message.includes("Unauthorized")) {
+      return { error: "You don't have permission to access this session.", data: null };
+    }
+
+    return { error: `Failed to jump to step: ${error.message}`, data: null };
   }
 
   // Get the updated instruction
@@ -240,7 +296,24 @@ export async function completeCookingSession(
 
   if (error) {
     console.error("Error completing cooking session:", error);
-    return { error: error.message, data: null };
+
+    // Provide more descriptive error messages
+    if (error.message.includes("function") && error.message.includes("does not exist")) {
+      return {
+        error: "Cooking mode database setup incomplete. Please contact support.",
+        data: null
+      };
+    }
+
+    if (error.message.includes("Session not found")) {
+      return { error: "Cooking session not found.", data: null };
+    }
+
+    if (error.message.includes("Unauthorized")) {
+      return { error: "You don't have permission to complete this session.", data: null };
+    }
+
+    return { error: `Failed to complete session: ${error.message}`, data: null };
   }
 
   revalidatePath("/app/recipes");
@@ -270,7 +343,20 @@ export async function abandonSession(sessionId: string) {
 
   if (error) {
     console.error("Error abandoning session:", error);
-    return { error: error.message, data: null };
+
+    // Provide more descriptive error messages
+    if (error.message.includes("relation") && error.message.includes("does not exist")) {
+      return {
+        error: "Cooking mode database setup incomplete. Please contact support.",
+        data: null
+      };
+    }
+
+    if (error.code === "PGRST116") {
+      return { error: "Session not found or already ended.", data: null };
+    }
+
+    return { error: `Failed to exit session: ${error.message}`, data: null };
   }
 
   revalidatePath("/app/recipes");
@@ -300,7 +386,24 @@ export async function createTimer(sessionId: string, timerData: CreateTimerData)
 
   if (error) {
     console.error("Error creating timer:", error);
-    return { error: error.message, data: null };
+
+    // Provide more descriptive error messages
+    if (error.message.includes("function") && error.message.includes("does not exist")) {
+      return {
+        error: "Cooking mode database setup incomplete. Please contact support.",
+        data: null
+      };
+    }
+
+    if (error.message.includes("Session not found")) {
+      return { error: "Cooking session not found.", data: null };
+    }
+
+    if (error.message.includes("Unauthorized")) {
+      return { error: "You don't have permission to create timers for this session.", data: null };
+    }
+
+    return { error: `Failed to create timer: ${error.message}`, data: null };
   }
 
   revalidatePath("/app/recipes/[id]/cook", "page");

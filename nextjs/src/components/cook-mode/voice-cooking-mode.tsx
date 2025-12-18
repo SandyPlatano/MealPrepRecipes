@@ -225,6 +225,7 @@ export function VoiceCookingMode({ recipeId }: VoiceCookingModeProps) {
               size="sm"
               onClick={() => setShowExitDialog(true)}
               className="flex-shrink-0"
+              aria-label="Exit cooking mode"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Exit
@@ -249,6 +250,7 @@ export function VoiceCookingMode({ recipeId }: VoiceCookingModeProps) {
               onClick={() => setShowCompleteDialog(true)}
               disabled={session.current_step !== session.total_steps}
               className="flex-shrink-0"
+              aria-label="Complete cooking session"
             >
               <CheckCircle className="mr-2 h-4 w-4" />
               Complete
