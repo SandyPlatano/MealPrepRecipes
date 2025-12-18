@@ -15,7 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-type IconKey = "plan" | "recipes" | "shop" | "pantry" | "favorites" | "settings" | "nutrition" | "stats";
+export type IconKey = "plan" | "recipes" | "shop" | "pantry" | "favorites" | "settings" | "nutrition" | "stats";
 
 const iconMap: Record<IconKey, LucideIcon> = {
   plan: Calendar,
@@ -28,7 +28,7 @@ const iconMap: Record<IconKey, LucideIcon> = {
   stats: BarChart3,
 };
 
-type NavItem = {
+export type NavItem = {
   href: string;
   label: string;
   iconKey: IconKey;

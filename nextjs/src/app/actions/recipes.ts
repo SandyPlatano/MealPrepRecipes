@@ -141,12 +141,12 @@ export async function saveQuickCookRecipe(suggestion: QuickCookSuggestion) {
   const formData: RecipeFormData = {
     title: suggestion.title,
     recipe_type: "Dinner", // Default type for AI suggestions
-    category: suggestion.cuisine || null,
-    protein_type: suggestion.protein_type || null,
-    prep_time: suggestion.active_time ? `${suggestion.active_time} min` : null,
+    category: suggestion.cuisine || undefined,
+    protein_type: suggestion.protein_type || undefined,
+    prep_time: suggestion.active_time ? `${suggestion.active_time} min` : undefined,
     cook_time: suggestion.total_time && suggestion.active_time
       ? `${suggestion.total_time - suggestion.active_time} min`
-      : null,
+      : undefined,
     servings: `${suggestion.servings}`,
     base_servings: suggestion.servings,
     ingredients: suggestion.ingredients.map(

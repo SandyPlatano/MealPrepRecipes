@@ -2,16 +2,10 @@
 
 import Link from 'next/link';
 import { BrandLogoCompact } from '@/components/brand/logo';
-import { AppNav } from './app-nav';
+import { AppNav, type NavItem } from './app-nav';
 import { MobileMenu } from './mobile-menu';
 import { SettingsButton } from './settings-button';
 import { ScrollHeader } from './scroll-header';
-
-type NavItem = {
-  href: string;
-  label: string;
-  iconKey: 'plan' | 'recipes' | 'shop' | 'pantry' | 'favorites' | 'settings' | 'nutrition' | 'prep' | 'stats';
-};
 
 interface AppHeaderProps {
   navItems: NavItem[];

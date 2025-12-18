@@ -87,7 +87,7 @@ export function InvitationManager({ isOwner }: InvitationManagerProps) {
   };
 
   const copyInviteLink = async (token: string) => {
-    const link = getInvitationLink(token);
+    const link = await getInvitationLink(token);
     await navigator.clipboard.writeText(link);
     setCopiedToken(token);
     toast.success("Invite link copied to clipboard");
