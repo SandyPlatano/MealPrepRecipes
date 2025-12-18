@@ -3,6 +3,9 @@ import { getRecipe } from "@/app/actions/recipes";
 import { getSettings, getCookModeSettings } from "@/app/actions/settings";
 import { CookingMode } from "@/components/recipes/cooking-mode";
 
+// Force dynamic rendering to ensure fresh settings data on every navigation
+export const dynamic = "force-dynamic";
+
 interface CookPageProps {
   params: Promise<{ id: string }>;
 }

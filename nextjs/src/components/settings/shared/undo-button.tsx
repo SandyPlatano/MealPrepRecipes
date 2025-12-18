@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { SettingsChange } from "@/types/settings-history";
@@ -39,28 +40,30 @@ export function UndoButton({
   const toValue = formatValueForDisplay(lastChange.newValue);
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onUndo}
-          className={cn(
-            "gap-1.5 text-muted-foreground hover:text-foreground transition-colors",
-            className
-          )}
-        >
-          <Undo2 className="h-3.5 w-3.5" />
-          <span className="text-xs">Undo</span>
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent side="bottom" className="max-w-[200px]">
-        <p className="font-medium">Undo: {lastChange.settingLabel}</p>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          {toValue} → {fromValue}
-        </p>
-        <p className="text-xs text-muted-foreground mt-0.5">{timeAgo}</p>
-      </TooltipContent>
-    </Tooltip>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onUndo}
+            className={cn(
+              "gap-1.5 text-muted-foreground hover:text-foreground transition-colors",
+              className
+            )}
+          >
+            <Undo2 className="h-3.5 w-3.5" />
+            <span className="text-xs">Undo</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" className="max-w-[200px]">
+          <p className="font-medium">Undo: {lastChange.settingLabel}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {toValue} → {fromValue}
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">{timeAgo}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

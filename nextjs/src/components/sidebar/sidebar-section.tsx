@@ -20,6 +20,7 @@ import { useSidebar } from "./sidebar-context";
 interface SidebarSectionProps {
   title: string;
   icon?: LucideIcon;
+  emoji?: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
   action?: React.ReactNode;
@@ -29,6 +30,7 @@ interface SidebarSectionProps {
 export function SidebarSection({
   title,
   icon: Icon,
+  emoji,
   children,
   defaultOpen = true,
   action,
@@ -41,11 +43,15 @@ export function SidebarSection({
   if (isIconOnly) {
     return (
       <div className={cn("space-y-1", className)}>
-        {Icon && (
+        {(emoji || Icon) && (
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
               <div className="flex items-center justify-center h-8 text-muted-foreground">
-                <Icon className="h-4 w-4" />
+                {emoji ? (
+                  <span className="text-base">{emoji}</span>
+                ) : Icon ? (
+                  <Icon className="h-4 w-4" />
+                ) : null}
               </div>
             </TooltipTrigger>
             <TooltipContent side="right">
@@ -77,7 +83,11 @@ export function SidebarSection({
                 isOpen && "rotate-90"
               )}
             />
-            {Icon && <Icon className="h-3 w-3" />}
+            {emoji ? (
+              <span className="text-xs">{emoji}</span>
+            ) : Icon ? (
+              <Icon className="h-3 w-3" />
+            ) : null}
             <span>{title}</span>
           </Button>
         </CollapsibleTrigger>

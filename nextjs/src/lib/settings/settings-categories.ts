@@ -7,12 +7,14 @@ import {
   Database,
   Users,
   MessageSquareHeart,
+  PanelLeft,
   type LucideIcon,
 } from "lucide-react";
 
 export type SettingsCategoryId =
   | "profile"
   | "appearance"
+  | "sidebar"
   | "meal-planning"
   | "dietary"
   | "shortcuts"
@@ -57,6 +59,14 @@ export const SETTINGS_CATEGORIES: SettingsCategory[] = [
     description: "Theme, colors, and display preferences",
     icon: Palette,
     path: "/app/settings/appearance",
+  },
+  {
+    id: "sidebar",
+    label: "Sidebar",
+    shortLabel: "Sidebar",
+    description: "Customize sidebar sections, order, and appearance",
+    icon: PanelLeft,
+    path: "/app/settings/sidebar",
   },
   {
     id: "meal-planning",

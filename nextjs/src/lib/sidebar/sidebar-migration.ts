@@ -129,7 +129,7 @@ export function normalizeSidebarPreferences(
   ) ?? [...DEFAULT_SECTION_ORDER];
 
   // Add any sections not in the order
-  for (const id of allSectionIds) {
+  for (const id of Array.from(allSectionIds)) {
     if (!sectionOrder.includes(id)) {
       sectionOrder.push(id);
     }
@@ -160,7 +160,7 @@ export function getEffectiveSectionOrder(
   const result = [...prefs.sectionOrder];
 
   // Add any sections not in the order (new custom sections)
-  for (const id of allSectionIds) {
+  for (const id of Array.from(allSectionIds)) {
     if (!orderedIds.has(id)) {
       result.push(id);
     }

@@ -48,18 +48,23 @@ import { SidebarSection } from "./sidebar-section";
 import { useSidebar } from "./sidebar-context";
 import { SmartFolderDialog } from "@/components/folders/smart-folder-dialog";
 import { deleteSmartFolder } from "@/app/actions/smart-folders";
+import { getIconComponent } from "@/lib/sidebar/sidebar-icons";
 import type {
   FolderWithChildren,
   FolderCategoryWithFolders,
   FolderCategory,
 } from "@/types/folder";
 import type { SystemSmartFolder } from "@/types/smart-folder";
+import type { SidebarIconName } from "@/types/sidebar-customization";
 
 interface SidebarCollectionsProps {
   categories?: FolderCategoryWithFolders[];
   systemSmartFolders?: SystemSmartFolder[];
   userSmartFolders?: FolderWithChildren[];
   totalRecipeCount?: number;
+  customLabel?: string | null;
+  customIcon?: SidebarIconName | null;
+  customEmoji?: string | null;
 }
 
 export function SidebarCollections({
@@ -67,6 +72,9 @@ export function SidebarCollections({
   systemSmartFolders = [],
   userSmartFolders = [],
   totalRecipeCount,
+  customLabel,
+  customIcon,
+  customEmoji,
 }: SidebarCollectionsProps) {
   const { isIconOnly, closeMobile, isMobile } = useSidebar();
   const pathname = usePathname();
@@ -185,8 +193,15 @@ export function SidebarCollections({
     );
   }
 
+  const SectionIcon = customIcon ? getIconComponent(customIcon) : null;
+
   return (
-    <SidebarSection title="Collections" icon={Folders} defaultOpen>
+    <SidebarSection
+      title={customLabel || "Collections"}
+      icon={customEmoji ? undefined : (SectionIcon || Folders)}
+      emoji={customEmoji || undefined}
+      defaultOpen
+    >
       <div className="px-2 space-y-0.5">
         {/* All Recipes */}
         <Button

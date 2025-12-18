@@ -31,7 +31,14 @@ import type {
   EnergyModePreferences,
   PrivacyPreferences,
 } from "@/types/user-preferences-v2";
-import { DEFAULT_USER_PREFERENCES_V2, DEFAULT_PRIVACY_PREFERENCES, DEFAULT_SOUND_PREFERENCES } from "@/types/user-preferences-v2";
+import {
+  DEFAULT_USER_PREFERENCES_V2,
+  DEFAULT_DISPLAY_PREFERENCES,
+  DEFAULT_SOUND_PREFERENCES,
+  DEFAULT_KEYBOARD_PREFERENCES,
+  DEFAULT_ENERGY_MODE_PREFERENCES,
+  DEFAULT_PRIVACY_PREFERENCES,
+} from "@/types/user-preferences-v2";
 import type { SettingsChange, SettingsChangeCategory } from "@/types/settings-history";
 import { getSettingLabel } from "@/lib/settings/setting-labels";
 
@@ -363,16 +370,21 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     (partial: Partial<DisplayPreferences>) => {
       // Record changes and optimistic update
       setState((prev) => {
+        // Defensive: ensure display object exists
+        const currentDisplay = prev.preferencesV2?.display ?? DEFAULT_DISPLAY_PREFERENCES;
+
         // Record each changed field for undo
         Object.entries(partial).forEach(([key, value]) => {
-          const oldValue = prev.preferencesV2.display[key as keyof DisplayPreferences];
-          recordChange(`preferencesV2.display.${key}`, oldValue, value, "displayPrefs");
+          if (key in currentDisplay) {
+            const oldValue = currentDisplay[key as keyof DisplayPreferences];
+            recordChange(`preferencesV2.display.${key}`, oldValue, value, "displayPrefs");
+          }
         });
         return {
           ...prev,
           preferencesV2: {
             ...prev.preferencesV2,
-            display: { ...prev.preferencesV2.display, ...partial },
+            display: { ...currentDisplay, ...partial },
           },
         };
       });
@@ -426,13 +438,17 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
   const updateKeyboardPrefs = useCallback(
     (partial: Partial<KeyboardPreferences>) => {
       // Optimistic update
-      setState((prev) => ({
-        ...prev,
-        preferencesV2: {
-          ...prev.preferencesV2,
-          keyboard: { ...prev.preferencesV2.keyboard, ...partial },
-        },
-      }));
+      setState((prev) => {
+        // Defensive: ensure keyboard object exists
+        const currentKeyboard = prev.preferencesV2?.keyboard ?? DEFAULT_KEYBOARD_PREFERENCES;
+        return {
+          ...prev,
+          preferencesV2: {
+            ...prev.preferencesV2,
+            keyboard: { ...currentKeyboard, ...partial },
+          },
+        };
+      });
 
       // Queue for save
       pendingChanges.current.keyboardPrefs = {
@@ -487,13 +503,17 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
   const updateEnergyModePrefs = useCallback(
     (partial: Partial<EnergyModePreferences>) => {
       // Optimistic update
-      setState((prev) => ({
-        ...prev,
-        preferencesV2: {
-          ...prev.preferencesV2,
-          energyMode: { ...prev.preferencesV2.energyMode, ...partial },
-        },
-      }));
+      setState((prev) => {
+        // Defensive: ensure energyMode object exists
+        const currentEnergyMode = prev.preferencesV2?.energyMode ?? DEFAULT_ENERGY_MODE_PREFERENCES;
+        return {
+          ...prev,
+          preferencesV2: {
+            ...prev.preferencesV2,
+            energyMode: { ...currentEnergyMode, ...partial },
+          },
+        };
+      });
 
       // Queue for save
       pendingChanges.current.energyModePrefs = {
@@ -510,10 +530,13 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     (partial: Partial<PrivacyPreferences>) => {
       // Record changes and optimistic update
       setState((prev) => {
-        const currentPrivacy = prev.preferencesV2.privacy || DEFAULT_PRIVACY_PREFERENCES;
+        // Defensive: ensure privacy object exists (with optional chaining on preferencesV2)
+        const currentPrivacy = prev.preferencesV2?.privacy ?? DEFAULT_PRIVACY_PREFERENCES;
         Object.entries(partial).forEach(([key, value]) => {
-          const oldValue = currentPrivacy[key as keyof PrivacyPreferences];
-          recordChange(`preferencesV2.privacy.${key}`, oldValue, value, "privacyPrefs");
+          if (key in currentPrivacy) {
+            const oldValue = currentPrivacy[key as keyof PrivacyPreferences];
+            recordChange(`preferencesV2.privacy.${key}`, oldValue, value, "privacyPrefs");
+          }
         });
         return {
           ...prev,
@@ -585,13 +608,16 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
       };
     } else if (category === "displayPrefs") {
       const key = settingPath.split(".").pop() as keyof DisplayPreferences;
-      setState((prev) => ({
-        ...prev,
-        preferencesV2: {
-          ...prev.preferencesV2,
-          display: { ...prev.preferencesV2.display, [key]: oldValue },
-        },
-      }));
+      setState((prev) => {
+        const currentDisplay = prev.preferencesV2?.display ?? DEFAULT_DISPLAY_PREFERENCES;
+        return {
+          ...prev,
+          preferencesV2: {
+            ...prev.preferencesV2,
+            display: { ...currentDisplay, [key]: oldValue },
+          },
+        };
+      });
       pendingChanges.current.displayPrefs = {
         ...pendingChanges.current.displayPrefs,
         [key]: oldValue,
@@ -614,13 +640,16 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
       };
     } else if (category === "privacyPrefs") {
       const key = settingPath.split(".").pop() as keyof PrivacyPreferences;
-      setState((prev) => ({
-        ...prev,
-        preferencesV2: {
-          ...prev.preferencesV2,
-          privacy: { ...prev.preferencesV2.privacy, [key]: oldValue },
-        },
-      }));
+      setState((prev) => {
+        const currentPrivacy = prev.preferencesV2?.privacy ?? DEFAULT_PRIVACY_PREFERENCES;
+        return {
+          ...prev,
+          preferencesV2: {
+            ...prev.preferencesV2,
+            privacy: { ...currentPrivacy, [key]: oldValue },
+          },
+        };
+      });
       pendingChanges.current.privacyPrefs = {
         ...pendingChanges.current.privacyPrefs,
         [key]: oldValue,

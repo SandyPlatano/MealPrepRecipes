@@ -332,6 +332,9 @@ export async function updatePrivacyPreferences(
   // Get current preferences
   const { data: currentPrefs } = await getUserPreferencesV2(userId);
 
+  // Safely access privacy with fallback to defaults
+  const currentPrivacy = currentPrefs.privacy ?? DEFAULT_PRIVACY_PREFERENCES;
+
   // Track consent timestamp when any privacy setting changes from false to true
   const updates: Partial<PrivacyPreferences> = { ...data };
   const privacyKeys: (keyof PrivacyPreferences)[] = [
@@ -342,17 +345,17 @@ export async function updatePrivacyPreferences(
 
   const anyOptIn = privacyKeys.some(
     (key) =>
-      data[key] === true && !currentPrefs.privacy[key]
+      data[key] === true && !currentPrivacy[key]
   );
 
-  if (anyOptIn && !currentPrefs.privacy.consentTimestamp) {
+  if (anyOptIn && !currentPrivacy.consentTimestamp) {
     updates.consentTimestamp = new Date().toISOString();
   }
 
   const updatedPreferences: UserPreferencesV2 = {
     ...currentPrefs,
     privacy: {
-      ...currentPrefs.privacy,
+      ...currentPrivacy,
       ...updates,
     },
   };

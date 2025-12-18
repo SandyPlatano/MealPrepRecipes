@@ -29,7 +29,9 @@ import {
 } from "@/components/ui/context-menu";
 import { SidebarSection } from "./sidebar-section";
 import { useSidebar } from "./sidebar-context";
+import { getIconComponent } from "@/lib/sidebar/sidebar-icons";
 import type { PinnedItem, PinnableItemType } from "@/types/user-preferences-v2";
+import type { SidebarIconName } from "@/types/sidebar-customization";
 
 // Icon mapping for pinned items
 const PINNED_ICONS: Record<PinnableItemType, React.ComponentType<{ className?: string }>> = {
@@ -189,15 +191,32 @@ function PinnedItemRow({ item, onUnpin }: PinnedItemRowProps) {
   return content;
 }
 
-export function SidebarPinned() {
+interface SidebarPinnedProps {
+  customLabel?: string | null;
+  customIcon?: SidebarIconName | null;
+  customEmoji?: string | null;
+}
+
+export function SidebarPinned({
+  customLabel,
+  customIcon,
+  customEmoji,
+}: SidebarPinnedProps = {}) {
   const { pinnedItems, unpinItem, isIconOnly } = useSidebar();
 
   if (pinnedItems.length === 0) {
     return null;
   }
 
+  const SectionIcon = customIcon ? getIconComponent(customIcon) : null;
+
   return (
-    <SidebarSection title="Pinned" defaultOpen>
+    <SidebarSection
+      title={customLabel || "Pinned"}
+      icon={customEmoji ? undefined : (SectionIcon || undefined)}
+      emoji={customEmoji || undefined}
+      defaultOpen
+    >
       <div className="space-y-0.5">
         {pinnedItems.map((item) => (
           <PinnedItemRow

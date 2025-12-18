@@ -14,7 +14,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
@@ -46,7 +45,7 @@ export function SidebarBottomNav() {
 }
 
 function SidebarModeToggle() {
-  const { mode, setMode, hoverExpand, toggleHoverExpand, isIconOnly } = useSidebar();
+  const { mode, setMode, isIconOnly } = useSidebar();
   const Icon = mode === "expanded" ? PanelLeft : PanelLeftClose;
 
   const content = (
@@ -57,7 +56,6 @@ function SidebarModeToggle() {
           className={cn(
             "w-full justify-start gap-3 h-10 px-3",
             "text-muted-foreground hover:text-foreground hover:bg-accent",
-            "transition-all duration-150",
             isIconOnly && "justify-center px-0"
           )}
         >
@@ -80,14 +78,6 @@ function SidebarModeToggle() {
             Collapsed
           </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuCheckboxItem
-          checked={hoverExpand}
-          onCheckedChange={toggleHoverExpand}
-          disabled={mode === "expanded"}
-        >
-          Expand on hover
-        </DropdownMenuCheckboxItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

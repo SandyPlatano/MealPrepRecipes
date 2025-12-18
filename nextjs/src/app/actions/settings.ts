@@ -530,6 +530,8 @@ export async function dismissHint(hintId: string) {
   revalidatePath("/app/recipes");
   revalidatePath("/app/shop");
   revalidatePath("/app/pantry");
+  // Also revalidate cook pages so wizard dismissal takes effect immediately
+  revalidatePath("/app/recipes/[id]/cook", "page");
 
   return { error: null };
 }

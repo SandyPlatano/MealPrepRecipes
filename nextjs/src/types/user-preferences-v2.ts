@@ -143,7 +143,6 @@ export type SidebarMode = "expanded" | "collapsed";
 
 export const DEFAULT_SIDEBAR_PREFERENCES: SidebarPreferences = {
   mode: "expanded",
-  hoverExpand: true,
   width: 260,
   pinnedItems: [],
   hiddenItems: [],
@@ -281,7 +280,6 @@ export interface PinnedItem {
 
 export interface SidebarPreferences {
   mode: SidebarMode;
-  hoverExpand: boolean;
   width: number;
   pinnedItems: PinnedItem[];
   hiddenItems: string[];

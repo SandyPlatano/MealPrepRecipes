@@ -45,7 +45,7 @@ import { CookModeSettingsSheet } from "./cook-mode-settings-sheet";
 import { CookModeScrollableView } from "./cook-mode-scrollable-view";
 import { CookModeWizard } from "./cook-mode-wizard";
 import { CookModeIngredientsSheet } from "./cook-mode-ingredients-sheet";
-import { HINT_IDS } from "@/lib/hints";
+import { HINT_IDS, isHintDismissedLocally } from "@/lib/hints";
 import { cn } from "@/lib/utils";
 import { useVoiceCommands } from "@/hooks/use-voice-commands";
 import { useVoiceReadout } from "@/hooks/use-voice-readout";
@@ -97,6 +97,15 @@ export function CookingMode({
   // Check if this is the first time user is entering cook mode
   const isFirstTime = !dismissedHints.includes(HINT_IDS.COOK_MODE_WIZARD);
   const [showWizard, setShowWizard] = useState(isFirstTime);
+
+  // Check localStorage on client-side mount as a fallback
+  // This handles cases where the database save failed but localStorage was updated
+  useEffect(() => {
+    if (showWizard && isHintDismissedLocally(HINT_IDS.COOK_MODE_WIZARD)) {
+      setShowWizard(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally run only once on mount
+  }, []);
 
   // Settings state
   const [settings, setSettings] = useState<CookModeSettings>(initialSettings);

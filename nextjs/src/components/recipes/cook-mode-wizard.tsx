@@ -28,7 +28,7 @@ import {
 import { cn } from "@/lib/utils";
 import { updateCookModeSettings } from "@/app/actions/settings";
 import { dismissHint } from "@/app/actions/settings";
-import { HINT_IDS } from "@/lib/hints";
+import { HINT_IDS, dismissHintLocally } from "@/lib/hints";
 import { toast } from "sonner";
 import type {
   CookModeSettings,
@@ -87,8 +87,15 @@ export function CookModeWizard({
 
   // Handle skip
   const handleSkip = useCallback(async () => {
-    // Dismiss hint so wizard won't show again
-    await dismissHint(HINT_IDS.COOK_MODE_WIZARD);
+    // Always dismiss locally first as a reliable fallback
+    dismissHintLocally(HINT_IDS.COOK_MODE_WIZARD);
+
+    // Dismiss hint in database so wizard won't show again
+    const dismissResult = await dismissHint(HINT_IDS.COOK_MODE_WIZARD);
+    if (dismissResult.error) {
+      console.error("Failed to dismiss wizard hint:", dismissResult.error);
+      // Continue anyway - localStorage backup ensures wizard won't show again
+    }
     onSkip();
   }, [onSkip]);
 
@@ -104,8 +111,15 @@ export function CookModeWizard({
         return;
       }
 
-      // Dismiss hint so wizard won't show again
-      await dismissHint(HINT_IDS.COOK_MODE_WIZARD);
+      // Always dismiss locally first as a reliable fallback
+      dismissHintLocally(HINT_IDS.COOK_MODE_WIZARD);
+
+      // Dismiss hint in database so wizard won't show again
+      const dismissResult = await dismissHint(HINT_IDS.COOK_MODE_WIZARD);
+      if (dismissResult.error) {
+        console.error("Failed to dismiss wizard hint:", dismissResult.error);
+        // Continue anyway - localStorage backup ensures wizard won't show again
+      }
 
       toast.success("Cook mode configured!");
       onComplete(settings);

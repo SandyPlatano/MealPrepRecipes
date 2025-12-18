@@ -4,6 +4,20 @@ import { createClient } from "@/lib/supabase/server";
 import { getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
 import { revalidatePath } from "next/cache";
 import { randomBytes } from "crypto";
+import { Resend } from "resend";
+import {
+  generateInvitationHTML,
+  generateInvitationText,
+} from "@/lib/email/invitation-template";
+
+// Initialize Resend lazily to avoid errors during build
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY environment variable is not set");
+  }
+  return new Resend(apiKey);
+}
 
 export interface HouseholdInvitation {
   id: string;
@@ -108,9 +122,53 @@ export async function sendHouseholdInvitation(email: string): Promise<{
     return { error: error.message, data: null };
   }
 
-  // TODO: Send email notification to the invited user
-  // For now, the invitation link can be shared manually
-  // In a production app, you'd integrate with an email service like Resend or SendGrid
+  // Get inviter's profile for the email
+  const { data: inviterProfile } = await supabase
+    .from("profiles")
+    .select("first_name, last_name, email")
+    .eq("id", user.id)
+    .single();
+
+  const inviterName =
+    inviterProfile?.first_name && inviterProfile?.last_name
+      ? `${inviterProfile.first_name} ${inviterProfile.last_name}`
+      : inviterProfile?.first_name || inviterProfile?.email || "Someone";
+
+  // Generate invite link
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const inviteLink = `${baseUrl}/invite/${token}`;
+
+  // Send email notification
+  try {
+    const resend = getResendClient();
+    const html = generateInvitationHTML({
+      inviterName,
+      inviteLink,
+      expiresInDays: 7,
+    });
+    const text = generateInvitationText({
+      inviterName,
+      inviteLink,
+      expiresInDays: 7,
+    });
+
+    const { error: emailError } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+      to: email.toLowerCase(),
+      subject: `${inviterName} invited you to join their household`,
+      html,
+      text,
+    });
+
+    if (emailError) {
+      console.error("Error sending invitation email:", emailError);
+      // Don't fail the invitation creation, just log the error
+      // The user can still use the copy link feature
+    }
+  } catch (emailErr) {
+    console.error("Failed to send invitation email:", emailErr);
+    // Don't fail the invitation creation
+  }
 
   revalidatePath("/app/settings/household");
 
@@ -232,7 +290,50 @@ export async function resendHouseholdInvitation(invitationId: string): Promise<{
     return { error: error.message, data: null };
   }
 
-  // TODO: Resend email notification
+  // Get inviter's profile for the email
+  const { data: inviterProfile } = await supabase
+    .from("profiles")
+    .select("first_name, last_name, email")
+    .eq("id", user.id)
+    .single();
+
+  const inviterName =
+    inviterProfile?.first_name && inviterProfile?.last_name
+      ? `${inviterProfile.first_name} ${inviterProfile.last_name}`
+      : inviterProfile?.first_name || inviterProfile?.email || "Someone";
+
+  // Generate invite link
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const inviteLink = `${baseUrl}/invite/${token}`;
+
+  // Send email notification
+  try {
+    const resend = getResendClient();
+    const html = generateInvitationHTML({
+      inviterName,
+      inviteLink,
+      expiresInDays: 7,
+    });
+    const text = generateInvitationText({
+      inviterName,
+      inviteLink,
+      expiresInDays: 7,
+    });
+
+    const { error: emailError } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+      to: data.email,
+      subject: `${inviterName} invited you to join their household`,
+      html,
+      text,
+    });
+
+    if (emailError) {
+      console.error("Error resending invitation email:", emailError);
+    }
+  } catch (emailErr) {
+    console.error("Failed to resend invitation email:", emailErr);
+  }
 
   revalidatePath("/app/settings/household");
 

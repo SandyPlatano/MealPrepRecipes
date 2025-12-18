@@ -9,6 +9,23 @@ import {
 } from "@/lib/sidebar/sidebar-storage";
 import type { PinnedItem, SidebarMode, SidebarPreferences } from "@/types/user-preferences-v2";
 import { DEFAULT_SIDEBAR_PREFERENCES } from "@/types/user-preferences-v2";
+import type {
+  SectionConfig,
+  SidebarPreferencesV2,
+  BuiltInSectionId,
+  CustomSectionConfig,
+  CustomSectionItem,
+} from "@/types/sidebar-customization";
+import {
+  DEFAULT_SIDEBAR_PREFERENCES_V2,
+  DEFAULT_SECTION_ORDER,
+  DEFAULT_BUILTIN_SECTIONS,
+} from "@/types/sidebar-customization";
+import {
+  normalizeSidebarPreferences,
+  getVisibleSections,
+  createCustomSection,
+} from "@/lib/sidebar/sidebar-migration";
 import {
   getSidebarPreferencesAuto,
   updateSidebarPreferencesAuto,
@@ -29,18 +46,18 @@ interface SidebarContextValue {
   isMobile: boolean;
   isTablet: boolean;
 
-  // Mode & hover (synced)
+  // Mode (synced)
   mode: SidebarMode;
-  hoverExpand: boolean;
   pinnedItems: PinnedItem[];
 
-  // Hover state (local)
-  isHovered: boolean;
-  setIsHovered: (hovered: boolean) => void;
+  // Section customization state
+  sections: Record<string, SectionConfig>;
+  sectionOrder: string[];
+  reducedMotion: boolean;
 
   // Derived
   isIconOnly: boolean;
-  isExpanded: boolean; // True when showing full sidebar (mode=expanded OR hover-expanded)
+  isExpanded: boolean; // True when sidebar is in expanded mode
 
   // Core actions
   setWidth: (width: number) => void;
@@ -53,11 +70,27 @@ interface SidebarContextValue {
 
   // Synced actions
   setMode: (mode: SidebarMode) => Promise<void>;
-  toggleHoverExpand: () => Promise<void>;
   pinItem: (item: Omit<PinnedItem, "addedAt">) => Promise<void>;
   unpinItem: (itemId: string) => Promise<void>;
   reorderPinned: (itemIds: string[]) => Promise<void>;
   isPinned: (itemId: string) => boolean;
+
+  // Section customization actions
+  reorderSections: (sectionIds: string[]) => Promise<void>;
+  toggleSectionVisibility: (sectionId: string) => Promise<void>;
+  updateSectionLabel: (sectionId: string, label: string) => Promise<void>;
+  updateSectionEmoji: (sectionId: string, emoji: string | null) => Promise<void>;
+  resetSection: (sectionId: BuiltInSectionId) => Promise<void>;
+
+  // Custom section actions
+  addCustomSection: (title: string) => Promise<string | null>;
+  updateCustomSection: (sectionId: string, updates: Partial<CustomSectionConfig>) => Promise<void>;
+  removeCustomSection: (sectionId: string) => Promise<void>;
+  addCustomSectionItem: (sectionId: string, item: Omit<CustomSectionItem, "id" | "sortOrder">) => Promise<void>;
+  removeCustomSectionItem: (sectionId: string, itemId: string) => Promise<void>;
+
+  // Helper
+  getVisibleSections: () => SectionConfig[];
 
   // Loading state
   isLoading: boolean;
@@ -90,15 +123,20 @@ export function SidebarProvider({
   const [mode, setModeState] = React.useState<SidebarMode>(
     initialPreferences?.mode || DEFAULT_SIDEBAR_PREFERENCES.mode
   );
-  const [hoverExpand, setHoverExpandState] = React.useState(
-    initialPreferences?.hoverExpand ?? DEFAULT_SIDEBAR_PREFERENCES.hoverExpand
-  );
   const [pinnedItems, setPinnedItems] = React.useState<PinnedItem[]>(
     initialPreferences?.pinnedItems || DEFAULT_SIDEBAR_PREFERENCES.pinnedItems
   );
 
-  // Hover state (local only)
-  const [isHovered, setIsHovered] = React.useState(false);
+  // Section customization state
+  const [sections, setSections] = React.useState<Record<string, SectionConfig>>(
+    () => structuredClone(DEFAULT_BUILTIN_SECTIONS)
+  );
+  const [sectionOrder, setSectionOrder] = React.useState<string[]>(
+    () => [...DEFAULT_SECTION_ORDER]
+  );
+  const [reducedMotion, setReducedMotion] = React.useState(false);
+
+  // Loading state
   const [isLoading, setIsLoading] = React.useState(false);
 
   // Initialize from localStorage on mount
@@ -113,11 +151,17 @@ export function SidebarProvider({
   React.useEffect(() => {
     if (!initialPreferences) {
       getSidebarPreferencesAuto().then(({ data }) => {
-        setModeState(data.mode);
-        setHoverExpandState(data.hoverExpand);
-        setPinnedItems(data.pinnedItems);
-        if (data.width) {
-          setWidthState(data.width);
+        // Normalize preferences to ensure valid state
+        const normalized = normalizeSidebarPreferences(data as Partial<SidebarPreferencesV2>);
+
+        setModeState(normalized.mode);
+        setPinnedItems(normalized.pinnedItems);
+        setSections(normalized.sections);
+        setSectionOrder(normalized.sectionOrder);
+        setReducedMotion(normalized.reducedMotion);
+
+        if (normalized.width) {
+          setWidthState(normalized.width);
         }
       });
     }
@@ -229,12 +273,6 @@ export function SidebarProvider({
     await updateSidebarPreferencesAuto({ mode: newMode });
   }, []);
 
-  const toggleHoverExpand = React.useCallback(async () => {
-    const newValue = !hoverExpand;
-    setHoverExpandState(newValue);
-    await updateSidebarPreferencesAuto({ hoverExpand: newValue });
-  }, [hoverExpand]);
-
   const pinItem = React.useCallback(async (item: Omit<PinnedItem, "addedAt">) => {
     // Optimistic update
     const newItem: PinnedItem = {
@@ -267,9 +305,224 @@ export function SidebarProvider({
     [pinnedItems]
   );
 
+  // Section customization actions
+  const reorderSections = React.useCallback(async (newOrder: string[]) => {
+    setSectionOrder(newOrder);
+    // TODO: Call server action
+    // await reorderSectionsAuto(newOrder);
+    console.log("Reordering sections:", newOrder);
+  }, []);
+
+  const toggleSectionVisibility = React.useCallback(async (sectionId: string) => {
+    setSections((prev) => {
+      const section = prev[sectionId];
+      if (!section) return prev;
+
+      return {
+        ...prev,
+        [sectionId]: {
+          ...section,
+          hidden: !section.hidden,
+        },
+      };
+    });
+    // TODO: Call server action
+    // await toggleSectionVisibilityAuto(sectionId);
+    console.log("Toggling section visibility:", sectionId);
+  }, []);
+
+  const updateSectionLabel = React.useCallback(async (sectionId: string, label: string) => {
+    setSections((prev) => {
+      const section = prev[sectionId];
+      if (!section) return prev;
+
+      if (section.type === "custom") {
+        return {
+          ...prev,
+          [sectionId]: {
+            ...section,
+            title: label,
+          },
+        };
+      } else {
+        return {
+          ...prev,
+          [sectionId]: {
+            ...section,
+            customTitle: label,
+          },
+        };
+      }
+    });
+    // TODO: Call server action
+    // await updateSectionLabelAuto(sectionId, label);
+    console.log("Updating section label:", sectionId, label);
+  }, []);
+
+  const updateSectionEmoji = React.useCallback(async (sectionId: string, emoji: string | null) => {
+    setSections((prev) => {
+      const section = prev[sectionId];
+      if (!section) return prev;
+
+      if (section.type === "custom") {
+        return {
+          ...prev,
+          [sectionId]: {
+            ...section,
+            emoji,
+          },
+        };
+      } else {
+        return {
+          ...prev,
+          [sectionId]: {
+            ...section,
+            customEmoji: emoji,
+          },
+        };
+      }
+    });
+    // TODO: Call server action
+    // await updateSectionEmojiAuto(sectionId, emoji);
+    console.log("Updating section emoji:", sectionId, emoji);
+  }, []);
+
+  const resetSection = React.useCallback(async (sectionId: BuiltInSectionId) => {
+    setSections((prev) => ({
+      ...prev,
+      [sectionId]: structuredClone(DEFAULT_BUILTIN_SECTIONS[sectionId]),
+    }));
+    // TODO: Call server action
+    // await resetSectionAuto(sectionId);
+    console.log("Resetting section:", sectionId);
+  }, []);
+
+  // Custom section actions
+  const addCustomSection = React.useCallback(async (title: string): Promise<string | null> => {
+    const maxSortOrder = Math.max(
+      ...Object.values(sections).map((s) => s.sortOrder),
+      0
+    );
+    const newSection = createCustomSection(title, maxSortOrder + 1);
+
+    setSections((prev) => ({
+      ...prev,
+      [newSection.id]: newSection,
+    }));
+    setSectionOrder((prev) => [...prev, newSection.id]);
+
+    // TODO: Call server action
+    // await addCustomSectionAuto(newSection);
+    console.log("Adding custom section:", newSection);
+
+    return newSection.id;
+  }, [sections]);
+
+  const updateCustomSection = React.useCallback(
+    async (sectionId: string, updates: Partial<CustomSectionConfig>) => {
+      setSections((prev) => {
+        const section = prev[sectionId];
+        if (!section || section.type !== "custom") return prev;
+
+        return {
+          ...prev,
+          [sectionId]: {
+            ...section,
+            ...updates,
+          },
+        };
+      });
+      // TODO: Call server action
+      // await updateCustomSectionAuto(sectionId, updates);
+      console.log("Updating custom section:", sectionId, updates);
+    },
+    []
+  );
+
+  const removeCustomSection = React.useCallback(async (sectionId: string) => {
+    setSections((prev) => {
+      const { [sectionId]: removed, ...rest } = prev;
+      return rest;
+    });
+    setSectionOrder((prev) => prev.filter((id) => id !== sectionId));
+
+    // TODO: Call server action
+    // await removeCustomSectionAuto(sectionId);
+    console.log("Removing custom section:", sectionId);
+  }, []);
+
+  const addCustomSectionItem = React.useCallback(
+    async (sectionId: string, item: Omit<CustomSectionItem, "id" | "sortOrder">) => {
+      setSections((prev) => {
+        const section = prev[sectionId];
+        if (!section || section.type !== "custom") return prev;
+
+        const maxSortOrder = Math.max(
+          ...section.items.map((i) => i.sortOrder),
+          0
+        );
+
+        const newItem: CustomSectionItem = {
+          ...item,
+          id: crypto.randomUUID(),
+          sortOrder: maxSortOrder + 1,
+        } as CustomSectionItem;
+
+        return {
+          ...prev,
+          [sectionId]: {
+            ...section,
+            items: [...section.items, newItem],
+          },
+        };
+      });
+
+      // TODO: Call server action
+      // await addCustomSectionItemAuto(sectionId, item);
+      console.log("Adding custom section item:", sectionId, item);
+    },
+    []
+  );
+
+  const removeCustomSectionItem = React.useCallback(
+    async (sectionId: string, itemId: string) => {
+      setSections((prev) => {
+        const section = prev[sectionId];
+        if (!section || section.type !== "custom") return prev;
+
+        return {
+          ...prev,
+          [sectionId]: {
+            ...section,
+            items: section.items.filter((i) => i.id !== itemId),
+          },
+        };
+      });
+
+      // TODO: Call server action
+      // await removeCustomSectionItemAuto(sectionId, itemId);
+      console.log("Removing custom section item:", sectionId, itemId);
+    },
+    []
+  );
+
+  // Helper
+  const getVisibleSectionsCallback = React.useCallback(() => {
+    return getVisibleSections({
+      sections,
+      sectionOrder,
+      mode,
+      width,
+      pinnedItems,
+      pinnedSectionExpanded: true,
+      schemaVersion: 2,
+      reducedMotion,
+    });
+  }, [sections, sectionOrder, mode, width, pinnedItems, reducedMotion]);
+
   // Derived state
   const isIconOnly = isCollapsed || width <= SIDEBAR_DIMENSIONS.MIN_WIDTH;
-  const isExpanded = mode === "expanded" || (mode === "collapsed" && isHovered && hoverExpand);
+  const isExpanded = mode === "expanded";
 
   const value = React.useMemo<SidebarContextValue>(
     () => ({
@@ -279,10 +532,10 @@ export function SidebarProvider({
       isMobile,
       isTablet,
       mode,
-      hoverExpand,
       pinnedItems,
-      isHovered,
-      setIsHovered,
+      sections,
+      sectionOrder,
+      reducedMotion,
       isIconOnly,
       isExpanded,
       setWidth,
@@ -293,11 +546,21 @@ export function SidebarProvider({
       closeMobile,
       toggleMobile,
       setMode,
-      toggleHoverExpand,
       pinItem,
       unpinItem,
       reorderPinned,
       isPinned,
+      reorderSections,
+      toggleSectionVisibility,
+      updateSectionLabel,
+      updateSectionEmoji,
+      resetSection,
+      addCustomSection,
+      updateCustomSection,
+      removeCustomSection,
+      addCustomSectionItem,
+      removeCustomSectionItem,
+      getVisibleSections: getVisibleSectionsCallback,
       isLoading,
     }),
     [
@@ -307,9 +570,10 @@ export function SidebarProvider({
       isMobile,
       isTablet,
       mode,
-      hoverExpand,
       pinnedItems,
-      isHovered,
+      sections,
+      sectionOrder,
+      reducedMotion,
       isIconOnly,
       isExpanded,
       setWidth,
@@ -320,11 +584,21 @@ export function SidebarProvider({
       closeMobile,
       toggleMobile,
       setMode,
-      toggleHoverExpand,
       pinItem,
       unpinItem,
       reorderPinned,
       isPinned,
+      reorderSections,
+      toggleSectionVisibility,
+      updateSectionLabel,
+      updateSectionEmoji,
+      resetSection,
+      addCustomSection,
+      updateCustomSection,
+      removeCustomSection,
+      addCustomSectionItem,
+      removeCustomSectionItem,
+      getVisibleSectionsCallback,
       isLoading,
     ]
   );
