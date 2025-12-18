@@ -366,25 +366,19 @@ export async function acceptHouseholdInvitation(token: string): Promise<{
     return { error: "You must be logged in to accept an invitation", householdId: null };
   }
 
-  // Find the invitation
-  const { data: invitation, error: inviteError } = await supabase
-    .from("household_invitations")
-    .select("*")
-    .eq("token", token)
-    .eq("status", "pending")
-    .single();
+  // Find the invitation using SECURITY DEFINER function
+  // This function only returns pending, non-expired invitations
+  const { data: invitations, error: inviteError } = await supabase
+    .rpc("get_invitation_by_token", { p_token: token });
 
-  if (inviteError || !invitation) {
+  if (inviteError) {
+    console.error("Error looking up invitation:", inviteError);
     return { error: "Invalid or expired invitation", householdId: null };
   }
 
-  // Check if invitation is expired
-  if (new Date(invitation.expires_at) < new Date()) {
-    await supabase
-      .from("household_invitations")
-      .update({ status: "expired" })
-      .eq("id", invitation.id);
-    return { error: "This invitation has expired", householdId: null };
+  const invitation = invitations?.[0];
+  if (!invitation) {
+    return { error: "Invalid or expired invitation", householdId: null };
   }
 
   // Check if user is already in a household
