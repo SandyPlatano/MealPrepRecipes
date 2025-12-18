@@ -464,11 +464,13 @@ export function useVoiceCommands({
             setError(`Failed to restart: ${err instanceof Error ? err.message : "unknown"}`);
             setIsListening(false);
             isListeningRef.current = false;
+            recognitionRef.current = null; // Clear ref so startListening can work again
           }
         } else {
           console.log("[VoiceCommands] Not restarting, stopping listening");
           setIsListening(false);
           isListeningRef.current = false;
+          recognitionRef.current = null; // CRITICAL: Clear ref so startListening can work again
         }
       };
 

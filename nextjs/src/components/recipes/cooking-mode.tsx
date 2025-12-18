@@ -666,11 +666,10 @@ export function CookingMode({
               {/* Voice Commands */}
               <DropdownMenuItem
                 disabled={!voiceCommandsSupported}
-                onClick={() => {
-                  console.log("[CookingMode] Voice button clicked");
+                onSelect={() => {
+                  console.log("[CookingMode] Voice button selected");
                   console.log("[CookingMode] voiceCommandsSupported:", voiceCommandsSupported);
                   console.log("[CookingMode] isListening:", isListening);
-                  console.log("[CookingMode] settings.voice:", settings.voice);
 
                   if (!voiceCommandsSupported) {
                     toast.error("Voice commands not supported in this browser. Try Chrome or Edge.");
@@ -705,7 +704,7 @@ export function CookingMode({
 
               {/* Read Step Aloud */}
               {voiceReadoutSupported && (
-                <DropdownMenuItem onClick={isSpeaking ? stopSpeaking : readCurrentStep}>
+                <DropdownMenuItem onSelect={isSpeaking ? stopSpeaking : readCurrentStep}>
                   <Volume2 className={cn("h-4 w-4 mr-2", isSpeaking && "text-primary")} />
                   {isSpeaking ? "Stop Reading" : "Read Step Aloud"}
                 </DropdownMenuItem>
@@ -714,7 +713,7 @@ export function CookingMode({
               <DropdownMenuSeparator />
 
               {/* Fullscreen */}
-              <DropdownMenuItem onClick={toggleFullscreen}>
+              <DropdownMenuItem onSelect={toggleFullscreen}>
                 {isFullscreen ? (
                   <Minimize className="h-4 w-4 mr-2" />
                 ) : (
@@ -726,7 +725,7 @@ export function CookingMode({
               <DropdownMenuSeparator />
 
               {/* Settings */}
-              <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
+              <DropdownMenuItem onSelect={() => setSettingsOpen(true)}>
                 <Settings2 className="h-4 w-4 mr-2" />
                 Settings
               </DropdownMenuItem>
