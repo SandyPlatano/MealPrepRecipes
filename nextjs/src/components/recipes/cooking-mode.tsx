@@ -22,7 +22,16 @@ import {
   Mic,
   MicOff,
   Volume2,
+  MoreVertical,
+  UtensilsCrossed,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { Recipe } from "@/types/recipe";
 import { toast } from "sonner";
 import { detectTimers } from "@/lib/timer-detector";
@@ -86,6 +95,7 @@ export function CookingMode({
   const [settings, setSettings] = useState<CookModeSettings>(initialSettings);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [ingredientsSheetOpen, setIngredientsSheetOpen] = useState(false);
 
   // Cooking state
   const [currentStep, setCurrentStep] = useState(0);

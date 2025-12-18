@@ -93,26 +93,21 @@ export function FolderTreeItem({
 
           <Button
             variant={isActive ? "secondary" : "ghost"}
-            className="flex-1 justify-between h-10 px-2 pr-2"
+            className="flex-1 justify-start h-10 px-2"
             onClick={onSelect}
             disabled={isPending}
           >
-            <span className="flex items-center truncate">
-              {folder.color && (
-                <span
-                  className="w-2.5 h-2.5 rounded-full mr-2 shrink-0"
-                  style={{ backgroundColor: folder.color }}
-                />
-              )}
-              {folder.emoji && <span className="mr-1.5">{folder.emoji}</span>}
-              {!folder.color && !folder.emoji && (
-                <span className="w-4 h-4 mr-1.5 text-muted-foreground">📁</span>
-              )}
-              <span className="truncate">{folder.name}</span>
-            </span>
-            <span className="text-xs text-muted-foreground tabular-nums min-w-[1.5rem] text-right">
-              {folder.recipe_count}
-            </span>
+            {folder.color && (
+              <span
+                className="w-2.5 h-2.5 rounded-full mr-2 shrink-0"
+                style={{ backgroundColor: folder.color }}
+              />
+            )}
+            {folder.emoji && <span className="mr-1.5">{folder.emoji}</span>}
+            {!folder.color && !folder.emoji && (
+              <span className="w-4 h-4 mr-1.5 text-muted-foreground">📁</span>
+            )}
+            <span className="truncate">{folder.name}</span>
           </Button>
 
           <DropdownMenu>
@@ -120,7 +115,7 @@ export function FolderTreeItem({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 opacity-0 group-hover:opacity-100"
+                className="h-6 w-6 text-muted-foreground hover:text-foreground"
               >
                 <MoreHorizontal className="h-3 w-3" />
               </Button>

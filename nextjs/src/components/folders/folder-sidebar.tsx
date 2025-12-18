@@ -158,16 +158,11 @@ export function FolderSidebar({
             {/* All Recipes */}
             <Button
               variant={isAllActive ? "secondary" : "ghost"}
-              className="w-full justify-between h-10 pr-3"
+              className="w-full justify-start h-10"
               onClick={() => onFilterChange({ type: "all" })}
             >
-              <span className="flex items-center">
-                <BookOpen className="h-4 w-4 mr-2" />
-                All Recipes
-              </span>
-              <span className="text-xs text-muted-foreground tabular-nums min-w-[1.5rem] text-right">
-                {totalRecipeCount}
-              </span>
+              <BookOpen className="h-4 w-4 mr-2" />
+              All Recipes
             </Button>
 
             {/* Smart Folders Section */}
