@@ -25,6 +25,7 @@ import { hasActiveSubscription } from "@/lib/stripe/subscription";
 import { ContextualHint } from "@/components/hints/contextual-hint";
 import { HINT_IDS, HINT_CONTENT } from "@/lib/hints";
 import { DEFAULT_ENERGY_MODE_PREFERENCES, type EnergyModePreferences } from "@/types/energy-mode";
+import { PersonalizedGreeting } from "@/components/ui/personalized-greeting";
 
 interface HomePageProps {
   searchParams: Promise<{ week?: string }>;
@@ -181,9 +182,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <div className="space-y-6">
         <PlanScrollRestorer />
         <div>
-          <p className="font-handwritten text-2xl text-primary mb-1">
-            Let&apos;s get cooking!
-          </p>
+          <PersonalizedGreeting userName={profile?.first_name} />
           <h1 className="text-3xl font-mono font-bold">Meal Plan</h1>
           <p className="text-muted-foreground mt-1">
             Plan your week. Assign cooks. Send the list. Done.

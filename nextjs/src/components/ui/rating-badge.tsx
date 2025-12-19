@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 interface RatingBadgeProps {
   rating: number | null;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   size?: "sm" | "md";
   className?: string;
 }
@@ -38,13 +38,9 @@ export const RatingBadge = forwardRef<HTMLButtonElement, RatingBadgeProps>(
         ref={ref}
         type="button"
         onClick={(e) => {
-          // Only stop propagation if there's a custom onClick handler
-          // This allows the PopoverTrigger to work when no onClick is provided
-          if (onClick) {
-            e.preventDefault();
-            e.stopPropagation();
-            onClick();
-          }
+          // Pass the event to onClick - required for Radix UI's PopoverTrigger
+          // to work correctly when using asChild pattern
+          onClick?.(e);
         }}
         className={cn(
           "inline-flex items-center gap-1 rounded-md transition-colors",

@@ -14,6 +14,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { PersonalizedGreeting } from "@/components/ui/personalized-greeting";
 
 interface RecipesPageProps {
   searchParams: Promise<{
@@ -26,8 +27,11 @@ interface RecipesPageProps {
 export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   const params = await searchParams;
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
+  // Fetch profile and all other data in parallel
   const [
+    profileResult,
     recipesResult,
     favoritesResult,
     settingsResult,
@@ -38,6 +42,7 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
     userSmartFoldersResult,
     cookingHistoryResult,
   ] = await Promise.all([
+    user ? supabase.from("profiles").select("first_name").eq("id", user.id).single() : Promise.resolve({ data: null }),
     getRecipes(),
     getFavorites(),
     getSettings(),
@@ -48,6 +53,8 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
     getUserSmartFolders(),
     getCookingHistoryContext(),
   ]);
+
+  const profile = profileResult.data;
 
   const recipes = recipesResult.data || [];
   const favoriteIds = new Set(favoritesResult.data || []);
@@ -119,9 +126,10 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <p className="font-handwritten text-2xl text-primary mb-1">
-          Your culinary wins await!
-        </p>
+        <PersonalizedGreeting
+          userName={profile?.first_name}
+          fallbackMessage="Your culinary wins await!"
+        />
         <h1 className="text-3xl font-mono font-bold">Recipes</h1>
         <p className="text-muted-foreground mt-1">
           {recipes.length} recipes and counting.

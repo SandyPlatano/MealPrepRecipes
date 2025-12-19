@@ -102,6 +102,26 @@ export function SidebarCollections({
   const [createFolderOpen, setCreateFolderOpen] = useState(false);
   const [deletingFolder, setDeletingFolder] = useState<FolderWithChildren | null>(null);
 
+  // Client-side fetched categories (since props may be empty)
+  const [fetchedCategories, setFetchedCategories] = useState<FolderCategoryWithFolders[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+
+  // Fetch categories on mount and when router refreshes
+  const loadCategories = useCallback(async () => {
+    const result = await getFolderCategories();
+    if (!result.error && result.data) {
+      setFetchedCategories(result.data);
+    }
+    setIsLoadingCategories(false);
+  }, []);
+
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
+
+  // Use fetched categories if props are empty
+  const effectiveCategories = categories.length > 0 ? categories : fetchedCategories;
+
   // Check if we're on the recipes page
   const isOnRecipesPage = pathname === "/app/recipes" || pathname.startsWith("/app/recipes/");
 
@@ -150,6 +170,7 @@ export function SidebarCollections({
       } else {
         toast.success("Smart folder deleted");
         router.refresh();
+        loadCategories(); // Refetch sidebar data
       }
       setDeletingSmartFolder(null);
     });
@@ -166,16 +187,17 @@ export function SidebarCollections({
       } else {
         toast.success("Folder deleted");
         router.refresh();
+        loadCategories(); // Refetch sidebar data
       }
       setDeletingFolder(null);
     });
   };
 
   // Get all folders for CreateFolderDialog
-  const allFolders: FolderWithChildren[] = categories.flatMap((c) => c.folders);
+  const allFolders: FolderWithChildren[] = effectiveCategories.flatMap((c) => c.folders);
 
   // Build categories array for SmartFolderDialog
-  const allCategories: FolderCategory[] = categories.map((c) => ({
+  const allCategories: FolderCategory[] = effectiveCategories.map((c) => ({
     id: c.id,
     household_id: c.household_id,
     created_by_user_id: c.created_by_user_id,
@@ -349,7 +371,7 @@ export function SidebarCollections({
         </div>
 
         {/* Categories */}
-        {categories.map((category) => (
+        {effectiveCategories.map((category) => (
           <CategoryItem
             key={category.id}
             category={category}
@@ -364,14 +386,22 @@ export function SidebarCollections({
       {/* Create Smart Folder Dialog */}
       <SmartFolderDialog
         open={createSmartFolderOpen}
-        onOpenChange={setCreateSmartFolderOpen}
+        onOpenChange={(open) => {
+          setCreateSmartFolderOpen(open);
+          if (!open) loadCategories(); // Refetch when dialog closes
+        }}
         categories={allCategories}
       />
 
       {/* Edit Smart Folder Dialog */}
       <SmartFolderDialog
         open={editingSmartFolder !== null}
-        onOpenChange={(open) => !open && setEditingSmartFolder(null)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingSmartFolder(null);
+            loadCategories(); // Refetch when dialog closes
+          }
+        }}
         folder={editingSmartFolder}
         categories={allCategories}
       />
@@ -405,7 +435,10 @@ export function SidebarCollections({
       {/* Create Regular Folder Dialog */}
       <CreateFolderDialog
         open={createFolderOpen}
-        onOpenChange={setCreateFolderOpen}
+        onOpenChange={(open) => {
+          setCreateFolderOpen(open);
+          if (!open) loadCategories(); // Refetch when dialog closes
+        }}
         folders={allFolders}
       />
 

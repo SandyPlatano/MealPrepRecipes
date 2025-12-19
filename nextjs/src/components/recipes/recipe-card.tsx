@@ -324,6 +324,8 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
           <div
             className={cn(
               "absolute top-3 left-3 z-10 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium shadow-sm",
+              "transition-all duration-300 ease-out",
+              "group-hover:scale-110 group-hover:shadow-md group-hover:-translate-y-0.5",
               getRecipeTypeBadgeClasses(recipe.recipe_type)
             )}
           >
