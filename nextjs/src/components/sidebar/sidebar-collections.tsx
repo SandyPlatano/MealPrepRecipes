@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import {
@@ -58,7 +58,7 @@ import { useSidebar } from "./sidebar-context";
 import { SmartFolderDialog } from "@/components/folders/smart-folder-dialog";
 import { CreateFolderDialog } from "@/components/folders/create-folder-dialog";
 import { deleteSmartFolder } from "@/app/actions/smart-folders";
-import { deleteFolder } from "@/app/actions/folders";
+import { deleteFolder, getFolderCategories } from "@/app/actions/folders";
 import { getIconComponent } from "@/lib/sidebar/sidebar-icons";
 import type {
   FolderWithChildren,

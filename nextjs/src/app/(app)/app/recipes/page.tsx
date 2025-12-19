@@ -119,9 +119,12 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   return (
     <div className="space-y-6">
       <div>
+        <p className="font-handwritten text-2xl text-primary mb-1">
+          Your culinary wins await!
+        </p>
         <h1 className="text-3xl font-mono font-bold">Recipes</h1>
         <p className="text-muted-foreground mt-1">
-          Your collection of culinary wins. {recipes.length} recipes and counting.
+          {recipes.length} recipes and counting.
         </p>
       </div>
 

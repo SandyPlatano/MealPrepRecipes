@@ -11,6 +11,7 @@ import {
   AppSidebar,
   MobileSidebarSheet,
   MobileSidebarTrigger,
+  SidebarExpandTrigger,
   SIDEBAR_DIMENSIONS,
   type AppSidebarProps,
 } from "@/components/sidebar";
@@ -138,13 +139,24 @@ function AppShellContent({
   // Desktop layout: sidebar + content (simple flex layout)
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Sidebar - fixed width, doesn't shrink */}
-      <AppSidebar
-        user={user}
-        logoutAction={logoutAction}
-        onSearchClick={handleSearchClick}
-        {...sidebarProps}
-      />
+      {/* Sidebar wrapper with collapse animation */}
+      <div
+        className={cn(
+          "shrink-0 overflow-hidden",
+          "transition-[width] duration-200 ease-out"
+        )}
+        style={{ width: isCollapsed ? 0 : sidebarWidth }}
+      >
+        <AppSidebar
+          user={user}
+          logoutAction={logoutAction}
+          onSearchClick={handleSearchClick}
+          {...sidebarProps}
+        />
+      </div>
+
+      {/* Floating expand button - appears when sidebar is collapsed */}
+      <SidebarExpandTrigger />
 
       {/* Main Content - takes remaining space */}
       <main className="flex-1 min-w-0 h-screen overflow-y-auto">

@@ -92,6 +92,32 @@ function getRecipeIcon(recipeType: RecipeType) {
   }
 }
 
+// Get color classes for recipe type badge
+function getRecipeTypeBadgeClasses(recipeType: RecipeType): string {
+  switch (recipeType) {
+    case "Dinner":
+      // Coral - the main event
+      return "bg-primary text-primary-foreground";
+    case "Breakfast":
+      // Warm amber
+      return "bg-amber-500 text-white dark:bg-amber-600";
+    case "Baking":
+      // Warm brown
+      return "bg-amber-700 text-white dark:bg-amber-800";
+    case "Dessert":
+      // Sweet pink
+      return "bg-pink-500 text-white dark:bg-pink-600";
+    case "Snack":
+      // Sage green (brand accent)
+      return "bg-accent text-accent-foreground";
+    case "Side Dish":
+      // Muted sage
+      return "bg-emerald-600 text-white dark:bg-emerald-700";
+    default:
+      return "bg-muted text-muted-foreground";
+  }
+}
+
 
 interface RecipeCardProps {
   recipe: RecipeWithFavoriteAndNutrition;
@@ -291,9 +317,20 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
     <>
       <Link href={`/app/recipes/${recipe.id}`}>
         <Card
-          className="group hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 hover:border-primary/50 transition-all duration-300 ease-out flex flex-col h-full cursor-pointer overflow-hidden hover:ring-2 hover:ring-primary/20 animate-slide-up-fade"
+          className="group hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 hover:border-primary/50 transition-all duration-300 ease-out flex flex-col h-full cursor-pointer overflow-hidden hover:ring-2 hover:ring-primary/20 animate-slide-up-fade relative"
           style={animationIndex !== undefined ? { animationDelay: `${animationIndex * 50}ms`, animationFillMode: 'backwards' } : undefined}
         >
+          {/* Recipe Type Badge - positioned at top-left corner */}
+          <div
+            className={cn(
+              "absolute top-3 left-3 z-10 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium shadow-sm",
+              getRecipeTypeBadgeClasses(recipe.recipe_type)
+            )}
+          >
+            {getRecipeIcon(recipe.recipe_type)}
+            <span>{recipe.recipe_type}</span>
+          </div>
+
           {/* Recipe Image - only show if image exists */}
           {recipe.image_url && (
             <div className="relative w-full h-48 overflow-hidden bg-muted">
@@ -352,25 +389,16 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
               <div className="flex-1 min-w-0">
                 <CardTitle className="text-xl">{recipe.title}</CardTitle>
                 <CardDescription className="mt-1 flex items-center gap-1 flex-wrap">
-                  <span className="inline-flex items-center gap-1">
-                    {getRecipeIcon(recipe.recipe_type)}
-                    {recipe.recipe_type}
-                  </span>
-                  {recipe.category && (
-                    <>
-                      <span>•</span>
-                      <span>{recipe.category}</span>
-                    </>
-                  )}
+                  {recipe.category && <span>{recipe.category}</span>}
                   {recipe.prep_time && (
                     <>
-                      <span>•</span>
+                      {recipe.category && <span>•</span>}
                       <span>{recipe.prep_time} prep</span>
                     </>
                   )}
                   {lastMadeDate && (
                     <>
-                      <span>•</span>
+                      {(recipe.category || recipe.prep_time) && <span>•</span>}
                       <Badge variant="outline" className="text-xs">
                         Made{" "}
                         {formatDistanceToNow(new Date(lastMadeDate), {

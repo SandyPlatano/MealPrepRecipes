@@ -9,7 +9,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -58,16 +57,6 @@ export function MobileSidebarSheet({
 
   return (
     <Sheet open={isMobileOpen} onOpenChange={(open) => (open ? openMobile() : closeMobile())}>
-      <SheetTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden h-10 w-10"
-          aria-label="Open navigation menu"
-        >
-          <Menu className="h-4 w-4" />
-        </Button>
-      </SheetTrigger>
       <SheetContent
         side="left"
         className="w-[85vw] max-w-none p-0 flex flex-col"

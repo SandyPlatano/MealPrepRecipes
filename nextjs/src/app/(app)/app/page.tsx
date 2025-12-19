@@ -181,6 +181,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <div className="space-y-6">
         <PlanScrollRestorer />
         <div>
+          <p className="font-handwritten text-2xl text-primary mb-1">
+            Let&apos;s get cooking!
+          </p>
           <h1 className="text-3xl font-mono font-bold">Meal Plan</h1>
           <p className="text-muted-foreground mt-1">
             Plan your week. Assign cooks. Send the list. Done.
