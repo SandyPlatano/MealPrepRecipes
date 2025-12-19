@@ -247,21 +247,21 @@ export function PlannerHeader({
         )}
       </div>
 
-      {/* Actions - Right side */}
-      <div className="flex items-center gap-2">
-        {/* View Toggle */}
+      {/* Actions - Full width on mobile, right-aligned on desktop */}
+      <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
+        {/* View Toggle - Icon only on mobile */}
         <PlannerViewToggle
           settings={plannerViewSettings || DEFAULT_PLANNER_VIEW_SETTINGS}
           onChange={onPlannerViewChange}
         />
 
-        {/* Review Button */}
+        {/* Review Button - Flex grow on mobile */}
         {hasMeals ? (
           <Button
             asChild
             variant="outline"
             size="sm"
-            className="gap-2 h-10"
+            className="gap-2 h-11 flex-1 sm:flex-initial min-w-0"
           >
             <Link href={`/app/review?week=${weekStartStr}`}>
               <Eye className="h-4 w-4 flex-shrink-0" />
@@ -273,35 +273,33 @@ export function PlannerHeader({
             disabled
             variant="outline"
             size="sm"
-            className="gap-2 h-10"
+            className="gap-2 h-11 flex-1 sm:flex-initial min-w-0"
           >
             <Eye className="h-4 w-4 flex-shrink-0" />
             <span>Review</span>
           </Button>
         )}
 
-        {/* Confirm Plan Button - Primary CTA */}
+        {/* Confirm Plan Button - Primary CTA, larger on mobile */}
         {hasMeals ? (
           <Button
             asChild
             size="sm"
-            className="gap-2 h-10"
+            className="gap-2 h-11 flex-[2] sm:flex-initial min-w-0"
           >
             <Link href={`/app/confirmation?week=${weekStartStr}`}>
               <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-              <span className="hidden sm:inline">Confirm Plan</span>
-              <span className="sm:hidden">Confirm</span>
+              <span>Confirm</span>
             </Link>
           </Button>
         ) : (
           <Button
             disabled
             size="sm"
-            className="gap-2 h-10"
+            className="gap-2 h-11 flex-[2] sm:flex-initial min-w-0"
           >
             <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-            <span className="hidden sm:inline">Confirm Plan</span>
-            <span className="sm:hidden">Confirm</span>
+            <span>Confirm</span>
           </Button>
         )}
 
