@@ -72,7 +72,7 @@ import { RecipeLayoutCustomizer } from "@/components/recipes/recipe-layout-custo
 import { updateRecipeLayoutPreferencesAuto } from "@/app/actions/user-preferences";
 import { ReviewList } from "@/components/social/review-list";
 import { RatingBadge } from "@/components/ui/rating-badge";
-import { QuickRatingPopover } from "@/components/recipes/quick-rating-popover";
+import { PersonalRatingDialog } from "@/components/recipes/personal-rating-dialog";
 import type { Recipe, RecipeType } from "@/types/recipe";
 import type { RecipeNutrition } from "@/types/nutrition";
 import { formatDistanceToNow } from "date-fns";
@@ -181,6 +181,7 @@ export function RecipeDetail({
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showLayoutCustomizer, setShowLayoutCustomizer] = useState(false);
+  const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isExtractingNutrition, setIsExtractingNutrition] = useState(false);
@@ -774,31 +775,22 @@ export function RecipeDetail({
               <div className="flex items-center gap-2">
                 {/* Rating Badge */}
                 {currentRating ? (
-                  <QuickRatingPopover
-                    recipeId={recipe.id}
-                    currentRating={currentRating}
-                    onRated={setCurrentRating}
-                  >
-                    <RatingBadge rating={currentRating} size="md" />
-                  </QuickRatingPopover>
+                  <RatingBadge
+                    rating={currentRating}
+                    size="md"
+                    onClick={() => setShowRatingDialog(true)}
+                  />
                 ) : (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span>
-                        <QuickRatingPopover
-                          recipeId={recipe.id}
-                          currentRating={currentRating}
-                          onRated={setCurrentRating}
-                        >
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-muted-foreground/50 hover:text-yellow-500"
-                          >
-                            <Star className="h-5 w-5" />
-                          </Button>
-                        </QuickRatingPopover>
-                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-muted-foreground/50 hover:text-yellow-500"
+                        onClick={() => setShowRatingDialog(true)}
+                      >
+                        <Star className="h-5 w-5" />
+                      </Button>
                     </TooltipTrigger>
                     <TooltipContent>Rate this recipe</TooltipContent>
                   </Tooltip>
@@ -1065,6 +1057,16 @@ export function RecipeDetail({
         onOpenChange={setShowLayoutCustomizer}
         layoutPrefs={localLayoutPrefs}
         onUpdate={handleLayoutUpdate}
+      />
+
+      {/* Rating Dialog */}
+      <PersonalRatingDialog
+        recipeId={recipe.id}
+        recipeTitle={recipe.title}
+        currentRating={currentRating}
+        open={showRatingDialog}
+        onOpenChange={setShowRatingDialog}
+        onRated={setCurrentRating}
       />
     </>
   );

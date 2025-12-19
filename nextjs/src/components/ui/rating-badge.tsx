@@ -46,9 +46,9 @@ export const RatingBadge = forwardRef<HTMLButtonElement, RatingBadgeProps>(
         }}
         className={cn(
           "inline-flex items-center gap-1 rounded-md transition-colors",
-          "bg-yellow-50 dark:bg-yellow-950/50",
-          "hover:bg-yellow-100 dark:hover:bg-yellow-900/50",
-          "border border-yellow-200 dark:border-yellow-800",
+          "bg-muted/80 dark:bg-muted/50",
+          "hover:bg-muted dark:hover:bg-muted/80",
+          "border border-border",
           paddingClasses[size],
           "cursor-pointer",
           className
@@ -61,7 +61,7 @@ export const RatingBadge = forwardRef<HTMLButtonElement, RatingBadgeProps>(
             "fill-yellow-400 text-yellow-400"
           )}
         />
-        <span className={cn(textClasses[size], "font-medium text-yellow-700 dark:text-yellow-300")}>
+        <span className={cn(textClasses[size], "font-medium text-foreground")}>
           {rating}
         </span>
       </button>
