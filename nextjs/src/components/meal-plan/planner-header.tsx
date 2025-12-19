@@ -217,31 +217,30 @@ export function PlannerHeader({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b">
-      {/* Week Navigation - Left side */}
-      <div className="flex items-center gap-2">
+    <div className="flex items-center justify-between gap-2 pb-4 border-b">
+      {/* Week Navigation - Left side (compact) */}
+      <div className="flex items-center gap-1">
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
           onClick={() => navigateWeek("prev")}
-          className="h-10 w-10 flex-shrink-0 relative"
+          className="h-9 w-9 flex-shrink-0 relative"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-4 w-4" />
           {!canNavigateWeeks && (
-            <Lock className="h-3 w-3 absolute -top-1 -right-1 text-muted-foreground" />
+            <Lock className="h-2.5 w-2.5 absolute -top-0.5 -right-0.5 text-muted-foreground" />
           )}
         </Button>
 
         <Dialog open={calendarOpen} onOpenChange={setCalendarOpen}>
           <DialogTrigger asChild>
             <Button
-              variant="outline"
-              className="justify-center font-mono font-semibold h-10 min-w-0"
+              variant="ghost"
+              className="justify-center font-mono text-sm h-9 px-2 min-w-0"
             >
-              <CalendarIcon className="h-4 w-4 mr-2" />
               <span className="truncate">{formatWeekRange(weekStartDate)}</span>
               {!canNavigateWeeks && (
-                <Lock className="h-3 w-3 ml-1 text-muted-foreground" />
+                <Lock className="h-2.5 w-2.5 ml-1 text-muted-foreground" />
               )}
             </Button>
           </DialogTrigger>
@@ -276,52 +275,42 @@ export function PlannerHeader({
         </Dialog>
 
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
           onClick={() => navigateWeek("next")}
-          className="h-10 w-10 flex-shrink-0 relative"
+          className="h-9 w-9 flex-shrink-0 relative"
         >
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-4 w-4" />
           {!canNavigateWeeks && (
-            <Lock className="h-3 w-3 absolute -top-1 -right-1 text-muted-foreground" />
+            <Lock className="h-2.5 w-2.5 absolute -top-0.5 -right-0.5 text-muted-foreground" />
           )}
         </Button>
 
         {!isCurrentWeek && (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={goToCurrentWeek}
-              className="hidden sm:inline-flex h-10"
-            >
-              This Week
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={goToCurrentWeek}
-              className="sm:hidden h-10"
-            >
-              Today
-            </Button>
-          </>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={goToCurrentWeek}
+            className="hidden sm:inline-flex h-9 text-xs"
+          >
+            Today
+          </Button>
         )}
       </div>
 
-      {/* Actions - Full width on mobile, right-aligned on desktop */}
-      <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
-        {/* Review Button - Flex grow on mobile */}
+      {/* Actions - Always inline */}
+      <div className="flex items-center gap-2">
+        {/* Review Button */}
         {hasMeals ? (
           <Button
             asChild
             variant="outline"
             size="sm"
-            className="gap-2 h-11 flex-1 sm:flex-initial min-w-0"
+            className="gap-1.5 h-10 px-3"
           >
             <Link href={`/app/review?week=${weekStartStr}`}>
               <Eye className="h-4 w-4 flex-shrink-0" />
-              <span>Review</span>
+              <span className="hidden sm:inline">Review</span>
             </Link>
           </Button>
         ) : (
@@ -329,19 +318,19 @@ export function PlannerHeader({
             disabled
             variant="outline"
             size="sm"
-            className="gap-2 h-11 flex-1 sm:flex-initial min-w-0"
+            className="gap-1.5 h-10 px-3"
           >
             <Eye className="h-4 w-4 flex-shrink-0" />
-            <span>Review</span>
+            <span className="hidden sm:inline">Review</span>
           </Button>
         )}
 
-        {/* Confirm Plan Button - Primary CTA, larger on mobile */}
+        {/* Confirm Plan Button - Primary CTA */}
         {hasMeals ? (
           <Button
             asChild
             size="sm"
-            className="gap-2 h-11 flex-[2] sm:flex-initial min-w-0"
+            className="gap-1.5 h-10 px-4 font-semibold"
           >
             <Link href={`/app/confirmation?week=${weekStartStr}`}>
               <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
@@ -352,7 +341,7 @@ export function PlannerHeader({
           <Button
             disabled
             size="sm"
-            className="gap-2 h-11 flex-[2] sm:flex-initial min-w-0"
+            className="gap-1.5 h-10 px-4 font-semibold"
           >
             <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
             <span>Confirm</span>
