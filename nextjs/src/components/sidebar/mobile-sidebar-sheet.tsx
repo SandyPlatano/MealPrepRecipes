@@ -18,7 +18,6 @@ import { SidebarQuickNav } from "./sidebar-quick-nav";
 import { SidebarMealPlan } from "./sidebar-meal-plan";
 import { SidebarCollections } from "./sidebar-collections";
 import { SidebarBottomNav } from "./sidebar-bottom-nav";
-import { SidebarDivider } from "./sidebar-section";
 import type {
   FolderWithChildren,
   FolderCategoryWithFolders,
@@ -76,19 +75,15 @@ export function MobileSidebarSheet({
 
           {/* Scrollable Content */}
           <ScrollArea className="flex-1">
-            <div className="py-2">
+            <div className="py-2 space-y-1">
               {/* Quick Navigation */}
               <SidebarQuickNav onNewRecipeClick={onNewRecipeClick} />
-
-              <SidebarDivider />
 
               {/* Meal Planning */}
               <SidebarMealPlan
                 shoppingListCount={shoppingListCount}
                 favoritesCount={favoritesCount}
               />
-
-              <SidebarDivider />
 
               {/* Collections / Folders */}
               <SidebarCollections

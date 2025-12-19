@@ -320,22 +320,21 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
           className="group hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 hover:border-primary/50 transition-all duration-300 ease-out flex flex-col h-full cursor-pointer overflow-hidden hover:ring-2 hover:ring-primary/20 animate-slide-up-fade relative"
           style={animationIndex !== undefined ? { animationDelay: `${animationIndex * 50}ms`, animationFillMode: 'backwards' } : undefined}
         >
-          {/* Recipe Type Badge - positioned at top-left corner */}
-          <div
-            className={cn(
-              "absolute top-3 left-3 z-10 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium shadow-sm",
-              "transition-all duration-300 ease-out",
-              "group-hover:scale-110 group-hover:shadow-md group-hover:-translate-y-0.5",
-              getRecipeTypeBadgeClasses(recipe.recipe_type)
-            )}
-          >
-            {getRecipeIcon(recipe.recipe_type)}
-            <span>{recipe.recipe_type}</span>
-          </div>
-
-          {/* Recipe Image - only show if image exists */}
-          {recipe.image_url && (
+          {/* Recipe Image with overlaid badge - only show if image exists */}
+          {recipe.image_url ? (
             <div className="relative w-full h-48 overflow-hidden bg-muted">
+              {/* Badge overlays the image */}
+              <div
+                className={cn(
+                  "absolute top-3 left-3 z-10 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium shadow-sm",
+                  "transition-all duration-300 ease-out",
+                  "group-hover:scale-110 group-hover:shadow-md group-hover:-translate-y-0.5",
+                  getRecipeTypeBadgeClasses(recipe.recipe_type)
+                )}
+              >
+                {getRecipeIcon(recipe.recipe_type)}
+                <span>{recipe.recipe_type}</span>
+              </div>
               <Image
                 src={recipe.image_url}
                 alt={recipe.title}
@@ -345,6 +344,21 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                 placeholder="blur"
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYH/8QAIhAAAgEDAwUBAAAAAAAAAAAAAQIDAAQRBQYhEhMiMVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQADAQEBAAAAAAAAAAAAAAAAAQIDEUH/2gAMAwEAAhEDEQA/ALTce5Nw6XfRWOnWtjJAkccjGaN2LFhnHDDjgce/dSX9x73/AGb/AHfz/Sla1FNRlpHD9J//2Q=="
               />
+            </div>
+          ) : (
+            /* Badge in dedicated row when no image */
+            <div className="px-4 pt-4">
+              <div
+                className={cn(
+                  "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium shadow-sm",
+                  "transition-all duration-300 ease-out",
+                  "group-hover:scale-105 group-hover:shadow-md",
+                  getRecipeTypeBadgeClasses(recipe.recipe_type)
+                )}
+              >
+                {getRecipeIcon(recipe.recipe_type)}
+                <span>{recipe.recipe_type}</span>
+              </div>
             </div>
           )}
 

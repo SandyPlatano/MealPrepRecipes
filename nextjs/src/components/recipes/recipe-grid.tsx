@@ -15,12 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles, Star, Leaf, Wheat, Flame, Mountain, Ship, GlassWater, Milk, TrendingDown } from "lucide-react";
+import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles, Star, Leaf, Wheat, Flame, Mountain, Ship, Milk, TrendingDown } from "lucide-react";
 import type { RecipeWithFavoriteAndNutrition, RecipeType } from "@/types/recipe";
 import type { CustomBadge } from "@/lib/nutrition/badge-calculator";
 import type { FolderWithChildren } from "@/types/folder";
@@ -210,40 +205,6 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
 
   return (
     <div className="space-y-6">
-      {/* Diet Type Quick Filters */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Diet Types</label>
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          <button
-            onClick={() => setDietFilter("all")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-full border text-sm font-medium whitespace-nowrap transition-all ${
-              dietFilter === "all"
-                ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                : "border-input hover:bg-accent"
-            }`}
-          >
-            All Diets
-          </button>
-          {dietTypes.map((diet) => {
-            const Icon = diet.icon;
-            return (
-              <button
-                key={diet.label}
-                onClick={() => setDietFilter(diet.label)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-full border text-sm font-medium whitespace-nowrap transition-all ${
-                  dietFilter === diet.label
-                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                    : "border-input hover:bg-accent"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                {diet.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Search and Filter Controls */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 max-w-2xl">
@@ -374,6 +335,40 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
                 />
                 <span className="text-sm">Favorites only</span>
               </label>
+            </div>
+          </div>
+
+          {/* Diet Type Filters */}
+          <div className="space-y-2 pt-3 border-t">
+            <label className="text-sm font-medium">Diet Types</label>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setDietFilter("all")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all ${
+                  dietFilter === "all"
+                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                    : "border-input hover:bg-accent"
+                }`}
+              >
+                All Diets
+              </button>
+              {dietTypes.map((diet) => {
+                const Icon = diet.icon;
+                return (
+                  <button
+                    key={diet.label}
+                    onClick={() => setDietFilter(diet.label)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all ${
+                      dietFilter === diet.label
+                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                        : "border-input hover:bg-accent"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {diet.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
