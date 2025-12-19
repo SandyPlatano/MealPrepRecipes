@@ -41,7 +41,6 @@ import { DEFAULT_PLANNER_VIEW_SETTINGS } from "@/types/settings";
 import type { EnergyModePreferences } from "@/types/energy-mode";
 import { DEFAULT_ENERGY_MODE_PREFERENCES } from "@/types/energy-mode";
 import { EnergyModeProvider } from "@/contexts/energy-mode-context";
-import { EnergyHeaderWidget } from "@/components/energy-mode";
 
 interface MealPlannerGridProps {
   weekStartStr: string;
@@ -278,13 +277,6 @@ export function MealPlannerGrid({
         )}
 
         <div className="space-y-4 md:space-y-6">
-          {/* Energy Mode Check-In Widget */}
-          {energyModePreferences.enabled && (
-            <div className="flex justify-end">
-              <EnergyHeaderWidget />
-            </div>
-          )}
-
           {/* Header */}
           <div className={isPending ? "opacity-75 pointer-events-none" : ""}>
             <PlannerHeader

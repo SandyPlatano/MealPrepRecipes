@@ -8,8 +8,6 @@ import {
   LogOut,
   Settings,
   User as UserIcon,
-  PanelLeftClose,
-  PanelLeft,
   Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -36,7 +34,7 @@ interface SidebarUserAreaProps {
 }
 
 export function SidebarUserArea({ user, logoutAction, onSearchClick }: SidebarUserAreaProps) {
-  const { isIconOnly, toggleCollapse, isCollapsed, closeMobile, isMobile } = useSidebar();
+  const { isIconOnly, closeMobile, isMobile } = useSidebar();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
   // Get user display info
@@ -209,28 +207,6 @@ export function SidebarUserArea({ user, logoutAction, onSearchClick }: SidebarUs
             </TooltipContent>
           </Tooltip>
         )}
-
-        {/* Collapse toggle button */}
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleCollapse}
-              className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
-            >
-              {isCollapsed ? (
-                <PanelLeft className="h-4 w-4" />
-              ) : (
-                <PanelLeftClose className="h-4 w-4" />
-              )}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">
-            <span>{isCollapsed ? "Expand sidebar" : "Collapse sidebar"}</span>
-            <kbd className="ml-2 text-[10px] bg-muted px-1 py-0.5 rounded">⌘\</kbd>
-          </TooltipContent>
-        </Tooltip>
       </div>
     </div>
   );

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Settings2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronRight, Settings2, PanelLeft, PanelLeftClose } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { SettingsHeader } from "@/components/settings/layout/settings-header";
@@ -17,6 +16,8 @@ export default function SidebarSettingsPage() {
     sections,
     sectionOrder,
     reducedMotion,
+    mode,
+    setMode,
     addCustomSectionItem,
     removeCustomSectionItem,
   } = useSidebar();
@@ -119,6 +120,42 @@ export default function SidebarSettingsPage() {
         title="Display"
         description="Additional display options for the sidebar"
       >
+        {/* Sidebar Mode Toggle */}
+        <SettingRow
+          id="sidebar-mode"
+          label="Sidebar style"
+          description="Choose between compact icons or full navigation"
+        >
+          <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+            <button
+              type="button"
+              onClick={() => setMode("collapsed")}
+              className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
+                mode === "collapsed"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <PanelLeftClose className="h-4 w-4" />
+              <span className="hidden sm:inline">Icons</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("expanded")}
+              className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
+                mode === "expanded"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <PanelLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Full</span>
+            </button>
+          </div>
+        </SettingRow>
+
         <SettingRow
           id="reduced-motion"
           label="Reduce motion"

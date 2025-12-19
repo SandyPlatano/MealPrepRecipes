@@ -1,11 +1,10 @@
 // ============================================================================
-// Energy Mode / Spoons Theory Types
+// Energy Mode Types
 // For neurodivergent-friendly meal planning based on daily energy levels
 // ============================================================================
 
 /**
- * Energy level using "spoons" metaphor (1-5 scale)
- * Based on Spoon Theory for chronic illness/disability
+ * Energy level (1-5 scale)
  */
 export type EnergyLevel = 1 | 2 | 3 | 4 | 5;
 
@@ -17,8 +16,6 @@ export interface EnergyModePreferences {
   enabled: boolean;
   /** Default energy level for new days */
   defaultEnergyLevel: EnergyLevel;
-  /** Visual display preference */
-  displayMode: "spoons" | "simple";
   /** Whether to show the daily check-in prompt */
   showDailyPrompt: boolean;
 }
@@ -42,7 +39,6 @@ export interface DailyEnergyCheckIn {
 export const DEFAULT_ENERGY_MODE_PREFERENCES: EnergyModePreferences = {
   enabled: false,
   defaultEnergyLevel: 3,
-  displayMode: "spoons",
   showDailyPrompt: true,
 };
 
@@ -84,14 +80,6 @@ export const ENERGY_TO_MAX_COMPLEXITY: Record<EnergyLevel, number> = {
   5: 5.0, // All recipes including complex ones
 };
 
-/**
- * Visual display configuration
- */
-export const SPOON_DISPLAY = {
-  filled: "🥄",
-  empty: "⚪",
-} as const;
-
 // ============================================================================
 // Helper Functions
 // ============================================================================
@@ -117,13 +105,4 @@ export function getEnergyCheckInKey(date?: Date): string {
   const d = date || new Date();
   const dateStr = d.toISOString().split("T")[0];
   return `energy-checkin-${dateStr}`;
-}
-
-/**
- * Generate spoon display string (e.g., "🥄🥄🥄⚪⚪" for level 3)
- */
-export function getSpoonsDisplay(level: EnergyLevel): string {
-  const filled = SPOON_DISPLAY.filled.repeat(level);
-  const empty = SPOON_DISPLAY.empty.repeat(5 - level);
-  return filled + empty;
 }

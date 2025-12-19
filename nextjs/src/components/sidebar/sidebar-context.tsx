@@ -149,6 +149,9 @@ export function SidebarProvider({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isLoading, _setIsLoading] = React.useState(false);
 
+  // Track explicit user interaction to prevent auto-collapse from overriding
+  const userExplicitlyExpandedRef = React.useRef(false);
+
   // Initialize from localStorage on mount
   React.useEffect(() => {
     const stored = getSidebarState();
@@ -195,6 +198,11 @@ export function SidebarProvider({
 
   // Auto-collapse on tablet if not explicitly expanded
   React.useEffect(() => {
+    // Skip if user explicitly expanded the sidebar
+    if (userExplicitlyExpandedRef.current) {
+      return;
+    }
+
     if (isTablet && !isCollapsed && isInitialized) {
       // Only auto-collapse if user hasn't explicitly set state
       const stored = getSidebarState();
@@ -222,6 +230,8 @@ export function SidebarProvider({
         } else {
           setIsCollapsed((prev) => {
             const newValue = !prev;
+            // Track explicit user interaction
+            userExplicitlyExpandedRef.current = !newValue;
             setStorageCollapsed(newValue);
             return newValue;
           });
@@ -254,17 +264,21 @@ export function SidebarProvider({
   const toggleCollapse = React.useCallback(() => {
     setIsCollapsed((prev) => {
       const newValue = !prev;
+      // Track explicit user interaction
+      userExplicitlyExpandedRef.current = !newValue;
       setStorageCollapsed(newValue);
       return newValue;
     });
   }, []);
 
   const collapse = React.useCallback(() => {
+    userExplicitlyExpandedRef.current = false;
     setIsCollapsed(true);
     setStorageCollapsed(true);
   }, []);
 
   const expand = React.useCallback(() => {
+    userExplicitlyExpandedRef.current = true;
     setIsCollapsed(false);
     setStorageCollapsed(false);
   }, []);

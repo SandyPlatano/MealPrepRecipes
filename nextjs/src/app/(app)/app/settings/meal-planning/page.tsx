@@ -19,7 +19,6 @@ import { MealTypeCustomizationSettings } from "@/components/settings/meal-type-c
 import { ServingSizePresetsManager } from "@/components/settings/serving-size-presets-manager";
 import { CustomMealTypesManager } from "@/components/settings/custom-meal-types-manager";
 import { CustomRecipeTypesManager } from "@/components/settings/custom-recipe-types-manager";
-import { SpoonSelector } from "@/components/energy-mode";
 import type { PlannerViewDensity } from "@/types/settings";
 import type { EnergyLevel } from "@/types/energy-mode";
 import { ENERGY_LEVEL_LABELS, ENERGY_LEVEL_DESCRIPTIONS } from "@/types/energy-mode";
@@ -184,33 +183,21 @@ export default function MealPlanningSettingsPage() {
               label="Default Energy Level"
               description={`${ENERGY_LEVEL_LABELS[energyPrefs.defaultEnergyLevel]}: ${ENERGY_LEVEL_DESCRIPTIONS[energyPrefs.defaultEnergyLevel]}`}
             >
-              <SpoonSelector
-                value={energyPrefs.defaultEnergyLevel}
-                onChange={(level: EnergyLevel) => {
-                  updateEnergyModePrefs({ defaultEnergyLevel: level });
-                }}
-                displayMode={energyPrefs.displayMode}
-                size="sm"
-              />
-            </SettingRow>
-
-            <SettingRow
-              id="setting-energy-display-mode"
-              label="Display Style"
-              description="How energy levels are shown"
-            >
               <Select
-                value={energyPrefs.displayMode}
-                onValueChange={(value: "spoons" | "simple") => {
-                  updateEnergyModePrefs({ displayMode: value });
+                value={energyPrefs.defaultEnergyLevel.toString()}
+                onValueChange={(value) => {
+                  updateEnergyModePrefs({ defaultEnergyLevel: parseInt(value) as EnergyLevel });
                 }}
               >
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-36">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="spoons">Spoons 🥄</SelectItem>
-                  <SelectItem value="simple">Numbers</SelectItem>
+                  {([1, 2, 3, 4, 5] as EnergyLevel[]).map((level) => (
+                    <SelectItem key={level} value={level.toString()}>
+                      {level} - {ENERGY_LEVEL_LABELS[level]}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </SettingRow>
