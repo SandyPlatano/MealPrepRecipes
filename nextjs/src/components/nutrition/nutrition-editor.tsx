@@ -120,14 +120,14 @@ export function NutritionEditor({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
             {/* Warnings */}
             {warnings.length > 0 && (
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
                   <div className="font-semibold">Validation Warnings:</div>
-                  <ul className="mt-2 list-inside list-disc space-y-1 text-sm">
+                  <ul className="mt-2 list-inside list-disc flex flex-col gap-1 text-sm">
                     {warnings.map((warning, index) => (
                       <li key={index}>{warning}</li>
                     ))}
@@ -137,7 +137,7 @@ export function NutritionEditor({
             )}
 
             {/* Primary Macros */}
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               <h3 className="text-sm font-semibold">Primary Nutrients</h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 <FormField
@@ -243,7 +243,7 @@ export function NutritionEditor({
             </div>
 
             {/* Additional Nutrients */}
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               <h3 className="text-sm font-semibold">Additional Nutrients (Optional)</h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 <FormField

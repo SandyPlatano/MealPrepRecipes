@@ -125,7 +125,7 @@ export default async function SharedRecipePage({
         {/* Recipe Card */}
         <Card>
           <CardHeader>
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {/* Recipe Type & Category */}
               <div className="flex items-center gap-2 flex-wrap">
                 {getRecipeIcon(recipe.recipe_type)}
@@ -168,7 +168,7 @@ export default async function SharedRecipePage({
             </div>
           </CardHeader>
 
-          <CardContent className="space-y-6">
+          <CardContent className="flex flex-col gap-6">
             {/* Meta Info */}
             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
               {recipe.prep_time && (
@@ -227,7 +227,7 @@ export default async function SharedRecipePage({
             {/* Ingredients & Instructions */}
             <div className="grid gap-8 md:grid-cols-2">
               {/* Ingredients */}
-              <div className="space-y-4">
+              <div className="flex flex-col gap-4">
                 <div className="flex items-baseline gap-2">
                   <h3 className="text-lg font-semibold">Ingredients</h3>
                   <Badge variant="secondary" className="text-xs">
@@ -235,7 +235,7 @@ export default async function SharedRecipePage({
                   </Badge>
                 </div>
 
-                <ul className="space-y-2">
+                <ul className="flex flex-col gap-2">
                   {recipe.ingredients.map((ingredient, index) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="text-muted-foreground">•</span>
@@ -246,14 +246,14 @@ export default async function SharedRecipePage({
               </div>
 
               {/* Instructions */}
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 <div>
                   <h3 className="text-lg font-semibold">Instructions</h3>
                   <p className="text-sm text-muted-foreground">
                     {recipe.instructions.length} steps
                   </p>
                 </div>
-                <ol className="space-y-4">
+                <ol className="flex flex-col gap-4">
                   {recipe.instructions.map((instruction, index) => (
                     <li key={index} className="flex gap-3">
                       <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm flex items-center justify-center font-medium">
@@ -274,7 +274,7 @@ export default async function SharedRecipePage({
             {recipe.notes && (
               <>
                 <div className="border-t" />
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <h3 className="text-lg font-semibold">Notes</h3>
                   <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -306,7 +306,7 @@ export default async function SharedRecipePage({
         </Card>
 
         {/* Bottom CTA */}
-        <div className="mt-8 text-center space-y-4">
+        <div className="mt-8 text-center flex flex-col gap-4">
           <p className="text-muted-foreground">
             Discover more recipes and plan your meals with MealPrepRecipes
           </p>

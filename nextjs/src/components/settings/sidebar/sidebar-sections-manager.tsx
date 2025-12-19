@@ -120,7 +120,7 @@ export function SidebarSectionsManager() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -130,7 +130,7 @@ export function SidebarSectionsManager() {
           items={sectionOrder}
           strategy={verticalListSortingStrategy}
         >
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {orderedSections.map((section) => (
               <SortableSectionCard
                 key={section.id}

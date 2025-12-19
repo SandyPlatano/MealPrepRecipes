@@ -113,7 +113,7 @@ export class ErrorBoundary extends Component<
               Something went wrong
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex flex-col gap-4">
             <p className="text-sm text-muted-foreground">
               An error occurred while loading this section. You can try
               refreshing or contact support if the problem persists.

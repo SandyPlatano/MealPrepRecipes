@@ -72,9 +72,9 @@ export function StepNavigation({
   }, [currentStep, totalSteps, isFirstStep, isLastStep, onPrevious, onNext, onRepeat]);
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("flex flex-col gap-6", className)}>
       {/* Progress bar */}
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <Progress value={progress} className="h-2" />
         <p className="text-sm text-muted-foreground text-center">
           {currentStep} of {totalSteps} steps completed

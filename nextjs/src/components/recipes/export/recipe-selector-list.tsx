@@ -69,7 +69,7 @@ export function RecipeSelectorList({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col">
       {/* Search Input */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -112,7 +112,7 @@ export function RecipeSelectorList({
 
       {/* Recipe List */}
       <ScrollArea style={{ height: maxHeight }}>
-        <div className="space-y-1 pr-4">
+        <div className="flex flex-col pr-4">
           {filteredRecipes.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               {searchQuery ? "No recipes match your search" : "No recipes available"}

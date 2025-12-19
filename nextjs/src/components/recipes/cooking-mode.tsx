@@ -765,7 +765,7 @@ export function CookingMode({
         )}
       >
         {/* Main Content */}
-        <div className="space-y-8">
+        <div className="flex flex-col">
           {settings.navigation.mode === "step-by-step" ? (
             <>
               {/* Step-by-Step View with Swipe Support */}
@@ -782,7 +782,7 @@ export function CookingMode({
                   isSwiping && "opacity-90 scale-[0.99] transition-transform",
                   getTransitionClass(settings.display.stepTransition)
                 )}>
-                  <div className="space-y-8">
+                  <div className="flex flex-col">
                   {/* Step Number Hero - Large, prominent, easy to scan */}
                   <div className="flex items-center gap-6">
                     <div
@@ -921,11 +921,11 @@ export function CookingMode({
 
         {/* Sidebar - only show on desktop if ingredients are visible */}
         {settings.visibility.showIngredients && (
-          <div className="hidden lg:block space-y-8">
+          <div className="flex hidden lg:block flex-col">
             {/* Timer display (always visible if timer is running) */}
             {(timerTotal > 0 || timerRunning) && (
               <Card className="p-8">
-                <div className="space-y-6">
+                <div className="flex flex-col">
                   <div className="flex items-center gap-3">
                     <Timer className="h-6 w-6 text-primary" />
                     <span className="text-lg font-semibold">Timer</span>
@@ -967,7 +967,7 @@ export function CookingMode({
 
             {/* Ingredients Checklist with Current Step Highlighting */}
             <Card className="p-8">
-              <div className="space-y-6">
+              <div className="flex flex-col">
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-semibold">Ingredients</span>
                   <div className="flex items-center gap-2">
@@ -984,7 +984,7 @@ export function CookingMode({
                     )}
                   </div>
                 </div>
-                <div className="space-y-4 max-h-[500px] overflow-y-auto">
+                <div className="flex flex-col max-h-[500px] overflow-y-auto">
                   {displayIngredients.map((ingredient, index) => {
                     const isHighlighted = highlightedIngredientIndices.has(index);
                     return (

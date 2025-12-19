@@ -351,7 +351,7 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="h-20 bg-muted animate-pulse rounded-xl" />
         ))}
@@ -360,14 +360,14 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
         <SortableContext items={mealTypes} strategy={verticalListSortingStrategy}>
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {mealTypes.map((mealType) => (
               <SortableMealTypeCard
                 key={mealType.id}
@@ -393,8 +393,8 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
-            <div className="space-y-2">
+          <div className="flex flex-col gap-6 py-4">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
@@ -404,7 +404,7 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label className="flex items-center gap-2">
                 <Smile className="h-4 w-4" />
                 Emoji
@@ -446,7 +446,7 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <Label className="flex items-center gap-2">
                 <Palette className="h-4 w-4" />
                 Color
@@ -489,7 +489,7 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
                 Default Calendar Time
@@ -511,7 +511,7 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
               </Select>
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>Preview</Label>
               <div
                 className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-sm font-medium"

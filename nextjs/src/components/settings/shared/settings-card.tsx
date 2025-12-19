@@ -69,7 +69,7 @@ export function SettingsCard({
         )}
       </CardHeader>
       <Separator className="mb-0" />
-      <CardContent className="pt-6 space-y-4">
+      <CardContent className="pt-6 flex flex-col gap-4">
         {children}
       </CardContent>
     </Card>

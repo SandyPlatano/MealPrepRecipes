@@ -93,7 +93,7 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
       )}
 
       {/* Content */}
-      <div className="flex-1 min-w-0 space-y-1">
+      <div className="flex-1 min-w-0 flex flex-col gap-1">
         <p className="text-sm font-medium leading-tight">{notification.title}</p>
         {notification.body && (
           <p className="text-xs text-muted-foreground line-clamp-2">

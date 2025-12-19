@@ -165,12 +165,12 @@ export function KeyboardShortcutsSection({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Master Toggle */}
       <div className="flex items-center justify-between">
-        <div className="space-y-0.5">
+        <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2">
-            <Keyboard className="h-4 w-4 text-muted-foreground" />
+            <Keyboard className="size-4 text-muted-foreground" />
             <Label>Enable Keyboard Shortcuts</Label>
           </div>
           <p className="text-sm text-muted-foreground">
@@ -186,7 +186,7 @@ export function KeyboardShortcutsSection({
       {preferences.enabled && (
         <>
           {/* Shortcuts List */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {SHORTCUT_ACTIONS.map((action) => {
               const currentKey = preferences.shortcuts[action.key] || "—";
               const isEditing = editingAction === action.key;
@@ -270,7 +270,7 @@ export function KeyboardShortcutsSection({
               onClick={() => setShowResetDialog(true)}
               disabled={isSaving}
             >
-              <RotateCcw className="h-3 w-3 mr-1.5" />
+              <RotateCcw className="size-3 mr-1.5" />
               Reset to Defaults
             </Button>
           </div>
@@ -286,7 +286,7 @@ export function KeyboardShortcutsSection({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              <AlertTriangle className="size-5 text-amber-500" />
               Reset Keyboard Shortcuts?
             </AlertDialogTitle>
             <AlertDialogDescription>

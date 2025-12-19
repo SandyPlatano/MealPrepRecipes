@@ -8,9 +8,9 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-md flex flex-col gap-8">
         {/* Logo/Brand */}
-        <div className="text-center space-y-2">
+        <div className="text-center flex flex-col gap-2">
           <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
             <BrandLogo size="lg" />
           </Link>

@@ -122,9 +122,9 @@ export function SectionEditDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex flex-col gap-4 py-4">
           {/* Label Input */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="section-label">Section Name</Label>
             <Input
               id="section-label"
@@ -140,7 +140,7 @@ export function SectionEditDialog({
           </div>
 
           {/* Emoji Picker */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label>Icon / Emoji</Label>
             <div className="flex items-center gap-2">
               <Popover

@@ -69,11 +69,19 @@ export function RecipesPageClient({
     }
 
     if (filterType === "smart" && filterId) {
+      // Validate smart folder exists before applying filter
+      if (isSystem) {
+        const systemFolderExists = systemSmartFolders.some((f) => f.id === filterId);
+        if (!systemFolderExists) return { type: "all" };
+      } else {
+        const userFolderExists = userSmartFolders.some((f) => f.id === filterId);
+        if (!userFolderExists) return { type: "all" };
+      }
       return { type: "smart", id: filterId, isSystem };
     }
 
     return { type: "all" };
-  }, [searchParams, folderMemberships]);
+  }, [searchParams, folderMemberships, systemSmartFolders, userSmartFolders]);
   const [addToFolderRecipe, setAddToFolderRecipe] = useState<Recipe | null>(
     null
   );
@@ -116,7 +124,8 @@ export function RecipesPageClient({
           return filterRecipesBySmartFolder(recipes, userFolder.smart_filters, safeCookingHistoryContext);
         }
       }
-      return [];
+      // Smart folder not found or has no filters - show all recipes as fallback
+      return null;
     }
 
     if (activeFilter.type === "folder") {

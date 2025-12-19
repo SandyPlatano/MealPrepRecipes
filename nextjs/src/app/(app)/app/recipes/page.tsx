@@ -124,7 +124,7 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div>
         <PersonalizedGreeting
           userName={profile?.first_name}

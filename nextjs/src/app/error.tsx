@@ -19,14 +19,14 @@ export default function Error({
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-md w-full text-center space-y-6">
+      <div className="max-w-md w-full text-center flex flex-col gap-6">
         <div className="flex justify-center">
           <div className="rounded-full bg-destructive/10 p-3">
             <AlertCircle className="h-10 w-10 text-destructive" />
           </div>
         </div>
-        
-        <div className="space-y-2">
+
+        <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-bold">Something went wrong!</h1>
           <p className="text-muted-foreground">
             We encountered an unexpected error. Don&apos;t worry, it&apos;s been logged and we&apos;ll look into it.

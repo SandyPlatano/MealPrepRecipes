@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/tooltip";
 import { useSidebar } from "./sidebar-context";
 
+type SectionAccentColor = "coral" | "green" | "blue" | "purple" | "amber";
+
 interface SidebarSectionProps {
   title: string;
   icon?: LucideIcon;
@@ -25,7 +27,17 @@ interface SidebarSectionProps {
   defaultOpen?: boolean;
   action?: React.ReactNode;
   className?: string;
+  /** Accent color for visual grouping (neurodivergent-friendly) */
+  accentColor?: SectionAccentColor;
 }
+
+const accentColorClasses: Record<SectionAccentColor, { header: string; border: string }> = {
+  coral: { header: "text-orange-500 dark:text-orange-400", border: "border-l-orange-500/50" },
+  green: { header: "text-emerald-600 dark:text-emerald-400", border: "border-l-emerald-500/50" },
+  blue: { header: "text-blue-600 dark:text-blue-400", border: "border-l-blue-500/50" },
+  purple: { header: "text-purple-600 dark:text-purple-400", border: "border-l-purple-500/50" },
+  amber: { header: "text-amber-600 dark:text-amber-400", border: "border-l-amber-500/50" },
+};
 
 export function SidebarSection({
   title,
@@ -35,22 +47,28 @@ export function SidebarSection({
   defaultOpen = true,
   action,
   className,
+  accentColor,
 }: SidebarSectionProps) {
   const [isOpen, setIsOpen] = React.useState(defaultOpen);
   const { isIconOnly } = useSidebar();
 
+  const accentClasses = accentColor ? accentColorClasses[accentColor] : null;
+
   // When collapsed to icon-only, show a tooltip with section title
   if (isIconOnly) {
     return (
-      <div className={cn("space-y-1", className)}>
+      <div className={cn("flex flex-col gap-1", className)}>
         {(emoji || Icon) && (
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
-              <div className="flex items-center justify-center h-8 text-muted-foreground">
+              <div className={cn(
+                "flex items-center justify-center h-8",
+                accentClasses?.header || "text-muted-foreground"
+              )}>
                 {emoji ? (
                   <span className="text-base">{emoji}</span>
                 ) : Icon ? (
-                  <Icon className="h-4 w-4" />
+                  <Icon className="size-4" />
                 ) : null}
               </div>
             </TooltipTrigger>
@@ -68,25 +86,33 @@ export function SidebarSection({
     <Collapsible
       open={isOpen}
       onOpenChange={setIsOpen}
-      className={cn("space-y-1", className)}
+      className={cn(
+        "flex flex-col gap-1",
+        accentClasses && "border-l-2 ml-1",
+        accentClasses?.border,
+        className
+      )}
     >
       <div className="flex items-center justify-between px-3 py-1">
         <CollapsibleTrigger asChild>
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 px-1 gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground uppercase tracking-wider"
+            className={cn(
+              "h-8 px-1.5 gap-1.5 text-xs font-semibold hover:text-foreground",
+              accentClasses?.header || "text-muted-foreground"
+            )}
           >
             <ChevronRight
               className={cn(
-                "h-3 w-3 transition-transform duration-200",
+                "size-3.5 transition-transform duration-200",
                 isOpen && "rotate-90"
               )}
             />
             {emoji ? (
-              <span className="text-xs">{emoji}</span>
+              <span className="text-sm">{emoji}</span>
             ) : Icon ? (
-              <Icon className="h-3 w-3" />
+              <Icon className="size-3.5" />
             ) : null}
             <span>{title}</span>
           </Button>
@@ -97,7 +123,7 @@ export function SidebarSection({
           </div>
         )}
       </div>
-      <CollapsibleContent className="space-y-0.5">
+      <CollapsibleContent className="flex flex-col gap-0.5">
         {children}
       </CollapsibleContent>
     </Collapsible>

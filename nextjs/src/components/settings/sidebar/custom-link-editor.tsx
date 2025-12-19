@@ -235,7 +235,7 @@ export function CustomLinkEditor({
     .map((item) => (item as { href: string }).href);
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       {/* Links List */}
       {sortedItems.length > 0 ? (
         <DndContext
@@ -247,7 +247,7 @@ export function CustomLinkEditor({
             items={sortedItems.map((item) => item.id)}
             strategy={verticalListSortingStrategy}
           >
-            <div className="space-y-1.5">
+            <div className="flex flex-col gap-1.5">
               {sortedItems.map((item) => (
                 <SortableLinkItem
                   key={item.id}
@@ -294,7 +294,7 @@ export function CustomLinkEditor({
           {/* Preset Form View (after selecting a preset) */}
           {dialogView === "preset-form" ? (
             <>
-              <div className="space-y-4 py-2">
+              <div className="flex flex-col gap-4 py-2">
                 {/* Back Button */}
                 <Button
                   variant="ghost"
@@ -307,7 +307,7 @@ export function CustomLinkEditor({
                 </Button>
 
                 {/* Label */}
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="link-label">Label</Label>
                   <Input
                     id="link-label"
@@ -320,7 +320,7 @@ export function CustomLinkEditor({
                 </div>
 
                 {/* App Path */}
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="link-url">App Path</Label>
                   <Input
                     id="link-url"
@@ -333,7 +333,7 @@ export function CustomLinkEditor({
                 </div>
 
                 {/* Emoji */}
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label>Icon (Optional)</Label>
                   <div className="flex items-center gap-2">
                     <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
@@ -408,9 +408,9 @@ export function CustomLinkEditor({
 
               {/* App Page Tab */}
               <TabsContent value="app-page" className="mt-0">
-                <div className="space-y-4 py-2">
+                <div className="flex flex-col gap-4 py-2">
                   {/* Label */}
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label htmlFor="app-page-label">Label</Label>
                     <Input
                       id="app-page-label"
@@ -423,7 +423,7 @@ export function CustomLinkEditor({
                   </div>
 
                   {/* App Path */}
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label htmlFor="app-page-path">App Path</Label>
                     <Input
                       id="app-page-path"
@@ -439,7 +439,7 @@ export function CustomLinkEditor({
                   </div>
 
                   {/* Emoji */}
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label>Icon (Optional)</Label>
                     <div className="flex items-center gap-2">
                       <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
@@ -494,9 +494,9 @@ export function CustomLinkEditor({
 
               {/* External URL Tab */}
               <TabsContent value="external-url" className="mt-0">
-                <div className="space-y-4 py-2">
+                <div className="flex flex-col gap-4 py-2">
                   {/* Label */}
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label htmlFor="external-url-label">Label</Label>
                     <Input
                       id="external-url-label"
@@ -509,7 +509,7 @@ export function CustomLinkEditor({
                   </div>
 
                   {/* URL */}
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label htmlFor="external-url-input">URL</Label>
                     <Input
                       id="external-url-input"
@@ -522,7 +522,7 @@ export function CustomLinkEditor({
                   </div>
 
                   {/* Emoji */}
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label>Icon (Optional)</Label>
                     <div className="flex items-center gap-2">
                       <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>

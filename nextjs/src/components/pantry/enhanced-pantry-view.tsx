@@ -238,7 +238,7 @@ export function EnhancedPantryView({
   // Show barcode result review
   if (showBarcodeReview && barcodeProduct) {
     return (
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <BarcodeResultReview
           product={barcodeProduct}
           onConfirm={handleBarcodeConfirm}
@@ -255,7 +255,7 @@ export function EnhancedPantryView({
   // Show photo scan review
   if (showScanReview && scanData) {
     return (
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <ScanReview
           scanId={scanData.scanId}
           initialItems={scanData.detectedItems}
@@ -271,7 +271,7 @@ export function EnhancedPantryView({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="items">
@@ -284,7 +284,7 @@ export function EnhancedPantryView({
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="items" className="space-y-6">
+        <TabsContent value="items" className="flex flex-col gap-6">
           {/* Add Item Form */}
           <Card>
             <CardHeader className="pb-3">
@@ -389,7 +389,7 @@ export function EnhancedPantryView({
           {totalCount === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <div className="max-w-sm mx-auto space-y-4">
+                <div className="max-w-sm mx-auto flex flex-col gap-4">
                   <div className="text-5xl">
                     <Cookie className="h-12 w-12 mx-auto text-muted-foreground" />
                   </div>
@@ -403,7 +403,7 @@ export function EnhancedPantryView({
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               {sortedCategories.map((category) => (
                 <PantryCategorySection
                   key={category}
@@ -416,7 +416,7 @@ export function EnhancedPantryView({
           )}
         </TabsContent>
 
-        <TabsContent value="history" className="space-y-6">
+        <TabsContent value="history" className="flex flex-col gap-6">
           <ScanHistory onReuseScan={handleReuseScan} />
         </TabsContent>
       </Tabs>
@@ -432,7 +432,7 @@ export function EnhancedPantryView({
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">Product Not Found</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="flex flex-col gap-4">
               <p className="text-sm text-muted-foreground">
                 Barcode <span className="font-mono bg-muted px-1.5 py-0.5 rounded">{manualEntryBarcode}</span> was not found.
                 Add it manually:
@@ -454,7 +454,7 @@ export function EnhancedPantryView({
                     }
                   }
                 }}
-                className="space-y-3"
+                className="flex flex-col gap-3"
               >
                 <Input
                   name="name"
@@ -519,7 +519,7 @@ export function EnhancedPantryView({
             </SheetDescription>
           </SheetHeader>
 
-          <div className="space-y-4 pb-6">
+          <div className="flex flex-col gap-4 pb-6">
             {scanMode === 'photo' && (
               <PantryScanner
                 onScanComplete={handleScanComplete}
@@ -562,7 +562,7 @@ function PantryCategorySection({
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <ul className="space-y-2">
+        <ul className="flex flex-col gap-2">
           {items.map((item) => (
             <PantryItemRow key={item.id} item={item} onRemove={onRemove} />
           ))}

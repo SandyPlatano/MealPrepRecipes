@@ -69,7 +69,7 @@ export function CookModeSettingsPreview({
       </div>
 
       {/* Preview Content - Compact Layout */}
-      <div className="p-2.5 space-y-2">
+      <div className="flex p-2.5 flex-col">
         {/* Progress Bar - conditional */}
         {settings.visibility.showProgress && (
           <div className="flex items-center gap-2">
@@ -88,7 +88,7 @@ export function CookModeSettingsPreview({
               settings.display.themeOverride === "light" && "bg-zinc-50 border-zinc-200"
             )}
           >
-            <div className="space-y-1">
+            <div className="flex flex-col">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-medium opacity-50">STEP 1</span>
                 {/* Timer inline */}
@@ -118,7 +118,7 @@ export function CookModeSettingsPreview({
                 <ListChecks className="h-3 w-3 opacity-50" />
                 <span className="text-[10px] font-medium">Items</span>
               </div>
-              <div className="space-y-0.5">
+              <div className="flex flex-col">
                 {["Flour", "Sugar", "Salt"].map((item, i) => (
                   <div key={i} className="flex items-center gap-1">
                     <div className="w-2 h-2 rounded-sm border opacity-50" />

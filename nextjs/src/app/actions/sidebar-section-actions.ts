@@ -9,9 +9,11 @@ import type {
   CustomSectionConfig,
   CustomSectionItem,
   BuiltInSectionId,
+  SectionItemConfig,
 } from "@/types/sidebar-customization";
 import {
   DEFAULT_SIDEBAR_PREFERENCES_V2,
+  DEFAULT_MEAL_PLANNING_ITEMS,
   isBuiltInSectionId,
 } from "@/types/sidebar-customization";
 import { normalizeSidebarPreferences } from "@/lib/sidebar/sidebar-migration";
@@ -204,6 +206,338 @@ export async function updateBuiltInSectionAuto(
   }
 
   return updateBuiltInSection(user.id, sectionId, updates);
+}
+
+// ============================================================================
+// Built-in Section Item Operations
+// ============================================================================
+
+/**
+ * Updates a built-in item within a section (rename, icon, emoji, hide).
+ */
+export async function updateBuiltInItem(
+  userId: string,
+  sectionId: BuiltInSectionId,
+  itemId: string,
+  updates: Partial<Pick<SectionItemConfig, "customName" | "customIcon" | "customEmoji" | "hidden">>
+): Promise<{ error: string | null }> {
+  const { data: currentPrefs, error: fetchError } =
+    await getSidebarPreferencesV2(userId);
+
+  if (fetchError) {
+    return { error: fetchError };
+  }
+
+  const section = currentPrefs.sections[sectionId];
+
+  if (!section || section.type !== "builtin") {
+    return { error: "Invalid built-in section ID" };
+  }
+
+  // Check if itemId is a valid built-in item for this section
+  const existingItem = section.items[itemId];
+  if (!existingItem) {
+    return { error: "Invalid item ID for this section" };
+  }
+
+  const updatedSection: BuiltInSectionConfig = {
+    ...section,
+    items: {
+      ...section.items,
+      [itemId]: {
+        ...existingItem,
+        ...updates,
+      },
+    },
+  };
+
+  const updatedPrefs: SidebarPreferencesV2 = {
+    ...currentPrefs,
+    sections: {
+      ...currentPrefs.sections,
+      [sectionId]: updatedSection,
+    },
+  };
+
+  return updateSidebarPreferencesV2(userId, updatedPrefs);
+}
+
+export async function updateBuiltInItemAuto(
+  sectionId: BuiltInSectionId,
+  itemId: string,
+  updates: Partial<Pick<SectionItemConfig, "customName" | "customIcon" | "customEmoji" | "hidden">>
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  return updateBuiltInItem(user.id, sectionId, itemId, updates);
+}
+
+/**
+ * Reorders items within a built-in section.
+ * The itemOrder array can contain both built-in item IDs and custom item UUIDs.
+ */
+export async function reorderBuiltInItems(
+  userId: string,
+  sectionId: BuiltInSectionId,
+  itemOrder: string[]
+): Promise<{ error: string | null }> {
+  const { data: currentPrefs, error: fetchError } =
+    await getSidebarPreferencesV2(userId);
+
+  if (fetchError) {
+    return { error: fetchError };
+  }
+
+  const section = currentPrefs.sections[sectionId];
+
+  if (!section || section.type !== "builtin") {
+    return { error: "Invalid built-in section ID" };
+  }
+
+  // Validate: ensure all built-in items and custom items are included
+  const builtInItemIds = Object.keys(section.items);
+  const customItemIds = section.customItems.map((item) => item.id);
+  const allValidIds = new Set([...builtInItemIds, ...customItemIds]);
+
+  // Filter to only valid IDs and ensure all are included
+  const validOrder = itemOrder.filter((id) => allValidIds.has(id));
+  const missingIds = [...builtInItemIds, ...customItemIds].filter(
+    (id) => !validOrder.includes(id)
+  );
+  const finalOrder = [...validOrder, ...missingIds];
+
+  const updatedSection: BuiltInSectionConfig = {
+    ...section,
+    itemOrder: finalOrder,
+  };
+
+  const updatedPrefs: SidebarPreferencesV2 = {
+    ...currentPrefs,
+    sections: {
+      ...currentPrefs.sections,
+      [sectionId]: updatedSection,
+    },
+  };
+
+  return updateSidebarPreferencesV2(userId, updatedPrefs);
+}
+
+export async function reorderBuiltInItemsAuto(
+  sectionId: BuiltInSectionId,
+  itemOrder: string[]
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  return reorderBuiltInItems(user.id, sectionId, itemOrder);
+}
+
+/**
+ * Adds a custom item (link) to a built-in section.
+ * The item will be added to the end of the itemOrder array.
+ */
+export async function addCustomItemToBuiltInSection(
+  userId: string,
+  sectionId: BuiltInSectionId,
+  item: Omit<CustomSectionItem, "id" | "sortOrder">
+): Promise<{ error: string | null; itemId?: string }> {
+  const { data: currentPrefs, error: fetchError } =
+    await getSidebarPreferencesV2(userId);
+
+  if (fetchError) {
+    return { error: fetchError };
+  }
+
+  const section = currentPrefs.sections[sectionId];
+
+  if (!section || section.type !== "builtin") {
+    return { error: "Invalid built-in section ID" };
+  }
+
+  const itemId = crypto.randomUUID();
+  const maxSortOrder = Math.max(
+    ...section.customItems.map((i) => i.sortOrder),
+    -1
+  );
+
+  const newItem: CustomSectionItem = {
+    ...item,
+    id: itemId,
+    sortOrder: maxSortOrder + 1,
+  } as CustomSectionItem;
+
+  const updatedSection: BuiltInSectionConfig = {
+    ...section,
+    customItems: [...section.customItems, newItem],
+    itemOrder: [...section.itemOrder, itemId],
+  };
+
+  const updatedPrefs: SidebarPreferencesV2 = {
+    ...currentPrefs,
+    sections: {
+      ...currentPrefs.sections,
+      [sectionId]: updatedSection,
+    },
+  };
+
+  const updateResult = await updateSidebarPreferencesV2(userId, updatedPrefs);
+
+  if (updateResult.error) {
+    return { error: updateResult.error };
+  }
+
+  return { error: null, itemId };
+}
+
+export async function addCustomItemToBuiltInSectionAuto(
+  sectionId: BuiltInSectionId,
+  item: Omit<CustomSectionItem, "id" | "sortOrder">
+): Promise<{ error: string | null; itemId?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  return addCustomItemToBuiltInSection(user.id, sectionId, item);
+}
+
+/**
+ * Removes a custom item from a built-in section.
+ */
+export async function removeCustomItemFromBuiltInSection(
+  userId: string,
+  sectionId: BuiltInSectionId,
+  itemId: string
+): Promise<{ error: string | null }> {
+  const { data: currentPrefs, error: fetchError } =
+    await getSidebarPreferencesV2(userId);
+
+  if (fetchError) {
+    return { error: fetchError };
+  }
+
+  const section = currentPrefs.sections[sectionId];
+
+  if (!section || section.type !== "builtin") {
+    return { error: "Invalid built-in section ID" };
+  }
+
+  // Ensure we're only removing custom items, not built-in items
+  const itemExists = section.customItems.some((i) => i.id === itemId);
+  if (!itemExists) {
+    return { error: "Custom item not found in section" };
+  }
+
+  const updatedSection: BuiltInSectionConfig = {
+    ...section,
+    customItems: section.customItems.filter((i) => i.id !== itemId),
+    itemOrder: section.itemOrder.filter((id) => id !== itemId),
+  };
+
+  const updatedPrefs: SidebarPreferencesV2 = {
+    ...currentPrefs,
+    sections: {
+      ...currentPrefs.sections,
+      [sectionId]: updatedSection,
+    },
+  };
+
+  return updateSidebarPreferencesV2(userId, updatedPrefs);
+}
+
+export async function removeCustomItemFromBuiltInSectionAuto(
+  sectionId: BuiltInSectionId,
+  itemId: string
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  return removeCustomItemFromBuiltInSection(user.id, sectionId, itemId);
+}
+
+/**
+ * Resets a built-in item to its default configuration.
+ */
+export async function resetBuiltInItem(
+  userId: string,
+  sectionId: BuiltInSectionId,
+  itemId: string
+): Promise<{ error: string | null }> {
+  const { data: currentPrefs, error: fetchError } =
+    await getSidebarPreferencesV2(userId);
+
+  if (fetchError) {
+    return { error: fetchError };
+  }
+
+  const section = currentPrefs.sections[sectionId];
+
+  if (!section || section.type !== "builtin") {
+    return { error: "Invalid built-in section ID" };
+  }
+
+  // Get the default config for this item
+  const defaultItem = DEFAULT_MEAL_PLANNING_ITEMS[itemId];
+  if (!defaultItem) {
+    return { error: "Invalid item ID - cannot reset custom items" };
+  }
+
+  const updatedSection: BuiltInSectionConfig = {
+    ...section,
+    items: {
+      ...section.items,
+      [itemId]: structuredClone(defaultItem),
+    },
+  };
+
+  const updatedPrefs: SidebarPreferencesV2 = {
+    ...currentPrefs,
+    sections: {
+      ...currentPrefs.sections,
+      [sectionId]: updatedSection,
+    },
+  };
+
+  return updateSidebarPreferencesV2(userId, updatedPrefs);
+}
+
+export async function resetBuiltInItemAuto(
+  sectionId: BuiltInSectionId,
+  itemId: string
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  return resetBuiltInItem(user.id, sectionId, itemId);
 }
 
 // ============================================================================

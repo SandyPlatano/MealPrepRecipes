@@ -38,18 +38,18 @@ export function AdvancedToggle({
           )}
         >
           <span className="flex items-center gap-2">
-            <Sparkles className="h-3.5 w-3.5" />
+            <Sparkles className="size-3.5" />
             {open ? "Hide Advanced Settings" : label}
           </span>
           <ChevronDown
             className={cn(
-              "h-4 w-4 transition-transform duration-200",
+              "size-4 transition-transform duration-200",
               open && "rotate-180"
             )}
           />
         </Button>
       </CollapsibleTrigger>
-      <CollapsibleContent className="pt-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
+      <CollapsibleContent className="pt-4 flex flex-col gap-4 animate-in slide-in-from-top-2 duration-200">
         {children}
       </CollapsibleContent>
     </Collapsible>

@@ -155,7 +155,7 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
   const philosophyLength = cookingPhilosophy.length;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Cover Image Section */}
       <Card>
         <CardHeader className="pb-4">
@@ -171,7 +171,7 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
         </CardHeader>
         <Separator className="mb-0" />
         <CardContent className="pt-6">
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             {coverImageUrl && (
               <div className="relative w-full h-48 rounded-lg overflow-hidden bg-muted">
                 <img
@@ -230,14 +230,14 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
           </CardDescription>
         </CardHeader>
         <Separator className="mb-0" />
-        <CardContent className="pt-6 space-y-6">
+        <CardContent className="pt-6 flex flex-col gap-6">
           <AvatarUpload
             currentUrl={profile.avatar_url}
             onUpload={uploadAvatar}
             userName={`${profile.first_name || ""} ${profile.last_name || ""}`.trim() || "User"}
           />
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <label htmlFor="bio" className="text-sm font-medium">
               Bio
             </label>
@@ -255,7 +255,7 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
             </p>
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <label htmlFor="cooking-philosophy" className="text-sm font-medium">
               Cooking Philosophy
               <span className="text-muted-foreground font-normal ml-2">(max 100 chars)</span>
@@ -288,13 +288,13 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
           </CardDescription>
         </CardHeader>
         <Separator className="mb-0" />
-        <CardContent className="pt-6 space-y-6">
-          <div className="space-y-2">
+        <CardContent className="pt-6 flex flex-col gap-6">
+          <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">Profile Emoji</label>
             <EmojiPicker value={profileEmoji} onChange={setProfileEmoji} />
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <label htmlFor="currently-craving" className="text-sm font-medium">
               Currently Craving
             </label>
@@ -307,7 +307,7 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <label htmlFor="cook-with-me-status" className="text-sm font-medium">
               Cook With Me Status
             </label>
@@ -325,7 +325,7 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
             </Select>
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <label htmlFor="favorite-cuisine" className="text-sm font-medium">
               Favorite Cuisine
             </label>
@@ -338,7 +338,7 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <label htmlFor="cooking-skill-level" className="text-sm font-medium">
               Cooking Skill Level
             </label>
@@ -372,8 +372,8 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
           </CardDescription>
         </CardHeader>
         <Separator className="mb-0" />
-        <CardContent className="pt-6 space-y-6">
-          <div className="space-y-2">
+        <CardContent className="pt-6 flex flex-col gap-6">
+          <div className="flex flex-col gap-2">
             <label htmlFor="location" className="text-sm font-medium flex items-center gap-2">
               <MapPin className="h-4 w-4" />
               Location
@@ -387,7 +387,7 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <label htmlFor="website-url" className="text-sm font-medium flex items-center gap-2">
               <Globe className="h-4 w-4" />
               Website
@@ -436,9 +436,9 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
           </CardDescription>
         </CardHeader>
         <Separator className="mb-0" />
-        <CardContent className="pt-6 space-y-4">
+        <CardContent className="pt-6 flex flex-col gap-4">
           <div className="flex items-center gap-4">
-            <div className="space-y-2 flex-1">
+            <div className="flex flex-col gap-2 flex-1">
               <label htmlFor="accent-color" className="text-sm font-medium">
                 Accent Color
               </label>

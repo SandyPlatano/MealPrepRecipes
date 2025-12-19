@@ -5,7 +5,7 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function MealPlannerSkeleton() {
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Header Skeleton */}
       <div className="flex items-center justify-between">
         <Skeleton className="h-8 w-48" />
@@ -24,7 +24,7 @@ export function MealPlannerSkeleton() {
       </div>
 
       {/* Mobile Accordion */}
-      <div className="md:hidden space-y-2">
+      <div className="md:hidden flex flex-col gap-2">
         {DAYS.map((day, index) => (
           <MobileDaySkeleton key={day} delay={index * 100} />
         ))}
@@ -48,7 +48,7 @@ function DayRowSkeleton({ delay }: { delay: number }) {
 
       {/* Card */}
       <Card className="flex-1 min-h-[100px]">
-        <CardContent className="p-2.5 space-y-1.5">
+        <CardContent className="p-2.5 flex flex-col gap-1.5">
           {/* Recipe Row Skeletons */}
           <div className="flex items-center gap-2 p-2 rounded-md border bg-card/50">
             <Skeleton className="h-4 flex-1" />
@@ -91,7 +91,7 @@ function MobileDaySkeleton({ delay }: { delay: number }) {
 
 export function ShoppingListSkeleton() {
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Add Item Form Skeleton */}
       <Card>
         <CardContent className="p-4">
@@ -112,7 +112,7 @@ export function ShoppingListSkeleton() {
       </div>
 
       {/* Progress Skeleton */}
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <Skeleton className="h-2 w-full rounded-full" />
         <Skeleton className="h-4 w-32" />
       </div>
@@ -139,7 +139,7 @@ function CategorySkeleton({ delay }: { delay: number }) {
           </div>
           <Skeleton className="h-4 w-8" />
         </div>
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           {[1, 2, 3].map((j) => (
             <div key={j} className="flex items-center gap-3">
               <Skeleton className="h-5 w-5 rounded" />

@@ -44,7 +44,7 @@ export default function AppearanceSettingsPage() {
   const display = preferencesV2.display;
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <SettingsHeader
         title="Appearance"
         description="Customize how the app looks and feels"

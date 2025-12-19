@@ -167,7 +167,7 @@ export function BulkImportDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden space-y-4">
+        <div className="flex-1 overflow-hidden flex-col">
           {/* File Drop Zone */}
           {!parseResult && (
             <div
@@ -180,14 +180,14 @@ export function BulkImportDialog({
               onDragLeave={handleDragLeave}
             >
               {isParsing ? (
-                <div className="space-y-3">
+                <div className="flex flex-col">
                   <Loader2 className="h-10 w-10 mx-auto animate-spin text-muted-foreground" />
                   <p className="text-sm text-muted-foreground">
                     Parsing file...
                   </p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="flex flex-col">
                   <FileUp className="h-10 w-10 mx-auto text-muted-foreground" />
                   <div>
                     <p className="font-medium">Drop file here or click to browse</p>
@@ -220,7 +220,7 @@ export function BulkImportDialog({
           {parseResult && (
             <>
               {/* Summary */}
-              <div className="space-y-3">
+              <div className="flex flex-col">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {parseResult.success ? (
@@ -262,7 +262,7 @@ export function BulkImportDialog({
 
               {/* Duplicate Handling */}
               {parseResult.duplicateCount > 0 && (
-                <div className="space-y-3 pt-2 border-t">
+                <div className="flex flex-col pt-2 border-t">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4 text-amber-500" />
                     Handle {parseResult.duplicateCount} duplicate{parseResult.duplicateCount !== 1 ? "s" : ""}
@@ -272,21 +272,21 @@ export function BulkImportDialog({
                     onValueChange={(value) =>
                       setDuplicateHandling(value as DuplicateHandling)
                     }
-                    className="space-y-2"
+                    className="flex flex-col"
                   >
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center">
                       <RadioGroupItem value="skip" id="skip" />
                       <Label htmlFor="skip" className="cursor-pointer">
                         Skip duplicates (keep existing)
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center">
                       <RadioGroupItem value="replace" id="replace" />
                       <Label htmlFor="replace" className="cursor-pointer">
                         Replace existing recipes
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center">
                       <RadioGroupItem value="keep_both" id="keep_both" />
                       <Label htmlFor="keep_both" className="cursor-pointer">
                         Keep both (rename new ones)

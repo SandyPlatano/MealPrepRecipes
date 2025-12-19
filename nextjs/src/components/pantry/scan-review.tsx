@@ -176,7 +176,7 @@ export default function ScanReview({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Review Header */}
       <Card>
         <CardHeader>
@@ -187,7 +187,7 @@ export default function ScanReview({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between text-sm">
               <span>{confirmedCount} of {items.length} items selected</span>
               <span>{Math.round(confirmationProgress)}%</span>
@@ -213,7 +213,7 @@ export default function ScanReview({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             {items.map((item, index) => (
               <div
                 key={index}
@@ -383,7 +383,7 @@ export default function ScanReview({
               Add an item that wasn&apos;t detected in the scan
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <div>
               <Label>Item Name</Label>
               <Input

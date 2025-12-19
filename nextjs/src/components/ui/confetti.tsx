@@ -83,7 +83,7 @@ export function Confetti({
       {confettiPieces.map((piece) => (
         <div
           key={piece.id}
-          className="absolute w-3 h-3 rounded-sm animate-confetti-fall"
+          className="absolute size-3 rounded-sm animate-confetti-fall"
           style={{
             left: `${piece.x}%`,
             top: "-20px",

@@ -154,8 +154,8 @@ export default function Home() {
                   <span className="text-3xl font-mono font-bold text-cream">$0</span>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-2 text-sm">
+              <CardContent className="flex flex-col gap-4">
+                <ul className="flex flex-col gap-2 text-sm">
                   <PricingFeature>Unlimited recipes</PricingFeature>
                   <PricingFeature>Weekly meal planning</PricingFeature>
                   <PricingFeature>Auto shopping lists</PricingFeature>
@@ -182,8 +182,8 @@ export default function Home() {
                   <span className="text-cream/60 text-sm">/mo</span>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-2 text-sm">
+              <CardContent className="flex flex-col gap-4">
+                <ul className="flex flex-col gap-2 text-sm">
                   <PricingFeature>Everything in Free</PricingFeature>
                   <PricingFeature>Household sharing</PricingFeature>
                   <PricingFeature>Google Calendar sync</PricingFeature>

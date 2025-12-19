@@ -364,7 +364,7 @@ export function CustomIngredientCategoriesSection({
   );
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -380,7 +380,7 @@ export function CustomIngredientCategoriesSection({
       </div>
 
       {/* Categories List */}
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         {rootCategories.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             No categories yet. Add one to get started.
@@ -402,9 +402,9 @@ export function CustomIngredientCategoriesSection({
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="flex flex-col gap-4 py-4">
             {/* Name */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
@@ -417,7 +417,7 @@ export function CustomIngredientCategoriesSection({
             </div>
 
             {/* Emoji */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label className="flex items-center gap-2">
                 <Smile className="h-4 w-4" />
                 Emoji
@@ -465,7 +465,7 @@ export function CustomIngredientCategoriesSection({
             </div>
 
             {/* Color */}
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <Label className="flex items-center gap-2">
                 <Palette className="h-4 w-4" />
                 Color
@@ -511,7 +511,7 @@ export function CustomIngredientCategoriesSection({
             </div>
 
             {/* Parent Category */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label className="flex items-center gap-2">
                 <FolderTree className="h-4 w-4" />
                 Parent Category (Optional)
@@ -545,7 +545,7 @@ export function CustomIngredientCategoriesSection({
             </div>
 
             {/* Preview */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>Preview</Label>
               <div
                 className="flex items-center gap-3 p-3 rounded-lg border"

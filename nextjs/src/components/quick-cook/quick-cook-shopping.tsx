@@ -101,7 +101,7 @@ export function QuickCookShopping({
   const uncheckedCount = ingredients.length - checkedItems.size;
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Info banner about affiliate setup */}
       {!process.env.NEXT_PUBLIC_AMAZON_AFFILIATE_TAG && (
         <div className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3">
@@ -119,7 +119,7 @@ export function QuickCookShopping({
       )}
 
       {/* Shopping list */}
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         {ingredients.map((ingredient, index) => {
           const isChecked = checkedItems.has(ingredient.item);
           return (

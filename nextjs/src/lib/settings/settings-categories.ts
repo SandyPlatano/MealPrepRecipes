@@ -10,6 +10,7 @@ import {
   PanelLeft,
   LayoutGrid,
   CreditCard,
+  Gauge,
   type LucideIcon,
 } from "lucide-react";
 
@@ -18,6 +19,7 @@ export type SettingsCategoryId =
   | "billing"
   | "appearance"
   | "recipe-layout"
+  | "difficulty"
   | "sidebar"
   | "meal-planning"
   | "dietary"
@@ -79,6 +81,14 @@ export const SETTINGS_CATEGORIES: SettingsCategory[] = [
     description: "Customize recipe page sections, order, and visibility",
     icon: LayoutGrid,
     path: "/app/settings/recipe-layout",
+  },
+  {
+    id: "difficulty",
+    label: "Difficulty Settings",
+    shortLabel: "Difficulty",
+    description: "Customize how recipe difficulty is calculated",
+    icon: Gauge,
+    path: "/app/settings/difficulty",
   },
   {
     id: "sidebar",

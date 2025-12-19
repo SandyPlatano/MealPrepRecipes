@@ -22,7 +22,7 @@ export function ImportPreviewTable({
 }: ImportPreviewTableProps) {
   return (
     <ScrollArea style={{ height: maxHeight }}>
-      <div className="space-y-1 pr-4">
+      <div className="flex flex-col pr-4">
         {results.map((result, index) => (
           <div
             key={index}
@@ -46,7 +46,7 @@ export function ImportPreviewTable({
                 </TooltipTrigger>
                 <TooltipContent side="right" className="max-w-xs">
                   {!result.isValid ? (
-                    <div className="space-y-1">
+                    <div className="flex flex-col">
                       <p className="font-medium text-destructive">Invalid</p>
                       <ul className="text-xs list-disc pl-4">
                         {result.errors.map((error, i) => (
@@ -57,7 +57,7 @@ export function ImportPreviewTable({
                   ) : result.isDuplicate ? (
                     <p>Recipe already exists in your collection</p>
                   ) : result.warnings.length > 0 ? (
-                    <div className="space-y-1">
+                    <div className="flex flex-col">
                       <p className="font-medium">Warnings</p>
                       <ul className="text-xs list-disc pl-4">
                         {result.warnings.map((warning, i) => (

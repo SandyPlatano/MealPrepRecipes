@@ -212,7 +212,7 @@ export function SidebarCollections({
   // Collapsed icon-only view
   if (isIconOnly) {
     return (
-      <div className="px-2 py-2 space-y-1">
+      <div className="px-2 py-2 flex flex-col gap-1">
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
             <Button
@@ -260,18 +260,18 @@ export function SidebarCollections({
       emoji={customEmoji || undefined}
       defaultOpen
     >
-      <div className="px-2 space-y-0.5">
+      <div className="px-2 flex flex-col gap-0.5">
         {/* All Recipes */}
         <Button
           variant="ghost"
           asChild
           className={cn(
-            "w-full justify-start gap-3 h-10 px-3 relative",
+            "w-full justify-start gap-3 h-11 px-3 relative",
             "transition-all duration-150",
             isFilterActive("all") && [
-              "bg-primary/10 text-primary",
+              "bg-primary/15 text-primary font-semibold",
               "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
-              "before:h-5 before:w-0.5 before:bg-primary before:rounded-r",
+              "before:h-7 before:w-1 before:bg-primary before:rounded-r",
             ],
             !isFilterActive("all") && "text-muted-foreground hover:text-foreground hover:bg-accent"
           )}
@@ -304,7 +304,7 @@ export function SidebarCollections({
               <Plus className="h-3 w-3" />
             </Button>
           </div>
-          <div className="space-y-0.5">
+          <div className="flex flex-col gap-0.5">
             {systemSmartFolders.map((folder) => (
               <SmartFolderItem
                 key={`system-${folder.id}`}
@@ -513,12 +513,12 @@ function SmartFolderItem(props: SmartFolderItemProps) {
         variant="ghost"
         asChild
         className={cn(
-          "w-full justify-start gap-3 h-9 px-3 relative",
+          "w-full justify-start gap-3 h-11 px-3 relative",
           "transition-all duration-150",
           isActive && [
-            "bg-primary/10 text-primary",
+            "bg-primary/15 text-primary font-semibold",
             "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
-            "before:h-4 before:w-0.5 before:bg-primary before:rounded-r",
+            "before:h-7 before:w-1 before:bg-primary before:rounded-r",
           ],
           !isActive && "text-muted-foreground hover:text-foreground hover:bg-accent"
         )}
@@ -574,12 +574,12 @@ function SmartFolderItem(props: SmartFolderItemProps) {
       <ContextMenuTrigger asChild>
         <div
           className={cn(
-            "group flex items-center gap-1 h-9 px-3 relative rounded-md",
+            "group flex items-center gap-1 h-11 px-3 relative rounded-md",
             "transition-all duration-150",
             isActive && [
-              "bg-primary/10 text-primary",
+              "bg-primary/15 text-primary font-semibold",
               "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
-              "before:h-4 before:w-0.5 before:bg-primary before:rounded-r",
+              "before:h-7 before:w-1 before:bg-primary before:rounded-r",
             ],
             !isActive && "text-muted-foreground hover:text-foreground hover:bg-accent"
           )}
@@ -681,7 +681,7 @@ function CategoryItem({
           <span className="uppercase tracking-wider">{category.name}</span>
         </Button>
       </CollapsibleTrigger>
-      <CollapsibleContent className="space-y-0.5 pt-0.5">
+      <CollapsibleContent className="flex flex-col gap-0.5 pt-0.5">
         {category.folders.map((folder) => (
           <FolderItem
             key={folder.id}
@@ -731,13 +731,13 @@ function FolderItem({
       <ContextMenuTrigger asChild>
         <div
           className={cn(
-            "group flex items-center gap-1 h-9 px-3 relative rounded-md",
+            "group flex items-center gap-1 h-11 px-3 relative rounded-md",
             "transition-all duration-150",
             depth > 0 && "ml-4",
             isActive && [
-              "bg-primary/10 text-primary",
+              "bg-primary/15 text-primary font-semibold",
               "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
-              "before:h-4 before:w-0.5 before:bg-primary before:rounded-r",
+              "before:h-7 before:w-1 before:bg-primary before:rounded-r",
             ],
             !isActive && "text-muted-foreground hover:text-foreground hover:bg-accent"
           )}
@@ -831,7 +831,7 @@ function FolderItem({
         </CollapsibleTrigger>
         {content}
       </div>
-      <CollapsibleContent className="space-y-0.5">
+      <CollapsibleContent className="flex flex-col gap-0.5">
         {folder.children.map((child) => (
           <FolderItem
             key={child.id}

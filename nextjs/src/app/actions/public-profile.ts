@@ -178,7 +178,7 @@ export async function getPublicCollections(
 }
 
 // ============================================
-// PROFILE REVIEWS
+// PROFILE REVIEWS (Deprecated - use cooking history instead)
 // ============================================
 
 export async function getProfileReviews(
@@ -220,6 +220,67 @@ export async function getProfileReviews(
   }));
 
   return { data: reviews, error: null };
+}
+
+// ============================================
+// PROFILE COOKING HISTORY (Replaces reviews)
+// ============================================
+
+export interface ProfileCookingEntry {
+  id: string;
+  recipe_id: string;
+  recipe_title: string;
+  recipe_image_url: string | null;
+  rating: number | null;
+  notes: string | null;
+  modifications: string | null;
+  photo_url: string | null;
+  cooked_at: string;
+}
+
+export async function getProfileCookingHistory(
+  userId: string,
+  limit: number = 10
+): Promise<{ data: ProfileCookingEntry[] | null; error: string | null }> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("cooking_history")
+    .select(`
+      id,
+      recipe_id,
+      rating,
+      notes,
+      modifications,
+      photo_url,
+      cooked_at,
+      recipe:recipes(title, image_url)
+    `)
+    .eq("cooked_by", userId)
+    .order("cooked_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("Error fetching profile cooking history:", error);
+    return { data: null, error: error.message };
+  }
+
+  const entries: ProfileCookingEntry[] = (data || []).map((entry) => {
+    const recipe = entry.recipe as unknown as { title: string; image_url: string | null } | null;
+    return {
+      id: entry.id,
+      recipe_id: entry.recipe_id,
+      recipe_title: recipe?.title || "Unknown Recipe",
+      recipe_image_url: recipe?.image_url || null,
+      rating: entry.rating,
+      notes: entry.notes,
+      modifications: entry.modifications,
+      photo_url: entry.photo_url,
+      cooked_at: entry.cooked_at,
+    };
+  });
+
+  return { data: entries, error: null };
 }
 
 // ============================================

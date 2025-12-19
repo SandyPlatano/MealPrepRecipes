@@ -102,7 +102,7 @@ export function TodayHeroCard({
             </div>
 
             {/* Overall Progress Bar */}
-            <div className="mt-6 space-y-2">
+            <div className="mt-6 flex flex-col gap-2">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>Daily Progress</span>
                 <span className="tabular-nums">{overallPercentage}%</span>

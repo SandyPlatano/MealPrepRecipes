@@ -109,8 +109,8 @@ export function WeekSelector({
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
+        <CardContent className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
             {weekOptions.map((week) => {
               const isSelected = selectedWeeks.includes(week.weekStart);
               const isCurrentWeek = week.weekStart === currentWeekStart;

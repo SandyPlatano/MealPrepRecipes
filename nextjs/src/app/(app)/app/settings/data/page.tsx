@@ -122,7 +122,7 @@ function PrivacySettingRow({
           <div className="mt-0.5 p-1.5 rounded-md bg-muted text-muted-foreground">
             {icon}
           </div>
-          <div className="space-y-0.5">
+          <div className="flex flex-col gap-0.5">
             <label htmlFor={`${id}-control`} className="text-sm font-medium">
               {label}
             </label>
@@ -140,11 +140,11 @@ function PrivacySettingRow({
             What data is collected?
           </AccordionTrigger>
           <AccordionContent className="pb-2">
-            <div className="space-y-3 text-xs">
+            <div className="flex flex-col gap-3 text-xs">
               {/* What IS collected */}
-              <div className="space-y-1.5">
+              <div className="flex flex-col gap-1.5">
                 <p className="font-medium text-muted-foreground">We collect:</p>
-                <ul className="space-y-1">
+                <ul className="flex flex-col gap-1">
                   {info.collected.map((item, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <Check className="h-3.5 w-3.5 text-green-500 mt-0.5 shrink-0" />
@@ -155,9 +155,9 @@ function PrivacySettingRow({
               </div>
 
               {/* What is NOT collected */}
-              <div className="space-y-1.5">
+              <div className="flex flex-col gap-1.5">
                 <p className="font-medium text-muted-foreground">We don&apos;t collect:</p>
-                <ul className="space-y-1">
+                <ul className="flex flex-col gap-1">
                   {info.notCollected.map((item, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <X className="h-3.5 w-3.5 text-red-500 mt-0.5 shrink-0" />
@@ -303,7 +303,7 @@ export default function DataSettingsPage() {
   }, []);
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <SettingsHeader
         title="Data & Export"
         description="Import, export, and manage your recipe data"

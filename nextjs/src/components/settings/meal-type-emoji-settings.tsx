@@ -85,8 +85,8 @@ export function MealTypeEmojiSettings({ initialEmojis }: MealTypeEmojiSettingsPr
   };
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-3">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         {MEAL_TYPES.map((mealType) => {
           const config = MEAL_TYPE_CONFIG[mealType === "other" ? "other" : mealType];
           const currentEmoji = emojis[mealType];

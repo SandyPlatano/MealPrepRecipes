@@ -169,11 +169,11 @@ export function MealCell({
       <Button
         variant="ghost"
         size="icon"
-        className="absolute right-1 top-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
+        className="absolute right-1 top-1 size-6 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
         onClick={handleRemove}
         disabled={isRemoving}
       >
-        <X className="h-3 w-3" />
+        <X className="size-3" />
       </Button>
 
       {/* Content */}
@@ -197,7 +197,7 @@ export function MealCell({
         <div className="mt-0.5 flex items-center gap-2 flex-wrap">
           {assignment.recipe.prep_time && (
             <span className="text-xs text-muted-foreground flex items-center gap-1">
-              <Clock className="h-3 w-3" />
+              <Clock className="size-3" />
               {assignment.recipe.prep_time}
             </span>
           )}
@@ -228,7 +228,7 @@ export function MealCell({
               className="h-7 text-xs"
               style={getCookColorStyle(assignment.cook)}
             >
-              <ChefHat className="h-3 w-3 mr-1" />
+              <ChefHat className="size-3 mr-1" />
               <SelectValue placeholder="Assign cook" />
             </SelectTrigger>
             <SelectContent>

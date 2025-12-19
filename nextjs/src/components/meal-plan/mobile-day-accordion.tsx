@@ -149,14 +149,14 @@ export function MobileDayAccordion({
             )}
             {googleConnected && isCalendarExcluded && (
               <div title="Calendar sync disabled">
-                <CalendarOff className="h-4 w-4 text-muted-foreground" />
+                <CalendarOff className="size-4 text-muted-foreground" />
               </div>
             )}
           </div>
         </div>
       </AccordionTrigger>
       <AccordionContent className="px-4 pb-4">
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {/* Meals List */}
           {assignments.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">
@@ -167,7 +167,7 @@ export function MobileDayAccordion({
               <div
                 key={assignment.id}
                 className={cn(
-                  "bg-card border rounded-lg p-3 space-y-2",
+                  "bg-card border rounded-lg p-3 flex flex-col gap-2",
                   removingMeal === assignment.id && "opacity-50"
                 )}
               >
@@ -182,7 +182,7 @@ export function MobileDayAccordion({
                       </Badge>
                       {assignment.recipe.prep_time && (
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
+                          <Clock className="size-3" />
                           {assignment.recipe.prep_time}
                         </span>
                       )}
@@ -191,11 +191,11 @@ export function MobileDayAccordion({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-10 w-10 text-muted-foreground hover:text-destructive flex-shrink-0"
+                    className="size-10 text-muted-foreground hover:text-destructive flex-shrink-0"
                     onClick={() => handleRemoveMeal(assignment.id)}
                     disabled={removingMeal === assignment.id}
                   >
-                    <X className="h-5 w-5" />
+                    <X className="size-5" />
                   </Button>
                 </div>
 
@@ -210,7 +210,7 @@ export function MobileDayAccordion({
                   <SelectTrigger
                     className={cn("h-10 text-sm", getCookColor(assignment.cook))}
                   >
-                    <ChefHat className="h-4 w-4 mr-2" />
+                    <ChefHat className="size-4 mr-2" />
                     <SelectValue placeholder="Assign cook" />
                   </SelectTrigger>
                   <SelectContent>
@@ -235,7 +235,7 @@ export function MobileDayAccordion({
                 className="w-full border-2 border-dashed h-12 text-base hover:border-primary hover:bg-primary/5"
                 onClick={() => setPickerOpen(true)}
               >
-                <Plus className="h-5 w-5 mr-2" />
+                <Plus className="size-5 mr-2" />
                 Add Meal
               </Button>
               <MobileRecipePickerSheet
@@ -259,7 +259,7 @@ export function MobileDayAccordion({
               onClick={handleClearDay}
               disabled={isClearing}
             >
-              <Trash2 className="h-3 w-3 mr-1" />
+              <Trash2 className="size-3 mr-1" />
               {isClearing ? "Clearing..." : "Clear Day"}
             </Button>
           )}

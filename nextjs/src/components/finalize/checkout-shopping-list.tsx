@@ -228,7 +228,7 @@ export function CheckoutShoppingList({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         {categories.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">
             No ingredients found
@@ -239,14 +239,14 @@ export function CheckoutShoppingList({
             const categoryItemCount = items.length;
 
             return (
-              <div key={category} className="space-y-2">
+              <div key={category} className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-sm">{category}</h3>
                   <Badge variant="outline" className="text-xs">
                     {categoryItemCount}
                   </Badge>
                 </div>
-                <ul className="space-y-1.5">
+                <ul className="flex flex-col gap-1.5">
                   {items.map((item, index) => {
                     const displayText = [item.quantity, item.unit, item.ingredient]
                       .filter(Boolean)

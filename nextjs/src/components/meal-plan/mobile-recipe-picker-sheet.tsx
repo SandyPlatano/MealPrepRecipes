@@ -270,7 +270,7 @@ export function MobileRecipePickerSheet({
               )}
             </div>
           ) : (
-            <div className="space-y-2 pb-6">
+            <div className="flex flex-col gap-2 pb-6">
               {filteredRecipes.map((recipe) => (
                 <button
                   key={recipe.id}

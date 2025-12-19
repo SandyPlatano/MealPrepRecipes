@@ -20,14 +20,14 @@ export default function AppError({
 
   return (
     <div className="flex-1 flex items-center justify-center p-8">
-      <div className="max-w-md w-full text-center space-y-6">
+      <div className="max-w-md w-full text-center flex flex-col gap-6">
         <div className="flex justify-center">
           <div className="rounded-full bg-destructive/10 p-4">
             <AlertCircle className="h-12 w-12 text-destructive" />
           </div>
         </div>
-        
-        <div className="space-y-3">
+
+        <div className="flex flex-col gap-3">
           <h2 className="text-2xl font-bold">Oops! Something broke</h2>
           <p className="text-muted-foreground">
             This page encountered an unexpected error. Try refreshing, or head back to the dashboard.

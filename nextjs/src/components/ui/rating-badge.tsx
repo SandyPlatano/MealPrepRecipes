@@ -19,8 +19,8 @@ export const RatingBadge = forwardRef<HTMLButtonElement, RatingBadgeProps>(
     }
 
     const sizeClasses = {
-      sm: "h-3.5 w-3.5",
-      md: "h-4 w-4",
+      sm: "size-3.5",
+      md: "size-4",
     };
 
     const textClasses = {

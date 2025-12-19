@@ -16,9 +16,9 @@ export default function StatsOverviewPage() {
   const featureCategories = STATS_CATEGORIES.filter((cat) => cat.id !== "overview");
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-bold tracking-tight font-mono">Stats Overview</h1>
         <p className="text-muted-foreground">
           Track your progress, nutrition goals, and environmental impact.

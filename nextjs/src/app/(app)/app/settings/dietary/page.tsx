@@ -86,7 +86,7 @@ export default function DietarySettingsPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <SettingsHeader
         title="Dietary & Nutrition"
         description="Manage allergens, dietary restrictions, and nutrition tracking"
@@ -100,7 +100,7 @@ export default function DietarySettingsPage() {
         description="Get warnings when recipes contain allergens"
       >
         <div className="py-4 px-2 -mx-2">
-          <div className="space-y-1 mb-4">
+          <div className="flex flex-col gap-1 mb-4">
             <label className="text-sm font-medium">Track Allergens</label>
             <p className="text-xs text-muted-foreground">
               Select allergens you want to be warned about when viewing recipes
@@ -153,7 +153,7 @@ export default function DietarySettingsPage() {
           label="Custom Restrictions"
           description="Additional dietary restrictions you track"
         >
-          <div className="space-y-2 max-w-md">
+          <div className="flex flex-col gap-2 max-w-md">
             <div className="flex gap-2">
               <Input
                 placeholder="Add restriction (e.g., 'Low-Carb')"

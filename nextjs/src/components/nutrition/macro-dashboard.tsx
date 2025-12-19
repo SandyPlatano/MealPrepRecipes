@@ -48,7 +48,7 @@ export function MacroDashboard({
   }
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("flex flex-col gap-6", className)}>
       {/* Data completeness alert */}
       {avgCompleteness < 70 && (
         <Alert>
@@ -136,7 +136,7 @@ export function MacroDashboard({
           <CardTitle>Daily Breakdown</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             {dashboard.days.map((day) => (
               <DayRow key={day.date} day={day} goals={dashboard.goals} />
             ))}
@@ -167,7 +167,7 @@ function MacroDashboardCompact({
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         {/* Compact progress bars */}
         <MacroProgressBar progress={dashboard.overall_progress.calories} showValue={false} />
         <MacroProgressBar progress={dashboard.overall_progress.protein} showValue={false} />
@@ -298,7 +298,7 @@ function MacroStat({ label, actual, target, progress, unit = "kcal", showRemaini
       : "text-muted-foreground";
 
   return (
-    <div className="space-y-1">
+    <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>{label}</span>
         {statusIcon && <span className={cn("text-sm", statusColor)}>{statusIcon}</span>}
@@ -353,7 +353,7 @@ function WeeklyStat({
   unit: string;
 }) {
   return (
-    <div className="space-y-1">
+    <div className="flex flex-col gap-1">
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="text-2xl font-bold tabular-nums">
         {value !== null && value !== undefined ? Math.round(value).toLocaleString() : "—"}
@@ -428,7 +428,7 @@ function WeeklyProgressIndicator({ days }: { days: DailyMacroSummary[] }) {
   ).length;
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <div className="text-sm text-muted-foreground">
         This Week:{" "}
         <span className="font-medium text-foreground">
@@ -514,7 +514,7 @@ function DayTooltipContent({
   }
 
   return (
-    <div className="space-y-1 text-sm">
+    <div className="flex flex-col gap-1 text-sm">
       <p className="font-medium">{day.day_of_week}</p>
       <p className="text-muted-foreground">
         {macrosOnTarget} of 4 macros achieved

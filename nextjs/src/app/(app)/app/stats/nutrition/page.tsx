@@ -55,7 +55,7 @@ export default async function NutritionPage() {
   const today = getTodayDate();
 
   return (
-    <div className="space-y-6 pb-24 md:pb-8">
+    <div className="flex flex-col gap-6 pb-24 md:pb-8">
       {/* Simplified Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight font-mono">Nutrition</h1>
@@ -86,7 +86,7 @@ export default async function NutritionPage() {
       </Suspense>
 
       {/* Tab Navigation */}
-      <Tabs defaultValue="today" className="space-y-4">
+      <Tabs defaultValue="today" className="flex flex-col gap-4">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="today">Today</TabsTrigger>
           <TabsTrigger value="week">Week</TabsTrigger>
@@ -94,21 +94,21 @@ export default async function NutritionPage() {
         </TabsList>
 
         {/* Today Tab */}
-        <TabsContent value="today" className="space-y-4">
+        <TabsContent value="today" className="flex flex-col gap-4">
           <Suspense fallback={<TodayTabSkeleton />}>
             <TodayTabContent date={today} />
           </Suspense>
         </TabsContent>
 
         {/* Week Tab */}
-        <TabsContent value="week" className="space-y-4">
+        <TabsContent value="week" className="flex flex-col gap-4">
           <Suspense fallback={<WeekTabSkeleton />}>
             <WeekTabContent />
           </Suspense>
         </TabsContent>
 
         {/* Trends Tab */}
-        <TabsContent value="trends" className="space-y-4">
+        <TabsContent value="trends" className="flex flex-col gap-4">
           <Suspense fallback={<TrendsTabSkeleton />}>
             <TrendsTabContent />
           </Suspense>
@@ -194,7 +194,7 @@ async function TodayTabContent({ date }: { date: string }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Quick Add Button (Desktop) */}
       <div className="hidden md:block">
         <QuickAddButton date={date} variant="outline" className="w-full" />
@@ -247,7 +247,7 @@ async function WeekTabContent() {
   const currentStreak = calculateCurrentStreak(dashboard.days);
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Week Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -318,7 +318,7 @@ async function TrendsTabContent() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Summary Stats */}
       <div className="grid grid-cols-2 gap-4">
         <Card>
@@ -340,7 +340,7 @@ async function TrendsTabContent() {
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Weekly Summary</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className="flex flex-col gap-2">
           {history.map((week, index) => (
             <WeeklySummaryRow key={week.id} week={week} isRecent={index === 0} />
           ))}
@@ -436,7 +436,7 @@ function TodayHeroSkeleton() {
   return (
     <Card>
       <CardContent className="py-8">
-        <div className="flex flex-col items-center space-y-4">
+        <div className="flex flex-col items-center gap-4">
           <Skeleton className="h-16 w-32" />
           <div className="flex gap-3">
             <Skeleton className="h-16 w-20" />
@@ -452,7 +452,7 @@ function TodayHeroSkeleton() {
 
 function TodayTabSkeleton() {
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <Skeleton className="h-10 w-full" />
       <Skeleton className="h-32 w-full" />
     </div>
@@ -461,7 +461,7 @@ function TodayTabSkeleton() {
 
 function WeekTabSkeleton() {
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <Skeleton className="h-6 w-48" />
       <Card>
         <CardContent className="py-6">
@@ -478,13 +478,13 @@ function WeekTabSkeleton() {
 
 function TrendsTabSkeleton() {
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-4">
         <Skeleton className="h-20" />
         <Skeleton className="h-20" />
       </div>
       <Card>
-        <CardContent className="py-4 space-y-2">
+        <CardContent className="py-4 flex flex-col gap-2">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-16" />
           ))}

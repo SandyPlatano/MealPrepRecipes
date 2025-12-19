@@ -181,8 +181,8 @@ export function WeeklyPlanActions({ plan, weekRange }: WeeklyPlanActionsProps) {
               any future week.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
+          <div className="flex flex-col gap-4 py-4">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="template-name">Template Name</Label>
               <Input
                 id="template-name"

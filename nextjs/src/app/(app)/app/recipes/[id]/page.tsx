@@ -62,7 +62,7 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
   const substitutions = await findSubstitutionsForIngredients(recipe.ingredients);
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <Link href={backHref}>
           <Button variant="ghost" size="sm">

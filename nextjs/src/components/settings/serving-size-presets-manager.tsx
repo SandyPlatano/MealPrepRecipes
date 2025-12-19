@@ -67,7 +67,7 @@ export function ServingSizePresetsManager() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Add Form */}
       <div className="flex gap-2">
         <Input
@@ -94,7 +94,7 @@ export function ServingSizePresetsManager() {
       {presets.length > 0 ? (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={presets.map((_, i) => i)} strategy={verticalListSortingStrategy}>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {presets.map((preset, index) => (
                 <SortablePresetItem
                   key={index}

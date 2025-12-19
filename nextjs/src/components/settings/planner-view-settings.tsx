@@ -99,9 +99,9 @@ export function PlannerViewSettingsSection({ initialSettings }: PlannerViewSetti
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <div className="space-y-1">
+          <div className="flex flex-col gap-1">
             <CardTitle className="flex items-center gap-2">
-              <SlidersHorizontal className="h-5 w-5" />
+              <SlidersHorizontal className="size-5" />
               Meal Planner View
             </CardTitle>
             <CardDescription>
@@ -111,11 +111,11 @@ export function PlannerViewSettingsSection({ initialSettings }: PlannerViewSetti
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="flex flex-col gap-6">
         {/* Density Selection */}
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <Label className="flex items-center gap-2">
-            <Columns3 className="h-4 w-4" />
+            <Columns3 className="size-4" />
             Display Density
           </Label>
           <RadioGroup
@@ -124,7 +124,7 @@ export function PlannerViewSettingsSection({ initialSettings }: PlannerViewSetti
             className="grid gap-3"
           >
             {DENSITY_OPTIONS.map((option) => (
-              <div key={option.value} className="flex items-center space-x-3">
+              <div key={option.value} className="flex items-center flex gap-3">
                 <RadioGroupItem
                   value={option.value}
                   id={`density-${option.value}`}
@@ -152,17 +152,17 @@ export function PlannerViewSettingsSection({ initialSettings }: PlannerViewSetti
         </div>
 
         {/* Visibility Toggles */}
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <Label className="flex items-center gap-2">
-            <Eye className="h-4 w-4" />
+            <Eye className="size-4" />
             Show / Hide Elements
           </Label>
 
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             {/* Meal Type Headers */}
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div className="flex items-center gap-3">
-                <Utensils className="h-4 w-4 text-muted-foreground" />
+                <Utensils className="size-4 text-muted-foreground" />
                 <div>
                   <Label htmlFor="show-meal-type-headers" className="cursor-pointer">
                     Meal Type Headers
@@ -206,7 +206,7 @@ export function PlannerViewSettingsSection({ initialSettings }: PlannerViewSetti
             {/* Prep Time */}
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div className="flex items-center gap-3">
-                <Clock className="h-4 w-4 text-muted-foreground" />
+                <Clock className="size-4 text-muted-foreground" />
                 <div>
                   <Label htmlFor="show-prep-time" className="cursor-pointer">
                     Prep Time
@@ -237,7 +237,7 @@ export function PlannerViewSettingsSection({ initialSettings }: PlannerViewSetti
             onClick={handleReset}
             disabled={isPending || isResetting || !hasChanges}
           >
-            <RotateCcw className="h-3 w-3 mr-1.5" />
+            <RotateCcw className="size-3 mr-1.5" />
             {isResetting ? "Resetting..." : "Reset to Defaults"}
           </Button>
         </div>

@@ -91,9 +91,9 @@ export function CreateFolderDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex flex-col gap-4 py-4">
           {/* Name */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="folder-name">Name</Label>
             <Input
               id="folder-name"
@@ -109,7 +109,7 @@ export function CreateFolderDialog({
           </div>
 
           {/* Emoji */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label>Icon (optional)</Label>
             <div className="flex flex-wrap gap-1.5">
               <Button
@@ -135,7 +135,7 @@ export function CreateFolderDialog({
           </div>
 
           {/* Color */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label>Color (optional)</Label>
             <div className="flex flex-wrap gap-2 items-center">
               <button
@@ -165,7 +165,7 @@ export function CreateFolderDialog({
 
           {/* Parent Folder (only show if not creating subfolder and has parent options) */}
           {!parentFolderId && parentOptions.length > 0 && (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>Parent Folder (optional)</Label>
               <Select
                 value={parentId || "none"}

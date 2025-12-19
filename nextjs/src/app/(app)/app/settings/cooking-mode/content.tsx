@@ -247,7 +247,7 @@ export function CookModeSettingsContent({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <SettingsHeader
         title="Cooking Mode"
         description="Customize your hands-free cooking experience"
@@ -275,7 +275,7 @@ export function CookModeSettingsContent({
       </Card>
 
       {/* Presets Section */}
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-mono font-semibold">Presets</h2>
@@ -323,7 +323,7 @@ export function CookModeSettingsContent({
 
         {/* Custom Presets */}
         {customPresets.length > 0 && (
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <h3 className="text-sm font-medium text-muted-foreground">Your Presets</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {customPresets.map((preset) => {
@@ -343,7 +343,7 @@ export function CookModeSettingsContent({
                         )}
                       </div>
                     </CardHeader>
-                    <CardContent className="space-y-2">
+                    <CardContent className="flex flex-col gap-2">
                       <div className="flex gap-2">
                         <Button
                           onClick={() => applyPreset(preset.settings)}
@@ -381,7 +381,7 @@ export function CookModeSettingsContent({
       </div>
 
       {/* Settings Tabs */}
-      <Tabs defaultValue="display" className="space-y-6">
+      <Tabs defaultValue="display" className="flex flex-col gap-6">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="display">
             <Eye className="h-4 w-4 mr-2" />
@@ -406,7 +406,7 @@ export function CookModeSettingsContent({
         </TabsList>
 
         {/* Display Tab */}
-        <TabsContent value="display" className="space-y-6">
+        <TabsContent value="display" className="flex flex-col gap-6">
           <SettingSection title="Text & Theme">
             <SettingRow
               id="setting-font-size"
@@ -571,7 +571,7 @@ export function CookModeSettingsContent({
         </TabsContent>
 
         {/* Voice & Audio Tab */}
-        <TabsContent value="voice" className="space-y-6">
+        <TabsContent value="voice" className="flex flex-col gap-6">
           <SettingSection title="Voice Control">
             <SettingRow
               id="setting-voice-enabled"
@@ -684,7 +684,7 @@ export function CookModeSettingsContent({
         </TabsContent>
 
         {/* Gestures Tab */}
-        <TabsContent value="gestures" className="space-y-6">
+        <TabsContent value="gestures" className="flex flex-col gap-6">
           <SettingSection title="Touch Gestures">
             <SettingRow
               id="setting-swipe-enabled"
@@ -826,7 +826,7 @@ export function CookModeSettingsContent({
         </TabsContent>
 
         {/* Timers Tab */}
-        <TabsContent value="timers" className="space-y-6">
+        <TabsContent value="timers" className="flex flex-col gap-6">
           <SettingSection title="Timer Settings">
             <SettingRow
               id="setting-quick-timer-presets"
@@ -934,7 +934,7 @@ export function CookModeSettingsContent({
         </TabsContent>
 
         {/* Behavior Tab */}
-        <TabsContent value="behavior" className="space-y-6">
+        <TabsContent value="behavior" className="flex flex-col gap-6">
           <SettingSection title="General Behavior">
             <SettingRow
               id="setting-keep-screen-awake"

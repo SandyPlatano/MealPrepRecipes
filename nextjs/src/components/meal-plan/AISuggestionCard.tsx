@@ -27,7 +27,7 @@ export function AISuggestionCard({
   return (
     <Card className={`${locked ? 'border-sage-500 bg-sage-50 dark:bg-sage-950/20' : ''}`}>
       <CardContent className="p-4">
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {/* Day and Lock */}
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-lg">{suggestion.day}</h3>

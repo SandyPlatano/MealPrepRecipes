@@ -81,21 +81,21 @@ export default function LoginPage() {
 
   return (
     <Card>
-      <CardHeader className="space-y-1">
+      <CardHeader className="flex flex-col gap-1">
         <CardTitle className="text-2xl">Welcome back</CardTitle>
         <CardDescription>
           Enter your email to sign in to your account
         </CardDescription>
       </CardHeader>
       <form action={handleSubmit}>
-        <CardContent className="space-y-4">
+        <CardContent className="flex flex-col gap-4">
           {error && (
             <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
               {error}
             </div>
           )}
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -107,7 +107,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="password">Password</Label>
               <Link
@@ -128,7 +128,7 @@ export default function LoginPage() {
           </div>
         </CardContent>
 
-        <CardFooter className="flex flex-col space-y-4">
+        <CardFooter className="flex flex-col gap-4">
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
               <>

@@ -216,7 +216,7 @@ export function PresetEditorSheet({
         </SheetDescription>
       </SheetHeader>
 
-      <div className="mt-6 space-y-4">
+      <div className="mt-6 flex flex-col gap-4">
         {/* Create new button */}
         <Button
           className="w-full"
@@ -236,7 +236,7 @@ export function PresetEditorSheet({
             No presets yet. Create your first one!
           </p>
         ) : (
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {presets.map((preset) => (
               <PresetListItem
                 key={preset.id}
@@ -282,9 +282,9 @@ export function PresetEditorSheet({
         </SheetDescription>
       </SheetHeader>
 
-      <div className="mt-6 space-y-6">
+      <div className="mt-6 flex flex-col gap-6">
         {/* Name */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="name">Name</Label>
           <Input
             id="name"
@@ -298,7 +298,7 @@ export function PresetEditorSheet({
         </div>
 
         {/* Emoji picker */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label>Emoji (optional)</Label>
           <div className="flex flex-wrap gap-2">
             {PRESET_EMOJIS.map((emoji) => (
@@ -326,10 +326,10 @@ export function PresetEditorSheet({
         </div>
 
         {/* Macro values */}
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <Label>Macro Values</Label>
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <Label htmlFor="calories" className="text-xs text-muted-foreground">
                 Calories
               </Label>
@@ -348,7 +348,7 @@ export function PresetEditorSheet({
               />
             </div>
 
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <Label htmlFor="protein_g" className="text-xs text-muted-foreground">
                 Protein (g)
               </Label>
@@ -368,7 +368,7 @@ export function PresetEditorSheet({
               />
             </div>
 
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <Label htmlFor="carbs_g" className="text-xs text-muted-foreground">
                 Carbs (g)
               </Label>
@@ -388,7 +388,7 @@ export function PresetEditorSheet({
               />
             </div>
 
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <Label htmlFor="fat_g" className="text-xs text-muted-foreground">
                 Fat (g)
               </Label>

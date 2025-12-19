@@ -197,13 +197,13 @@ export function DietaryProfileForm({
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="flex flex-col gap-6">
         {/* Dietary Restrictions */}
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <Label className="text-base font-medium">Dietary Restrictions</Label>
           <div className="grid gap-3 sm:grid-cols-2">
             {COMMON_DIETARY_RESTRICTIONS.map((restriction) => (
-              <div key={restriction} className="flex items-center space-x-2">
+              <div key={restriction} className="flex items-center gap-2">
                 <Checkbox
                   id={`restriction-${restriction}`}
                   checked={selectedRestrictions.includes(restriction)}
@@ -271,11 +271,11 @@ export function DietaryProfileForm({
         </div>
 
         {/* Allergens */}
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <Label className="text-base font-medium">Allergens</Label>
           <div className="grid gap-3 sm:grid-cols-2">
             {COMMON_ALLERGENS.map((allergen) => (
-              <div key={allergen} className="flex items-center space-x-2">
+              <div key={allergen} className="flex items-center gap-2">
                 <Checkbox
                   id={`allergen-${allergen}`}
                   checked={selectedAllergens.includes(allergen)}
@@ -343,7 +343,7 @@ export function DietaryProfileForm({
         </div>
 
         {/* Dislikes */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="dislikes" className="text-base font-medium">
             Foods I Dislike
           </Label>
@@ -361,7 +361,7 @@ export function DietaryProfileForm({
         </div>
 
         {/* Preferences */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="preferences" className="text-base font-medium">
             Foods I Love
           </Label>
@@ -379,7 +379,7 @@ export function DietaryProfileForm({
         </div>
 
         {/* Spice Tolerance */}
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <Label className="text-base font-medium">Spice Tolerance</Label>
           <RadioGroup
             value={spiceTolerance ?? ""}
@@ -392,7 +392,7 @@ export function DietaryProfileForm({
                 string
               ][]
             ).map(([value, label]) => (
-              <div key={value} className="flex items-center space-x-2">
+              <div key={value} className="flex items-center gap-2">
                 <RadioGroupItem value={value} id={`spice-${value}`} />
                 <Label
                   htmlFor={`spice-${value}`}
@@ -407,7 +407,7 @@ export function DietaryProfileForm({
         </div>
 
         {/* Notes */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="notes" className="text-base font-medium">
             Additional Notes
           </Label>

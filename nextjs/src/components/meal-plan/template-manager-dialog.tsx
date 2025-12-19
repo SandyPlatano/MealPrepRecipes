@@ -144,7 +144,7 @@ export function TemplateManagerDialog({
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {templates.map((template) => {
                 const mealCount = getMealCount(template);
                 const isApplyingThis = isApplying === template.id;

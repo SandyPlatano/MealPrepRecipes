@@ -12,12 +12,14 @@ export function SidebarQuickNav({
   onNewRecipeClick,
 }: SidebarQuickNavProps) {
   return (
-    <div className="px-2 py-2 space-y-0.5">
+    <div className="px-2 flex flex-col gap-0.5">
       <SidebarNavItem
         href="/app"
         icon={Home}
         label="Home"
         exactMatch
+        pinnableType="page"
+        pinnableId="page-home"
       />
       {onNewRecipeClick && (
         <SidebarActionItem

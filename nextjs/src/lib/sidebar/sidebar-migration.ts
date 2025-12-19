@@ -107,6 +107,8 @@ export function normalizeSidebarPreferences(
           existingSection.itemOrder?.length > 0
             ? existingSection.itemOrder
             : defaultSection.itemOrder,
+        // Ensure customItems array exists (may be missing from older data)
+        customItems: existingSection.customItems ?? [],
       };
     } else {
       sections[id] = structuredClone(defaultSection);
@@ -224,6 +226,7 @@ export function isSectionCustomized(section: SectionConfig): boolean {
     section.customEmoji !== null ||
     section.hidden ||
     section.defaultCollapsed ||
+    section.customItems.length > 0 ||
     Object.values(section.items).some(
       (item) =>
         item.customName !== null ||

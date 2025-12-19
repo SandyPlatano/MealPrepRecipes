@@ -23,7 +23,7 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
 
       <div className="container mx-auto px-4 relative">
-        <div className="max-w-3xl mx-auto text-center space-y-8">
+        <div className="max-w-3xl mx-auto text-center flex flex-col gap-8">
           {/* Main brand headline */}
           <div className="animate-fade-in">
             <BrandLogo size="xl" showIcon={false} showTagline={true} className="justify-center" />

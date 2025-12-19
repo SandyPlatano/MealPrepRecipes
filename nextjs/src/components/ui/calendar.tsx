@@ -64,7 +64,7 @@ function Calendar({
       classNames={{
         // Container structure
         months: "relative flex flex-col gap-4",
-        month: "space-y-4 w-full",
+        month: "flex flex-col gap-4 w-full",
 
         // Header with month/year and navigation
         month_caption: "relative flex h-12 items-center justify-center px-12",
@@ -74,14 +74,14 @@ function Calendar({
         // Navigation buttons - coral branded with smooth transitions
         button_previous: cn(
           buttonVariants({ variant: "ghost" }),
-          "absolute left-0 h-10 w-10 rounded-full p-0",
+          "absolute left-0 size-10 rounded-full p-0",
           "text-coral-500 hover:text-coral-600 hover:bg-coral-100 dark:hover:bg-coral-900/40",
           "transition-all duration-200 ease-out",
           "disabled:opacity-40 disabled:pointer-events-none"
         ),
         button_next: cn(
           buttonVariants({ variant: "ghost" }),
-          "absolute right-0 h-10 w-10 rounded-full p-0",
+          "absolute right-0 size-10 rounded-full p-0",
           "text-coral-500 hover:text-coral-600 hover:bg-coral-100 dark:hover:bg-coral-900/40",
           "transition-all duration-200 ease-out",
           "disabled:opacity-40 disabled:pointer-events-none"
@@ -98,12 +98,12 @@ function Calendar({
 
         // Day cells - larger 44px touch targets with smooth transitions
         day: cn(
-          "relative h-11 w-11 p-0 text-center",
+          "relative size-11 p-0 text-center",
           "focus-within:relative focus-within:z-20"
         ),
         day_button: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-11 w-11 p-0 font-normal rounded-xl",
+          "size-11 p-0 font-normal rounded-xl",
           "transition-all duration-200 ease-out",
           "hover:bg-coral-100 dark:hover:bg-coral-900/30 hover:text-coral-700 dark:hover:text-coral-300",
           "focus-visible:ring-2 focus-visible:ring-coral-500 focus-visible:ring-offset-2",
@@ -143,7 +143,7 @@ function Calendar({
       components={{
         Chevron: ({ orientation }) => {
           const Icon = orientation === "left" ? ChevronLeft : ChevronRight
-          return <Icon className="h-5 w-5" strokeWidth={2.5} />
+          return <Icon className="size-5" strokeWidth={2.5} />
         },
         Nav: ({ className: navClassName }) => (
           <Nav
@@ -292,7 +292,7 @@ function Nav({
       <Button
         variant="ghost"
         className={cn(
-          "absolute left-0 h-10 w-10 rounded-full p-0",
+          "absolute left-0 size-10 rounded-full p-0",
           "text-coral-500 hover:text-coral-600 hover:bg-coral-100 dark:hover:bg-coral-900/40",
           "transition-all duration-200 ease-out"
         )}
@@ -306,13 +306,13 @@ function Nav({
         }
         onClick={handlePreviousClick}
       >
-        <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
+        <ChevronLeft className="size-5" strokeWidth={2.5} />
       </Button>
 
       <Button
         variant="ghost"
         className={cn(
-          "absolute right-0 h-10 w-10 rounded-full p-0",
+          "absolute right-0 size-10 rounded-full p-0",
           "text-coral-500 hover:text-coral-600 hover:bg-coral-100 dark:hover:bg-coral-900/40",
           "transition-all duration-200 ease-out"
         )}
@@ -326,7 +326,7 @@ function Nav({
         }
         onClick={handleNextClick}
       >
-        <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
+        <ChevronRight className="size-5" strokeWidth={2.5} />
       </Button>
     </nav>
   )

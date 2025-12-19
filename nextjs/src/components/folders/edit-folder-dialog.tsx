@@ -68,9 +68,9 @@ export function EditFolderDialog({
           <DialogTitle>Edit Folder</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex flex-col gap-4 py-4">
           {/* Name */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="edit-folder-name">Name</Label>
             <Input
               id="edit-folder-name"
@@ -86,7 +86,7 @@ export function EditFolderDialog({
           </div>
 
           {/* Emoji */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label>Icon (optional)</Label>
             <div className="flex flex-wrap gap-1.5">
               <Button
@@ -112,7 +112,7 @@ export function EditFolderDialog({
           </div>
 
           {/* Color */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label>Color (optional)</Label>
             <div className="flex flex-wrap gap-2 items-center">
               <button

@@ -5,13 +5,10 @@ import Link from "next/link";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
   Tooltip,
   TooltipContent,
@@ -27,11 +24,9 @@ import {
   Coffee,
   IceCream,
   Salad,
-  Users,
   MoreVertical,
   ChefHat,
   Edit,
-  Plus,
   Share2,
   AlertTriangle,
   FolderPlus,
@@ -55,8 +50,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
 import { RatingBadge } from "@/components/ui/rating-badge";
-import { PersonalRatingDialog } from "@/components/recipes/personal-rating-dialog";
-import type { RecipeWithFavorite, RecipeWithFavoriteAndNutrition, RecipeType } from "@/types/recipe";
+import { EditCookingHistoryDialog } from "@/components/recipes/edit-cooking-history-dialog";
+import { getMostRecentCookingEntry } from "@/app/actions/cooking-history";
+import type { RecipeWithFavoriteAndNutrition, RecipeType } from "@/types/recipe";
 import type { DayOfWeek } from "@/types/meal-plan";
 import type { FolderWithChildren } from "@/types/folder";
 import { addMealAssignment } from "@/app/actions/meal-plans";
@@ -71,24 +67,27 @@ import Image from "next/image";
 import { detectAllergens, mergeAllergens, getAllergenDisplayName, hasUserAllergens, hasCustomRestrictions } from "@/lib/allergen-detector";
 import { triggerHaptic } from "@/lib/haptics";
 import { calculateCustomBadges, getBadgeColorClasses, type CustomBadge } from "@/lib/nutrition/badge-calculator";
+import { buildRecipeMetadata } from "@/lib/recipe/metadata-utils";
 import { cn } from "@/lib/utils";
+import { useSidebar } from "@/components/sidebar";
+import { useDifficultyThresholds } from "@/contexts/difficulty-thresholds-context";
 
-// Get icon based on recipe type
+// Get icon based on recipe type (smaller for compact badge)
 function getRecipeIcon(recipeType: RecipeType) {
   switch (recipeType) {
     case "Baking":
-      return <Cookie className="h-4 w-4" />;
+      return <Cookie className="size-3" />;
     case "Breakfast":
-      return <Coffee className="h-4 w-4" />;
+      return <Coffee className="size-3" />;
     case "Dessert":
-      return <IceCream className="h-4 w-4" />;
+      return <IceCream className="size-3" />;
     case "Snack":
-      return <Croissant className="h-4 w-4" />;
+      return <Croissant className="size-3" />;
     case "Side Dish":
-      return <Salad className="h-4 w-4" />;
+      return <Salad className="size-3" />;
     case "Dinner":
     default:
-      return <UtensilsCrossed className="h-4 w-4" />;
+      return <UtensilsCrossed className="size-3" />;
   }
 }
 
@@ -134,23 +133,34 @@ interface RecipeCardProps {
 }
 
 export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userAllergenAlerts = [], customDietaryRestrictions = [], customBadges = [], animationIndex, folders = [], onAddToFolder }: RecipeCardProps) {
+  const { isMobile } = useSidebar();
+  const { thresholds: difficultyThresholds } = useDifficultyThresholds();
   const [isFavorite, setIsFavorite] = useState(recipe.is_favorite);
   const [currentRating, setCurrentRating] = useState<number | null>(recipe.rating);
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Calculate which nutrition badges apply to this recipe
   const nutritionBadges = calculateCustomBadges(recipe.nutrition || null, customBadges);
+
+  // Calculate recipe metadata for card display (total time, calories, protein, difficulty)
+  const metadata = buildRecipeMetadata(recipe, difficultyThresholds);
+
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [showCookedDialog, setShowCookedDialog] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
-  const [showRatingDialog, setShowRatingDialog] = useState(false);
-  const [servingMultiplier, setServingMultiplier] = useState<number>(1);
-  const [customInput, setCustomInput] = useState<string>("");
-  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [showEditHistoryDialog, setShowEditHistoryDialog] = useState(false);
+  const [cookingEntryToEdit, setCookingEntryToEdit] = useState<{
+    id: string;
+    cooked_at: string;
+    rating: number | null;
+    notes: string | null;
+    modifications: string | null;
+    photo_url?: string | null;
+    cooked_by_profile?: { first_name: string | null; last_name: string | null } | null;
+  } | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isAddingToPlan, setIsAddingToPlan] = useState(false);
   const [showAddToPlanSheet, setShowAddToPlanSheet] = useState(false);
-  const canScale = recipe.base_servings !== null && recipe.base_servings > 0;
   const router = useRouter();
 
   // Detect allergens
@@ -297,44 +307,43 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
     });
   };
 
-  const handleMultiplierChange = (multiplier: number) => {
-    setServingMultiplier(multiplier);
-    setShowCustomInput(false);
-    setCustomInput("");
+  // Handle rating click - check if cooking history exists
+  const handleRatingClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Check if user has cooking history for this recipe
+    const result = await getMostRecentCookingEntry(recipe.id);
+
+    if (result.data) {
+      // Has cooking history - open edit dialog
+      setCookingEntryToEdit(result.data);
+      setShowEditHistoryDialog(true);
+    } else {
+      // No cooking history - open mark as cooked dialog
+      setShowCookedDialog(true);
+    }
   };
 
-  const handleCustomSubmit = () => {
-    const value = parseFloat(customInput);
-    if (value > 0) {
-      setServingMultiplier(value);
-      setShowCustomInput(false);
-    } else {
-      toast.error("Enter a valid number");
+  // Handle successful cooking history edit
+  const handleCookingEntryUpdated = (updated: typeof cookingEntryToEdit) => {
+    if (updated?.rating !== undefined) {
+      setCurrentRating(updated.rating);
     }
+    setCookingEntryToEdit(null);
+    router.refresh();
   };
 
   return (
     <>
       <Link href={`/app/recipes/${recipe.id}`}>
         <Card
-          className="group hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 hover:border-primary/50 transition-all duration-300 ease-out flex flex-col h-full cursor-pointer overflow-hidden hover:ring-2 hover:ring-primary/20 animate-slide-up-fade relative"
+          className="group h-full hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 hover:border-primary/50 transition-all duration-300 ease-out flex flex-col cursor-pointer overflow-hidden hover:ring-2 hover:ring-primary/20 animate-slide-up-fade relative"
           style={animationIndex !== undefined ? { animationDelay: `${animationIndex * 50}ms`, animationFillMode: 'backwards' } : undefined}
         >
-          {/* Recipe Image with overlaid badge - only show if image exists */}
-          {recipe.image_url ? (
-            <div className="relative w-full h-48 overflow-hidden bg-muted">
-              {/* Badge overlays the image */}
-              <div
-                className={cn(
-                  "absolute top-3 left-3 z-10 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium shadow-sm",
-                  "transition-all duration-300 ease-out",
-                  "group-hover:scale-110 group-hover:shadow-md group-hover:-translate-y-0.5",
-                  getRecipeTypeBadgeClasses(recipe.recipe_type)
-                )}
-              >
-                {getRecipeIcon(recipe.recipe_type)}
-                <span>{recipe.recipe_type}</span>
-              </div>
+          {/* Image Section - ALWAYS present for consistent card height */}
+          <div className="relative w-full h-40 overflow-hidden bg-muted">
+            {recipe.image_url ? (
               <Image
                 src={recipe.image_url}
                 alt={recipe.title}
@@ -344,28 +353,84 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                 placeholder="blur"
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYH/8QAIhAAAgEDAwUBAAAAAAAAAAAAAQIDAAQRBQYhEhMiMVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQADAQEBAAAAAAAAAAAAAAAAAQIDEUH/2gAMAwEAAhEDEQA/ALTce5Nw6XfRWOnWtjJAkccjGaN2LFhnHDDjgce/dSX9x73/AGb/AHfz/Sla1FNRlpHD9J//2Q=="
               />
-            </div>
-          ) : (
-            /* Badge in dedicated row when no image */
-            <div className="px-4 pt-4">
-              <div
-                className={cn(
-                  "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium shadow-sm",
-                  "transition-all duration-300 ease-out",
-                  "group-hover:scale-105 group-hover:shadow-md",
-                  getRecipeTypeBadgeClasses(recipe.recipe_type)
-                )}
-              >
-                {getRecipeIcon(recipe.recipe_type)}
-                <span>{recipe.recipe_type}</span>
+            ) : (
+              /* Placeholder for cards without images */
+              <div className="absolute inset-0 flex items-center justify-center">
+                <UtensilsCrossed className="size-12 text-muted-foreground/30" />
               </div>
+            )}
+
+            {/* More Menu - Top Right (subtle) */}
+            <div
+              className="absolute top-2 right-2 z-10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 rounded-full bg-black/50 backdrop-blur-sm text-white/80 hover:text-white hover:bg-black/70 shadow-lg ring-1 ring-white/20"
+                    aria-label="More actions"
+                  >
+                    <MoreVertical className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleShare}>
+                    <Share2 className="size-4 mr-2" />
+                    Share Recipe
+                  </DropdownMenuItem>
+                  {onAddToFolder && (
+                    <DropdownMenuItem onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onAddToFolder(recipe.id);
+                    }}>
+                      <FolderPlus className="size-4 mr-2" />
+                      Add to Folders
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowCookedDialog(true);
+                  }}>
+                    <ChefHat className="size-4 mr-2" />
+                    Mark as Cooked
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    router.push(`/app/recipes/${recipe.id}/edit`);
+                  }}>
+                    <Edit className="size-4 mr-2" />
+                    Edit Recipe
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportPDF}>
+                    <Download className="size-4 mr-2" />
+                    Export as PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setDeleteDialogOpen(true);
+                    }}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="size-4 mr-2" />
+                    Delete Recipe
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-          )}
+          </div>
 
           {/* Allergen & Dietary Restriction Warning Banner */}
           {hasAnyWarnings && (
             <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 px-4 py-3 flex items-start gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <AlertTriangle className="size-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
                   Contains items you&apos;ve flagged
@@ -400,265 +465,171 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
             </div>
           )}
 
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div className="flex-1 min-w-0">
-                <CardTitle className="text-xl">{recipe.title}</CardTitle>
-                <CardDescription className="mt-1 flex items-center gap-1 flex-wrap">
-                  {recipe.category && <span>{recipe.category}</span>}
-                  {recipe.prep_time && (
-                    <>
-                      {recipe.category && <span>•</span>}
-                      <span>{recipe.prep_time} prep</span>
-                    </>
-                  )}
-                  {lastMadeDate && (
-                    <>
-                      {(recipe.category || recipe.prep_time) && <span>•</span>}
-                      <Badge variant="outline" className="text-xs">
-                        Made{" "}
-                        {formatDistanceToNow(new Date(lastMadeDate), {
-                          addSuffix: true,
-                        })}
-                      </Badge>
-                    </>
-                  )}
-                </CardDescription>
-              </div>
-              <div
-                className="flex items-center gap-1 ml-2 shrink-0"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Rating Button */}
+          {/* Title Section - with rating */}
+          <div className="px-4 py-4 border-b border-border">
+            <div className="flex items-start justify-between gap-2">
+              <CardTitle className="text-lg leading-tight line-clamp-2 flex-1">{recipe.title}</CardTitle>
+              {/* Rating - clickable to open cooking history */}
+              <div onClick={(e) => e.stopPropagation()}>
                 {currentRating ? (
                   <RatingBadge
                     rating={currentRating}
                     size="sm"
-                    onClick={(e) => {
-                      e.preventDefault(); // Prevent Link navigation
-                      setShowRatingDialog(true);
-                    }}
+                    onClick={handleRatingClick}
                   />
                 ) : (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground/50 hover:text-yellow-500"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setShowRatingDialog(true);
-                        }}
-                        aria-label="Rate this recipe"
-                      >
-                        <Star className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Rate this recipe</TooltipContent>
-                  </Tooltip>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-muted-foreground hover:text-yellow-500"
+                    onClick={handleRatingClick}
+                    aria-label="Rate this recipe"
+                  >
+                    <Star className="size-4" />
+                  </Button>
                 )}
-
-                {/* Favorite Button */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={handleToggleFavorite}
-                      className={isFavorite ? "text-red-500" : ""}
-                      disabled={isPending}
-                      aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-                    >
-                      <Heart
-                        className={`h-4 w-4 ${isFavorite ? "fill-current" : ""} ${isPending ? "opacity-50" : ""}`}
-                      />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {isFavorite ? "Remove from favorites" : "Add to favorites"}
-                  </TooltipContent>
-                </Tooltip>
-                <DropdownMenu>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" aria-label="More actions">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent>More actions</TooltipContent>
-                  </Tooltip>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={handleAddToCart}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add to This Week
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleShare}>
-                      <Share2 className="h-4 w-4 mr-2" />
-                      Share Recipe
-                    </DropdownMenuItem>
-                    {onAddToFolder && (
-                      <DropdownMenuItem onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        onAddToFolder(recipe.id);
-                      }}>
-                        <FolderPlus className="h-4 w-4 mr-2" />
-                        Add to Folders
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setShowCookedDialog(true);
-                    }}>
-                      <ChefHat className="h-4 w-4 mr-2" />
-                      Mark as Cooked
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      router.push(`/app/recipes/${recipe.id}/edit`);
-                    }}>
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit Recipe
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleExportPDF}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Export as PDF
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setDeleteDialogOpen(true);
-                      }}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete Recipe
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="flex flex-col flex-1">
-            <div className="flex-1">
-              <p className="text-sm font-medium mb-1">Key Ingredients:</p>
-              <p className="text-sm text-muted-foreground">
-                {recipe.ingredients.slice(0, 5).join(", ")}
-                {recipe.ingredients.length > 5 && "..."}
-              </p>
+          </div>
+
+          {/* Badge + Metadata Row */}
+          <div className="px-4 py-3 border-b border-border flex items-center gap-2 flex-wrap">
+            {/* Recipe Type Badge - Smaller */}
+            <div
+              className={cn(
+                "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium",
+                "transition-all duration-300 ease-out",
+                "group-hover:scale-105",
+                getRecipeTypeBadgeClasses(recipe.recipe_type)
+              )}
+            >
+              {getRecipeIcon(recipe.recipe_type)}
+              <span>{recipe.recipe_type}</span>
             </div>
-            
-            {/* Serving Size */}
-            {(recipe.base_servings !== null && recipe.base_servings > 0) || recipe.servings ? (
-              <div className="mt-3 mb-2" onClick={(e) => e.preventDefault()}>
-                {canScale ? (
-                  <>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Users className="h-3 w-3" />
-                        <span>Serving size:</span>
-                      </div>
-                      <span className="text-xs font-medium">
-                        {recipe.base_servings! * servingMultiplier}
+
+            {/* Enhanced Metadata: Time • Calories • Protein • Difficulty */}
+            <span className="text-xs text-muted-foreground flex items-center gap-1 flex-wrap">
+              <span>{metadata.totalTime}</span>
+              <span className="text-muted-foreground/50">•</span>
+              <span>{metadata.calories}</span>
+              <span className="text-muted-foreground/50">•</span>
+              <span>{metadata.protein}</span>
+              <span className="text-muted-foreground/50">•</span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span
+                    className={cn(
+                      "cursor-help underline decoration-dotted underline-offset-2",
+                      metadata.difficulty === "Easy" &&
+                        "text-green-600 dark:text-green-400",
+                      metadata.difficulty === "Medium" &&
+                        "text-amber-600 dark:text-amber-400",
+                      metadata.difficulty === "Hard" &&
+                        "text-red-600 dark:text-red-400"
+                    )}
+                  >
+                    {metadata.difficulty}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent className="text-xs">
+                  <div className="flex flex-col gap-1">
+                    <p className="font-medium">Difficulty Breakdown</p>
+                    <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                      <span className="text-muted-foreground">Time:</span>
+                      <span>
+                        {metadata.difficultyBreakdown.time.minutes !== null
+                          ? `${metadata.difficultyBreakdown.time.minutes} min`
+                          : "N/A"}{" "}
+                        ({metadata.difficultyBreakdown.time.score})
+                      </span>
+                      <span className="text-muted-foreground">Ingredients:</span>
+                      <span>
+                        {metadata.difficultyBreakdown.ingredients.count} items (
+                        {metadata.difficultyBreakdown.ingredients.score})
+                      </span>
+                      <span className="text-muted-foreground">Steps:</span>
+                      <span>
+                        {metadata.difficultyBreakdown.steps.count} steps (
+                        {metadata.difficultyBreakdown.steps.score})
                       </span>
                     </div>
-                    <div className="flex gap-1">
-                      {[1, 2, 3, 4].map((mult) => (
-                        <Button
-                          key={mult}
-                          variant={servingMultiplier === mult ? "default" : "outline"}
-                          size="sm"
-                          className="flex-1 h-7 text-xs"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleMultiplierChange(mult);
-                          }}
-                        >
-                          {mult}x
-                        </Button>
-                      ))}
-                      {!showCustomInput ? (
-                        <Button
-                          variant={![1, 2, 3, 4].includes(servingMultiplier) ? "default" : "outline"}
-                          size="sm"
-                          className="flex-1 h-7 text-xs"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setShowCustomInput(true);
-                          }}
-                        >
-                          {![1, 2, 3, 4].includes(servingMultiplier)
-                            ? `${servingMultiplier}x`
-                            : "Custom"}
-                        </Button>
-                      ) : (
-                        <Input
-                          type="number"
-                          min="0.5"
-                          step="0.5"
-                          placeholder="x"
-                          value={customInput}
-                          onChange={(e) => setCustomInput(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleCustomSubmit();
-                            } else if (e.key === "Escape") {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setShowCustomInput(false);
-                              setCustomInput("");
-                            }
-                          }}
-                          onBlur={handleCustomSubmit}
-                          onClick={(e) => e.stopPropagation()}
-                          autoFocus
-                          className="flex-1 h-7 text-xs px-2"
-                        />
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex items-center gap-1 text-xs">
-                    <Users className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">Serving size:</span>
-                    <span className="font-medium">{recipe.servings || "N/A"}</span>
                   </div>
-                )}
-              </div>
-            ) : (
-              <div className="mt-3 mb-2">
-                <div className="flex items-center gap-1 text-xs">
-                  <Users className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-muted-foreground">Serving size:</span>
-                  <span className="font-medium text-muted-foreground">N/A</span>
-                </div>
+                </TooltipContent>
+              </Tooltip>
+              {lastMadeDate && (
+                <>
+                  <span className="text-muted-foreground/50">•</span>
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                    Made{" "}
+                    {formatDistanceToNow(new Date(lastMadeDate), {
+                      addSuffix: true,
+                    })}
+                  </Badge>
+                </>
+              )}
+            </span>
+          </div>
+          <CardContent className="flex flex-col flex-1 pt-0">
+            {/* Key Ingredients Section - hidden on mobile for cleaner cards */}
+            {!isMobile && (
+              <div className="py-3">
+                <p className="text-sm font-medium mb-1">Key Ingredients</p>
+                <p className="text-sm text-muted-foreground">
+                  {recipe.ingredients.slice(0, 5).join(", ")}
+                  {recipe.ingredients.length > 5 && "..."}
+                </p>
               </div>
             )}
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="default"
-                  className="w-full mt-4 hover:scale-105 transition-transform"
-                  onClick={handleAddToCart}
-                  disabled={isAddingToPlan}
-                >
-                  {isAddingToPlan ? "Adding..." : "Add to Plan"}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Add this recipe to your weekly meal plan</TooltipContent>
-            </Tooltip>
+
+            {/* Footer: Add to Plan + Favorite */}
+            <div className={cn("pt-3 mt-auto flex items-center gap-2", !isMobile && "border-t border-border")}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="default"
+                    className={cn(
+                      "flex-1 hover:scale-105 transition-transform",
+                      isMobile && "h-12 text-base" // Larger touch target on mobile
+                    )}
+                    onClick={handleAddToCart}
+                    disabled={isAddingToPlan}
+                  >
+                    {isAddingToPlan ? "Adding..." : "Add to Plan"}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Add this recipe to your weekly meal plan</TooltipContent>
+              </Tooltip>
+
+              {/* Favorite Button */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "shrink-0 transition-all duration-200",
+                      isMobile && "size-12", // Match Add to Plan height on mobile
+                      isFavorite
+                        ? "text-red-500 hover:text-red-600"
+                        : "text-muted-foreground hover:text-red-500"
+                    )}
+                    onClick={handleToggleFavorite}
+                    disabled={isPending}
+                    aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                  >
+                    <Heart
+                      className={cn(
+                        "size-5 transition-all duration-300",
+                        isFavorite && "fill-current scale-110 animate-[heartBeat_0.3s_ease-in-out]"
+                      )}
+                    />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isFavorite ? "Remove from favorites" : "Add to favorites"}
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </CardContent>
         </Card>
       </Link>
@@ -691,16 +662,20 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
         recipeTitle={recipe.title}
         open={showCookedDialog}
         onOpenChange={setShowCookedDialog}
+        onSuccess={() => router.refresh()}
       />
 
-      <PersonalRatingDialog
-        recipeId={recipe.id}
-        recipeTitle={recipe.title}
-        currentRating={currentRating}
-        open={showRatingDialog}
-        onOpenChange={setShowRatingDialog}
-        onRated={setCurrentRating}
-      />
+      {cookingEntryToEdit && (
+        <EditCookingHistoryDialog
+          entry={cookingEntryToEdit}
+          open={showEditHistoryDialog}
+          onOpenChange={(open) => {
+            setShowEditHistoryDialog(open);
+            if (!open) setCookingEntryToEdit(null);
+          }}
+          onSuccess={handleCookingEntryUpdated}
+        />
+      )}
 
       <ShareExportSheet
         isOpen={showShareDialog}

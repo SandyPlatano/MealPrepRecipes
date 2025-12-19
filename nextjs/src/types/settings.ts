@@ -518,6 +518,47 @@ export const DEFAULT_RECIPE_PREFERENCES: RecipePreferences = {
 };
 
 // ============================================================================
+// Difficulty Thresholds Settings Types
+// ============================================================================
+
+/**
+ * Configurable thresholds for recipe difficulty calculation
+ * Each factor has two breakpoints: Easy < medium, Medium <= hard
+ */
+export interface DifficultyThresholds {
+  /** Time thresholds in minutes */
+  time: {
+    easyMax: number;   // Below this = Easy (default: 30)
+    mediumMax: number; // Below or equal = Medium, above = Hard (default: 60)
+  };
+  /** Ingredient count thresholds */
+  ingredients: {
+    easyMax: number;   // Below this = Easy (default: 8)
+    mediumMax: number; // Below or equal = Medium, above = Hard (default: 15)
+  };
+  /** Instruction step count thresholds */
+  steps: {
+    easyMax: number;   // Below this = Easy (default: 6)
+    mediumMax: number; // Below or equal = Medium, above = Hard (default: 12)
+  };
+}
+
+export const DEFAULT_DIFFICULTY_THRESHOLDS: DifficultyThresholds = {
+  time: {
+    easyMax: 30,
+    mediumMax: 60,
+  },
+  ingredients: {
+    easyMax: 8,
+    mediumMax: 15,
+  },
+  steps: {
+    easyMax: 6,
+    mediumMax: 12,
+  },
+};
+
+// ============================================================================
 // Calendar Preferences Settings Types
 // ============================================================================
 
@@ -552,6 +593,8 @@ export interface UserSettingsPreferences {
   recipe?: RecipePreferences;
   recipeExport?: RecipeExportPreferences;
   calendar?: CalendarPreferences;
+  /** Customizable thresholds for recipe difficulty calculation */
+  difficultyThresholds?: DifficultyThresholds;
 }
 
 /**

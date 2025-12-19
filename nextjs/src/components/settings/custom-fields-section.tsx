@@ -422,14 +422,14 @@ export function CustomFieldsSection({
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <div className="space-y-1">
+          <div className="flex flex-col gap-1">
             <CardTitle>Custom Recipe Fields</CardTitle>
             <CardDescription>
               Add custom metadata fields to your recipes (wine pairing, spice level, etc.)
             </CardDescription>
           </div>
           <Button onClick={handleCreate}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="size-4 mr-2" />
             Add Field
           </Button>
         </div>
@@ -442,7 +442,7 @@ export function CustomFieldsSection({
             <p className="text-sm mt-1">Click "Add Field" to create your first custom field</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {fields.map((field, index) => {
               const Icon = FIELD_TYPE_META[field.fieldType].icon;
               return (
@@ -458,8 +458,8 @@ export function CustomFieldsSection({
                     "hover:border-primary hover:shadow-sm"
                   )}
                 >
-                  <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
-                  <Icon className="h-5 w-5 text-muted-foreground" />
+                  <GripVertical className="size-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
+                  <Icon className="size-5 text-muted-foreground" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{field.name}</span>
@@ -481,13 +481,13 @@ export function CustomFieldsSection({
                     )}
                     {field.showInCard && (
                       <Badge variant="secondary" className="text-xs">
-                        <Eye className="h-3 w-3 mr-1" />
+                        <Eye className="size-3 mr-1" />
                         Card
                       </Badge>
                     )}
                     {field.showInFilters && (
                       <Badge variant="secondary" className="text-xs">
-                        <Filter className="h-3 w-3 mr-1" />
+                        <Filter className="size-3 mr-1" />
                         Filter
                       </Badge>
                     )}
@@ -497,14 +497,14 @@ export function CustomFieldsSection({
                     size="sm"
                     onClick={() => handleEdit(field)}
                   >
-                    <Pencil className="h-4 w-4" />
+                    <Pencil className="size-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setDeleteConfirmId(field.id)}
                   >
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <Trash2 className="size-4 text-destructive" />
                   </Button>
                 </div>
               );
@@ -549,7 +549,7 @@ export function CustomFieldsSection({
                           : "border-border hover:border-primary/50"
                       )}
                     >
-                      <Icon className="h-6 w-6 mb-2" />
+                      <Icon className="size-6 mb-2" />
                       <span className="font-medium">{meta.label}</span>
                       <span className="text-xs text-muted-foreground mt-1">
                         {meta.description}
@@ -562,8 +562,8 @@ export function CustomFieldsSection({
 
             {/* Step 2: Configuration */}
             {wizardStep === "config" && (
-              <div className="space-y-4">
-                <div className="space-y-2">
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="name">Field Name</Label>
                   <Input
                     id="name"
@@ -575,7 +575,7 @@ export function CustomFieldsSection({
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="description">Description (Optional)</Label>
                   <Textarea
                     id="description"
@@ -589,7 +589,7 @@ export function CustomFieldsSection({
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
+                  <div className="flex flex-col gap-0.5">
                     <Label>Required Field</Label>
                     <p className="text-sm text-muted-foreground">
                       Must be filled when creating recipes
@@ -607,16 +607,16 @@ export function CustomFieldsSection({
 
             {/* Step 3: Options (for select types) */}
             {wizardStep === "options" && (
-              <div className="space-y-4">
+              <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <Label>Options</Label>
                   <Button variant="outline" size="sm" onClick={handleAddOption}>
-                    <Plus className="h-4 w-4 mr-1" />
+                    <Plus className="size-4 mr-1" />
                     Add Option
                   </Button>
                 </div>
 
-                <div className="space-y-2 max-h-96 overflow-y-auto">
+                <div className="flex flex-col gap-2 max-h-96 overflow-y-auto">
                   {formData.options?.map((option, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <Input
@@ -639,7 +639,7 @@ export function CustomFieldsSection({
                         size="sm"
                         onClick={() => handleRemoveOption(index)}
                       >
-                        <X className="h-4 w-4" />
+                        <X className="size-4" />
                       </Button>
                     </div>
                   ))}
@@ -655,11 +655,11 @@ export function CustomFieldsSection({
 
             {/* Step 4: Display Settings */}
             {wizardStep === "display" && (
-              <div className="space-y-4">
+              <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
+                  <div className="flex flex-col gap-0.5">
                     <Label className="flex items-center gap-2">
-                      <Eye className="h-4 w-4" />
+                      <Eye className="size-4" />
                       Show on Recipe Cards
                     </Label>
                     <p className="text-sm text-muted-foreground">
@@ -675,9 +675,9 @@ export function CustomFieldsSection({
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
+                  <div className="flex flex-col gap-0.5">
                     <Label className="flex items-center gap-2">
-                      <Filter className="h-4 w-4" />
+                      <Filter className="size-4" />
                       Show in Filters
                     </Label>
                     <p className="text-sm text-muted-foreground">
@@ -696,7 +696,7 @@ export function CustomFieldsSection({
 
             {/* Step 5: Preview */}
             {wizardStep === "preview" && (
-              <div className="space-y-4">
+              <div className="flex flex-col gap-4">
                 <div className="rounded-lg border p-4 bg-muted/30">
                   <Label className="mb-2 block">{formData.name}</Label>
                   {formData.description && (
@@ -741,13 +741,13 @@ export function CustomFieldsSection({
                   {formData.fieldType === "rating" && (
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <Star key={star} className="h-5 w-5 text-muted-foreground" />
+                        <Star key={star} className="size-5 text-muted-foreground" />
                       ))}
                     </div>
                   )}
                 </div>
 
-                <div className="space-y-2 text-sm">
+                <div className="flex flex-col gap-2 text-sm">
                   <div className="flex items-center gap-2">
                     <Badge variant="outline">
                       {FIELD_TYPE_META[formData.fieldType].label}
@@ -759,13 +759,13 @@ export function CustomFieldsSection({
                   <div className="flex gap-2 text-muted-foreground">
                     {formData.showInCard && (
                       <span className="flex items-center gap-1">
-                        <Eye className="h-4 w-4" />
+                        <Eye className="size-4" />
                         Visible on cards
                       </span>
                     )}
                     {formData.showInFilters && (
                       <span className="flex items-center gap-1">
-                        <Filter className="h-4 w-4" />
+                        <Filter className="size-4" />
                         Filterable
                       </span>
                     )}

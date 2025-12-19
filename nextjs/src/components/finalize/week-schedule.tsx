@@ -59,7 +59,7 @@ export function WeekSchedule({
           Week Schedule
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="flex flex-col gap-3">
         {DAYS_OF_WEEK.map((day, index) => {
           const dayDate = new Date(weekStart);
           dayDate.setDate(dayDate.getDate() + index);
@@ -72,7 +72,7 @@ export function WeekSchedule({
           return (
             <div
               key={day}
-              className="border rounded-lg p-4 space-y-3 bg-muted/30"
+              className="border rounded-lg p-4 flex flex-col gap-3 bg-muted/30"
             >
               {/* Day Header */}
               <div className="flex items-center justify-between">
@@ -91,7 +91,7 @@ export function WeekSchedule({
               </div>
 
               {/* Meals for this day */}
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 {dayAssignments.map((assignment) => {
                   const prepTime = parseTime(assignment.recipe.prep_time);
                   const cookTime = parseTime(assignment.recipe.cook_time);

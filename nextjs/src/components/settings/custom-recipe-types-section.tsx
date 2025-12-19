@@ -370,7 +370,7 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
   const isDialogOpen = isCreating || editingType !== null;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -406,7 +406,7 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
           items={recipeTypes.map((t) => t.id)}
           strategy={verticalListSortingStrategy}
         >
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {recipeTypes.map((type) => (
               <SortableRecipeTypeCard
                 key={type.id}
@@ -428,9 +428,9 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className="flex flex-col gap-6 py-4">
             {/* Name */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>Name *</Label>
               <Input
                 value={formData.name}
@@ -440,7 +440,7 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
             </div>
 
             {/* Description */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>Description (optional)</Label>
               <Textarea
                 value={formData.description}
@@ -453,7 +453,7 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
             </div>
 
             {/* Emoji */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label className="flex items-center gap-2">
                 <Smile className="h-4 w-4" />
                 Emoji
@@ -496,7 +496,7 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
             </div>
 
             {/* Color */}
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <Label className="flex items-center gap-2">
                 <Palette className="h-4 w-4" />
                 Color
@@ -542,7 +542,7 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
             </div>
 
             {/* Preview */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>Preview</Label>
               <div
                 className="flex items-center gap-3 py-2 px-3 rounded-lg text-sm font-medium"
@@ -578,7 +578,7 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
             <AlertDialogDescription>
               Are you sure you want to delete "{deleteConfirm?.name}"?
               {recipeTypes.filter((t) => t.id !== deleteConfirm?.id).length > 0 && (
-                <div className="mt-4 space-y-2">
+                <div className="mt-4 flex flex-col gap-2">
                   <p className="font-medium text-foreground">
                     Reassign existing recipes to:
                   </p>

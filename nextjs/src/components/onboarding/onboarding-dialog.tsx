@@ -191,7 +191,7 @@ export function OnboardingDialog({
 
         {/* Step 1: Name */}
         {step === 1 && (
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3 mb-6">
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <ChefHat className="h-6 w-6 text-primary" />
@@ -205,7 +205,7 @@ export function OnboardingDialog({
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="firstName">First Name</Label>
                 <Input
                   id="firstName"
@@ -216,7 +216,7 @@ export function OnboardingDialog({
                   maxLength={50}
                 />
               </div>
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="lastName">Last Name</Label>
                 <Input
                   id="lastName"
@@ -240,7 +240,7 @@ export function OnboardingDialog({
 
         {/* Step 2: Cook Names */}
         {step === 2 && (
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3 mb-6">
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <Users className="h-6 w-6 text-primary" />
@@ -253,7 +253,7 @@ export function OnboardingDialog({
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {cookNames.map((cook, index) => (
                 <div key={index} className="flex gap-2 items-center">
                   <div className="relative overflow-hidden rounded-md shadow-sm ring-1 ring-gray-200 dark:ring-gray-800 hover:ring-gray-300 dark:hover:ring-gray-700 transition-all h-10 w-12 flex-shrink-0">
@@ -324,7 +324,7 @@ export function OnboardingDialog({
 
         {/* Step 3: Nutrition Goals (Optional) */}
         {step === 3 && (
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3 mb-6">
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <Activity className="h-6 w-6 text-primary" />
@@ -337,7 +337,7 @@ export function OnboardingDialog({
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <Label className="flex items-center gap-2">
                 <Target className="h-4 w-4" />
                 Choose a goal
@@ -382,10 +382,10 @@ export function OnboardingDialog({
 
               {/* Custom macro inputs - shown when custom is selected */}
               {selectedPreset === "custom" && (
-                <div className="space-y-3 pt-2 border-t">
+                <div className="flex flex-col gap-3 pt-2 border-t">
                   <Label className="text-sm">Set your daily targets</Label>
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
+                    <div className="flex flex-col gap-1">
                       <Label htmlFor="onboard-calories" className="text-xs text-muted-foreground">Calories</Label>
                       <Input
                         id="onboard-calories"
@@ -399,7 +399,7 @@ export function OnboardingDialog({
                         placeholder="2000"
                       />
                     </div>
-                    <div className="space-y-1">
+                    <div className="flex flex-col gap-1">
                       <Label htmlFor="onboard-protein" className="text-xs text-muted-foreground">Protein (g)</Label>
                       <Input
                         id="onboard-protein"
@@ -413,7 +413,7 @@ export function OnboardingDialog({
                         placeholder="150"
                       />
                     </div>
-                    <div className="space-y-1">
+                    <div className="flex flex-col gap-1">
                       <Label htmlFor="onboard-carbs" className="text-xs text-muted-foreground">Carbs (g)</Label>
                       <Input
                         id="onboard-carbs"
@@ -427,7 +427,7 @@ export function OnboardingDialog({
                         placeholder="200"
                       />
                     </div>
-                    <div className="space-y-1">
+                    <div className="flex flex-col gap-1">
                       <Label htmlFor="onboard-fat" className="text-xs text-muted-foreground">Fat (g)</Label>
                       <Input
                         id="onboard-fat"
@@ -483,7 +483,7 @@ export function OnboardingDialog({
 
         {/* Step 4: Ready */}
         {step === 4 && (
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3 mb-6">
               <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                 <Check className="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -496,9 +496,9 @@ export function OnboardingDialog({
               </div>
             </div>
 
-            <div className="bg-muted/50 rounded-lg p-6 space-y-3">
+            <div className="bg-muted/50 rounded-lg p-6 flex flex-col gap-3">
               <h4 className="font-medium">Quick Tips:</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+              <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-0.5">•</span>
                   <span>Import recipes from any website with AI</span>

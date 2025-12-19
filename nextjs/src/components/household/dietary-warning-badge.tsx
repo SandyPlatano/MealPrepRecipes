@@ -134,7 +134,7 @@ export function DietaryWarningBadge({
       <Tooltip>
         <TooltipTrigger asChild>{content}</TooltipTrigger>
         <TooltipContent className="max-w-xs">
-          <div className="space-y-2 text-sm">
+          <div className="flex flex-col gap-2 text-sm">
             {allergenWarnings.length > 0 && (
               <div>
                 <p className="font-semibold text-red-600 dark:text-red-400 flex items-center gap-1">

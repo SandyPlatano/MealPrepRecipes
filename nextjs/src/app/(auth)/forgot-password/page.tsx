@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
   if (success) {
     return (
       <Card>
-        <CardHeader className="space-y-1 text-center">
+        <CardHeader className="flex flex-col gap-1 text-center">
           <div className="flex justify-center mb-4">
             <Mail className="h-12 w-12 text-primary" />
           </div>
@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
             {success}
           </CardDescription>
         </CardHeader>
-        <CardFooter className="flex flex-col space-y-4">
+        <CardFooter className="flex flex-col gap-4">
           <Link href="/login" className="w-full">
             <Button variant="outline" className="w-full">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -62,21 +62,21 @@ export default function ForgotPasswordPage() {
 
   return (
     <Card>
-      <CardHeader className="space-y-1">
+      <CardHeader className="flex flex-col gap-1">
         <CardTitle className="text-2xl">Forgot password?</CardTitle>
         <CardDescription>
           No worries, it happens to the best of us. Enter your email and we&apos;ll send you a reset link.
         </CardDescription>
       </CardHeader>
       <form action={handleSubmit}>
-        <CardContent className="space-y-4">
+        <CardContent className="flex flex-col gap-4">
           {error && (
             <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
               {error}
             </div>
           )}
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
           </div>
         </CardContent>
 
-        <CardFooter className="flex flex-col space-y-4">
+        <CardFooter className="flex flex-col gap-4">
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
               <>

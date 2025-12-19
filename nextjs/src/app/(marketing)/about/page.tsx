@@ -12,9 +12,9 @@ import {
 
 export default function AboutPage() {
   return (
-    <div className="space-y-16">
+    <div className="flex flex-col gap-16">
       {/* Hero Section with Photo */}
-      <section className="text-center space-y-8">
+      <section className="text-center flex flex-col gap-8">
         <div className="relative w-96 h-96 mx-auto">
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 blur-2xl" />
           <div className="relative w-full h-full rounded-2xl border-4 border-primary/20 overflow-hidden bg-muted shadow-2xl">
@@ -27,7 +27,7 @@ export default function AboutPage() {
             />
           </div>
         </div>
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <h1 className="text-4xl md:text-5xl font-mono font-bold">
             About Babe, What&apos;s for Dinner?
           </h1>
@@ -39,12 +39,12 @@ export default function AboutPage() {
       </section>
 
       {/* The Sunday Ritual */}
-      <section className="max-w-3xl mx-auto space-y-6">
+      <section className="max-w-3xl mx-auto flex flex-col gap-6">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
             <Calendar className="w-6 h-6 text-primary" />
           </div>
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <h2 className="text-2xl font-mono font-bold">The Sunday Ritual</h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
               Every Sunday, me and my partner Morgan sit down to plan our meal
@@ -58,12 +58,12 @@ export default function AboutPage() {
       </section>
 
       {/* The Problem */}
-      <section className="max-w-3xl mx-auto space-y-6">
+      <section className="max-w-3xl mx-auto flex flex-col gap-6">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/30 flex items-center justify-center">
             <Search className="w-6 h-6 text-accent-foreground" />
           </div>
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <h2 className="text-2xl font-mono font-bold">
               &quot;What was that meal with tofu?&quot;
             </h2>
@@ -87,7 +87,7 @@ export default function AboutPage() {
       </section>
 
       {/* The Scattered Search */}
-      <section className="max-w-3xl mx-auto space-y-6">
+      <section className="max-w-3xl mx-auto flex flex-col gap-6">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
             <div className="flex gap-1">
@@ -95,7 +95,7 @@ export default function AboutPage() {
               <Smartphone className="w-4 h-4 text-primary" />
             </div>
           </div>
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <h2 className="text-2xl font-mono font-bold">
               Recipes Everywhere, Nowhere
             </h2>
@@ -114,7 +114,7 @@ export default function AboutPage() {
       </section>
 
       {/* The Daily Question */}
-      <section className="max-w-3xl mx-auto space-y-6">
+      <section className="max-w-3xl mx-auto flex flex-col gap-6">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/30 flex items-center justify-center">
             <div className="flex gap-1">
@@ -122,7 +122,7 @@ export default function AboutPage() {
               <Users className="w-4 h-4 text-accent-foreground" />
             </div>
           </div>
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <h2 className="text-2xl font-mono font-bold">
               &quot;Babe, what&apos;s for dinner?&quot;
             </h2>
@@ -144,12 +144,12 @@ export default function AboutPage() {
       </section>
 
       {/* The Solution */}
-      <section className="max-w-3xl mx-auto space-y-6">
+      <section className="max-w-3xl mx-auto flex flex-col gap-6">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
             <Sparkles className="w-6 h-6 text-primary" />
           </div>
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <h2 className="text-2xl font-mono font-bold">
               Building Something Better
             </h2>
@@ -169,12 +169,12 @@ export default function AboutPage() {
       </section>
 
       {/* The Vision */}
-      <section className="max-w-3xl mx-auto space-y-6">
+      <section className="max-w-3xl mx-auto flex flex-col gap-6">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/30 flex items-center justify-center">
             <Heart className="w-6 h-6 text-accent-foreground" />
           </div>
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <h2 className="text-2xl font-mono font-bold">For You</h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
               I hope this helps you not only eat healthier but live a better
@@ -193,7 +193,7 @@ export default function AboutPage() {
       </section>
 
       {/* Closing */}
-      <section className="max-w-2xl mx-auto text-center space-y-6 pt-8 border-t">
+      <section className="max-w-2xl mx-auto text-center flex flex-col gap-6 pt-8 border-t">
         <p className="text-lg text-muted-foreground italic">
           With love (and plenty of meal prep),
         </p>

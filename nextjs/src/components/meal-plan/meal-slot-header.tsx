@@ -52,7 +52,7 @@ export function MealSlotHeader({
       } : undefined}
     >
       {useIcon ? (
-        <MealTypeIcon type={mealType ?? "other"} className="h-5 w-5 md:h-6 md:w-6" />
+        <MealTypeIcon type={mealType ?? "other"} className="size-5 md:size-6" />
       ) : displayEmoji && (
         <span className="text-lg md:text-xl" aria-hidden="true">
           {displayEmoji}

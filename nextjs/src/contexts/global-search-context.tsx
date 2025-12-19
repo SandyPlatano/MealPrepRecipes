@@ -224,10 +224,21 @@ export function GlobalSearchProvider({ children }: GlobalSearchProviderProps) {
 
   const handleSelect = useCallback(
     (item: SearchResultItem) => {
-      closeSearch();
+      // Capture href before any state changes
+      const targetHref = item.href;
+      const itemData = {
+        type: item.type === "action" ? "page" : item.type,
+        id: item.id,
+        label: item.label,
+        href: item.href,
+        subtitle: item.subtitle,
+        imageUrl: item.imageUrl,
+        icon: item.icon,
+      };
 
       // Handle function-based actions
       if (item.type === "action" && item.action?.behavior === "function") {
+        closeSearch();
         switch (item.action.functionId) {
           case "toggleDarkMode":
             setTheme(theme === "dark" ? "light" : "dark");
@@ -249,20 +260,16 @@ export function GlobalSearchProvider({ children }: GlobalSearchProviderProps) {
         }
       }
 
-      // Handle navigation
-      if (item.href) {
+      // Handle navigation - navigate first, then close
+      if (targetHref) {
         // Add to recent items
-        addRecentItem({
-          type: item.type === "action" ? "page" : item.type,
-          id: item.id,
-          label: item.label,
-          href: item.href,
-          subtitle: item.subtitle,
-          imageUrl: item.imageUrl,
-          icon: item.icon,
-        });
+        addRecentItem(itemData as Omit<RecentItem, "visitedAt">);
 
-        router.push(item.href);
+        // Navigate immediately
+        router.push(targetHref);
+
+        // Close search after navigation is initiated
+        closeSearch();
       }
     },
     [closeSearch, router, setTheme, theme, addRecentItem]

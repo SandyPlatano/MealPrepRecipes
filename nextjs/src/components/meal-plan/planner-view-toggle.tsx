@@ -79,13 +79,22 @@ export function PlannerViewToggle({
           value={localSettings.density}
           onValueChange={handleDensityChange}
         >
-          <DropdownMenuRadioItem value="compact">
+          <DropdownMenuRadioItem
+            value="compact"
+            onSelect={(e) => e.preventDefault()}
+          >
             Compact
           </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="comfortable">
+          <DropdownMenuRadioItem
+            value="comfortable"
+            onSelect={(e) => e.preventDefault()}
+          >
             Comfortable
           </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="spacious">
+          <DropdownMenuRadioItem
+            value="spacious"
+            onSelect={(e) => e.preventDefault()}
+          >
             Spacious
           </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
@@ -99,18 +108,21 @@ export function PlannerViewToggle({
         <DropdownMenuCheckboxItem
           checked={localSettings.showMealTypeHeaders}
           onCheckedChange={() => handleVisibilityToggle("showMealTypeHeaders")}
+          onSelect={(e) => e.preventDefault()}
         >
           Meal Type Headers
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
           checked={localSettings.showNutritionBadges}
           onCheckedChange={() => handleVisibilityToggle("showNutritionBadges")}
+          onSelect={(e) => e.preventDefault()}
         >
           Nutrition Info
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
           checked={localSettings.showPrepTime}
           onCheckedChange={() => handleVisibilityToggle("showPrepTime")}
+          onSelect={(e) => e.preventDefault()}
         >
           Prep Time
         </DropdownMenuCheckboxItem>

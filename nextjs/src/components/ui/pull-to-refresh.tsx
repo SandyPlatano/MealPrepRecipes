@@ -125,11 +125,11 @@ export function PullToRefresh({
             }}
           >
             {state === "refreshing" ? (
-              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <Loader2 className="size-6 animate-spin text-primary" />
             ) : (
               <ArrowDown
                 className={cn(
-                  "h-6 w-6 transition-transform duration-200",
+                  "size-6 transition-transform duration-200",
                   state === "ready" && "rotate-180 text-primary"
                 )}
               />

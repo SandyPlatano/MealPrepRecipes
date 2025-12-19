@@ -217,7 +217,7 @@ export function SidebarPinned({
       emoji={customEmoji || undefined}
       defaultOpen
     >
-      <div className="space-y-0.5">
+      <div className="flex flex-col gap-0.5">
         {pinnedItems.map((item) => (
           <PinnedItemRow
             key={`${item.type}-${item.id}`}

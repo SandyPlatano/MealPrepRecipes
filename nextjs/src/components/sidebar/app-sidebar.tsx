@@ -12,7 +12,6 @@ import { SidebarPinned } from "./sidebar-pinned";
 import { SidebarMealPlan } from "./sidebar-meal-plan";
 import { SidebarCollections } from "./sidebar-collections";
 import { SidebarBottomNav } from "./sidebar-bottom-nav";
-import { SidebarDivider } from "./sidebar-section";
 import { SidebarResizeHandle } from "./sidebar-resize-handle";
 import type {
   FolderWithChildren,
@@ -21,6 +20,7 @@ import type {
 import type { SystemSmartFolder } from "@/types/smart-folder";
 import type { SectionConfig, CustomSectionConfig } from "@/types/sidebar-customization";
 import { SidebarCustomSection } from "./sidebar-custom-section";
+import { SidebarDivider } from "./sidebar-section";
 
 export interface AppSidebarProps {
   user: User | null;
@@ -57,17 +57,13 @@ export function AppSidebar({
   const sidebarWidth = isCollapsed ? SIDEBAR_DIMENSIONS.MIN_WIDTH : width;
 
   // Helper function to render sections dynamically
-  const renderSection = (section: SectionConfig, index: number) => {
+  const renderSection = (section: SectionConfig) => {
     const key = section.id;
-    const showDivider = index > 0;
 
     // Custom sections
     if (section.type === "custom") {
       return (
-        <React.Fragment key={key}>
-          {showDivider && <SidebarDivider />}
-          <SidebarCustomSection section={section as CustomSectionConfig} />
-        </React.Fragment>
+        <SidebarCustomSection key={key} section={section as CustomSectionConfig} />
       );
     }
 
@@ -86,39 +82,27 @@ export function AppSidebar({
           />
         );
       case "pinned":
-        return (
-          <React.Fragment key={key}>
-            {showDivider && <SidebarDivider />}
-            <SidebarPinned />
-          </React.Fragment>
-        );
+        return <SidebarPinned key={key} />;
       case "meal-planning":
         return (
-          <React.Fragment key={key}>
-            {showDivider && <SidebarDivider />}
-            <SidebarMealPlan
-              shoppingListCount={shoppingListCount}
-              favoritesCount={favoritesCount}
-              customLabel={customLabel}
-              customIcon={customIcon}
-              customEmoji={customEmoji}
-            />
-          </React.Fragment>
+          <SidebarMealPlan
+            key={key}
+            shoppingListCount={shoppingListCount}
+            favoritesCount={favoritesCount}
+          />
         );
       case "collections":
         return (
-          <React.Fragment key={key}>
-            {showDivider && <SidebarDivider />}
-            <SidebarCollections
-              categories={categories}
-              systemSmartFolders={systemSmartFolders}
-              userSmartFolders={userSmartFolders}
-              totalRecipeCount={totalRecipeCount}
-              customLabel={customLabel}
-              customIcon={customIcon}
-              customEmoji={customEmoji}
-            />
-          </React.Fragment>
+          <SidebarCollections
+            key={key}
+            categories={categories}
+            systemSmartFolders={systemSmartFolders}
+            userSmartFolders={userSmartFolders}
+            totalRecipeCount={totalRecipeCount}
+            customLabel={customLabel}
+            customIcon={customIcon}
+            customEmoji={customEmoji}
+          />
         );
       default:
         return null;
@@ -147,7 +131,13 @@ export function AppSidebar({
         {/* Scrollable Content */}
         <ScrollArea className="flex-1">
           <div className="py-2">
-            {visibleSections.map((section, index) => renderSection(section, index))}
+            {visibleSections.map((section, index) => (
+              <div key={section.id}>
+                {/* Skip first divider - user area border-b provides separation */}
+                {index > 1 && <SidebarDivider />}
+                {renderSection(section)}
+              </div>
+            ))}
           </div>
         </ScrollArea>
 

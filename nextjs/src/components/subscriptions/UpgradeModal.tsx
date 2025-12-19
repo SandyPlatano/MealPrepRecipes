@@ -68,7 +68,7 @@ export function UpgradeModal({ open, onOpenChange, feature = 'AI Meal Suggestion
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex flex-col gap-4 py-4">
           <div className="flex items-start gap-3">
             <Sparkles className="h-5 w-5 shrink-0 text-coral-500 mt-0.5" />
             <div>

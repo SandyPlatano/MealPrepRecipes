@@ -269,7 +269,7 @@ function WeekProgressSection({
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         {/* Day Progress Circles */}
         <DayProgressCircles daysWithMeals={daysWithMeals} />
 
@@ -300,7 +300,7 @@ function MacroProgressCompact({
   }[progress.color];
 
   return (
-    <div className="space-y-1.5">
+    <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between text-sm">
         <span className="font-medium">{label}</span>
         <span className="font-mono text-muted-foreground tabular-nums">
@@ -409,9 +409,9 @@ function NutritionSummarySection({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         {/* Compact macro progress bars */}
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <MacroProgressCompact
             label={labels.calories}
             actual={progress.calories.actual}
@@ -457,7 +457,7 @@ function RepetitionWarningSection({ warnings }: RepetitionWarningSectionProps) {
           Recipe Diversity
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="flex flex-col gap-2">
         <p className="text-sm text-muted-foreground mb-3">
           These recipes appear frequently across your planned weeks:
         </p>
@@ -632,7 +632,7 @@ export function PlannerSummary({
   }
 
   return (
-    <div className="animate-slide-up-fade space-y-4 py-6">
+    <div className="animate-slide-up-fade flex flex-col gap-4 py-6">
       {/* Main content grid - responsive */}
       <div
         className={cn(

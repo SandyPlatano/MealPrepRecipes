@@ -88,7 +88,7 @@ export default function SignupPage() {
   if (success) {
     return (
       <Card>
-        <CardHeader className="space-y-1 text-center">
+        <CardHeader className="flex flex-col gap-1 text-center">
           <div className="flex justify-center mb-4">
             <CheckCircle2 className="h-12 w-12 text-green-500" />
           </div>
@@ -97,7 +97,7 @@ export default function SignupPage() {
             {success}
           </CardDescription>
         </CardHeader>
-        <CardFooter className="flex flex-col space-y-4">
+        <CardFooter className="flex flex-col gap-4">
           <p className="text-center text-sm text-muted-foreground">
             Already verified?{" "}
             <Link
@@ -114,21 +114,21 @@ export default function SignupPage() {
 
   return (
     <Card>
-      <CardHeader className="space-y-1">
+      <CardHeader className="flex flex-col gap-1">
         <CardTitle className="text-2xl">Create an account</CardTitle>
         <CardDescription>
           We&apos;ll send you a magic link to get started. No password needed!
         </CardDescription>
       </CardHeader>
       <form action={handleSubmit}>
-        <CardContent className="space-y-4">
+        <CardContent className="flex flex-col gap-4">
           {error && (
             <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
               {error}
             </div>
           )}
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="name">Name</Label>
             <Input
               id="name"
@@ -139,7 +139,7 @@ export default function SignupPage() {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -152,7 +152,7 @@ export default function SignupPage() {
           </div>
         </CardContent>
 
-        <CardFooter className="flex flex-col space-y-4">
+        <CardFooter className="flex flex-col gap-4">
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
               <>

@@ -111,7 +111,7 @@ function GoogleCallbackContent() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
-      <div className="text-center space-y-4 p-8">
+      <div className="text-center flex flex-col gap-4 p-8">
         {status === "loading" && (
           <>
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
@@ -153,7 +153,7 @@ export default function GoogleCallbackPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="text-center space-y-4 p-8">
+        <div className="text-center flex flex-col gap-4 p-8">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
           <p className="text-lg">Loading...</p>
         </div>

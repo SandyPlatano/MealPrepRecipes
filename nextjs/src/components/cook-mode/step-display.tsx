@@ -81,7 +81,7 @@ export function StepDisplay({
   const textParts = highlightIngredients(instruction);
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn("flex flex-col gap-4", className)}>
       {/* Step badge */}
       <div className="flex items-center justify-between gap-4">
         <Badge variant="secondary" className="text-base px-4 py-2">

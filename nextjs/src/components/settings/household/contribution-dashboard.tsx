@@ -90,10 +90,10 @@ export function ContributionDashboard({
             See who&apos;s been active in meal planning this week
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex flex-col gap-4">
           {/* Contribution highlights */}
           {prompts.length > 0 && (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {prompts.map((prompt, index) => (
                 <div
                   key={index}
@@ -106,13 +106,13 @@ export function ContributionDashboard({
           )}
 
           {/* Member contribution table */}
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             {contributions.map((member) => (
               <div
                 key={member.user_id}
                 className="flex items-center gap-4 p-3 rounded-lg border"
               >
-                <Avatar className="h-10 w-10">
+                <Avatar className="size-10">
                   <AvatarFallback>
                     {getMemberInitials(member)}
                   </AvatarFallback>
@@ -126,15 +126,15 @@ export function ContributionDashboard({
 
                 <div className="flex gap-4 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1" title="Meals Planned">
-                    <Calendar className="h-3.5 w-3.5" />
+                    <Calendar className="size-3.5" />
                     <span className="font-medium">{member.meals_planned}</span>
                   </div>
                   <div className="flex items-center gap-1" title="Meals Cooked">
-                    <ChefHat className="h-3.5 w-3.5" />
+                    <ChefHat className="size-3.5" />
                     <span className="font-medium">{member.meals_cooked}</span>
                   </div>
                   <div className="flex items-center gap-1" title="Items Added">
-                    <ShoppingCart className="h-3.5 w-3.5" />
+                    <ShoppingCart className="size-3.5" />
                     <span className="font-medium">{member.items_added}</span>
                   </div>
                 </div>
@@ -152,15 +152,15 @@ export function ContributionDashboard({
           {contributions.length > 0 && (
             <div className="flex items-center justify-center gap-6 pt-2 text-xs text-muted-foreground border-t">
               <div className="flex items-center gap-1.5">
-                <Calendar className="h-3.5 w-3.5" />
+                <Calendar className="size-3.5" />
                 <span>Planned</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <ChefHat className="h-3.5 w-3.5" />
+                <ChefHat className="size-3.5" />
                 <span>Cooked</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <ShoppingCart className="h-3.5 w-3.5" />
+                <ShoppingCart className="size-3.5" />
                 <span>Added</span>
               </div>
             </div>

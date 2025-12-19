@@ -11,7 +11,7 @@ export function CTASection() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
 
       <div className="container mx-auto px-4 relative">
-        <div className="max-w-2xl mx-auto text-center space-y-8">
+        <div className="max-w-2xl mx-auto text-center flex flex-col gap-8">
           {/* Icon */}
           <div className="flex justify-center">
             <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-sm">

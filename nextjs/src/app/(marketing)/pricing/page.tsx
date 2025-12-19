@@ -7,11 +7,11 @@ import { SUBSCRIPTION_TIERS } from "@/lib/stripe/client-config";
 
 export default function PricingPage() {
   return (
-    <div className="space-y-0">
+    <div className="flex flex-col gap-0">
       {/* Hero */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
+          <div className="max-w-3xl mx-auto text-center flex flex-col gap-6">
             <h1 className="text-4xl md:text-6xl font-mono font-bold tracking-tight">
               Simple, transparent pricing
             </h1>
@@ -180,7 +180,7 @@ export default function PricingPage() {
       {/* CTA */}
       <section className="py-20 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center space-y-6">
+          <div className="max-w-2xl mx-auto text-center flex flex-col gap-6">
             <h2 className="text-3xl md:text-4xl font-mono font-bold">
               Ready to start planning?
             </h2>

@@ -103,10 +103,10 @@ export function CustomizePresetModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex flex-col gap-4 py-4">
           {/* Macro inputs in a 2x2 grid */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="calories" className="text-sm">
                 Calories
               </Label>
@@ -121,7 +121,7 @@ export function CustomizePresetModal({
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="protein" className="text-sm">
                 Protein (g)
               </Label>
@@ -137,7 +137,7 @@ export function CustomizePresetModal({
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="carbs" className="text-sm">
                 Carbs (g)
               </Label>
@@ -153,7 +153,7 @@ export function CustomizePresetModal({
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="fat" className="text-sm">
                 Fat (g)
               </Label>
@@ -171,7 +171,7 @@ export function CustomizePresetModal({
           </div>
 
           {/* Note field */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="note" className="text-sm text-muted-foreground">
               Note (optional)
             </Label>

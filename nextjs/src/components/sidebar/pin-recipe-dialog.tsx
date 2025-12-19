@@ -81,7 +81,7 @@ export function PinRecipeDialog({ trigger }: PinRecipeDialogProps) {
           <DialogTitle>Pin a Recipe</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex flex-col gap-4 py-4">
           {/* Search Input */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -118,7 +118,7 @@ export function PinRecipeDialog({ trigger }: PinRecipeDialogProps) {
                 </p>
               </div>
             ) : (
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 {filteredRecipes.map((recipe) => {
                   const alreadyPinned = isPinned(recipe.id);
                   return (

@@ -3,7 +3,7 @@ import {
   getPublicProfile,
   getProfileStats,
   getCookPhotos,
-  getProfileReviews,
+  getProfileCookingHistory,
   getPublicRecipes,
 } from "@/app/actions/public-profile";
 import { isFollowingUser } from "@/app/actions/follows";
@@ -11,7 +11,7 @@ import {
   ProfileHeader,
   ProfileStatsCard,
   ProfileCookPhotos,
-  ProfileReviews,
+  ProfileCookingHistory,
 } from "@/components/profile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +36,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   }
 
   // Fetch additional data based on privacy settings
-  const [statsResult, photosResult, reviewsResult, recipesResult] =
+  const [statsResult, photosResult, cookingHistoryResult, recipesResult] =
     await Promise.all([
       profile.show_cooking_stats
         ? getProfileStats(profile.id)
@@ -45,18 +45,18 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         ? getCookPhotos(profile.id, 12)
         : Promise.resolve({ data: null, error: null }),
       profile.show_reviews
-        ? getProfileReviews(profile.id, 10)
+        ? getProfileCookingHistory(profile.id, 10)
         : Promise.resolve({ data: null, error: null }),
       getPublicRecipes(profile.id, { limit: 12 }),
     ]);
 
   const stats = statsResult.data;
   const cookPhotos = photosResult.data || [];
-  const reviews = reviewsResult.data || [];
+  const cookingHistory = cookingHistoryResult.data || [];
   const recipes = recipesResult.data || [];
 
   return (
-    <div className="container max-w-6xl mx-auto py-8 px-4 space-y-8">
+    <div className="container max-w-6xl mx-auto py-8 px-4 flex flex-col gap-8">
       {/* Profile Header */}
       <ProfileHeader profile={profile} />
 
@@ -94,7 +94,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                         />
                       </div>
                     )}
-                    <CardContent className="p-4 space-y-2">
+                    <CardContent className="p-4 flex flex-col gap-2">
                       <h3 className="font-semibold line-clamp-1">
                         {recipe.title}
                       </h3>
@@ -121,9 +121,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         <ProfileCookPhotos photos={cookPhotos} username={profile.username} />
       )}
 
-      {/* Reviews Written */}
-      {profile.show_reviews && reviews.length > 0 && (
-        <ProfileReviews reviews={reviews} username={profile.username} />
+      {/* Recipes Cooked */}
+      {profile.show_reviews && cookingHistory.length > 0 && (
+        <ProfileCookingHistory
+          entries={cookingHistory}
+          username={profile.username}
+        />
       )}
     </div>
   );

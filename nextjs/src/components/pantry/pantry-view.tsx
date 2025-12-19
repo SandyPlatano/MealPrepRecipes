@@ -100,7 +100,7 @@ export function PantryView({ initialItems }: PantryViewProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Add Item Form */}
       <Card>
         <CardHeader className="pb-3">
@@ -188,7 +188,7 @@ export function PantryView({ initialItems }: PantryViewProps) {
           variant="card"
         />
       ) : (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {sortedCategories.map((category) => (
             <PantryCategorySection
               key={category}
@@ -225,7 +225,7 @@ function PantryCategorySection({
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <ul className="space-y-2">
+        <ul className="flex flex-col gap-2">
           {items.map((item) => (
             <PantryItemRow key={item.id} item={item} onRemove={onRemove} />
           ))}

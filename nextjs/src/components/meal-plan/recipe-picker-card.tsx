@@ -42,14 +42,14 @@ export function RecipePickerCard({
       {/* Selection Indicator */}
       {isSelected && (
         <div className="absolute top-2 right-2 z-10 bg-primary text-primary-foreground rounded-full p-1">
-          <Check className="h-4 w-4" />
+          <Check className="size-4" />
         </div>
       )}
 
       {/* Favorite Badge */}
       {isFavorite && !isSelected && (
         <div className="absolute top-2 right-2 z-10">
-          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+          <Star className="size-4 fill-yellow-400 text-yellow-400" />
         </div>
       )}
 
@@ -65,7 +65,7 @@ export function RecipePickerCard({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <UtensilsCrossed className="h-12 w-12 text-muted-foreground/30" />
+            <UtensilsCrossed className="size-12 text-muted-foreground/30" />
           </div>
         )}
       </div>
@@ -89,7 +89,7 @@ export function RecipePickerCard({
           {/* Time - Show cook_time if available, otherwise prep_time */}
           {(recipe.prep_time || recipe.cook_time) && (
             <div className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
+              <Clock className="size-3" />
               <span>{recipe.cook_time || recipe.prep_time}</span>
             </div>
           )}

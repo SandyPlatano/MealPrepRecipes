@@ -60,13 +60,13 @@ export function NutritionTipCard({ todaysSummary, className }: NutritionTipCardP
           {tipConfig.title}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="flex flex-col gap-3">
         <p className="text-sm text-muted-foreground">
           {tipConfig.message}
         </p>
 
         {tipConfig.suggestions && tipConfig.suggestions.length > 0 && (
-          <div className="space-y-1.5">
+          <div className="flex flex-col gap-1.5">
             {tipConfig.suggestions.map((suggestion, index) => (
               <div
                 key={index}

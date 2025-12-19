@@ -34,7 +34,7 @@ export default async function DiscoverPage() {
   const recentlyCookedIds = Array.from(new Set(recentHistory?.map((h) => h.recipe_id) || []));
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       {/* Header */}
       <div>
         <h1 className="text-4xl font-mono font-bold tracking-tight">Discover Recipes</h1>

@@ -15,7 +15,7 @@ export function StatsSidebar() {
         <h2 className="font-mono font-semibold text-lg">Stats</h2>
       </div>
       <ScrollArea className="flex-1">
-        <nav className="p-3 space-y-1">
+        <nav className="p-3 flex flex-col gap-1">
           {STATS_CATEGORIES.map((category) => {
             const Icon = category.icon;
             const isActive =

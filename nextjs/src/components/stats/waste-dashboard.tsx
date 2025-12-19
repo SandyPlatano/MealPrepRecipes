@@ -137,7 +137,7 @@ export function WasteDashboard({ className }: WasteDashboardProps) {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Utensils className="h-4 w-4" />
                   <span className="text-xs">Meals</span>
@@ -150,7 +150,7 @@ export function WasteDashboard({ className }: WasteDashboardProps) {
                 </p>
               </div>
 
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <ShoppingCart className="h-4 w-4" />
                   <span className="text-xs">Shopping</span>
@@ -164,7 +164,7 @@ export function WasteDashboard({ className }: WasteDashboardProps) {
                 </p>
               </div>
 
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Leaf className="h-4 w-4" />
                   <span className="text-xs">Waste Saved</span>
@@ -175,7 +175,7 @@ export function WasteDashboard({ className }: WasteDashboardProps) {
                 <p className="text-xs text-muted-foreground">this week</p>
               </div>
 
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <DollarSign className="h-4 w-4" />
                   <span className="text-xs">Money Saved</span>

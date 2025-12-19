@@ -80,16 +80,18 @@ function ResultItem({ item, isSelected, onSelect, onHover }: ResultItemProps) {
 
   return (
     <button
+      type="button"
       ref={ref}
       onClick={onSelect}
       onMouseEnter={onHover}
       className={cn(
-        "w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors",
+        // Larger touch targets on mobile (min 48px height)
+        "w-full flex items-center gap-3 p-3 sm:p-3 min-h-[56px] sm:min-h-0 rounded-lg text-left transition-colors active:scale-[0.98]",
         isSelected ? "bg-accent" : "hover:bg-accent/50"
       )}
     >
-      {/* Image or Icon */}
-      <div className="flex-shrink-0 w-10 h-10 rounded-md overflow-hidden bg-muted flex items-center justify-center">
+      {/* Image or Icon - slightly larger on mobile */}
+      <div className="flex-shrink-0 w-12 h-12 sm:w-10 sm:h-10 rounded-md overflow-hidden bg-muted flex items-center justify-center">
         {item.imageUrl ? (
           <img
             src={item.imageUrl}
@@ -97,21 +99,21 @@ function ResultItem({ item, isSelected, onSelect, onHover }: ResultItemProps) {
             className="w-full h-full object-cover"
           />
         ) : IconComponent ? (
-          <IconComponent className="h-5 w-5 text-muted-foreground" />
+          <IconComponent className="h-6 w-6 sm:h-5 sm:w-5 text-muted-foreground" />
         ) : item.type === "recipe" ? (
-          <BookOpen className="h-5 w-5 text-muted-foreground" />
+          <BookOpen className="h-6 w-6 sm:h-5 sm:w-5 text-muted-foreground" />
         ) : item.type === "profile" ? (
-          <User className="h-5 w-5 text-muted-foreground" />
+          <User className="h-6 w-6 sm:h-5 sm:w-5 text-muted-foreground" />
         ) : (
-          <Zap className="h-5 w-5 text-muted-foreground" />
+          <Zap className="h-6 w-6 sm:h-5 sm:w-5 text-muted-foreground" />
         )}
       </div>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <div className="font-medium text-sm truncate">{item.label}</div>
+        <div className="font-medium text-base sm:text-sm truncate">{item.label}</div>
         {item.subtitle && (
-          <div className="text-xs text-muted-foreground truncate mt-0.5">
+          <div className="text-sm sm:text-xs text-muted-foreground truncate mt-0.5">
             {item.subtitle}
           </div>
         )}
@@ -160,16 +162,18 @@ function RecentItemButton({ item, isSelected, onSelect, onHover }: RecentItemPro
 
   return (
     <button
+      type="button"
       ref={ref}
       onClick={onSelect}
       onMouseEnter={onHover}
       className={cn(
-        "w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors",
+        // Larger touch targets on mobile
+        "w-full flex items-center gap-3 p-3 min-h-[52px] sm:min-h-0 rounded-lg text-left transition-colors active:scale-[0.98]",
         isSelected ? "bg-accent" : "hover:bg-accent/50"
       )}
     >
-      {/* Image or Icon */}
-      <div className="flex-shrink-0 w-8 h-8 rounded-md overflow-hidden bg-muted flex items-center justify-center">
+      {/* Image or Icon - slightly larger on mobile */}
+      <div className="flex-shrink-0 w-10 h-10 sm:w-8 sm:h-8 rounded-md overflow-hidden bg-muted flex items-center justify-center">
         {item.imageUrl ? (
           <img
             src={item.imageUrl}
@@ -177,21 +181,21 @@ function RecentItemButton({ item, isSelected, onSelect, onHover }: RecentItemPro
             className="w-full h-full object-cover"
           />
         ) : IconComponent ? (
-          <IconComponent className="h-4 w-4 text-muted-foreground" />
+          <IconComponent className="h-5 w-5 sm:h-4 sm:w-4 text-muted-foreground" />
         ) : item.type === "recipe" ? (
-          <BookOpen className="h-4 w-4 text-muted-foreground" />
+          <BookOpen className="h-5 w-5 sm:h-4 sm:w-4 text-muted-foreground" />
         ) : item.type === "profile" ? (
-          <User className="h-4 w-4 text-muted-foreground" />
+          <User className="h-5 w-5 sm:h-4 sm:w-4 text-muted-foreground" />
         ) : (
-          <Clock className="h-4 w-4 text-muted-foreground" />
+          <Clock className="h-5 w-5 sm:h-4 sm:w-4 text-muted-foreground" />
         )}
       </div>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <div className="font-medium text-sm truncate">{item.label}</div>
+        <div className="font-medium text-base sm:text-sm truncate">{item.label}</div>
         {item.subtitle && (
-          <div className="text-xs text-muted-foreground truncate">
+          <div className="text-sm sm:text-xs text-muted-foreground truncate">
             {item.subtitle}
           </div>
         )}
@@ -316,17 +320,25 @@ export function GlobalSearchModal() {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && closeSearch()}>
       <DialogContent
-        className="max-w-2xl p-0 gap-0 overflow-hidden"
+        className={cn(
+          "p-0 gap-0 overflow-hidden",
+          // Mobile: full-width, positioned at top for keyboard visibility
+          "fixed left-0 right-0 top-0 translate-x-0 translate-y-0 w-full max-w-none rounded-none rounded-b-xl",
+          "max-h-[85vh] sm:max-h-none",
+          // Desktop: centered, larger width
+          "sm:left-[50%] sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%]",
+          "sm:w-[calc(100%-2rem)] sm:max-w-3xl sm:rounded-xl"
+        )}
         onKeyDown={handleKeyDown}
       >
         <DialogTitle className="sr-only">Search</DialogTitle>
 
-        {/* Search Input */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b">
+        {/* Search Input - larger on mobile for better touch targets */}
+        <div className="flex items-center gap-3 px-4 py-4 sm:py-3 border-b">
           {isLoading ? (
-            <Loader2 className="h-5 w-5 text-muted-foreground animate-spin flex-shrink-0" />
+            <Loader2 className="h-6 w-6 sm:h-5 sm:w-5 text-muted-foreground animate-spin flex-shrink-0" />
           ) : (
-            <Search className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+            <Search className="h-6 w-6 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0" />
           )}
           <Input
             ref={inputRef}
@@ -334,15 +346,25 @@ export function GlobalSearchModal() {
             placeholder="Search recipes, actions, people..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="border-0 p-0 h-auto text-base focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60"
+            className="border-0 p-0 h-auto text-lg sm:text-base focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60"
           />
           <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
             ESC
           </kbd>
+          {/* Mobile close button - larger touch target */}
+          <button
+            onClick={closeSearch}
+            className="sm:hidden p-2 -m-2 rounded-full hover:bg-accent text-muted-foreground"
+            aria-label="Close search"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        {/* Results Area */}
-        <div className="max-h-[60vh] overflow-y-auto">
+        {/* Results Area - taller on mobile */}
+        <div className="max-h-[calc(85vh-120px)] sm:max-h-[70vh] overflow-y-auto">
           {/* Recent Items */}
           {showRecents && (
             <div className="py-2">
@@ -453,8 +475,8 @@ export function GlobalSearchModal() {
           )}
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between px-4 py-2 border-t bg-muted/30 text-xs text-muted-foreground">
+        {/* Footer - hidden on mobile since keyboard hints aren't relevant */}
+        <div className="hidden sm:flex items-center justify-between px-4 py-2 border-t bg-muted/30 text-xs text-muted-foreground">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">
               <kbd className="inline-flex h-5 items-center rounded border bg-background px-1.5 font-mono text-[10px]">

@@ -25,7 +25,7 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Current Streak */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Flame className="h-4 w-4 text-orange-500" />
               <span className="text-sm font-medium">Current Streak</span>
@@ -42,7 +42,7 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
           </div>
 
           {/* Longest Streak */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Trophy className="h-4 w-4 text-yellow-500" />
               <span className="text-sm font-medium">Best Streak</span>
@@ -59,7 +59,7 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
           </div>
 
           {/* Total Meals Cooked */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-muted-foreground">
               <ChefHat className="h-4 w-4 text-blue-500" />
               <span className="text-sm font-medium">Meals Cooked</span>
@@ -74,7 +74,7 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
           </div>
 
           {/* Recipes Tried */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-muted-foreground">
               <BookOpen className="h-4 w-4 text-purple-500" />
               <span className="text-sm font-medium">Recipes Tried</span>
@@ -91,7 +91,7 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
 
         {/* Weekly Progress */}
         {stats.weekly_target > 0 && (
-          <div className="mt-6 p-4 rounded-lg bg-muted/50 space-y-3">
+          <div className="mt-6 p-4 rounded-lg bg-muted/50 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Target className="h-4 w-4 text-green-500" />

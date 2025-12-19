@@ -58,15 +58,15 @@ export function SoundsSection({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Master Audio Toggle */}
       <div className="flex items-center justify-between">
-        <div className="space-y-0.5">
+        <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2">
             {preferences.enabled ? (
-              <Volume2 className="h-4 w-4 text-muted-foreground" />
+              <Volume2 className="size-4 text-muted-foreground" />
             ) : (
-              <VolumeX className="h-4 w-4 text-muted-foreground" />
+              <VolumeX className="size-4 text-muted-foreground" />
             )}
             <Label>Enable Sounds</Label>
           </div>
@@ -84,9 +84,9 @@ export function SoundsSection({
         <>
           {/* Timer Complete Sound */}
           <Card className="p-4">
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
-                <Bell className="h-4 w-4 text-muted-foreground" />
+                <Bell className="size-4 text-muted-foreground" />
                 <Label>Timer Complete</Label>
               </div>
               <p className="text-xs text-muted-foreground">
@@ -118,7 +118,7 @@ export function SoundsSection({
                   onClick={() => playSound(preferences.timerComplete)}
                   title="Preview sound"
                 >
-                  <Play className="h-4 w-4" />
+                  <Play className="size-4" />
                 </Button>
               </div>
             </div>
@@ -126,9 +126,9 @@ export function SoundsSection({
 
           {/* Notification Sound */}
           <Card className="p-4">
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                <MessageSquare className="size-4 text-muted-foreground" />
                 <Label>Notification</Label>
               </div>
               <p className="text-xs text-muted-foreground">
@@ -160,7 +160,7 @@ export function SoundsSection({
                   onClick={() => playSound(preferences.notification)}
                   title="Preview sound"
                 >
-                  <Play className="h-4 w-4" />
+                  <Play className="size-4" />
                 </Button>
               </div>
             </div>
@@ -168,9 +168,9 @@ export function SoundsSection({
 
           {/* Achievement Sound */}
           <Card className="p-4">
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
-                <Trophy className="h-4 w-4 text-muted-foreground" />
+                <Trophy className="size-4 text-muted-foreground" />
                 <Label>Achievement</Label>
               </div>
               <p className="text-xs text-muted-foreground">
@@ -202,7 +202,7 @@ export function SoundsSection({
                   onClick={() => playSound(preferences.achievement)}
                   title="Preview sound"
                 >
-                  <Play className="h-4 w-4" />
+                  <Play className="size-4" />
                 </Button>
               </div>
             </div>

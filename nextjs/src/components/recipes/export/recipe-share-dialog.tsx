@@ -212,10 +212,10 @@ export function RecipeShareDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="flex flex-col">
             {/* Public Toggle */}
             <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
-              <div className="space-y-1">
+              <div className="flex flex-col">
                 <div className="flex items-center gap-2">
                   {isPublic ? (
                     <Globe className="h-4 w-4 text-green-600" />
@@ -241,14 +241,14 @@ export function RecipeShareDialog({
             </div>
 
             {/* Share Link */}
-            <div className="space-y-2">
+            <div className="flex flex-col">
               <Label className="flex items-center gap-2 text-sm">
                 <Link2 className="h-4 w-4" />
                 Private Share Link
               </Label>
 
               {shareUrl ? (
-                <div className="space-y-2">
+                <div className="flex flex-col">
                   <div className="flex gap-2">
                     <Input
                       value={shareUrl}

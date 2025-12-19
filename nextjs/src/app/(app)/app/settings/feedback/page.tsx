@@ -66,7 +66,7 @@ export default function FeedbackSettingsPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <SettingsHeader
         title="Feedback"
         description="Share your thoughts and help improve the app"
@@ -92,11 +92,11 @@ export default function FeedbackSettingsPage() {
         description="Tell me what's on your mind - no categories, no pressure"
       >
         {submitted ? (
-          <div className="py-8 text-center space-y-4">
+          <div className="py-8 text-center flex flex-col gap-4">
             <div className="mx-auto w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
               <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <h3 className="font-medium text-lg">Thank you!</h3>
               <p className="text-muted-foreground text-sm max-w-sm mx-auto">
                 Your feedback means a lot. I&apos;ll review it soon and reach
@@ -108,8 +108,8 @@ export default function FeedbackSettingsPage() {
             </Button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4 py-2">
-            <div className="space-y-2">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
+            <div className="flex flex-col gap-2">
               <Textarea
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}

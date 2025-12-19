@@ -64,7 +64,7 @@ export default async function FinalizePage({ searchParams }: FinalizePageProps) 
   const nutritionDashboard = nutritionResult.data;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-mono font-bold">Review Your Plan</h1>
         <p className="text-muted-foreground mt-1">

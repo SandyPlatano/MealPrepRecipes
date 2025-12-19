@@ -55,7 +55,7 @@ export function ApiCostsSection({ isAdmin = false }: ApiCostsSectionProps) {
     <Card className="border-amber-500/50 bg-amber-50/50 dark:bg-amber-950/20">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <DollarSign className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+          <DollarSign className="size-5 text-amber-600 dark:text-amber-400" />
           API Costs (Admin Only)
         </CardTitle>
         <CardDescription>
@@ -65,7 +65,7 @@ export function ApiCostsSection({ isAdmin = false }: ApiCostsSectionProps) {
       <CardContent>
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <Loader2 className="size-6 animate-spin text-muted-foreground" />
           </div>
         ) : error ? (
           <p className="text-sm text-destructive">{error}</p>
@@ -74,7 +74,7 @@ export function ApiCostsSection({ isAdmin = false }: ApiCostsSectionProps) {
             No nutrition extraction costs found yet.
           </p>
         ) : (
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             {/* Summary Stats */}
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-3 bg-background rounded-lg border">
@@ -98,9 +98,9 @@ export function ApiCostsSection({ isAdmin = false }: ApiCostsSectionProps) {
             </div>
 
             {/* Recent Extractions */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <h4 className="text-sm font-medium">Recent Extractions</h4>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
+              <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
                 {costData.recipes.slice(0, 5).map((recipe) => (
                   <div
                     key={recipe.recipe_id}

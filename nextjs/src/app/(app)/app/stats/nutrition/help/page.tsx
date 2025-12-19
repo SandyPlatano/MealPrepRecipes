@@ -16,7 +16,7 @@ import {
 
 export default function NutritionHelpPage() {
   return (
-    <div className="space-y-8 pb-24 md:pb-8">
+    <div className="flex flex-col gap-8 pb-24 md:pb-8">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link href="/app/stats/nutrition">
@@ -42,7 +42,7 @@ export default function NutritionHelpPage() {
           </CardTitle>
           <CardDescription>Get started with nutrition tracking in 3 steps</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex flex-col gap-4">
           <div className="flex gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">
               1
@@ -88,13 +88,13 @@ export default function NutritionHelpPage() {
               AI Extraction
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm">
+          <CardContent className="flex flex-col gap-2 text-sm">
             <p className="text-muted-foreground">
               Nutrition data is automatically extracted from your recipe ingredients using AI.
             </p>
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <p className="font-medium">When it happens:</p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-1">
+              <ul className="list-disc list-inside text-muted-foreground flex flex-col gap-1">
                 <li>Creating new recipes</li>
                 <li>Editing recipe ingredients</li>
                 <li>Using batch extraction tool</li>
@@ -110,13 +110,13 @@ export default function NutritionHelpPage() {
               Manual Entry
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm">
+          <CardContent className="flex flex-col gap-2 text-sm">
             <p className="text-muted-foreground">
               You can always edit or manually enter nutrition values.
             </p>
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <p className="font-medium">How to edit:</p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-1">
+              <ul className="list-disc list-inside text-muted-foreground flex flex-col gap-1">
                 <li>Open recipe detail page</li>
                 <li>Find Nutrition Facts card</li>
                 <li>Click edit button (pencil icon)</li>
@@ -132,13 +132,13 @@ export default function NutritionHelpPage() {
               Goal Tracking
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm">
+          <CardContent className="flex flex-col gap-2 text-sm">
             <p className="text-muted-foreground">
               Set daily macro goals and track your progress over time.
             </p>
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <p className="font-medium">Progress indicators:</p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-1">
+              <ul className="list-disc list-inside text-muted-foreground flex flex-col gap-1">
                 <li>Green ring: Meeting goals</li>
                 <li>Yellow ring: Close to goals (80-100%)</li>
                 <li>Red ring: Below goals (&lt;80%)</li>
@@ -154,13 +154,13 @@ export default function NutritionHelpPage() {
               History & Trends
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm">
+          <CardContent className="flex flex-col gap-2 text-sm">
             <p className="text-muted-foreground">
               View your nutrition history and identify patterns over time.
             </p>
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <p className="font-medium">What you&apos;ll see:</p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-1">
+              <ul className="list-disc list-inside text-muted-foreground flex flex-col gap-1">
                 <li>Current week dashboard</li>
                 <li>Weekly averages</li>
                 <li>Trend graphs (last 12 weeks)</li>
@@ -176,8 +176,8 @@ export default function NutritionHelpPage() {
           <CardTitle>Where to Find Nutrition Data</CardTitle>
           <CardDescription>Nutrition information appears in multiple places</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="space-y-2">
+        <CardContent className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             <div className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
               <div>
@@ -227,17 +227,17 @@ export default function NutritionHelpPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <div>
               <p className="font-medium text-sm">Use Specific Ingredients</p>
-              <div className="mt-1 space-y-1">
+              <div className="mt-1 flex flex-col gap-1">
                 <p className="text-sm text-green-600">Good: &quot;2 cups whole milk&quot;</p>
                 <p className="text-sm text-red-600">Bad: &quot;Some milk&quot;</p>
               </div>
             </div>
             <div>
               <p className="font-medium text-sm">Include Quantities</p>
-              <div className="mt-1 space-y-1">
+              <div className="mt-1 flex flex-col gap-1">
                 <p className="text-sm text-green-600">Good: &quot;1 lb ground beef (85% lean)&quot;</p>
                 <p className="text-sm text-red-600">Bad: &quot;Ground beef&quot;</p>
               </div>
@@ -270,7 +270,7 @@ export default function NutritionHelpPage() {
           <p className="text-sm text-muted-foreground mb-4">
             AI-extracted nutrition includes a confidence score (0.0 - 1.0) indicating accuracy:
           </p>
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20">
                 0.9 - 1.0
@@ -304,7 +304,7 @@ export default function NutritionHelpPage() {
         <CardHeader>
           <CardTitle>Common Issues & Solutions</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex flex-col gap-4">
           <div>
             <p className="font-medium text-sm">Nutrition not auto-extracting?</p>
             <p className="text-sm text-muted-foreground mt-1">
@@ -331,7 +331,7 @@ export default function NutritionHelpPage() {
         <CardHeader>
           <CardTitle>Additional Resources</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium text-sm">Settings</p>

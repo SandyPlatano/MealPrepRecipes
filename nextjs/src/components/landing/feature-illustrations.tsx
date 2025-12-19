@@ -162,7 +162,7 @@ export function ShoppingIllustration() {
       <div className="text-[10px] text-cream/40 uppercase tracking-wider mb-2">
         Shopping List
       </div>
-      <div className="space-y-1.5">
+      <div className="flex flex-col gap-1.5">
         {items.map((item, i) => (
           <div
             key={i}
@@ -234,9 +234,9 @@ export function NutritionIllustration() {
       <div className="text-[10px] text-cream/40 uppercase tracking-wider mb-3">
         Today&apos;s Macros
       </div>
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         {macros.map((macro) => (
-          <div key={macro.name} className="space-y-1">
+          <div key={macro.name} className="flex flex-col gap-1">
             <div className="flex justify-between text-[10px]">
               <span className="text-cream/60">{macro.name}</span>
               <span className="text-cream font-mono">
@@ -278,7 +278,7 @@ export function PantryIllustration() {
       <div className="text-[10px] text-cream/40 uppercase tracking-wider mb-2">
         Pantry
       </div>
-      <div className="space-y-1">
+      <div className="flex flex-col gap-1">
         {items.map((item, i) => (
           <div
             key={i}

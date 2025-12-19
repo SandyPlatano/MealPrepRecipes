@@ -111,7 +111,7 @@ export function AddToFolderSheet({
               No folders yet. Create one to organize your recipes.
             </p>
           ) : (
-            <div className="space-y-1 pb-4">
+            <div className="flex flex-col gap-1 pb-4">
               {flatFolders.map(({ folder, depth }) => (
                 <button
                   key={folder.id}

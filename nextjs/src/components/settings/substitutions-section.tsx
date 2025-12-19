@@ -160,7 +160,7 @@ export function SubstitutionsSection({
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
             <RefreshCw className="h-4 w-4 text-primary" />
           </div>
-          <div className="space-y-0.5">
+          <div className="flex flex-col gap-0.5">
             <CardTitle className="text-base">Ingredient Substitutions</CardTitle>
             <CardDescription>
               Define ingredient substitutions to see alternatives when viewing recipes
@@ -170,9 +170,9 @@ export function SubstitutionsSection({
       </CardHeader>
       <Separator className="mb-0" />
 
-      <CardContent className="pt-6 space-y-6">
+      <CardContent className="pt-6 flex flex-col gap-6">
         {/* User's Custom Substitutions */}
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <Label className="text-base font-medium">Your Substitutions</Label>
             {!isAdding && (
@@ -190,9 +190,9 @@ export function SubstitutionsSection({
 
           {/* Add new substitution form */}
           {isAdding && (
-            <div className="border rounded-lg p-4 space-y-3 bg-muted/50">
+            <div className="border rounded-lg p-4 flex flex-col gap-3 bg-muted/50">
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1">
+                <div className="flex flex-col gap-1">
                   <Label htmlFor="new-original" className="text-xs">
                     Original Ingredient
                   </Label>
@@ -204,7 +204,7 @@ export function SubstitutionsSection({
                     disabled={isSaving}
                   />
                 </div>
-                <div className="space-y-1">
+                <div className="flex flex-col gap-1">
                   <Label htmlFor="new-substitute" className="text-xs">
                     Substitute With
                   </Label>
@@ -217,7 +217,7 @@ export function SubstitutionsSection({
                   />
                 </div>
               </div>
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <Label htmlFor="new-notes" className="text-xs">
                   Notes (optional)
                 </Label>
@@ -257,7 +257,7 @@ export function SubstitutionsSection({
               suggestions.
             </p>
           ) : (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {userSubstitutions.map((sub) => (
                 <div
                   key={sub.id}
@@ -265,9 +265,9 @@ export function SubstitutionsSection({
                 >
                   {editingId === sub.id ? (
                     // Edit mode
-                    <div className="flex-1 space-y-3">
+                    <div className="flex-1 flex flex-col gap-3">
                       <div className="grid gap-3 sm:grid-cols-2">
-                        <div className="space-y-1">
+                        <div className="flex flex-col gap-1">
                           <Label className="text-xs">Original</Label>
                           <Input
                             value={editOriginal}
@@ -275,7 +275,7 @@ export function SubstitutionsSection({
                             disabled={isSaving}
                           />
                         </div>
-                        <div className="space-y-1">
+                        <div className="flex flex-col gap-1">
                           <Label className="text-xs">Substitute</Label>
                           <Input
                             value={editSubstitute}
@@ -284,7 +284,7 @@ export function SubstitutionsSection({
                           />
                         </div>
                       </div>
-                      <div className="space-y-1">
+                      <div className="flex flex-col gap-1">
                         <Label className="text-xs">Notes</Label>
                         <Input
                           value={editNotes}
@@ -371,7 +371,7 @@ export function SubstitutionsSection({
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-2">
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {defaultSubstitutions.map((sub) => (
                 <div
                   key={sub.id}

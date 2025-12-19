@@ -198,7 +198,7 @@ export function TimerPanel({
   }
 
   return (
-    <Card className={cn("p-4 space-y-4", className)}>
+    <Card className={cn("p-4 flex flex-col gap-4", className)}>
       <div className="flex items-center justify-between">
         <h3 className="font-semibold">Active Timers</h3>
         <Button variant="outline" size="sm" onClick={onAddTimer}>
@@ -207,7 +207,7 @@ export function TimerPanel({
         </Button>
       </div>
 
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         {activeTimers.map((timer) => (
           <div
             key={timer.id}

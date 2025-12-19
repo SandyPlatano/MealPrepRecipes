@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    // Allow production builds to complete even with linting errors
-    ignoreDuringBuilds: true,
+  // Enable Turbopack filesystem caching for faster dev restarts
+  experimental: {
+    turbopackFileSystemCacheForDev: true,
   },
   typescript: {
     // Allow production builds to complete even with type errors

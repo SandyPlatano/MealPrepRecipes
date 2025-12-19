@@ -81,18 +81,18 @@ export function PricingCardsClient() {
             <span className="text-muted-foreground ml-2">forever</span>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="flex flex-col gap-6">
           <Link href="/signup" className="block">
             <Button className="w-full" size="lg">
               Get Started Free
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
               Includes:
             </p>
-            <ul className="space-y-3">
+            <ul className="flex flex-col gap-3">
               {SUBSCRIPTION_TIERS.free.features.map((feature, idx) => (
                 <li key={idx} className="flex items-start gap-3">
                   <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
@@ -120,7 +120,7 @@ export function PricingCardsClient() {
             <span className="text-muted-foreground ml-2">per month</span>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="flex flex-col gap-6">
           <Button
             className="w-full"
             size="lg"
@@ -139,11 +139,11 @@ export function PricingCardsClient() {
               </>
             )}
           </Button>
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
               Everything in Free, plus:
             </p>
-            <ul className="space-y-3">
+            <ul className="flex flex-col gap-3">
               {SUBSCRIPTION_TIERS.pro.features.map((feature, idx) => (
                 <li key={idx} className="flex items-start gap-3">
                   <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
@@ -167,7 +167,7 @@ export function PricingCardsClient() {
             <span className="text-muted-foreground ml-2">per month</span>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="flex flex-col gap-6">
           <Button
             className="w-full"
             size="lg"
@@ -187,11 +187,11 @@ export function PricingCardsClient() {
               </>
             )}
           </Button>
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
               Everything in Pro, plus:
             </p>
-            <ul className="space-y-3">
+            <ul className="flex flex-col gap-3">
               {SUBSCRIPTION_TIERS.premium.features.map((feature, idx) => (
                 <li key={idx} className="flex items-start gap-3">
                   <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />

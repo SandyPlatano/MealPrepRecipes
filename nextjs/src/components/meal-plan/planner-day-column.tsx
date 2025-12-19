@@ -121,7 +121,7 @@ export function PlannerDayColumn({
       </div>
 
       {/* Meals List */}
-      <div className="flex-1 p-2 space-y-2">
+      <div className="flex-1 p-2 flex flex-col gap-2">
         {assignments.map((assignment) => (
           <MealCell
             key={assignment.id}

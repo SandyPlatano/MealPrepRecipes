@@ -332,16 +332,16 @@ export function ShareExportSheet({
         {/* Header */}
         <div className="flex items-center justify-between px-4 pb-3">
           <div className="flex items-center gap-2">
-            <Share2 className="h-5 w-5 text-primary" />
+            <Share2 className="size-5 text-primary" />
             <span className="text-lg font-semibold">Share & Export</span>
           </div>
           <Button
             variant="ghost"
             size="icon"
-            className="h-10 w-10 rounded-full"
+            className="size-10 rounded-full"
             onClick={onClose}
           >
-            <ChevronDown className="h-5 w-5" />
+            <ChevronDown className="size-5" />
           </Button>
         </div>
 
@@ -364,12 +364,12 @@ export function ShareExportSheet({
 
             {/* Public Toggle */}
             <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30 mb-3">
-              <div className="space-y-1">
+              <div className="flex flex-col">
                 <div className="flex items-center gap-2">
                   {isPublic ? (
-                    <Globe className="h-4 w-4 text-green-600" />
+                    <Globe className="size-4 text-green-600" />
                   ) : (
-                    <Lock className="h-4 w-4 text-muted-foreground" />
+                    <Lock className="size-4 text-muted-foreground" />
                   )}
                   <Label htmlFor="public-toggle" className="font-medium">
                     Make Public
@@ -390,14 +390,14 @@ export function ShareExportSheet({
             </div>
 
             {/* Share Link */}
-            <div className="space-y-2">
+            <div className="flex flex-col">
               <Label className="flex items-center gap-2 text-sm">
-                <Link2 className="h-4 w-4" />
+                <Link2 className="size-4" />
                 Private Share Link
               </Label>
 
               {shareUrl ? (
-                <div className="space-y-2">
+                <div className="flex flex-col">
                   <div className="flex gap-2">
                     <Input
                       value={shareUrl}
@@ -411,9 +411,9 @@ export function ShareExportSheet({
                       className="shrink-0"
                     >
                       {copied ? (
-                        <Check className="h-4 w-4 text-green-600" />
+                        <Check className="size-4 text-green-600" />
                       ) : (
-                        <Copy className="h-4 w-4" />
+                        <Copy className="size-4" />
                       )}
                     </Button>
                   </div>
@@ -425,9 +425,9 @@ export function ShareExportSheet({
                     className="text-destructive hover:text-destructive"
                   >
                     {isLoading ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="size-4 mr-2 animate-spin" />
                     ) : (
-                      <RefreshCw className="h-4 w-4 mr-2" />
+                      <RefreshCw className="size-4 mr-2" />
                     )}
                     Revoke Link
                   </Button>
@@ -440,9 +440,9 @@ export function ShareExportSheet({
                   className="w-full"
                 >
                   {isLoading ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="size-4 mr-2 animate-spin" />
                   ) : (
-                    <Link2 className="h-4 w-4 mr-2" />
+                    <Link2 className="size-4 mr-2" />
                   )}
                   Generate Share Link
                 </Button>
@@ -456,7 +456,7 @@ export function ShareExportSheet({
             {(analytics || viewCount > 0) && (
               <div className="mt-4 pt-4 border-t">
                 <Label className="flex items-center gap-2 mb-3 text-sm">
-                  <Eye className="h-4 w-4" />
+                  <Eye className="size-4" />
                   Share Analytics
                 </Label>
                 <div className="grid grid-cols-2 gap-3">
@@ -495,7 +495,7 @@ export function ShareExportSheet({
             {/* Warning for public without username */}
             {!hasUsername && (
               <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 mt-4">
-                <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5" />
+                <AlertTriangle className="size-4 text-amber-600 mt-0.5" />
                 <div className="text-sm">
                   <p className="font-medium text-amber-800 dark:text-amber-200">
                     Username required
@@ -526,9 +526,9 @@ export function ShareExportSheet({
                 disabled={exportingPdf}
               >
                 {exportingPdf ? (
-                  <Loader2 className="h-6 w-6 animate-spin" />
+                  <Loader2 className="size-6 animate-spin" />
                 ) : (
-                  <FileDown className="h-6 w-6" />
+                  <FileDown className="size-6" />
                 )}
                 <span className="text-xs">PDF</span>
               </Button>
@@ -542,9 +542,9 @@ export function ShareExportSheet({
                     disabled={exportingMarkdown}
                   >
                     {exportingMarkdown ? (
-                      <Loader2 className="h-6 w-6 animate-spin" />
+                      <Loader2 className="size-6 animate-spin" />
                     ) : (
-                      <FileText className="h-6 w-6" />
+                      <FileText className="size-6" />
                     )}
                     <span className="text-xs flex items-center gap-1">
                       Markdown
@@ -554,11 +554,11 @@ export function ShareExportSheet({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="center">
                   <DropdownMenuItem onClick={handleCopyMarkdown}>
-                    <Clipboard className="h-4 w-4 mr-2" />
+                    <Clipboard className="size-4 mr-2" />
                     Copy to Clipboard
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleDownloadMarkdown}>
-                    <Download className="h-4 w-4 mr-2" />
+                    <Download className="size-4 mr-2" />
                     Download .md
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -572,9 +572,9 @@ export function ShareExportSheet({
                 disabled={exportingImage}
               >
                 {exportingImage ? (
-                  <Loader2 className="h-6 w-6 animate-spin" />
+                  <Loader2 className="size-6 animate-spin" />
                 ) : (
-                  <ImageIcon className="h-6 w-6" />
+                  <ImageIcon className="size-6" />
                 )}
                 <span className="text-xs">Image</span>
               </Button>

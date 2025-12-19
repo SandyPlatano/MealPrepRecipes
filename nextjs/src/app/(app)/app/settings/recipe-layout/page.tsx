@@ -10,7 +10,7 @@ export default function RecipeLayoutSettingsPage() {
   const { preferencesV2, updateRecipeLayoutPrefs } = useSettings();
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <SettingsHeader
         title="Recipe Layout"
         description="Customize how recipe pages display ingredients, instructions, and other sections"
@@ -33,9 +33,9 @@ export default function RecipeLayoutSettingsPage() {
       <div className="rounded-lg border bg-muted/30 p-4">
         <div className="flex items-start gap-3">
           <LayoutGrid className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
-          <div className="space-y-1">
+          <div className="flex flex-col gap-1">
             <p className="text-sm font-medium">Layout Guide</p>
-            <ul className="text-xs text-muted-foreground space-y-1">
+            <ul className="text-xs text-muted-foreground flex flex-col gap-1">
               <li>• <strong>Half width</strong> (square icon): Sections render side-by-side when consecutive</li>
               <li>• <strong>Full width</strong> (rectangle icon): Section spans the entire width</li>
               <li>• Drag sections to change display order on recipe pages</li>

@@ -156,7 +156,7 @@ export function MacroProgressBar({
     : "bg-muted-foreground/40";
 
   return (
-    <div className={cn("space-y-1", className)}>
+    <div className={cn("flex flex-col gap-1", className)}>
       {/* Header with label and value */}
       <div className="flex items-center justify-between text-sm">
         <span className="font-medium">{progress.name}</span>

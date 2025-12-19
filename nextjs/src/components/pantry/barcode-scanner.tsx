@@ -247,7 +247,7 @@ export default function BarcodeScanner({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         {subscriptionTier === 'free' && (
           <Alert>
             <AlertCircle className="h-4 w-4" />
@@ -274,7 +274,7 @@ export default function BarcodeScanner({
 
         {/* Camera Scanner View */}
         {scannerState === 'scanning' && (
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <div
               ref={scannerRef}
               className="relative rounded-lg overflow-hidden bg-black"
@@ -295,7 +295,7 @@ export default function BarcodeScanner({
 
         {/* Processing State */}
         {scannerState === 'processing' && (
-          <div className="py-12 text-center space-y-4">
+          <div className="py-12 text-center flex flex-col gap-4">
             <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
             <p className="text-muted-foreground">Looking up product...</p>
           </div>
@@ -303,7 +303,7 @@ export default function BarcodeScanner({
 
         {/* Idle / Manual Entry State */}
         {(scannerState === 'idle' || scannerState === 'manual') && subscriptionTier !== 'free' && (
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             {/* Camera Button */}
             {cameraPermission !== 'denied' && (
               <Button

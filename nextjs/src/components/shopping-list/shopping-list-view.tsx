@@ -501,7 +501,7 @@ export function ShoppingListView({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Confetti celebration when all items checked */}
       <Confetti active={showConfetti} />
 
@@ -545,7 +545,7 @@ export function ShoppingListView({
             </CollapsibleTrigger>
             <CollapsibleContent>
               <CardContent className="pt-0">
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   {plannedRecipes.map((item, index) => {
                     // Use optimistic cook value for instant UI feedback
                     const currentCook = getCookForAssignment(item.assignmentId, item.cook);
@@ -755,7 +755,7 @@ export function ShoppingListView({
 
       {/* Progress */}
       {totalCount > 0 && (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <div className="h-2 bg-muted rounded-full overflow-hidden">
             <div
               className="h-full bg-primary transition-all duration-500 ease-out"
@@ -804,7 +804,7 @@ export function ShoppingListView({
             items={sortedCategories}
             strategy={verticalListSortingStrategy}
           >
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               {sortedCategories.map((category) => (
                 <SortableCategorySection
                   key={category}
@@ -905,7 +905,7 @@ const SortableCategorySection = memo(function SortableCategorySection({
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <ul className="space-y-2">
+        <ul className="flex flex-col gap-2">
           {items.map((item) => (
             <ShoppingItemRow
               key={item.id}

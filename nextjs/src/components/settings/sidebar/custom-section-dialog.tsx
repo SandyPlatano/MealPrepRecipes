@@ -81,9 +81,9 @@ export function CustomSectionDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex flex-col gap-4 py-4">
           {/* Title Input */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="section-title">Section Name</Label>
             <Input
               id="section-title"
@@ -95,7 +95,7 @@ export function CustomSectionDialog({
           </div>
 
           {/* Emoji Picker */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label>Icon (Optional)</Label>
             <div className="flex items-center gap-2">
               <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>

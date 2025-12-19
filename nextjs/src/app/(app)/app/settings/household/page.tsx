@@ -171,7 +171,7 @@ export default function HouseholdSettingsPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <SettingsHeader
         title="Household"
         description="Manage household members and shared settings"
@@ -318,7 +318,7 @@ export default function HouseholdSettingsPage() {
             Track who&apos;s cooking each meal with color-coded cook names.
           </p>
 
-          <div id="setting-cook-colors" className="space-y-3">
+          <div id="setting-cook-colors" className="flex flex-col gap-3">
             {cookNames.map((name, index) => (
               <div
                 key={index}

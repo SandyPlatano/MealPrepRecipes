@@ -138,13 +138,13 @@ export function QuickCookModal({
 
           {/* Loading State */}
           {state === 'loading' && (
-            <div className="py-12 text-center space-y-4">
+            <div className="py-12 text-center flex flex-col gap-4">
               <div className="relative w-16 h-16 mx-auto">
                 <div className="absolute inset-0 rounded-full border-4 border-coral-200 dark:border-coral-900" />
                 <div className="absolute inset-0 rounded-full border-4 border-coral-500 border-t-transparent animate-spin" />
                 <Sparkles className="absolute inset-0 m-auto h-6 w-6 text-coral-500 animate-pulse" />
               </div>
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <p className="font-medium">Finding something perfect...</p>
                 <p className="text-sm text-muted-foreground">
                   Matching your energy level and time
@@ -167,11 +167,11 @@ export function QuickCookModal({
 
           {/* Error State */}
           {state === 'error' && (
-            <div className="py-8 text-center space-y-4">
+            <div className="py-8 text-center flex flex-col gap-4">
               <div className="w-16 h-16 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
                 <X className="h-8 w-8 text-destructive" />
               </div>
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <p className="font-medium">Something went wrong</p>
                 <p className="text-sm text-muted-foreground">{error}</p>
               </div>

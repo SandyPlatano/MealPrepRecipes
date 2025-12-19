@@ -196,7 +196,7 @@ function NutritionTooltipContent({
   badges?: BadgeType[];
 }) {
   return (
-    <div className="space-y-2 text-sm">
+    <div className="flex flex-col gap-2 text-sm">
       {/* Category badges in tooltip */}
       {badges.length > 0 && (
         <div className="flex flex-wrap gap-1 pb-1 border-b border-border">

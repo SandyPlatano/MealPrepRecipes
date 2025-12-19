@@ -437,7 +437,7 @@ export function RecipeImport() {
   if (parsedRecipes.length > 0) {
     const currentRecipe = parsedRecipes[currentReviewIndex];
     return (
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* Multi-Recipe Review Header */}
         <div className="bg-accent/50 border border-accent rounded-lg p-6">
           <div className="flex items-center justify-between">
@@ -526,7 +526,7 @@ export function RecipeImport() {
           {parsedRecipes.length > 1 && (
             <div className="mt-4 pt-4 border-t border-accent">
               {isCreatingAll ? (
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="flex items-center gap-2">
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -569,7 +569,7 @@ export function RecipeImport() {
   // If we have a single parsed recipe (from paste), show the form for editing
   if (parsedRecipe) {
     return (
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* Review Header - Make it obvious we're in review mode */}
         <div className="bg-accent/50 border border-accent rounded-lg p-6">
           <div className="flex items-center justify-between">
@@ -595,7 +595,7 @@ export function RecipeImport() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Mode Selector */}
       <div className="flex gap-2">
         <Button
@@ -636,7 +636,7 @@ export function RecipeImport() {
               Paste Recipe Text
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex flex-col gap-4">
             <p className="text-sm text-muted-foreground">
               Paste any recipe text - from a website, an email, your notes,
               wherever. Our AI will turn it into a clean, organized recipe.
@@ -704,14 +704,14 @@ Ingredients:
               )}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex flex-col gap-4">
             <p className="text-sm text-muted-foreground">
               Add up to {MAX_URLS} recipe URLs and we&apos;ll fetch and parse them for you.
               Works with most recipe websites.
             </p>
 
             {/* URL Inputs */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {urlInputs.map((url, index) => (
                 <div key={index} className="flex gap-2">
                   <Input
@@ -750,7 +750,7 @@ Ingredients:
 
             {/* Import Progress */}
             {isParsing && importStatuses.length > 0 && (
-              <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+              <div className="flex flex-col gap-3 p-4 bg-muted/50 rounded-lg">
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium">Importing recipes...</span>
                   <span className="text-muted-foreground">
@@ -771,7 +771,7 @@ Ingredients:
                     100
                   }
                 />
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   {importStatuses.map((status, idx) => (
                     <div
                       key={idx}

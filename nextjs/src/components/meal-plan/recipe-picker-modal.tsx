@@ -189,7 +189,7 @@ export function RecipePickerModal({
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="max-w-md">
           <div className="flex flex-col items-center justify-center py-8 text-center">
-            <ChefHat className="h-16 w-16 text-muted-foreground/50 mb-4" />
+            <ChefHat className="size-16 text-muted-foreground/50 mb-4" />
             <h3 className="text-lg font-semibold mb-2">No recipes yet</h3>
             <p className="text-muted-foreground mb-6 max-w-sm">
               Add your first recipe to start planning meals for the week.
@@ -212,10 +212,10 @@ export function RecipePickerModal({
         </DialogHeader>
 
         {/* Search & Cook/Meal Type Selectors */}
-        <div className="px-6 py-4 border-b space-y-3">
+        <div className="px-6 py-4 border-b flex flex-col gap-3">
           <div className="flex gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
                 placeholder="Search recipes..."
                 value={searchQuery}
@@ -238,7 +238,7 @@ export function RecipePickerModal({
                   borderLeft: `3px solid ${getCookColor(selectedCook)}`,
                 } : undefined}
               >
-                <ChefHat className="h-4 w-4 mr-2 flex-shrink-0" />
+                <ChefHat className="size-4 mr-2 flex-shrink-0" />
                 <SelectValue placeholder="Assign cook" />
               </SelectTrigger>
               <SelectContent className="z-[10000]">

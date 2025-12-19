@@ -90,10 +90,10 @@ export function MacroGoalsSection({
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-              <Activity className="h-4 w-4 text-primary" />
+            <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
+              <Activity className="size-4 text-primary" />
             </div>
-            <div className="space-y-0.5">
+            <div className="flex flex-col gap-0.5">
               <CardTitle className="text-base">Nutrition Tracking</CardTitle>
               <CardDescription>
                 Set daily macro goals and track your nutrition progress
@@ -106,11 +106,11 @@ export function MacroGoalsSection({
       <Separator className="mb-0" />
 
       {enabled && (
-        <CardContent className="pt-6 space-y-6">
+        <CardContent className="pt-6 flex flex-col gap-6">
           {/* Goal Presets */}
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <Label className="flex items-center gap-2">
-              <Target className="h-4 w-4" />
+              <Target className="size-4" />
               Goal Presets
             </Label>
             <div className="flex flex-wrap gap-2">
@@ -149,10 +149,10 @@ export function MacroGoalsSection({
           </div>
 
           {/* Manual Goal Inputs */}
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <Label>Daily Targets</Label>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="calories" className="text-sm">
                   Calories
                 </Label>
@@ -171,7 +171,7 @@ export function MacroGoalsSection({
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="protein" className="text-sm">
                   Protein
                 </Label>
@@ -190,7 +190,7 @@ export function MacroGoalsSection({
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="carbs" className="text-sm">
                   Carbohydrates
                 </Label>
@@ -209,7 +209,7 @@ export function MacroGoalsSection({
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="fat" className="text-sm">
                   Fat
                 </Label>
@@ -228,7 +228,7 @@ export function MacroGoalsSection({
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="fiber" className="text-sm">
                   Fiber (Optional)
                 </Label>
@@ -275,7 +275,7 @@ export function MacroGoalsSection({
         <CardContent className="pt-0 border-t mt-4">
           <Button asChild variant="outline" className="w-full">
             <Link href="/app/nutrition">
-              <ExternalLink className="mr-2 h-4 w-4" />
+              <ExternalLink className="mr-2 size-4" />
               View Nutrition Dashboard
             </Link>
           </Button>
@@ -332,7 +332,7 @@ function MacroDistributionSummary({ goals }: { goals: MacroGoals }) {
     fatPct <= 35;
 
   return (
-    <div className="space-y-2 rounded-lg border p-4">
+    <div className="flex flex-col gap-2 rounded-lg border p-4">
       <div className="flex items-center justify-between">
         <Label className="text-sm">Macro Distribution</Label>
         {isBalanced && (

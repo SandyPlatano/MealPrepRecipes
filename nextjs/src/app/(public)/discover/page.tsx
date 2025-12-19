@@ -48,7 +48,7 @@ export default async function PublicDiscoverPage() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="space-y-8">
+        <div className="flex flex-col gap-8">
           {/* Hero Section */}
           <div className="text-center py-8">
             <h1 className="text-4xl font-bold flex items-center justify-center gap-3">
@@ -146,7 +146,7 @@ function GridSkeleton() {
       {Array.from({ length: 6 }).map((_, i) => (
         <div key={i} className="rounded-lg border overflow-hidden">
           <Skeleton className="w-full h-48" />
-          <div className="p-4 space-y-3">
+          <div className="p-4 flex flex-col gap-3">
             <Skeleton className="h-5 w-3/4" />
             <Skeleton className="h-4 w-1/2" />
             <div className="flex items-center gap-2 pt-2">

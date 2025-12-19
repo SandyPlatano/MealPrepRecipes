@@ -106,18 +106,18 @@ export function ReportRecipeDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 py-4">
-          <div className="space-y-3">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6 py-4">
+          <div className="flex flex-col gap-3">
             <Label>Why are you reporting this recipe?</Label>
             <RadioGroup
               value={reason}
               onValueChange={(v) => setReason(v as RecipeReportReason)}
-              className="space-y-2"
+              className="flex flex-col gap-2"
             >
               {REPORT_REASONS.map((r) => (
                 <div
                   key={r.value}
-                  className="flex items-start space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
+                  className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
                   onClick={() => setReason(r.value)}
                 >
                   <RadioGroupItem value={r.value} id={r.value} className="mt-0.5" />
@@ -137,7 +137,7 @@ export function ReportRecipeDialog({
             </RadioGroup>
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="description">
               Additional details <span className="text-muted-foreground">(optional)</span>
             </Label>

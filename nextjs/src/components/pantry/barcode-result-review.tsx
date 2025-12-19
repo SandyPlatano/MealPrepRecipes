@@ -115,7 +115,7 @@ export default function BarcodeResultReview({
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         {/* Product Image */}
         {product.imageUrl && (
           <div className="flex justify-center">
@@ -148,7 +148,7 @@ export default function BarcodeResultReview({
         </div>
 
         {/* Editable Name */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="product-name">Product Name</Label>
           <Input
             id="product-name"
@@ -159,7 +159,7 @@ export default function BarcodeResultReview({
         </div>
 
         {/* Editable Category */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="product-category">Category</Label>
           <Select value={editedCategory} onValueChange={setEditedCategory}>
             <SelectTrigger id="product-category">

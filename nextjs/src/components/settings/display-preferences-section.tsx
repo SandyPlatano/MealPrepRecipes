@@ -119,9 +119,9 @@ export function DisplayPreferencesSection({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Week Start Day */}
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-muted-foreground" />
           <Label>Week Starts On</Label>
@@ -146,7 +146,7 @@ export function DisplayPreferencesSection({
       </div>
 
       {/* Time Format */}
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-muted-foreground" />
           <Label>Time Format</Label>
@@ -158,13 +158,13 @@ export function DisplayPreferencesSection({
           }
           className="flex gap-4"
         >
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <RadioGroupItem value="12h" id="12h" />
             <Label htmlFor="12h" className="font-normal cursor-pointer">
               12-hour (3:00 PM)
             </Label>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <RadioGroupItem value="24h" id="24h" />
             <Label htmlFor="24h" className="font-normal cursor-pointer">
               24-hour (15:00)
@@ -174,7 +174,7 @@ export function DisplayPreferencesSection({
       </div>
 
       {/* Date Format */}
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <Label>Date Format</Label>
         <Select
           value={preferences.dateFormat}
@@ -196,7 +196,7 @@ export function DisplayPreferencesSection({
       </div>
 
       {/* Rating Scale */}
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <Label>Rating Scale</Label>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {RATING_SCALE_OPTIONS.map((opt) => {
@@ -262,7 +262,7 @@ export function DisplayPreferencesSection({
       </div>
 
       {/* Theme */}
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <Label>Theme</Label>
         <div className="grid grid-cols-3 gap-3">
           {THEME_OPTIONS.map((opt) => {
@@ -290,7 +290,7 @@ export function DisplayPreferencesSection({
       </div>
 
       {/* Accent Color */}
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <Palette className="h-4 w-4 text-muted-foreground" />
           <Label>Accent Color</Label>
@@ -337,7 +337,7 @@ export function DisplayPreferencesSection({
 
       {/* Seasonal Themes */}
       <div className="flex items-center justify-between">
-        <div className="space-y-0.5">
+        <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-muted-foreground" />
             <Label>Seasonal Themes</Label>

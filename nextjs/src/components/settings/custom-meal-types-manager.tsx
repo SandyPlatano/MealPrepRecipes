@@ -170,7 +170,7 @@ export function CustomMealTypesManager() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <Button onClick={handleCreate} size="sm">
         <Plus className="h-4 w-4 mr-1.5" />
         Add Meal Type
@@ -179,7 +179,7 @@ export function CustomMealTypesManager() {
       {mealTypes.length > 0 ? (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={mealTypes.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {mealTypes.map((type) => (
                 <SortableMealTypeItem
                   key={type.id}
@@ -201,9 +201,9 @@ export function CustomMealTypesManager() {
           <DialogHeader>
             <DialogTitle>{editingType ? "Edit" : "Create"} Meal Type</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="flex flex-col gap-4 py-4">
             {/* Name */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>Name</Label>
               <Input
                 value={formData.name}
@@ -213,7 +213,7 @@ export function CustomMealTypesManager() {
             </div>
 
             {/* Emoji */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label className="flex items-center gap-2">
                 <Smile className="h-4 w-4" />
                 Emoji
@@ -231,7 +231,7 @@ export function CustomMealTypesManager() {
             </div>
 
             {/* Color */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label className="flex items-center gap-2">
                 <Palette className="h-4 w-4" />
                 Color
@@ -264,7 +264,7 @@ export function CustomMealTypesManager() {
             </div>
 
             {/* Time */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
                 Default Calendar Time

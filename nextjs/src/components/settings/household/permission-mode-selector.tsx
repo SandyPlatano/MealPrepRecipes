@@ -80,9 +80,9 @@ export function PermissionModeSelector({
               id={`mode-${mode.value}`}
               className="mt-1"
             />
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                <Icon className="h-5 w-5 text-primary" />
+                <Icon className="size-5 text-primary" />
                 <span className="font-medium">{mode.label}</span>
               </div>
               <p className="text-sm text-muted-foreground">

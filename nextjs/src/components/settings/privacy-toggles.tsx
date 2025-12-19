@@ -11,7 +11,7 @@ interface PrivacyTogglesProps {
 
 export function PrivacyToggles({ settings, onChange }: PrivacyTogglesProps) {
   return (
-    <div className="space-y-0 divide-y divide-border">
+    <div className="flex flex-col gap-0 divide-y divide-border">
       <SettingRow
         id="setting-public-profile"
         label="Public Profile"

@@ -63,7 +63,7 @@ export function ActivityFeed({ initialItems = [] }: ActivityFeedProps) {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         {Array.from({ length: 5 }).map((_, i) => (
           <ActivityItemSkeleton key={i} />
         ))}
@@ -87,7 +87,7 @@ export function ActivityFeed({ initialItems = [] }: ActivityFeedProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {items.map((item) => (
         <ActivityItem key={item.id} item={item} />
       ))}
@@ -204,7 +204,7 @@ function ActivityItemSkeleton() {
   return (
     <div className="flex gap-4 p-4 border rounded-lg animate-pulse">
       <Skeleton className="h-10 w-10 rounded-full" />
-      <div className="flex-1 space-y-3">
+      <div className="flex-1 flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-4 w-32" />

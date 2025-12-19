@@ -71,7 +71,7 @@ export function NutritionCostsClient() {
   }
 
   return (
-    <div className="space-y-6 pb-24 md:pb-8">
+    <div className="flex flex-col gap-6 pb-24 md:pb-8">
       <div>
         <h1 className="text-2xl font-bold mb-2">Nutrition Extraction Costs</h1>
         <p className="text-muted-foreground">
@@ -85,7 +85,7 @@ export function NutritionCostsClient() {
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Cost</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -100,7 +100,7 @@ export function NutritionCostsClient() {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Recipes</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -113,7 +113,7 @@ export function NutritionCostsClient() {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-0 pb-2">
             <CardTitle className="text-sm font-medium">Average Cost</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -132,7 +132,7 @@ export function NutritionCostsClient() {
           <CardTitle>Cost Breakdown by Recipe</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             {costData.recipes.map((recipe) => (
               <div
                 key={recipe.recipe_id}

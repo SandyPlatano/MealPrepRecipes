@@ -28,25 +28,25 @@ export function AutoSaveIndicator({
     >
       {status === "saving" && (
         <>
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          <Loader2 className="size-3.5 animate-spin" />
           <span>Saving...</span>
         </>
       )}
       {status === "saved" && (
         <>
-          <Check className="h-3.5 w-3.5" />
+          <Check className="size-3.5" />
           <span>Saved</span>
         </>
       )}
       {status === "error" && (
         <>
-          <AlertCircle className="h-3.5 w-3.5" />
+          <AlertCircle className="size-3.5" />
           <span>Failed to save</span>
         </>
       )}
       {status === "idle" && lastSavedAt && (
         <>
-          <Cloud className="h-3.5 w-3.5" />
+          <Cloud className="size-3.5" />
           <span>Saved {formatRelativeTime(lastSavedAt)}</span>
         </>
       )}

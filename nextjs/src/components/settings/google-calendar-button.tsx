@@ -125,14 +125,14 @@ export function GoogleCalendarButton({
 
   if (connectedAccount) {
     return (
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <p className="text-sm text-muted-foreground">
           Connected: <strong>{connectedAccount}</strong>
         </p>
         <Button variant="outline" onClick={handleDisconnect} disabled={loading}>
           {loading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-2 size-4 animate-spin" />
               Disconnecting...
             </>
           ) : (
@@ -147,12 +147,12 @@ export function GoogleCalendarButton({
     <Button onClick={handleConnect} disabled={loading} variant="outline">
       {loading ? (
         <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <Loader2 className="mr-2 size-4 animate-spin" />
           Connecting...
         </>
       ) : (
         <>
-          <Calendar className="mr-2 h-4 w-4" />
+          <Calendar className="mr-2 size-4" />
           Connect Google Calendar
         </>
       )}

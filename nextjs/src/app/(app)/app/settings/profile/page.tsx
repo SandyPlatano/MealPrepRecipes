@@ -171,7 +171,7 @@ export default function ProfileSettingsPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <SettingsHeader
         title="Profile & Account"
         description="Your personal information and account settings - Bonding over food"
@@ -234,13 +234,13 @@ export default function ProfileSettingsPage() {
 
       {/* Public Username */}
       <SettingSection title="Public Username">
-        <div id="setting-username" className="py-2 space-y-4">
+        <div id="setting-username" className="py-2 flex flex-col gap-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Globe className="h-4 w-4" />
             <span>Your username appears on public recipes you share</span>
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="relative max-w-xs">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                 @
@@ -307,7 +307,7 @@ export default function ProfileSettingsPage() {
             )}
 
             {/* Requirements */}
-            <div className="text-xs text-muted-foreground space-y-0.5 pt-2">
+            <div className="text-xs text-muted-foreground flex flex-col gap-0.5 pt-2">
               <p>3-30 characters, lowercase letters, numbers, and underscores only</p>
             </div>
 

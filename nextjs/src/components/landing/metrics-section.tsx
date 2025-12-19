@@ -54,9 +54,9 @@ export function MetricsSection() {
 
 function FeatureCard({ title, description, illustration: Illustration }: Feature) {
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <Illustration />
-      <div className="text-center space-y-2">
+      <div className="text-center flex flex-col gap-2">
         <h3 className="text-lg md:text-xl font-mono font-semibold text-cream">{title}</h3>
         <p className="text-sm text-cream/60 max-w-xs mx-auto">{description}</p>
       </div>

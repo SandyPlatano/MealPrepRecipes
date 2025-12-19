@@ -111,7 +111,7 @@ export function RecipeDiscovery({ recipes, recentlyCookedIds }: RecipeDiscoveryP
 
   if (mode) {
     return (
-      <div className="space-y-6">
+      <div className="flex flex-col">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-mono font-bold">
@@ -155,8 +155,8 @@ export function RecipeDiscovery({ recipes, recentlyCookedIds }: RecipeDiscoveryP
   }
 
   return (
-    <div className="space-y-6">
-      <div className="text-center space-y-2">
+    <div className="flex flex-col">
+      <div className="flex text-center flex-col">
         <h2 className="text-3xl font-mono font-bold">What Should We Make?</h2>
         <p className="text-muted-foreground">
           Not sure what to cook? Let us help you decide.

@@ -270,7 +270,7 @@ export function MealPlannerGrid({
           </div>
         )}
 
-        <div className="space-y-4 md:space-y-6">
+        <div className="flex flex-col gap-4 md:gap-6">
           {/* Header */}
           <div className={isPending ? "opacity-75 pointer-events-none" : ""}>
             <PlannerHeader
@@ -291,8 +291,8 @@ export function MealPlannerGrid({
             />
           </div>
 
-          {/* Vertical Stacked Cards */}
-          <div className={`space-y-3 md:space-y-4 transition-opacity ${isPending ? "opacity-60" : ""}`}>
+          {/* Vertical Stacked Cards - increased spacing on mobile for touch */}
+          <div className={`flex flex-col gap-4 md:gap-4 transition-opacity ${isPending ? "opacity-60" : ""}`}>
             {DAYS_OF_WEEK.map((day, index) => {
               const dayDate = new Date(weekStartDate);
               dayDate.setDate(dayDate.getDate() + index);

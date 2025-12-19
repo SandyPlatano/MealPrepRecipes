@@ -59,7 +59,7 @@ export function CookModePresetCard({
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="flex flex-col">
         {/* Icon and name */}
         <div className="flex items-center gap-4">
           <div

@@ -175,8 +175,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         currentCookNames={settingsResult.data?.cook_names || []}
         currentCookColors={settingsResult.data?.cook_colors || {}}
       />
-      
-      <div className="space-y-6">
+
+      <div className="flex flex-col gap-6">
         <PlanScrollRestorer />
         <div>
           <PersonalizedGreeting userName={profile?.first_name} />

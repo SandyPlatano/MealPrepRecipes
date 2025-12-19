@@ -176,11 +176,11 @@ export function ServingPresetsSection({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-muted-foreground" />
+          <Users className="size-4 text-muted-foreground" />
           <Label>Serving Size Presets</Label>
         </div>
         <Button
@@ -198,7 +198,7 @@ export function ServingPresetsSection({
       </p>
 
       {/* Presets List */}
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         {presets.map((preset, index) => {
           const isEditing = editingIndex === index;
 
@@ -212,9 +212,9 @@ export function ServingPresetsSection({
             >
               {isEditing && editForm ? (
                 // Edit Mode
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
+                    <div className="flex flex-col gap-1">
                       <Label className="text-xs">Name</Label>
                       <Input
                         value={editForm.name}
@@ -225,7 +225,7 @@ export function ServingPresetsSection({
                         autoFocus
                       />
                     </div>
-                    <div className="space-y-1">
+                    <div className="flex flex-col gap-1">
                       <Label className="text-xs">Servings</Label>
                       <Input
                         type="number"
@@ -247,7 +247,7 @@ export function ServingPresetsSection({
                       onClick={handleSaveEdit}
                       disabled={isSaving}
                     >
-                      <Check className="h-3 w-3 mr-1" />
+                      <Check className="size-3 mr-1" />
                       Save
                     </Button>
                     <Button
@@ -256,7 +256,7 @@ export function ServingPresetsSection({
                       onClick={handleCancelEdit}
                       disabled={isSaving}
                     >
-                      <X className="h-3 w-3 mr-1" />
+                      <X className="size-3 mr-1" />
                       Cancel
                     </Button>
                   </div>
@@ -272,7 +272,7 @@ export function ServingPresetsSection({
                       className="text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
                       title="Move up"
                     >
-                      <GripVertical className="h-3 w-3" />
+                      <GripVertical className="size-3" />
                     </button>
                     <button
                       onClick={() => handleMoveDown(index)}
@@ -280,7 +280,7 @@ export function ServingPresetsSection({
                       className="text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
                       title="Move down"
                     >
-                      <GripVertical className="h-3 w-3 rotate-180" />
+                      <GripVertical className="size-3 rotate-180" />
                     </button>
                   </div>
 
@@ -300,7 +300,7 @@ export function ServingPresetsSection({
                       onClick={() => handleStartEdit(index)}
                       disabled={isSaving}
                     >
-                      <Edit2 className="h-3 w-3" />
+                      <Edit2 className="size-3" />
                     </Button>
                     <Button
                       size="sm"
@@ -308,7 +308,7 @@ export function ServingPresetsSection({
                       onClick={() => setDeleteIndex(index)}
                       disabled={isSaving}
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 className="size-3" />
                     </Button>
                   </div>
                 </div>
@@ -320,9 +320,9 @@ export function ServingPresetsSection({
         {/* Add New Preset */}
         {isAdding ? (
           <Card className="p-3 ring-2 ring-primary">
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
+                <div className="flex flex-col gap-1">
                   <Label className="text-xs">Name</Label>
                   <Input
                     value={newPreset.name}
@@ -333,7 +333,7 @@ export function ServingPresetsSection({
                     autoFocus
                   />
                 </div>
-                <div className="space-y-1">
+                <div className="flex flex-col gap-1">
                   <Label className="text-xs">Servings</Label>
                   <Input
                     type="number"
@@ -355,7 +355,7 @@ export function ServingPresetsSection({
                   onClick={handleSaveNew}
                   disabled={isSaving}
                 >
-                  <Check className="h-3 w-3 mr-1" />
+                  <Check className="size-3 mr-1" />
                   Add
                 </Button>
                 <Button
@@ -364,7 +364,7 @@ export function ServingPresetsSection({
                   onClick={handleCancelAdd}
                   disabled={isSaving}
                 >
-                  <X className="h-3 w-3 mr-1" />
+                  <X className="size-3 mr-1" />
                   Cancel
                 </Button>
               </div>
@@ -377,7 +377,7 @@ export function ServingPresetsSection({
             onClick={handleStartAdd}
             disabled={isSaving}
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="size-4 mr-2" />
             Add Preset
           </Button>
         )}

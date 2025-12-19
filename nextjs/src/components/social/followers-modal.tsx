@@ -167,7 +167,7 @@ export function FollowersModal({
 
           <TabsContent value="followers" className="mt-4">
             {isLoadingFollowers ? (
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <UserCardSkeleton key={i} />
                 ))}
@@ -181,7 +181,7 @@ export function FollowersModal({
                 size="sm"
               />
             ) : (
-              <div className="space-y-1 max-h-[400px] overflow-y-auto">
+              <div className="flex flex-col gap-1 max-h-[400px] overflow-y-auto">
                 {followers.map((profile) => (
                   <UserProfileCard
                     key={profile.id}
@@ -220,7 +220,7 @@ export function FollowersModal({
 
           <TabsContent value="following" className="mt-4">
             {isLoadingFollowing ? (
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <UserCardSkeleton key={i} />
                 ))}
@@ -234,7 +234,7 @@ export function FollowersModal({
                 size="sm"
               />
             ) : (
-              <div className="space-y-1 max-h-[400px] overflow-y-auto">
+              <div className="flex flex-col gap-1 max-h-[400px] overflow-y-auto">
                 {following.map((profile) => (
                   <UserProfileCard
                     key={profile.id}
@@ -280,7 +280,7 @@ function UserCardSkeleton() {
   return (
     <div className="flex items-center gap-3 p-2 animate-pulse">
       <Skeleton className="h-10 w-10 rounded-full" />
-      <div className="flex-1 space-y-1">
+      <div className="flex-1 flex flex-col gap-1">
         <Skeleton className="h-4 w-24" />
         <Skeleton className="h-3 w-16" />
       </div>

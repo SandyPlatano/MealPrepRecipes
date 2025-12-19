@@ -62,7 +62,7 @@ export function WeeklyPlanCard({ plan }: WeeklyPlanCardProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           {visibleAssignments.map((assignment) => (
             <div
               key={assignment.id}

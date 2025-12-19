@@ -80,7 +80,7 @@ export function MarkdownEditor({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       {/* Toolbar */}
       <div className="flex items-center gap-1 border rounded-md p-1 bg-muted/50">
         <Button
@@ -92,7 +92,7 @@ export function MarkdownEditor({
           onMouseDown={(e) => e.preventDefault()}
           title="Bold"
         >
-          <Bold className="h-4 w-4" />
+          <Bold className="size-4" />
         </Button>
         <Button
           type="button"
@@ -103,7 +103,7 @@ export function MarkdownEditor({
           onMouseDown={(e) => e.preventDefault()}
           title="Italic"
         >
-          <Italic className="h-4 w-4" />
+          <Italic className="size-4" />
         </Button>
         <Button
           type="button"
@@ -114,7 +114,7 @@ export function MarkdownEditor({
           onMouseDown={(e) => e.preventDefault()}
           title="Heading"
         >
-          <Heading2 className="h-4 w-4" />
+          <Heading2 className="size-4" />
         </Button>
         <Button
           type="button"
@@ -125,7 +125,7 @@ export function MarkdownEditor({
           onMouseDown={(e) => e.preventDefault()}
           title="Link"
         >
-          <Link2 className="h-4 w-4" />
+          <Link2 className="size-4" />
         </Button>
         <div className="flex-1" />
         <Button

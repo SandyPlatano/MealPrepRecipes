@@ -29,6 +29,8 @@ interface SidebarNavItemProps {
   shortcut?: string;
   exactMatch?: boolean;
   onClick?: () => void;
+  /** Emoji to display instead of icon (takes precedence) */
+  emoji?: string | null;
   // For pinning support
   pinnableType?: PinnableItemType;
   pinnableId?: string;
@@ -42,6 +44,7 @@ export function SidebarNavItem({
   shortcut,
   exactMatch = false,
   onClick,
+  emoji,
   pinnableType,
   pinnableId,
 }: SidebarNavItemProps) {
@@ -79,24 +82,30 @@ export function SidebarNavItem({
       variant="ghost"
       asChild
       className={cn(
-        "w-full justify-start gap-3 h-10 px-3 relative",
+        "w-full justify-start gap-3 h-11 px-3 relative",
         "transition-all duration-150",
         isIconOnly && "justify-center px-0",
         isActive && [
-          "bg-primary/10 text-primary",
+          "bg-primary/15 text-primary font-semibold",
           "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
-          "before:h-5 before:w-0.5 before:bg-primary before:rounded-r",
+          "before:h-7 before:w-1 before:bg-primary before:rounded-r",
         ],
         !isActive && "text-muted-foreground hover:text-foreground hover:bg-accent"
       )}
     >
       <Link href={href} onClick={handleClick}>
-        <Icon
-          className={cn(
-            "h-4 w-4 shrink-0 transition-colors",
-            isActive && "text-primary"
-          )}
-        />
+        {emoji ? (
+          <span className="text-base shrink-0 size-4 flex items-center justify-center">
+            {emoji}
+          </span>
+        ) : (
+          <Icon
+            className={cn(
+              "size-4 shrink-0 transition-colors",
+              isActive && "text-primary"
+            )}
+          />
+        )}
         {!isIconOnly && (
           <>
             <span className="flex-1 truncate text-sm font-medium">{label}</span>
@@ -132,12 +141,12 @@ export function SidebarNavItem({
       <ContextMenuContent>
         {itemIsPinned ? (
           <ContextMenuItem onClick={handleUnpin}>
-            <PinOff className="mr-2 h-4 w-4" />
+            <PinOff className="mr-2 size-4" />
             Unpin from sidebar
           </ContextMenuItem>
         ) : (
           <ContextMenuItem onClick={handlePin}>
-            <Pin className="mr-2 h-4 w-4" />
+            <Pin className="mr-2 size-4" />
             Pin to sidebar
           </ContextMenuItem>
         )}
@@ -193,13 +202,13 @@ export function SidebarActionItem({
       variant="ghost"
       onClick={onClick}
       className={cn(
-        "w-full justify-start gap-3 h-10 px-3",
+        "w-full justify-start gap-3 h-11 px-3",
         "text-muted-foreground hover:text-foreground hover:bg-accent",
         "transition-all duration-150",
         isIconOnly && "justify-center px-0"
       )}
     >
-      <Icon className="h-4 w-4 shrink-0" />
+      <Icon className="size-4 shrink-0" />
       {!isIconOnly && (
         <>
           <span className="flex-1 truncate text-sm font-medium">{label}</span>

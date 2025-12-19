@@ -64,7 +64,7 @@ export function NutritionFactsCard({
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex flex-col gap-4">
           <p className="text-sm text-muted-foreground">
             No nutrition data available for this recipe.
           </p>
@@ -117,7 +117,7 @@ export function NutritionFactsCard({
     <Card className={cn("", className)}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
-          <div className="space-y-1">
+          <div className="flex flex-col gap-1">
             <CardTitle className="text-lg">Nutrition Facts</CardTitle>
           </div>
           {editable && (
@@ -139,7 +139,7 @@ export function NutritionFactsCard({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-0">
+      <CardContent>
         {/* FDA-style nutrition label */}
         <div className="border-t-8 border-black dark:border-white">
           {/* Interactive serving selector */}

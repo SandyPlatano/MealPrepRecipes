@@ -124,7 +124,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
         )}
         {googleConnected && isCalendarExcluded && (
           <div className="mt-1.5 flex items-center justify-center" title="Calendar sync disabled">
-            <CalendarOff className="h-3 w-3 md:h-3.5 md:w-3.5 text-muted-foreground" />
+            <CalendarOff className="size-3 md:size-3.5 text-muted-foreground" />
           </div>
         )}
       </div>
@@ -139,12 +139,12 @@ export const PlannerDayRow = memo(function PlannerDayRow({
       >
         <CardContent
           className={cn(
-            // Base spacing
-            "space-y-3 md:space-y-4",
+            // Base spacing - flex column with gap
+            "flex flex-col gap-3 md:gap-4",
             // Density-based padding
-            viewSettings?.density === "compact" && "p-2 space-y-2",
+            viewSettings?.density === "compact" && "p-2 gap-2",
             viewSettings?.density === "comfortable" && "p-3 md:p-4",
-            viewSettings?.density === "spacious" && "p-4 md:p-6 space-y-4 md:space-y-6",
+            viewSettings?.density === "spacious" && "p-4 md:p-6 gap-4 md:gap-6",
             // Default if no viewSettings
             !viewSettings?.density && "p-3 md:p-4"
           )}
@@ -166,7 +166,8 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                 <div
                   key={mealType ?? "other"}
                   className={cn(
-                    viewSettings?.density === "compact" ? "space-y-1.5" : "space-y-2 md:space-y-3"
+                    "flex flex-col",
+                    viewSettings?.density === "compact" ? "gap-1.5" : "gap-2 md:gap-3"
                   )}
                 >
                   {/* Conditionally render meal type header based on settings */}
@@ -216,7 +217,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                   "hover:border-primary hover:bg-primary/5 transition-colors"
                 )}
               >
-                <Plus className="h-5 w-5 mr-2" />
+                <Plus className="size-5 mr-2" />
                 Add Meal
               </Button>
 
@@ -359,21 +360,21 @@ function RecipeRow({
       >
         {/* Title Row - Always visible */}
         <div className="flex items-center gap-2">
-          {/* Chevron Toggle */}
+          {/* Chevron Toggle - larger on mobile for touch */}
           <CollapsibleTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "h-8 w-8 flex-shrink-0 -ml-1",
+                "size-10 md:size-8 flex-shrink-0 -ml-1",
                 "hover:bg-muted/50",
-                compact && "h-7 w-7"
+                compact && "size-9 md:size-7"
               )}
               aria-label={isDetailsOpen ? "Collapse details" : "Expand details"}
             >
               <ChevronRight
                 className={cn(
-                  "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                  "size-5 md:size-4 text-muted-foreground transition-transform duration-200",
                   isDetailsOpen && "rotate-90"
                 )}
               />
@@ -417,41 +418,41 @@ function RecipeRow({
             ) : null}
           </div>
 
-          {/* Action buttons - always visible */}
-          <div className="flex items-center gap-1 flex-shrink-0">
+          {/* Action buttons - always visible, larger on mobile for touch */}
+          <div className="flex items-center gap-1 md:gap-1 flex-shrink-0">
             <Link href={`/app/recipes/${assignment.recipe.id}`} target="_blank">
               <Button
                 variant="ghost"
                 size="icon"
-                className={cn("h-9 w-9", compact && "h-8 w-8")}
+                className={cn("size-11 md:size-9", compact && "size-10 md:size-8")}
                 title="View Recipe"
               >
-                <Eye className={cn("h-4 w-4", compact && "h-3.5 w-3.5")} />
+                <Eye className={cn("size-5 md:size-4", compact && "size-4 md:size-3.5")} />
               </Button>
             </Link>
 
             <Button
               variant="ghost"
               size="icon"
-              className={cn("h-9 w-9", compact && "h-8 w-8")}
+              className={cn("size-11 md:size-9", compact && "size-10 md:size-8")}
               onClick={onSwap}
               title="Change Recipe"
             >
-              <Pencil className={cn("h-4 w-4", compact && "h-3.5 w-3.5")} />
+              <Pencil className={cn("size-5 md:size-4", compact && "size-4 md:size-3.5")} />
             </Button>
 
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "h-9 w-9 hover:bg-destructive/10 hover:text-destructive",
-                compact && "h-8 w-8"
+                "size-11 md:size-9 hover:bg-destructive/10 hover:text-destructive",
+                compact && "size-10 md:size-8"
               )}
               onClick={handleRemove}
               disabled={isRemoving}
               title="Remove"
             >
-              <Trash2 className={cn("h-4 w-4", compact && "h-3.5 w-3.5")} />
+              <Trash2 className={cn("size-5 md:size-4", compact && "size-4 md:size-3.5")} />
             </Button>
           </div>
         </div>
@@ -495,7 +496,7 @@ function RecipeRow({
                         borderLeft: `3px solid ${cookColor}`,
                       } : undefined}
                     >
-                      <ChefHat className={cn("h-4 w-4 mr-1.5 flex-shrink-0", compact && "h-3.5 w-3.5")} />
+                      <ChefHat className={cn("size-4 mr-1.5 flex-shrink-0", compact && "size-3.5")} />
                       <SelectValue placeholder="Assign cook" />
                     </SelectTrigger>
                     <SelectContent>

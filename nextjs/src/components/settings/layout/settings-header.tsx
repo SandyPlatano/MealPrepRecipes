@@ -14,7 +14,7 @@ export function SettingsHeader({ title, description }: SettingsHeaderProps) {
   const { saveStatus, lastSavedAt, canUndo, lastChange, undoLastChange } = useSettings();
 
   return (
-    <div className="space-y-4 pb-6 border-b">
+    <div className="flex flex-col gap-4 pb-6 border-b">
       {/* Search bar - visible on all screens */}
       <div className="max-w-md">
         <SettingsSearch />

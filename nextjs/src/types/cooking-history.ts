@@ -9,6 +9,7 @@ export interface CookingHistoryEntry {
   rating: number | null; // 1-5 star rating
   notes: string | null;
   modifications: string | null; // what the user changed in the recipe
+  photo_url: string | null; // URL to uploaded photo
   created_at: string;
 }
 
@@ -19,10 +20,12 @@ export interface CookingHistoryWithRecipe extends CookingHistoryEntry {
     recipe_type: string;
     category: string | null;
     protein_type: string | null;
+    image_url?: string | null;
   } | null;
   cooked_by_profile: {
     first_name: string | null;
     last_name: string | null;
+    avatar_url?: string | null;
   } | null;
 }
 

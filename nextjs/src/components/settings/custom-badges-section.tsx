@@ -156,10 +156,10 @@ export function CustomBadgesSection({ id, className }: CustomBadgesSectionProps)
     <Card id={id} className={className}>
       <CardHeader className="pb-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-            <Tags className="h-4 w-4 text-primary" />
+          <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
+            <Tags className="size-4 text-primary" />
           </div>
-          <div className="space-y-0.5">
+          <div className="flex flex-col gap-0.5">
             <CardTitle className="text-base">Nutrition Badges</CardTitle>
             <CardDescription>
               Create custom badges to categorize recipes by nutrition criteria
@@ -169,12 +169,12 @@ export function CustomBadgesSection({ id, className }: CustomBadgesSectionProps)
       </CardHeader>
       <Separator className="mb-0" />
 
-      <CardContent className="pt-6 space-y-6">
+      <CardContent className="pt-6 flex flex-col gap-6">
         {/* How It Works Info */}
-        <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
+        <div className="rounded-lg border bg-muted/30 p-4 flex flex-col gap-3">
           <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
-            <div className="space-y-2">
+            <Info className="size-5 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="flex flex-col gap-2">
               <p className="text-sm font-medium">How badges work</p>
               <p className="text-sm text-muted-foreground">
                 Create custom badges to automatically label recipes based on their nutrition data.
@@ -199,7 +199,7 @@ export function CustomBadgesSection({ id, className }: CustomBadgesSectionProps)
             </Button>
 
             {showExamples && (
-              <div className="mt-3 space-y-2">
+              <div className="mt-3 flex flex-col gap-2">
                 {EXAMPLE_BADGES.map((badge) => {
                   const colors = getBadgeColorClasses(badge.color);
                   return (
@@ -229,13 +229,13 @@ export function CustomBadgesSection({ id, className }: CustomBadgesSectionProps)
         </div>
 
         {/* Custom Badges */}
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <Label className="text-sm">Your Custom Badges</Label>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button size="sm" onClick={handleCreateNew}>
-                  <Plus className="mr-2 h-4 w-4" />
+                  <Plus className="mr-2 size-4" />
                   Create Badge
                 </Button>
               </DialogTrigger>
@@ -253,14 +253,14 @@ export function CustomBadgesSection({ id, className }: CustomBadgesSectionProps)
             </div>
           ) : customBadges.length === 0 ? (
             <div className="rounded-lg border border-dashed p-6 text-center">
-              <Tags className="mx-auto h-8 w-8 text-muted-foreground" />
+              <Tags className="mx-auto size-8 text-muted-foreground" />
               <p className="mt-2 text-sm font-medium">No custom badges yet</p>
               <p className="text-xs text-muted-foreground">
                 Create badges like &quot;Kid Friendly&quot; or &quot;Post-Workout&quot;
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {customBadges.map((badge) => (
                 <CustomBadgeRow
                   key={badge.id}
@@ -319,12 +319,12 @@ function CustomBadgeRow({
       </div>
       <div className="flex items-center gap-1">
         <Button variant="ghost" size="icon" onClick={onEdit}>
-          <Pencil className="h-4 w-4" />
+          <Pencil className="size-4" />
         </Button>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="ghost" size="icon">
-              <Trash2 className="h-4 w-4 text-destructive" />
+              <Trash2 className="size-4 text-destructive" />
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
@@ -423,9 +423,9 @@ function BadgeFormDialog({
         </DialogDescription>
       </DialogHeader>
 
-      <div className="space-y-6 py-4">
+      <div className="flex flex-col gap-6 py-4">
         {/* Badge Name */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="badge-name">Badge Name</Label>
           <Input
             id="badge-name"
@@ -437,7 +437,7 @@ function BadgeFormDialog({
         </div>
 
         {/* Badge Color */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label>Badge Color</Label>
           <div className="flex flex-wrap gap-2">
             {AVAILABLE_BADGE_COLORS.map((c) => {
@@ -464,7 +464,7 @@ function BadgeFormDialog({
         </div>
 
         {/* Conditions */}
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <Label>Conditions (ALL must be true)</Label>
             <Button
@@ -474,12 +474,12 @@ function BadgeFormDialog({
               onClick={handleAddCondition}
               disabled={conditions.length >= 4}
             >
-              <Plus className="mr-1 h-3 w-3" />
+              <Plus className="mr-1 size-3" />
               Add
             </Button>
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {conditions.map((condition, index) => (
               <ConditionRow
                 key={index}
@@ -493,7 +493,7 @@ function BadgeFormDialog({
         </div>
 
         {/* Preview */}
-        <div className="space-y-2 rounded-lg border p-3">
+        <div className="flex flex-col gap-2 rounded-lg border p-3">
           <Label className="text-xs text-muted-foreground">Preview</Label>
           <div className="flex items-center gap-2">
             <span
@@ -611,7 +611,7 @@ function ConditionRow({
         disabled={!canRemove}
         className="h-8 w-8"
       >
-        <X className="h-4 w-4" />
+        <X className="size-4" />
       </Button>
     </div>
   );

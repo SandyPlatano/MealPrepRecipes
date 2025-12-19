@@ -75,7 +75,7 @@ export function AiPersonalitySection({
   const selectedPreset = AI_PERSONALITY_PRESETS.find((p) => p.id === personality);
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Preset Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {AI_PERSONALITY_PRESETS.filter((preset) => preset.id !== "custom").map(
@@ -96,7 +96,7 @@ export function AiPersonalitySection({
                 )}
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <Icon className="h-5 w-5" />
+                  <Icon className="size-5" />
                   <span className="font-semibold">{preset.name}</span>
                   {isSelected && (
                     <Badge variant="secondary" className="ml-auto">
@@ -127,7 +127,7 @@ export function AiPersonalitySection({
           )}
         >
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="h-5 w-5" />
+            <Sparkles className="size-5" />
             <span className="font-semibold">Custom</span>
             {personality === "custom" && (
               <Badge variant="secondary" className="ml-auto">
@@ -143,8 +143,8 @@ export function AiPersonalitySection({
 
       {/* Custom Prompt Editor */}
       {personality === "custom" && (
-        <Card className="p-4 space-y-4">
-          <div className="space-y-2">
+        <Card className="p-4 flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
             <Label>Custom AI Prompt</Label>
             <p className="text-sm text-muted-foreground">
               Define how the AI should behave when helping you with recipes and meal planning.
@@ -191,7 +191,7 @@ export function AiPersonalitySection({
               {PERSONALITY_ICONS[personality] &&
                 (() => {
                   const Icon = PERSONALITY_ICONS[personality];
-                  return <Icon className="h-4 w-4" />;
+                  return <Icon className="size-4" />;
                 })()}
             </div>
             <div className="flex-1">

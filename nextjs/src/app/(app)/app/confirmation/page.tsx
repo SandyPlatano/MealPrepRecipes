@@ -87,7 +87,7 @@ export default async function ConfirmationPage({
   const nutritionDashboard = nutritionResult.data;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <ConfirmationView
         weekStart={weekStartDate}
         weekPlan={

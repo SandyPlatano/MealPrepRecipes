@@ -118,7 +118,7 @@ export function CommunityRecipeGrid({
   const hasFilters = searchQuery || selectedCategory || selectedType;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
@@ -240,7 +240,7 @@ function RecipeCardSkeleton() {
   return (
     <div className="rounded-lg border overflow-hidden animate-pulse">
       <Skeleton className="w-full h-48" />
-      <div className="p-4 space-y-3">
+      <div className="p-4 flex flex-col gap-3">
         <Skeleton className="h-5 w-3/4" />
         <Skeleton className="h-4 w-1/2" />
         <div className="flex items-center gap-2 pt-2">

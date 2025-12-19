@@ -92,7 +92,7 @@ export function BulkExportDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden space-y-4">
+        <div className="flex-1 overflow-hidden flex-col">
           {/* Recipe Selector */}
           <RecipeSelectorList
             recipes={recipes}
@@ -102,7 +102,7 @@ export function BulkExportDialog({
           />
 
           {/* Format Selection */}
-          <div className="space-y-3 pt-2 border-t">
+          <div className="flex flex-col pt-2 border-t">
             <Label className="text-sm font-medium">Export Format</Label>
             <RadioGroup
               value={format}

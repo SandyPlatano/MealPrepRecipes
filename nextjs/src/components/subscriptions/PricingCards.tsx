@@ -58,9 +58,9 @@ export function PricingCards({ currentTier = 'free', onSelectPlan }: PricingCard
             </CardHeader>
 
             <CardContent className="flex-1">
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <p className="text-sm font-semibold text-muted-foreground">Features:</p>
-                <ul className="space-y-2">
+                <ul className="flex flex-col gap-2">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2">
                       <Check className="h-5 w-5 shrink-0 text-sage-600 dark:text-sage-400" />

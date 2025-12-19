@@ -87,7 +87,7 @@ export function CookieConsent() {
       <Card className="max-w-4xl mx-auto border-2 shadow-lg cookie-consent-banner">
         <CardContent className="p-4 md:p-6">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 flex flex-col gap-2">
               <div className="flex items-start justify-between gap-2">
                 <h3 id="cookie-consent-title" className="font-semibold text-base">We use cookies</h3>
                 <Button

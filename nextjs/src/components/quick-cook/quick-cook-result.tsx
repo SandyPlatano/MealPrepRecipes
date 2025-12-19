@@ -63,7 +63,7 @@ export function QuickCookResult({
   const isNewRecipe = suggestion.recipe_id === null;
 
   return (
-    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
       {/* AI Reasoning - Prominent at top */}
       <div className="bg-gradient-to-r from-coral-50 to-orange-50 dark:from-coral-950/30 dark:to-orange-950/30 rounded-lg p-4 border border-coral-200 dark:border-coral-800">
         <p className="text-sm italic text-foreground/80 leading-relaxed">
@@ -73,9 +73,9 @@ export function QuickCookResult({
 
       {/* Recipe Card */}
       <Card>
-        <CardContent className="p-4 space-y-4">
+        <CardContent className="p-4 flex flex-col gap-4">
           {/* Title and badges */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="flex items-start justify-between gap-2">
               <h2 className="text-xl font-bold leading-tight">
                 {suggestion.title}
@@ -134,7 +134,7 @@ export function QuickCookResult({
           </div>
 
           {/* Ingredients */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
               Ingredients ({suggestion.ingredients.length})
             </h3>
@@ -170,8 +170,8 @@ export function QuickCookResult({
                 )}
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-2 pt-2">
-              <ol className="space-y-3 text-sm">
+            <CollapsibleContent className="flex flex-col gap-2 pt-2">
+              <ol className="flex flex-col gap-3 text-sm">
                 {suggestion.instructions.map((instruction, index) => (
                   <li key={index} className="flex gap-3">
                     <span className="flex-shrink-0 w-6 h-6 rounded-full bg-coral-100 dark:bg-coral-900/30 text-coral-600 dark:text-coral-400 flex items-center justify-center text-xs font-bold">

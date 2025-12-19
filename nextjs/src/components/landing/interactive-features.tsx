@@ -79,7 +79,7 @@ export function InteractiveFeatures() {
           {/* Desktop: Side-by-side layout */}
           <div className="hidden lg:grid lg:grid-cols-2 gap-8 items-stretch">
             {/* Feature list */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {features.map((feature) => (
                 <button
                   key={feature.id}

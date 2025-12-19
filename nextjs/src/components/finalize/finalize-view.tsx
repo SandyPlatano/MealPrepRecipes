@@ -60,7 +60,7 @@ export function FinalizeView({
   const allCooksAssigned = totalMeals === assignedWithCook;
 
   return (
-    <div className="space-y-6 pb-24 md:pb-8">
+    <div className="flex flex-col gap-6 pb-24 md:pb-8">
       {/* Header Card with Week Info */}
       <Card>
         <CardContent className="p-4">

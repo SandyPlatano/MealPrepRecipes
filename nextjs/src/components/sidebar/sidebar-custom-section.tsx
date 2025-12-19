@@ -101,7 +101,7 @@ export function SidebarCustomSection({ section }: SidebarCustomSectionProps) {
       emoji={section.emoji || undefined}
       defaultOpen={!section.defaultCollapsed}
     >
-      <div className="px-2 space-y-0.5">
+      <div className="px-2 flex flex-col gap-0.5">
         {section.items
           .sort((a, b) => a.sortOrder - b.sortOrder)
           .map(renderItem)}

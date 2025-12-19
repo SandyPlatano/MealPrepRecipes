@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { SettingsHeader } from "@/components/settings/layout/settings-header";
 import { SettingSection, SettingRow } from "@/components/settings/shared/setting-row";
 import { SidebarSectionsManager } from "@/components/settings/sidebar/sidebar-sections-manager";
+import { MealPlanningItemsManager } from "@/components/settings/sidebar/meal-planning-items-manager";
 import { CustomLinkEditor } from "@/components/settings/sidebar/custom-link-editor";
 import { useSidebar } from "@/components/sidebar/sidebar-context";
 import type { CustomSectionConfig } from "@/types/sidebar-customization";
@@ -43,7 +44,7 @@ export default function SidebarSettingsPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <SettingsHeader
         title="Sidebar"
         description="Customize your sidebar sections, order, and appearance"
@@ -59,13 +60,23 @@ export default function SidebarSettingsPage() {
         </div>
       </SettingSection>
 
-      {/* Section 2: Custom Section Links */}
+      {/* Section 2: Meal Planning Items */}
+      <SettingSection
+        title="Meal Planning Items"
+        description="Customize the navigation items in your Meal Planning section. Drag to reorder, hide items, or add custom links."
+      >
+        <div className="pt-2">
+          <MealPlanningItemsManager />
+        </div>
+      </SettingSection>
+
+      {/* Section 3: Custom Section Links */}
       {customSections.length > 0 && (
         <SettingSection
           title="Custom Section Links"
           description="Manage the links in your custom sections"
         >
-          <div className="space-y-3 pt-2">
+          <div className="flex flex-col gap-3 pt-2">
             {customSections.map((section) => {
               const isExpanded = expandedSections.has(section.id);
               return (
@@ -174,9 +185,9 @@ export default function SidebarSettingsPage() {
       <div className="rounded-lg border bg-muted/30 p-4">
         <div className="flex items-start gap-3">
           <Settings2 className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
-          <div className="space-y-1">
+          <div className="flex flex-col gap-1">
             <p className="text-sm font-medium">Sidebar Tips</p>
-            <ul className="text-xs text-muted-foreground space-y-1">
+            <ul className="text-xs text-muted-foreground flex flex-col gap-1">
               <li>• Drag sections to change their order in the sidebar</li>
               <li>• Click the pencil icon to rename sections or add emojis</li>
               <li>• Hide sections you don&apos;t use with the eye icon</li>

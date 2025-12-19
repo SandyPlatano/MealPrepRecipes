@@ -190,7 +190,7 @@ export default function PantryScanner({ onScanComplete, subscriptionTier = 'free
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         {subscriptionTier === 'free' && (
           <Alert>
             <AlertCircle className="h-4 w-4" />
@@ -209,18 +209,18 @@ export default function PantryScanner({ onScanComplete, subscriptionTier = 'free
         )}
 
         {/* Scan Type Selection */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label>What are you scanning?</Label>
           <RadioGroup value={scanType} onValueChange={(value: string) => setScanType(value as 'fridge' | 'pantry' | 'other')}>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <RadioGroupItem value="fridge" id="fridge" />
               <Label htmlFor="fridge">Refrigerator</Label>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <RadioGroupItem value="pantry" id="pantry" />
               <Label htmlFor="pantry">Pantry/Cupboard</Label>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <RadioGroupItem value="other" id="other" />
               <Label htmlFor="other">Other Storage</Label>
             </div>
@@ -228,7 +228,7 @@ export default function PantryScanner({ onScanComplete, subscriptionTier = 'free
         </div>
 
         {/* Image Upload Area */}
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {!selectedFile ? (
             <div
               className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer"
@@ -238,7 +238,7 @@ export default function PantryScanner({ onScanComplete, subscriptionTier = 'free
                 <div className="p-3 rounded-full bg-primary/10">
                   <Camera className="h-8 w-8 text-primary" />
                 </div>
-                <div className="space-y-1">
+                <div className="flex flex-col gap-1">
                   <p className="font-medium">Click to upload an image</p>
                   <p className="text-sm text-muted-foreground">
                     JPEG, PNG or WebP • Max 5MB
@@ -247,7 +247,7 @@ export default function PantryScanner({ onScanComplete, subscriptionTier = 'free
               </div>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               {/* Image Preview */}
               <div className="relative rounded-lg overflow-hidden bg-muted">
                 {previewUrl && (
@@ -272,7 +272,7 @@ export default function PantryScanner({ onScanComplete, subscriptionTier = 'free
 
               {/* Upload Progress */}
               {isScanning && uploadProgress > 0 && (
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between text-sm">
                     <span>Analyzing image...</span>
                     <span>{uploadProgress}%</span>

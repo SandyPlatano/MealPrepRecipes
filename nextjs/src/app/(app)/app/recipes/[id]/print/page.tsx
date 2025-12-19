@@ -116,7 +116,7 @@ export default function PrintPage() {
           {/* Ingredients */}
           <section>
             <h2 className="text-2xl font-bold mb-4">Ingredients</h2>
-            <ul className="space-y-2">
+            <ul className="flex flex-col gap-2">
               {displayIngredients.map((ingredient, index) => (
                 <li key={index} className="flex items-start gap-2">
                   <span className="mt-1.5 h-2 w-2 rounded-full bg-gray-400 flex-shrink-0" />
@@ -129,7 +129,7 @@ export default function PrintPage() {
           {/* Instructions */}
           <section>
             <h2 className="text-2xl font-bold mb-4">Instructions</h2>
-            <ol className="space-y-4">
+            <ol className="flex flex-col gap-4">
               {recipe.instructions.map((instruction, index) => (
                 <li key={index} className="flex gap-4">
                   <span className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm">

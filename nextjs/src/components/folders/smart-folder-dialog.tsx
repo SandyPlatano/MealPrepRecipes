@@ -181,10 +181,10 @@ export function SmartFolderDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* Quick Presets (only for new folders) */}
           {!isEditing && (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label className="text-sm font-medium">Quick Start</Label>
               <div className="flex flex-wrap gap-2">
                 {SMART_FOLDER_PRESETS.slice(0, 4).map((preset) => (
@@ -206,7 +206,7 @@ export function SmartFolderDialog({
 
           {/* Name & Appearance */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
@@ -217,7 +217,7 @@ export function SmartFolderDialog({
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="category">Category</Label>
               <Select
                 value={categoryId ?? "none"}
@@ -241,7 +241,7 @@ export function SmartFolderDialog({
 
           {/* Emoji & Color */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>Icon</Label>
               <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-2 border rounded-md">
                 <button
@@ -272,7 +272,7 @@ export function SmartFolderDialog({
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>Color</Label>
               <div className="flex flex-wrap gap-1.5 p-2 border rounded-md">
                 <button
@@ -302,7 +302,7 @@ export function SmartFolderDialog({
           </div>
 
           {/* Filter Conditions */}
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium">Filter Conditions</Label>
               <span className="text-xs text-muted-foreground">
@@ -310,7 +310,7 @@ export function SmartFolderDialog({
               </span>
             </div>
 
-            <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+            <div className="flex flex-col gap-3 p-4 bg-muted/50 rounded-lg">
               {conditions.map((condition, index) => (
                 <FilterConditionRow
                   key={index}

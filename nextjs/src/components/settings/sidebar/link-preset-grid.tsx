@@ -23,7 +23,7 @@ export function LinkPresetGrid({
     existingHrefs.includes(preset.href);
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {PRESET_CATEGORIES.map((category) => (
         <div key={category.id}>
           <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">

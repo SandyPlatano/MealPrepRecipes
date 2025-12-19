@@ -59,7 +59,7 @@ export default async function ShopPage() {
   const showRecipeSources = preferences?.ui?.showRecipeSources ?? false;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-mono font-bold">Shopping List</h1>

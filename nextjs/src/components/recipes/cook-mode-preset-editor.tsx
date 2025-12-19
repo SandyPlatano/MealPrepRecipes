@@ -203,9 +203,9 @@ export function CookModePresetEditor({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="flex flex-col py-4">
             {/* Preset Name */}
-            <div className="space-y-2">
+            <div className="flex flex-col">
               <Label htmlFor="preset-name">Preset Name</Label>
               <Input
                 id="preset-name"
@@ -216,7 +216,7 @@ export function CookModePresetEditor({
             </div>
 
             {/* Icon Picker */}
-            <div className="space-y-2">
+            <div className="flex flex-col">
               <Label>Preset Icon</Label>
               <div className="grid grid-cols-8 gap-2">
                 {PRESET_ICONS.map(({ name, icon: Icon }) => (
@@ -263,9 +263,9 @@ export function CookModePresetEditor({
               </TabsList>
 
               {/* Display Tab */}
-              <TabsContent value="display" className="space-y-4">
+              <TabsContent value="display" className="flex flex-col">
                 {/* Font Size */}
-                <div className="space-y-2">
+                <div className="flex flex-col">
                   <Label className="flex items-center gap-1">
                     <Type className="h-3 w-3" />
                     Font Size
@@ -288,7 +288,7 @@ export function CookModePresetEditor({
                 </div>
 
                 {/* Theme Override */}
-                <div className="space-y-2">
+                <div className="flex flex-col">
                   <Label>Theme</Label>
                   <div className="grid grid-cols-3 gap-2">
                     {(
@@ -313,7 +313,7 @@ export function CookModePresetEditor({
                 </div>
 
                 {/* Accent Color */}
-                <div className="space-y-2">
+                <div className="flex flex-col">
                   <Label htmlFor="accent-color">Accent Color</Label>
                   <div className="flex gap-2">
                     <Input
@@ -333,7 +333,7 @@ export function CookModePresetEditor({
                 </div>
 
                 {/* Highlight Style */}
-                <div className="space-y-2">
+                <div className="flex flex-col">
                   <Label htmlFor="highlight-style">Ingredient Highlight Style</Label>
                   <Select
                     value={settings.display.ingredientHighlightStyle}
@@ -354,7 +354,7 @@ export function CookModePresetEditor({
                 </div>
 
                 {/* Transition */}
-                <div className="space-y-2">
+                <div className="flex flex-col">
                   <Label htmlFor="transition">Step Transition</Label>
                   <Select
                     value={settings.display.stepTransition}
@@ -374,7 +374,7 @@ export function CookModePresetEditor({
                 </div>
 
                 {/* Display Toggles */}
-                <div className="space-y-2">
+                <div className="flex flex-col">
                   <SettingToggle
                     label="High Contrast"
                     checked={settings.display.highContrast}
@@ -394,7 +394,7 @@ export function CookModePresetEditor({
               </TabsContent>
 
               {/* Voice Tab */}
-              <TabsContent value="voice" className="space-y-4">
+              <TabsContent value="voice" className="flex flex-col">
                 <SettingToggle
                   label="Voice Commands Enabled"
                   checked={settings.voice.enabled}
@@ -402,7 +402,7 @@ export function CookModePresetEditor({
                 />
 
                 {/* Wake Words */}
-                <div className="space-y-2">
+                <div className="flex flex-col">
                   <Label htmlFor="wake-words">Wake Words (comma-separated)</Label>
                   <Input
                     id="wake-words"
@@ -419,7 +419,7 @@ export function CookModePresetEditor({
                 </div>
 
                 {/* Command Timeout */}
-                <div className="space-y-2">
+                <div className="flex flex-col">
                   <Label htmlFor="command-timeout">Command Timeout (ms)</Label>
                   <Input
                     id="command-timeout"
@@ -435,7 +435,7 @@ export function CookModePresetEditor({
                 </div>
 
                 {/* Voice Toggles */}
-                <div className="space-y-2">
+                <div className="flex flex-col">
                   <SettingToggle
                     label="Confirm Commands"
                     checked={settings.voice.confirmCommands}
@@ -450,7 +450,7 @@ export function CookModePresetEditor({
               </TabsContent>
 
               {/* Gestures Tab */}
-              <TabsContent value="gestures" className="space-y-4">
+              <TabsContent value="gestures" className="flex flex-col">
                 <SettingToggle
                   label="Swipe Enabled"
                   checked={settings.gestures.swipeEnabled}
@@ -491,9 +491,9 @@ export function CookModePresetEditor({
               </TabsContent>
 
               {/* Timers Tab */}
-              <TabsContent value="timers" className="space-y-4">
+              <TabsContent value="timers" className="flex flex-col">
                 {/* Quick Timer Presets */}
-                <div className="space-y-2">
+                <div className="flex flex-col">
                   <Label htmlFor="timer-presets">Quick Timer Presets (comma-separated minutes)</Label>
                   <Input
                     id="timer-presets"
@@ -513,7 +513,7 @@ export function CookModePresetEditor({
                 </div>
 
                 {/* Timer Toggles */}
-                <div className="space-y-2">
+                <div className="flex flex-col">
                   <SettingToggle
                     label="Auto-Detect Timers"
                     checked={settings.timers.autoDetectTimers}
@@ -538,7 +538,7 @@ export function CookModePresetEditor({
               </TabsContent>
 
               {/* Behavior Tab */}
-              <TabsContent value="behavior" className="space-y-4">
+              <TabsContent value="behavior" className="flex flex-col">
                 <SettingToggle
                   label="Keep Screen Awake"
                   checked={settings.behavior.keepScreenAwake}
@@ -557,7 +557,7 @@ export function CookModePresetEditor({
               </TabsContent>
 
               {/* Visibility Tab */}
-              <TabsContent value="visibility" className="space-y-4">
+              <TabsContent value="visibility" className="flex flex-col">
                 <SettingToggle
                   label="Show Ingredients"
                   checked={settings.visibility.showIngredients}
@@ -663,7 +663,7 @@ interface GestureActionSelectProps {
 
 function GestureActionSelect({ label, value, onChange }: GestureActionSelectProps) {
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col">
       <Label htmlFor={`gesture-${label.toLowerCase().replace(/\s+/g, "-")}`}>{label}</Label>
       <Select value={value} onValueChange={(v: GestureAction) => onChange(v)}>
         <SelectTrigger id={`gesture-${label.toLowerCase().replace(/\s+/g, "-")}`}>

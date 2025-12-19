@@ -97,7 +97,7 @@ export default function UserProfilePage() {
   const displayName = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || `@${profile.username}`;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Profile Card */}
       <Card>
         <CardContent className="p-6">
@@ -111,7 +111,7 @@ export default function UserProfilePage() {
             </Avatar>
 
             {/* Info */}
-            <div className="flex-1 space-y-4">
+            <div className="flex-1 flex flex-col gap-4">
               <div>
                 <h1 className="text-2xl font-bold">{displayName}</h1>
                 {(profile.first_name || profile.last_name) && (
@@ -279,13 +279,13 @@ export default function UserProfilePage() {
 
 function ProfileSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <Card>
         <CardContent className="p-6">
           <div className="flex flex-col items-center sm:flex-row sm:items-start gap-6">
             <Skeleton className="h-24 w-24 sm:h-32 sm:w-32 rounded-full" />
-            <div className="flex-1 space-y-4">
-              <div className="space-y-2">
+            <div className="flex-1 flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
                 <Skeleton className="h-8 w-48" />
                 <Skeleton className="h-4 w-24" />
               </div>

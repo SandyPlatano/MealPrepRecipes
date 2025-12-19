@@ -74,7 +74,7 @@ export default function MealPlanningSettingsPage() {
   }, [fetchGoogleStatus]);
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <SettingsHeader
         title="Meal Planning"
         description="Customize your meal planner and calendar settings"

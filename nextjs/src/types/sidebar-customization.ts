@@ -302,8 +302,17 @@ export interface BuiltInSectionConfig {
   /**
    * Order of items within the section.
    * Array of item IDs in display order.
+   * Can include both built-in item IDs (e.g., "plan", "recipes") and
+   * custom item UUIDs, allowing users to interleave custom links.
    */
   itemOrder: string[];
+
+  /**
+   * Custom items added by the user to this built-in section.
+   * These are user-added links that can be interleaved with built-in items.
+   * The itemOrder array contains both built-in IDs and custom item UUIDs.
+   */
+  customItems: CustomSectionItem[];
 }
 
 /**
@@ -505,6 +514,7 @@ export const DEFAULT_BUILTIN_SECTIONS: Record<
     sortOrder: 0,
     items: {},
     itemOrder: [],
+    customItems: [],
   },
   pinned: {
     id: "pinned",
@@ -517,6 +527,7 @@ export const DEFAULT_BUILTIN_SECTIONS: Record<
     sortOrder: 1,
     items: {},
     itemOrder: [],
+    customItems: [],
   },
   "meal-planning": {
     id: "meal-planning",
@@ -529,6 +540,7 @@ export const DEFAULT_BUILTIN_SECTIONS: Record<
     sortOrder: 2,
     items: DEFAULT_MEAL_PLANNING_ITEMS,
     itemOrder: [...DEFAULT_MEAL_PLANNING_ITEM_ORDER],
+    customItems: [],
   },
   collections: {
     id: "collections",
@@ -541,6 +553,7 @@ export const DEFAULT_BUILTIN_SECTIONS: Record<
     sortOrder: 3,
     items: {},
     itemOrder: [],
+    customItems: [],
   },
 };
 

@@ -29,7 +29,7 @@ export function SettingRow({
         className
       )}
     >
-      <div className="space-y-0.5">
+      <div className="flex flex-col gap-0.5">
         <label htmlFor={`${id}-control`} className="text-sm font-medium">
           {label}
         </label>
@@ -61,8 +61,8 @@ export function SettingSection({
   className,
 }: SettingSectionProps) {
   return (
-    <div className={cn("space-y-4", className)}>
-      <div className="space-y-1">
+    <div className={cn("flex flex-col gap-4", className)}>
+      <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <h3 className="text-base font-mono font-semibold">{title}</h3>
           {badge && (

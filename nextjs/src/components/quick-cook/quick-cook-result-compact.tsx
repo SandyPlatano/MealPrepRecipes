@@ -49,7 +49,7 @@ export function QuickCookResultCompact({
   const isNewRecipe = suggestion.recipe_id === null;
 
   return (
-    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
       {/* AI Reasoning - Compact */}
       <div className="bg-gradient-to-r from-coral-50 to-orange-50 dark:from-coral-950/30 dark:to-orange-950/30 rounded-lg p-3 border border-coral-200 dark:border-coral-800">
         <p className="text-sm italic text-foreground/80 line-clamp-2">
@@ -58,7 +58,7 @@ export function QuickCookResultCompact({
       </div>
 
       {/* Recipe Header */}
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <div className="flex items-start justify-between gap-2">
           <h2 className="text-xl font-bold leading-tight line-clamp-2">
             {suggestion.title}
@@ -71,7 +71,7 @@ export function QuickCookResultCompact({
           )}
         </div>
 
-        {/* Badges row */}
+        {/* Badges row - already using flex gap */}
         <div className="flex flex-wrap gap-2">
           {suggestion.cuisine && (
             <Badge variant="secondary" className="text-xs">

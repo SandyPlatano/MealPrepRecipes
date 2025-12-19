@@ -134,9 +134,9 @@ export function InvitationManager({ isOwner }: InvitationManagerProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Send Invitation */}
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <Mail className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-medium">Invite by Email</span>
@@ -169,12 +169,12 @@ export function InvitationManager({ isOwner }: InvitationManagerProps) {
 
       {/* Pending Invitations */}
       {pendingInvitations.length > 0 && (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium">Pending Invitations</span>
           </div>
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {pendingInvitations.map((invitation) => (
               <div
                 key={invitation.id}

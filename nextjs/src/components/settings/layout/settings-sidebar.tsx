@@ -34,7 +34,7 @@ export function SettingsSidebar() {
         <h2 className="font-mono font-semibold text-lg">Settings</h2>
       </div>
       <ScrollArea className="flex-1">
-        <nav className="p-3 space-y-1">
+        <nav className="p-3 flex flex-col gap-1">
           {SETTINGS_CATEGORIES.map((category) => {
             const Icon = category.icon;
             const isActive =
@@ -54,13 +54,13 @@ export function SettingsSidebar() {
                       : "text-muted-foreground"
                   )}
                 >
-                  <Icon className="h-4 w-4 flex-shrink-0" />
+                  <Icon className="size-4 flex-shrink-0" />
                   <span>{category.label}</span>
                 </Link>
 
                 {/* Sub-sections for active category */}
                 {hasSubSections && (
-                  <div className="mt-1 ml-4 space-y-0.5 border-l border-border/50 pl-3">
+                  <div className="mt-1 ml-4 flex flex-col gap-0.5 border-l border-border/50 pl-3">
                     {category.subSections!.map((subSection) => (
                       <button
                         key={subSection.id}
@@ -73,7 +73,7 @@ export function SettingsSidebar() {
                             : "text-muted-foreground"
                         )}
                       >
-                        <ChevronRight className="h-3 w-3 flex-shrink-0" />
+                        <ChevronRight className="size-3 flex-shrink-0" />
                         <span>{subSection.label}</span>
                       </button>
                     ))}

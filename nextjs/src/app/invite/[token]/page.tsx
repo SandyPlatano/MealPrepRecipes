@@ -73,7 +73,7 @@ export default function InvitePage() {
             You&apos;ve been invited to join a household
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex flex-col gap-4">
           {state === "loading" && (
             <div className="flex flex-col items-center gap-4 py-8">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />

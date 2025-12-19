@@ -19,7 +19,7 @@ interface MealTypeIconProps {
 
 export function MealTypeIcon({ type, className }: MealTypeIconProps) {
   const Icon = MEAL_TYPE_ICONS[type];
-  return <Icon className={cn("h-4 w-4", className)} />;
+  return <Icon className={cn("size-4", className)} />;
 }
 
 export { MEAL_TYPE_ICONS };

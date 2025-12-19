@@ -169,7 +169,7 @@ export function MealPlanDemo() {
             <Badge variant="secondary">3 meals planned</Badge>
           </div>
 
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             {meals.map((meal, i) => (
               <div
                 key={i}
@@ -260,7 +260,7 @@ export function ShoppingListDemo() {
             </span>
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {items.map((item, i) => (
               <div
                 key={i}
@@ -337,9 +337,9 @@ export function RecipeImportDemo() {
         </div>
 
         <div className="p-6 bg-background">
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             {/* URL Input */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">Paste recipe URL</label>
               <div className="flex gap-2">
                 <div

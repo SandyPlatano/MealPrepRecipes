@@ -15,6 +15,7 @@ import {
   SIDEBAR_DIMENSIONS,
   type AppSidebarProps,
 } from "@/components/sidebar";
+import { MobileBottomNav } from "./mobile-bottom-nav";
 import type {
   FolderWithChildren,
   FolderCategoryWithFolders,
@@ -126,12 +127,15 @@ function AppShellContent({
           {...sidebarProps}
         />
 
-        {/* Main Content */}
+        {/* Main Content - padding accounts for bottom nav height */}
         <main className="flex-1">
-          <div className="container mx-auto w-full px-4 py-8 pb-24">
+          <div className="container mx-auto w-full px-4 py-8 pb-20">
             {children}
           </div>
         </main>
+
+        {/* Bottom Tab Navigation */}
+        <MobileBottomNav />
       </div>
     );
   }

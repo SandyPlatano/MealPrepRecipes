@@ -93,9 +93,9 @@ export function TimerDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex flex-col gap-4 py-4">
           {/* Quick presets */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label>Quick Presets</Label>
             <div className="flex flex-wrap gap-2">
               {QUICK_PRESETS.map((preset) => (
@@ -113,7 +113,7 @@ export function TimerDialog({
 
           {/* Custom duration */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="minutes">Minutes</Label>
               <Input
                 id="minutes"
@@ -125,7 +125,7 @@ export function TimerDialog({
                 onKeyPress={handleKeyPress}
               />
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="seconds">Seconds</Label>
               <Input
                 id="seconds"
@@ -140,7 +140,7 @@ export function TimerDialog({
           </div>
 
           {/* Label */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="label">Label</Label>
             <Input
               id="label"

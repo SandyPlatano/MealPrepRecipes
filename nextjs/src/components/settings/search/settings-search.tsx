@@ -93,7 +93,7 @@ export function SettingsSearch() {
   return (
     <div className="relative">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         <Input
           ref={inputRef}
           type="text"
@@ -140,7 +140,7 @@ export function SettingsSearch() {
                     </div>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                       <span>{category?.label}</span>
-                      <ArrowRight className="h-3 w-3" />
+                      <ArrowRight className="size-3" />
                       <span className="truncate">{setting.description}</span>
                     </div>
                   </div>

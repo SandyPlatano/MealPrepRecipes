@@ -85,9 +85,9 @@ export function CategoryDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex flex-col gap-4 py-4">
           {/* Name */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="category-name">Name</Label>
             <Input
               id="category-name"
@@ -103,7 +103,7 @@ export function CategoryDialog({
           </div>
 
           {/* Emoji */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label>Icon (optional)</Label>
             <div className="flex flex-wrap gap-1.5">
               <Button

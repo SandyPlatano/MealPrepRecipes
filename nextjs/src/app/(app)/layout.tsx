@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { logout } from "@/app/actions/auth";
 import { QuickCookProvider } from "@/components/quick-cook/quick-cook-provider";
+import { DifficultyThresholdsProvider } from "@/contexts/difficulty-thresholds-context";
 import { AppShell } from "@/components/layout/app-shell";
 
 export default async function AppLayout({
@@ -27,11 +28,13 @@ export default async function AppLayout({
 
   return (
     <QuickCookProvider>
-      <AppShell user={user} logoutAction={logout}>
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-          {children}
-        </div>
-      </AppShell>
+      <DifficultyThresholdsProvider>
+        <AppShell user={user} logoutAction={logout}>
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            {children}
+          </div>
+        </AppShell>
+      </DifficultyThresholdsProvider>
     </QuickCookProvider>
   );
 }

@@ -126,15 +126,15 @@ export function UsernameSection({ currentUsername }: UsernameSectionProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Globe className="h-5 w-5" />
+          <Globe className="size-5" />
           Public Username
         </CardTitle>
         <CardDescription>
           Your username appears on public recipes you share. This is how others will find you.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
+      <CardContent className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="username">Username</Label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
@@ -151,13 +151,13 @@ export function UsernameSection({ currentUsername }: UsernameSectionProps) {
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
               {isChecking && (
-                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                <Loader2 className="size-4 animate-spin text-muted-foreground" />
               )}
               {!isChecking && isAvailable === true && (
-                <Check className="h-4 w-4 text-green-600" />
+                <Check className="size-4 text-green-600" />
               )}
               {!isChecking && isAvailable === false && (
-                <X className="h-4 w-4 text-destructive" />
+                <X className="size-4 text-destructive" />
               )}
             </div>
           </div>
@@ -165,7 +165,7 @@ export function UsernameSection({ currentUsername }: UsernameSectionProps) {
           {/* Error message */}
           {error && (
             <p className="text-sm text-destructive flex items-center gap-1">
-              <X className="h-3 w-3" />
+              <X className="size-3" />
               {error}
             </p>
           )}
@@ -173,7 +173,7 @@ export function UsernameSection({ currentUsername }: UsernameSectionProps) {
           {/* Suggestion */}
           {suggestion && (
             <div className="flex items-center gap-2 text-sm">
-              <Sparkles className="h-3 w-3 text-primary" />
+              <Sparkles className="size-3 text-primary" />
               <span className="text-muted-foreground">Try:</span>
               <button
                 type="button"
@@ -188,7 +188,7 @@ export function UsernameSection({ currentUsername }: UsernameSectionProps) {
           {/* Success message */}
           {isAvailable && (
             <p className="text-sm text-green-600 flex items-center gap-1">
-              <Check className="h-3 w-3" />
+              <Check className="size-3" />
               Username is available!
             </p>
           )}
@@ -196,15 +196,15 @@ export function UsernameSection({ currentUsername }: UsernameSectionProps) {
           {/* Current username display */}
           {currentUsername && !hasChanges && (
             <p className="text-sm text-muted-foreground flex items-center gap-1">
-              <AtSign className="h-3 w-3" />
+              <AtSign className="size-3" />
               Your current username: <span className="font-medium">@{currentUsername}</span>
             </p>
           )}
 
           {/* Guidelines */}
-          <div className="text-xs text-muted-foreground space-y-1 mt-3">
+          <div className="text-xs text-muted-foreground flex flex-col gap-1 mt-3">
             <p>Username requirements:</p>
-            <ul className="list-disc list-inside space-y-0.5 ml-2">
+            <ul className="list-disc list-inside flex flex-col gap-0.5 ml-2">
               <li>3-30 characters</li>
               <li>Lowercase letters, numbers, and underscores only</li>
               <li>Cannot start with a number</li>
@@ -219,7 +219,7 @@ export function UsernameSection({ currentUsername }: UsernameSectionProps) {
         >
           {isSaving ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Loader2 className="size-4 mr-2 animate-spin" />
               Saving...
             </>
           ) : (

@@ -106,7 +106,7 @@ export function CookModeScrollableView({
   return (
     <div
       ref={containerRef}
-      className="space-y-4 max-h-[70vh] overflow-y-auto pr-2 scroll-smooth"
+      className="flex flex-col max-h-[70vh] overflow-y-auto pr-2 scroll-smooth"
     >
       {instructions.map((instruction, index) => {
         const isCurrentStep = index === currentStep;
@@ -129,7 +129,7 @@ export function CookModeScrollableView({
             )}
             onClick={() => handleStepClick(index)}
           >
-            <div className="space-y-3">
+            <div className="flex flex-col">
               {/* Step header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

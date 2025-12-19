@@ -92,7 +92,7 @@ export function CategoryOrderSection({ categories }: CategoryOrderSectionProps) 
     settings.category_order.length > 0;
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -108,7 +108,7 @@ export function CategoryOrderSection({ categories }: CategoryOrderSectionProps) 
             onClick={handleReset}
             disabled={isSaving}
           >
-            <RotateCcw className="h-4 w-4 mr-2" />
+            <RotateCcw className="size-4 mr-2" />
             Reset
           </Button>
         )}
@@ -117,13 +117,13 @@ export function CategoryOrderSection({ categories }: CategoryOrderSectionProps) 
       {/* Status Badge */}
       {hasCustomOrder && (
         <Badge variant="secondary" className="gap-1.5">
-          <Check className="h-3 w-3" />
+          <Check className="size-3" />
           Custom order saved
         </Badge>
       )}
 
       {/* Categories List */}
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         {allOrderedCategories.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             No categories available. Add ingredient categories first.
@@ -149,7 +149,7 @@ export function CategoryOrderSection({ categories }: CategoryOrderSectionProps) 
               }}
             >
               {/* Drag Handle */}
-              <GripVertical className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+              <GripVertical className="size-5 text-muted-foreground flex-shrink-0" />
 
               {/* Emoji */}
               <div

@@ -121,8 +121,8 @@ export function UsernameSetupModal({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="space-y-2">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="username">Username</Label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
@@ -183,9 +183,9 @@ export function UsernameSetupModal({
             )}
 
             {/* Guidelines */}
-            <div className="text-xs text-muted-foreground space-y-1 mt-3">
+            <div className="text-xs text-muted-foreground flex flex-col gap-1 mt-3">
               <p>Username requirements:</p>
-              <ul className="list-disc list-inside space-y-0.5 ml-2">
+              <ul className="list-disc list-inside flex flex-col gap-0.5 ml-2">
                 <li>3-30 characters</li>
                 <li>Lowercase letters, numbers, and underscores only</li>
                 <li>Cannot start with a number</li>

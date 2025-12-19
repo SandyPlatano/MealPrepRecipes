@@ -161,10 +161,10 @@ export function SubstitutionSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-6 space-y-6">
+        <div className="mt-6 flex flex-col gap-6">
           {/* Reason Selection */}
           {!hasFetched && (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <Label className="text-sm font-medium">Why do you need a substitute?</Label>
               <RadioGroup
                 value={reason}
@@ -244,28 +244,28 @@ export function SubstitutionSheet({
 
           {/* Suggestions List */}
           {suggestions.length > 0 && (
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               {/* Action Selection */}
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label className="text-sm font-medium">What should we do?</Label>
                 <RadioGroup
                   value={selectedAction}
                   onValueChange={(v) => setSelectedAction(v as ActionType)}
                   className="grid grid-cols-1 gap-2"
                 >
-                  <div className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50">
+                  <div className="flex items-center gap-2 p-2 rounded-lg border hover:bg-muted/50">
                     <RadioGroupItem value="replace" id="replace" />
                     <Label htmlFor="replace" className="flex-1 cursor-pointer text-sm">
                       Replace the original item
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50">
+                  <div className="flex items-center gap-2 p-2 rounded-lg border hover:bg-muted/50">
                     <RadioGroupItem value="add_new" id="add_new" />
                     <Label htmlFor="add_new" className="flex-1 cursor-pointer text-sm">
                       Add substitute, keep original
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50">
+                  <div className="flex items-center gap-2 p-2 rounded-lg border hover:bg-muted/50">
                     <RadioGroupItem value="mark_unavailable" id="mark_unavailable" />
                     <Label htmlFor="mark_unavailable" className="flex-1 cursor-pointer text-sm">
                       Mark original as unavailable
@@ -282,7 +282,7 @@ export function SubstitutionSheet({
               )}
 
               {/* Suggestion Cards */}
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 {suggestions.map((suggestion, index) => (
                   <SubstitutionSuggestionCard
                     key={index}
@@ -336,7 +336,7 @@ function ReasonOption({
   description: string;
 }) {
   return (
-    <div className="flex items-start space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer">
+    <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer">
       <RadioGroupItem value={value} id={value} className="mt-0.5" />
       <Label htmlFor={value} className="flex-1 cursor-pointer">
         <span className="font-medium block">{label}</span>

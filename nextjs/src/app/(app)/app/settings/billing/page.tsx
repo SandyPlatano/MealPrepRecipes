@@ -138,12 +138,12 @@ export default function BillingSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-8">
+      <div className="flex flex-col gap-8">
         <SettingsHeader
           title="Billing & Subscription"
           description="Manage your subscription and billing"
         />
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <Skeleton className="h-32 w-full" />
           <Skeleton className="h-64 w-full" />
         </div>
@@ -155,7 +155,7 @@ export default function BillingSettingsPage() {
   const isActive = subscriptionData?.status === "active" || subscriptionData?.status === "trialing";
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <SettingsHeader
         title="Billing & Subscription"
         description="Manage your subscription and billing"
@@ -193,7 +193,7 @@ export default function BillingSettingsPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex flex-col gap-4">
             {subscriptionData?.currentPeriodEnd && isActive && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4" />
@@ -251,8 +251,8 @@ export default function BillingSettingsPage() {
                     <span className="text-muted-foreground">/month</span>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <ul className="space-y-2">
+                <CardContent className="flex flex-col gap-4">
+                  <ul className="flex flex-col gap-2">
                     {SUBSCRIPTION_TIERS.pro.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm">
                         <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
@@ -289,8 +289,8 @@ export default function BillingSettingsPage() {
                   <span className="text-muted-foreground">/month</span>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-2">
+              <CardContent className="flex flex-col gap-4">
+                <ul className="flex flex-col gap-2">
                   {SUBSCRIPTION_TIERS.premium.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
@@ -322,7 +322,7 @@ export default function BillingSettingsPage() {
         <SettingSection title="Your Current Features">
           <Card className="group transition-colors">
             <CardContent className="pt-6">
-              <ul className="space-y-2">
+              <ul className="flex flex-col gap-2">
                 {SUBSCRIPTION_TIERS.free.features.map((feature, idx) => (
                   <li key={idx} className="flex items-start gap-2 text-sm">
                     <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />

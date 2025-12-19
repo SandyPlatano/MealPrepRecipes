@@ -94,7 +94,7 @@ export function WeekStats({ assignments, cookColors }: WeekStatsProps) {
               Cook Assignments
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="flex flex-col gap-2">
             {sortedCooks.map(([cook, count], index) => {
               const cookColor = cookColors[cook];
               const cookTimeTotal = cookTimes[cook] || 0;
@@ -146,7 +146,7 @@ export function WeekStats({ assignments, cookColors }: WeekStatsProps) {
             Week Overview
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="flex flex-col gap-3">
           {/* Total Time */}
           <div className="flex items-center justify-between p-3 rounded-md bg-muted/30">
             <div className="flex items-center gap-2">
@@ -167,7 +167,7 @@ export function WeekStats({ assignments, cookColors }: WeekStatsProps) {
 
           {/* Meal Types */}
           {sortedMealTypes.length > 0 && (
-            <div className="space-y-2 pt-2 border-t">
+            <div className="flex flex-col gap-2 pt-2 border-t">
               <p className="text-xs font-medium text-muted-foreground">
                 Meal Types
               </p>

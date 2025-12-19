@@ -34,7 +34,7 @@ export function WasteMetricCard({
     <Card className={cn("overflow-hidden", className)}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
-          <div className="space-y-1">
+          <div className="flex flex-col gap-1">
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
             <p className="text-2xl font-bold tracking-tight">{value}</p>
             {subtitle && (
@@ -81,7 +81,7 @@ export function WasteMetricCardSkeleton() {
     <Card className="overflow-hidden">
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="h-4 w-20 bg-muted animate-pulse rounded" />
             <div className="h-8 w-16 bg-muted animate-pulse rounded" />
           </div>

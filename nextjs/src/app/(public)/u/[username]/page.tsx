@@ -93,7 +93,7 @@ export default async function PublicUserProfilePage({ params }: Props) {
               </Avatar>
 
               {/* Info */}
-              <div className="flex-1 space-y-4">
+              <div className="flex-1 flex flex-col gap-4">
                 <div>
                   <h1 className="text-2xl font-bold">{displayName}</h1>
                   {(profile.first_name || profile.last_name) && (

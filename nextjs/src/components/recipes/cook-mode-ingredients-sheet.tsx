@@ -143,7 +143,7 @@ export function CookModeIngredientsSheet({
                   Needed for this step ({highlightedCount})
                 </Badge>
               </div>
-              <div className="space-y-4">
+              <div className="flex flex-col">
                 {highlightedIngredients.map(({ ingredient, index }) => (
                   <div
                     key={index}
@@ -187,7 +187,7 @@ export function CookModeIngredientsSheet({
                   </span>
                 </div>
               )}
-              <div className="space-y-3">
+              <div className="flex flex-col">
                 {otherIngredients.map(({ ingredient, index }) => (
                   <div
                     key={index}

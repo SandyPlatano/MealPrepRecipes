@@ -85,7 +85,7 @@ export function QuickCookInput({
   };
 
   return (
-    <div className="space-y-6 w-full overflow-hidden">
+    <div className="flex flex-col gap-6 w-full overflow-hidden">
       {/* Progress indicator */}
       <div className="flex items-center justify-center gap-2">
         <div
@@ -109,8 +109,8 @@ export function QuickCookInput({
 
       {/* Step 1: Time */}
       {step === 'time' && (
-        <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-          <div className="text-center space-y-2">
+        <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300">
+          <div className="text-center flex flex-col gap-2">
             <div className="inline-flex items-center gap-2 text-coral-500">
               <Clock className="h-5 w-5" />
               <span className="text-sm font-medium uppercase tracking-wide">
@@ -148,8 +148,8 @@ export function QuickCookInput({
 
       {/* Step 2: Energy Level */}
       {step === 'energy' && (
-        <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-          <div className="text-center space-y-2">
+        <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300">
+          <div className="text-center flex flex-col gap-2">
             <div className="inline-flex items-center gap-2 text-coral-500">
               <Zap className="h-5 w-5" />
               <span className="text-sm font-medium uppercase tracking-wide">
@@ -162,7 +162,7 @@ export function QuickCookInput({
             </p>
           </div>
 
-          <div className="space-y-3 w-full">
+          <div className="flex flex-col gap-3 w-full">
             {(Object.entries(ENERGY_LEVEL_CONFIG) as [EnergyLevel, typeof ENERGY_LEVEL_CONFIG.zombie][]).map(
               ([level, config]) => (
                 <Button
@@ -202,8 +202,8 @@ export function QuickCookInput({
 
       {/* Step 3: Ingredients (Optional) */}
       {step === 'ingredients' && (
-        <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-          <div className="text-center space-y-2">
+        <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300">
+          <div className="text-center flex flex-col gap-2">
             <span className="text-sm font-medium uppercase tracking-wide text-coral-500">
               Step 3 of 3 (Optional)
             </span>
@@ -215,7 +215,7 @@ export function QuickCookInput({
             </p>
           </div>
 
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <div className="flex gap-2">
               <Input
                 placeholder="e.g., chicken, rice, broccoli"
@@ -260,6 +260,7 @@ export function QuickCookInput({
           </div>
 
           <div className="flex flex-col gap-2 pt-2">
+            {/* Already using gap, no change needed */}
             <Button
               size="lg"
               onClick={handleSubmit}

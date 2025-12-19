@@ -64,7 +64,7 @@ export function ConfirmationView({
   const totalMeals = allAssignments.length;
 
   return (
-    <div className="space-y-6 pb-24 md:pb-8">
+    <div className="flex flex-col gap-6 pb-24 md:pb-8">
       {/* Confetti celebration - only if save was successful */}
       {saveSuccessful && <Confetti active={true} duration={3000} pieces={80} />}
 

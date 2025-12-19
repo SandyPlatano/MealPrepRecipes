@@ -26,12 +26,12 @@ export default async function CookModeSettingsPage() {
 
 function CookModeSettingsPageSkeleton() {
   return (
-    <div className="space-y-8">
-      <div className="space-y-4 pb-6 border-b">
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-4 pb-6 border-b">
         <Skeleton className="h-10 w-64" />
         <Skeleton className="h-4 w-96" />
       </div>
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         <Skeleton className="h-24 w-full" />
         <Skeleton className="h-24 w-full" />
         <Skeleton className="h-24 w-full" />

@@ -75,7 +75,7 @@ export function MemberRoleEditor({
 
   return (
     <div className={className}>
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         {members.map((member) => {
           const isCurrentUser = member.user_id === currentUserId;
           const memberRole = member.role as HouseholdRole;
@@ -85,7 +85,7 @@ export function MemberRoleEditor({
               key={member.user_id}
               className="flex items-center gap-3 p-3 rounded-lg border"
             >
-              <Avatar className="h-8 w-8">
+              <Avatar className="size-8">
                 <AvatarFallback className="text-sm">
                   {getMemberInitials(member)}
                 </AvatarFallback>

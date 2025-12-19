@@ -42,7 +42,7 @@ export function SettingsMobileNav() {
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <Icon className="h-5 w-5" />
+              <Icon className="size-5" />
               <span className="text-[10px] font-medium leading-tight">
                 {category.shortLabel}
               </span>
@@ -61,7 +61,7 @@ export function SettingsMobileNav() {
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <MoreHorizontal className="h-5 w-5" />
+                <MoreHorizontal className="size-5" />
                 <span className="text-[10px] font-medium leading-tight">More</span>
               </button>
             </SheetTrigger>
@@ -89,7 +89,7 @@ export function SettingsMobileNav() {
                           : "hover:bg-accent"
                       )}
                     >
-                      <Icon className="h-6 w-6" />
+                      <Icon className="size-6" />
                       <span className="text-sm font-medium text-center">
                         {category.label}
                       </span>

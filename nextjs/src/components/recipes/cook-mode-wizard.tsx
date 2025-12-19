@@ -173,10 +173,10 @@ export function CookModeWizard({
         <div className="max-w-7xl mx-auto p-6 lg:p-10">
           <div className="grid lg:grid-cols-[1fr_400px] gap-10 lg:gap-16">
             {/* Main Content */}
-            <div className="space-y-8">
+            <div className="flex flex-col">
               {/* Step 1: Welcome + Presets */}
               {step === 1 && (
-                <div className="space-y-8">
+                <div className="flex flex-col">
                   <div>
                     <h2 className="text-3xl lg:text-4xl font-bold mb-3">
                       Welcome to Cook Mode! 🍳
@@ -205,7 +205,7 @@ export function CookModeWizard({
 
               {/* Step 2: Display Settings */}
               {step === 2 && (
-                <div className="space-y-8">
+                <div className="flex flex-col">
                   <div>
                     <h2 className="text-3xl lg:text-4xl font-bold mb-3">Display Settings</h2>
                     <p className="text-lg text-muted-foreground">
@@ -214,7 +214,7 @@ export function CookModeWizard({
                   </div>
 
                   {/* Font Size */}
-                  <div className="space-y-3">
+                  <div className="flex flex-col">
                     <Label className="text-base font-medium">Font Size</Label>
                     <p className="text-sm text-muted-foreground">
                       Larger text is easier to read from a distance in the kitchen.
@@ -243,7 +243,7 @@ export function CookModeWizard({
                   </div>
 
                   {/* Theme Override */}
-                  <div className="space-y-3">
+                  <div className="flex flex-col">
                     <Label className="text-base font-medium">Theme Override</Label>
                     <p className="text-sm text-muted-foreground">
                       Dark mode can be easier on your eyes, or match your kitchen lighting.
@@ -280,7 +280,7 @@ export function CookModeWizard({
 
               {/* Step 3: Visibility */}
               {step === 3 && (
-                <div className="space-y-8">
+                <div className="flex flex-col">
                   <div>
                     <h2 className="text-3xl lg:text-4xl font-bold mb-3">What to Show</h2>
                     <p className="text-lg text-muted-foreground">
@@ -288,7 +288,7 @@ export function CookModeWizard({
                     </p>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="flex flex-col">
                     <WizardToggle
                       label="Ingredients Sidebar"
                       description="Keep track of ingredients with a checklist on the side."
@@ -319,7 +319,7 @@ export function CookModeWizard({
 
               {/* Step 4: Behavior */}
               {step === 4 && (
-                <div className="space-y-8">
+                <div className="flex flex-col">
                   <div>
                     <h2 className="text-3xl lg:text-4xl font-bold mb-3">Behavior Settings</h2>
                     <p className="text-lg text-muted-foreground">
@@ -327,7 +327,7 @@ export function CookModeWizard({
                     </p>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="flex flex-col">
                     <WizardToggle
                       label="Keep Screen Awake"
                       description="Prevent your device from sleeping while cooking. Great for messy hands!"

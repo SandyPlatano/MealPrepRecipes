@@ -104,7 +104,7 @@ export function RecipeExportOnlyDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="flex flex-col">
             <p className="text-sm text-muted-foreground">
               Choose a format to download your recipe
             </p>

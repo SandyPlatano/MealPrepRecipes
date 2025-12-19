@@ -309,7 +309,7 @@ export function CookModeVoiceEditor({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col">
       {/* Voice Control Toggle */}
       <Card>
         <CardHeader>
@@ -334,7 +334,7 @@ export function CookModeVoiceEditor({
           <CardTitle>Wake Words</CardTitle>
           <CardDescription>Phrases to activate voice commands</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex flex-col">
           <div className="flex flex-wrap gap-2">
             {voiceSettings.wakeWords.map((word) => (
               <Badge key={word} variant="secondary" className="gap-1">
@@ -396,7 +396,7 @@ export function CookModeVoiceEditor({
                 <AccordionTrigger>
                   {COMMAND_LABELS[action].title}
                 </AccordionTrigger>
-                <AccordionContent className="space-y-3">
+                <AccordionContent className="flex flex-col">
                   <p className="text-sm text-muted-foreground">
                     {COMMAND_LABELS[action].description}
                   </p>
@@ -440,9 +440,9 @@ export function CookModeVoiceEditor({
           <CardTitle>Text-to-Speech Settings</CardTitle>
           <CardDescription>Customize how steps are read aloud</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="flex flex-col">
           {/* Voice Selection */}
-          <div className="space-y-2">
+          <div className="flex flex-col">
             <Label htmlFor="tts-voice">Voice</Label>
             <Select
               value={audioSettings.ttsVoice}
@@ -463,7 +463,7 @@ export function CookModeVoiceEditor({
           </div>
 
           {/* Pitch */}
-          <div className="space-y-2">
+          <div className="flex flex-col">
             <div className="flex justify-between">
               <Label htmlFor="tts-pitch">Pitch</Label>
               <span className="text-sm text-muted-foreground">{audioSettings.ttsPitch.toFixed(1)}</span>
@@ -479,7 +479,7 @@ export function CookModeVoiceEditor({
           </div>
 
           {/* Rate */}
-          <div className="space-y-2">
+          <div className="flex flex-col">
             <div className="flex justify-between">
               <Label htmlFor="tts-rate">Speed</Label>
               <span className="text-sm text-muted-foreground">{audioSettings.ttsRate.toFixed(1)}</span>
@@ -495,7 +495,7 @@ export function CookModeVoiceEditor({
           </div>
 
           {/* Volume */}
-          <div className="space-y-2">
+          <div className="flex flex-col">
             <div className="flex justify-between">
               <Label htmlFor="tts-volume">Volume</Label>
               <span className="text-sm text-muted-foreground">{Math.round(audioSettings.ttsVolume * 100)}%</span>
@@ -523,9 +523,9 @@ export function CookModeVoiceEditor({
           <CardTitle>Sound Effects</CardTitle>
           <CardDescription>Customize audio feedback</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex flex-col">
           {/* Acknowledgment Sound */}
-          <div className="space-y-2">
+          <div className="flex flex-col">
             <Label htmlFor="ack-sound">Acknowledgment Sound</Label>
             <Select
               value={audioSettings.acknowledgmentSound}
@@ -547,7 +547,7 @@ export function CookModeVoiceEditor({
           </div>
 
           {/* Timer Sound */}
-          <div className="space-y-2">
+          <div className="flex flex-col">
             <Label htmlFor="timer-sound">Timer Sound</Label>
             <Select
               value={audioSettings.timerSound}
@@ -575,9 +575,9 @@ export function CookModeVoiceEditor({
         <CardHeader>
           <CardTitle>Additional Settings</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex flex-col">
           {/* Command Timeout */}
-          <div className="space-y-2">
+          <div className="flex flex-col">
             <Label htmlFor="command-timeout">Command Timeout (seconds)</Label>
             <Input
               id="command-timeout"
@@ -597,7 +597,7 @@ export function CookModeVoiceEditor({
 
           {/* Confirm Commands */}
           <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
+            <div className="flex flex-col">
               <Label htmlFor="confirm-commands">Confirm Commands</Label>
               <p className="text-sm text-muted-foreground">Play sound when command is recognized</p>
             </div>

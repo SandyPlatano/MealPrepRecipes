@@ -147,7 +147,7 @@ function AssignCookDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex flex-col gap-4 py-4">
           {/* Assignment Type Toggle */}
           <div className="flex gap-2">
             <Button
@@ -172,7 +172,7 @@ function AssignCookDialog({
 
           {/* Member Selection */}
           {assignmentType === "member" && (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>Select Member</Label>
               <Select value={selectedMemberId} onValueChange={setSelectedMemberId}>
                 <SelectTrigger>
@@ -199,7 +199,7 @@ function AssignCookDialog({
 
           {/* Custom Name Input */}
           {assignmentType === "custom" && (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="custom-name">Custom Cook Name</Label>
               <Input
                 id="custom-name"
@@ -296,7 +296,7 @@ function CookingScheduleSkeleton() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {/* Header Row */}
           <div className="grid grid-cols-8 gap-2">
             <div className="text-sm font-medium text-muted-foreground"></div>
@@ -440,7 +440,7 @@ export function CookingScheduleEditor({ householdId }: CookingScheduleEditorProp
           {!hasAnySchedules ? (
             <CookingScheduleEmptyState />
           ) : (
-            <div className="space-y-4 overflow-x-auto">
+            <div className="flex flex-col gap-4 overflow-x-auto">
               {/* Header Row */}
               <div className="grid grid-cols-8 gap-2 min-w-[640px]">
                 <div className="text-sm font-medium text-muted-foreground"></div>

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import type { User } from "@supabase/supabase-js";
-import { Menu } from "lucide-react";
+import { Menu, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -14,8 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useSidebar } from "./sidebar-context";
 import { SidebarUserArea } from "./sidebar-user-area";
-import { SidebarQuickNav } from "./sidebar-quick-nav";
-import { SidebarMealPlan } from "./sidebar-meal-plan";
+import { SidebarNavItem } from "./sidebar-nav-item";
 import { SidebarCollections } from "./sidebar-collections";
 import { SidebarBottomNav } from "./sidebar-bottom-nav";
 import type {
@@ -73,19 +72,21 @@ export function MobileSidebarSheet({
             onSearchClick={onSearchClick}
           />
 
-          {/* Scrollable Content */}
+          {/* Scrollable Content - Secondary navigation only */}
+          {/* Primary nav (Plan, Recipes, Shop, Stats) is now in bottom tabs */}
           <ScrollArea className="flex-1">
-            <div className="py-2 space-y-1">
-              {/* Quick Navigation */}
-              <SidebarQuickNav onNewRecipeClick={onNewRecipeClick} />
+            <div className="py-2 flex flex-col gap-1">
+              {/* Favorites - quick access to loved recipes */}
+              <div className="px-3 py-2">
+                <SidebarNavItem
+                  href="/app/history"
+                  icon={Heart}
+                  label="Favorites"
+                  badge={favoritesCount}
+                />
+              </div>
 
-              {/* Meal Planning */}
-              <SidebarMealPlan
-                shoppingListCount={shoppingListCount}
-                favoritesCount={favoritesCount}
-              />
-
-              {/* Collections / Folders */}
+              {/* Collections / Folders - for organization */}
               <SidebarCollections
                 categories={categories}
                 systemSmartFolders={systemSmartFolders}

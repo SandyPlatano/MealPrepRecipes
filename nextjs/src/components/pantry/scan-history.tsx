@@ -126,11 +126,11 @@ export default function ScanHistory({ onReuseScan, maxItems = 10 }: ScanHistoryP
           <CardDescription>Loading scan history...</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="flex items-center gap-3 p-3 animate-pulse">
                 <Skeleton className="h-16 w-16 rounded-md" />
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 flex flex-col gap-2">
                   <Skeleton className="h-4 w-32" />
                   <Skeleton className="h-3 w-24" />
                 </div>
@@ -176,7 +176,7 @@ export default function ScanHistory({ onReuseScan, maxItems = 10 }: ScanHistoryP
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             {scans.map((scan) => {
               const itemCount = scan.confirmed_items?.length || scan.detected_items?.length || 0;
               const hasError = scan.processing_status === 'failed';

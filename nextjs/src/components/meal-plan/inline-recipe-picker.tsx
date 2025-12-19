@@ -176,7 +176,7 @@ export function InlineRecipePicker({
             {search ? "No matches found" : "No recipes available"}
           </p>
         ) : (
-          <div className="space-y-1">
+          <div className="flex flex-col gap-1">
             {filteredRecipes.slice(0, 20).map((recipe) => (
               <button
                 key={recipe.id}

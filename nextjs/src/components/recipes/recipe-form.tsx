@@ -244,7 +244,7 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
       {/* Basic Info */}
       <Card>
@@ -254,8 +254,8 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
             The essentials. What are we cooking?
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
+        <CardContent className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="title">Recipe Title *</Label>
             <Input
               id="title"
@@ -268,7 +268,7 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
           </div>
 
           {/* Image Upload */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label>Recipe Image</Label>
             {imageUrl ? (
               <div className="relative w-full h-48 rounded-lg overflow-hidden border">
@@ -317,7 +317,7 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="recipeType">Type *</Label>
               <Select
                 value={recipeType}
@@ -350,7 +350,7 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
               </Select>
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="category">Category</Label>
               <Input
                 id="category"
@@ -362,7 +362,7 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="proteinType">Protein Type</Label>
             <Input
               id="proteinType"
@@ -374,7 +374,7 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="baseServings">
                 Number of Servings{" "}
                 <span className="text-xs text-muted-foreground">(for scaling)</span>
@@ -392,7 +392,7 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="servings">
                 Servings Description{" "}
                 <span className="text-xs text-muted-foreground">(optional)</span>
@@ -408,7 +408,7 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="prepTime">Prep Time</Label>
               <Input
                 id="prepTime"
@@ -419,7 +419,7 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="cookTime">Cook Time</Label>
               <Input
                 id="cookTime"
@@ -441,9 +441,9 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
             Add one at a time, or paste multiple separated by commas.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex flex-col gap-4">
           {/* Bulk add via comma-separated input */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="bulkIngredients" className="text-sm text-muted-foreground">
               Quick add (comma-separated)
             </Label>
@@ -506,7 +506,7 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
           </div>
 
           {/* Individual ingredient inputs */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {ingredients.map((ingredient, index) => (
               <div key={index} className="flex gap-2">
                 <Input
@@ -547,7 +547,7 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
             Step by step. Make it foolproof. <span className="text-muted-foreground">(Optional)</span>
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="flex flex-col gap-3">
           {instructions.length === 0 ? (
             <p className="text-sm text-muted-foreground italic">
               No instructions added. Click &quot;Add Step&quot; below to add instructions, or leave empty if not needed.
@@ -599,7 +599,7 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
             Make it searchable. Add tags like &quot;quick&quot;, &quot;healthy&quot;, &quot;one-pan&quot;.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="flex flex-col gap-3">
           <div className="flex gap-2">
             <Input
               value={tagInput}
@@ -647,12 +647,12 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
             Mark allergens present in this recipe. Auto-detected allergens are shown below.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="flex flex-col gap-3">
           <div className="flex flex-wrap gap-2">
             {ALLERGEN_TYPES.map((allergen) => {
               const isSelected = allergenTags.includes(allergen);
               return (
-                <div key={allergen} className="flex items-center space-x-2">
+                <div key={allergen} className="flex items-center gap-2">
                   <Checkbox
                     id={`allergen-${allergen}`}
                     checked={isSelected}
@@ -686,8 +686,8 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
           <CardTitle>Extra Details</CardTitle>
           <CardDescription>Optional but helpful.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
+        <CardContent className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="sourceUrl">Source URL</Label>
             <Input
               id="sourceUrl"
@@ -699,7 +699,7 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="notes">Notes</Label>
             <MarkdownEditor
               value={notes}

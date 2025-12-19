@@ -74,7 +74,7 @@ export function ProfileCookPhotos({ photos, username }: ProfileCookPhotosProps) 
                   <span>@{username} made this!</span>
                 </DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
+              <div className="flex flex-col gap-4">
                 {/* Photo */}
                 <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-muted">
                   <Image
@@ -87,7 +87,7 @@ export function ProfileCookPhotos({ photos, username }: ProfileCookPhotosProps) 
 
                 {/* Recipe Info */}
                 <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-2 flex-1">
+                  <div className="flex flex-col gap-2 flex-1">
                     <Link
                       href={`/app/recipes/${selectedPhoto.recipe_id}`}
                       className="text-lg font-semibold hover:text-primary flex items-center gap-2 group"
