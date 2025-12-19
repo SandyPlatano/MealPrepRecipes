@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,14 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
@@ -30,15 +38,16 @@ import {
   Sparkles,
   Lock,
   Eye,
+  SlidersHorizontal,
 } from "lucide-react";
 import { formatWeekRange, getWeekStart } from "@/types/meal-plan";
 import { SaveTemplateDialog } from "./save-template-dialog";
 import { TemplateManagerDialog } from "./template-manager-dialog";
 import { AISuggestionModal } from "./AISuggestionModal";
-import { PlannerViewToggle } from "./planner-view-toggle";
 import { UpgradeModal } from "@/components/subscriptions/UpgradeModal";
+import { updatePlannerViewSettings } from "@/app/actions/settings";
 import type { SubscriptionTier } from "@/types/subscription";
-import type { PlannerViewSettings } from "@/types/settings";
+import type { PlannerViewSettings, PlannerViewDensity } from "@/types/settings";
 import { DEFAULT_PLANNER_VIEW_SETTINGS } from "@/types/settings";
 
 interface PlannerHeaderProps {
@@ -65,7 +74,7 @@ export function PlannerHeader({
   hasMeals,
   previousWeekMealCount,
   currentWeekMealCount,
-  subscriptionTier = 'free',
+  subscriptionTier = "free",
   aiQuotaRemaining = null,
   existingMealDays = [],
   canNavigateWeeks = false,
@@ -80,8 +89,15 @@ export function PlannerHeader({
   const [templateManagerOpen, setTemplateManagerOpen] = useState(false);
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
-  const [upgradeModalFeature, setUpgradeModalFeature] = useState("AI Meal Suggestions");
+  const [upgradeModalFeature, setUpgradeModalFeature] =
+    useState("AI Meal Suggestions");
   const [isMounted, setIsMounted] = useState(false);
+  const [, startTransition] = useTransition();
+
+  // Local view settings state for optimistic updates
+  const [localViewSettings, setLocalViewSettings] = useState(
+    plannerViewSettings || DEFAULT_PLANNER_VIEW_SETTINGS
+  );
 
   useEffect(() => {
     setIsMounted(true);
@@ -152,10 +168,14 @@ export function PlannerHeader({
   };
 
   const handleAISuggest = () => {
-    if (subscriptionTier === 'free') {
+    if (subscriptionTier === "free") {
       setUpgradeModalFeature("AI Meal Suggestions");
       setUpgradeModalOpen(true);
-    } else if (subscriptionTier === 'pro' && aiQuotaRemaining !== null && aiQuotaRemaining <= 0) {
+    } else if (
+      subscriptionTier === "pro" &&
+      aiQuotaRemaining !== null &&
+      aiQuotaRemaining <= 0
+    ) {
       // Show quota exhausted state
       return;
     } else {
@@ -163,8 +183,38 @@ export function PlannerHeader({
     }
   };
 
-  const canUseAI = subscriptionTier !== 'free';
-  const quotaExhausted = subscriptionTier === 'pro' && aiQuotaRemaining !== null && aiQuotaRemaining <= 0;
+  const canUseAI = subscriptionTier !== "free";
+  const quotaExhausted =
+    subscriptionTier === "pro" &&
+    aiQuotaRemaining !== null &&
+    aiQuotaRemaining <= 0;
+
+  // View settings handlers
+  const handleDensityChange = (density: string) => {
+    const newDensity = density as PlannerViewDensity;
+    const updated = { ...localViewSettings, density: newDensity };
+    setLocalViewSettings(updated);
+    onPlannerViewChange?.(updated);
+
+    startTransition(async () => {
+      await updatePlannerViewSettings({ density: newDensity });
+    });
+  };
+
+  const handleVisibilityToggle = (
+    key: "showMealTypeHeaders" | "showNutritionBadges" | "showPrepTime"
+  ) => {
+    const updated = {
+      ...localViewSettings,
+      [key]: !localViewSettings[key],
+    };
+    setLocalViewSettings(updated);
+    onPlannerViewChange?.(updated);
+
+    startTransition(async () => {
+      await updatePlannerViewSettings({ [key]: updated[key] });
+    });
+  };
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b">
@@ -198,7 +248,9 @@ export function PlannerHeader({
           <DialogContent className="w-[95vw] max-w-sm p-0 overflow-hidden [&>button]:z-10">
             {/* Header */}
             <div className="px-6 pt-6 pb-2">
-              <h2 className="text-lg font-semibold tracking-tight">Select Week</h2>
+              <h2 className="text-lg font-semibold tracking-tight">
+                Select Week
+              </h2>
               <p className="text-sm text-muted-foreground mt-0.5">
                 Choose a week to plan your meals
               </p>
@@ -237,10 +289,20 @@ export function PlannerHeader({
 
         {!isCurrentWeek && (
           <>
-            <Button variant="ghost" size="sm" onClick={goToCurrentWeek} className="hidden sm:inline-flex h-10">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={goToCurrentWeek}
+              className="hidden sm:inline-flex h-10"
+            >
               This Week
             </Button>
-            <Button variant="ghost" size="sm" onClick={goToCurrentWeek} className="sm:hidden h-10">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={goToCurrentWeek}
+              className="sm:hidden h-10"
+            >
               Today
             </Button>
           </>
@@ -249,12 +311,6 @@ export function PlannerHeader({
 
       {/* Actions - Full width on mobile, right-aligned on desktop */}
       <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
-        {/* View Toggle - Icon only on mobile */}
-        <PlannerViewToggle
-          settings={plannerViewSettings || DEFAULT_PLANNER_VIEW_SETTINGS}
-          onChange={onPlannerViewChange}
-        />
-
         {/* Review Button - Flex grow on mobile */}
         {hasMeals ? (
           <Button
@@ -306,7 +362,11 @@ export function PlannerHeader({
         {/* More Options Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" className="h-10 w-10 flex-shrink-0">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-10 w-10 flex-shrink-0"
+            >
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -320,14 +380,71 @@ export function PlannerHeader({
               <Sparkles className="h-4 w-4 mr-2 text-coral-500" />
               {canUseAI
                 ? quotaExhausted
-                  ? 'Quota Used'
-                  : `AI Suggest${aiQuotaRemaining !== null ? ` (${aiQuotaRemaining} left)` : ''}`
-                : 'AI Suggest ✨'}
+                  ? "Quota Used"
+                  : `AI Suggest${aiQuotaRemaining !== null ? ` (${aiQuotaRemaining} left)` : ""}`
+                : "AI Suggest ✨"}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => setTemplateManagerOpen(true)}
-            >
+
+            {/* View Options Submenu */}
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <SlidersHorizontal className="h-4 w-4 mr-2" />
+                View Options
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent className="w-48">
+                  <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                    Density
+                  </DropdownMenuLabel>
+                  <DropdownMenuRadioGroup
+                    value={localViewSettings.density}
+                    onValueChange={handleDensityChange}
+                  >
+                    <DropdownMenuRadioItem value="compact">
+                      Compact
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="comfortable">
+                      Comfortable
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="spacious">
+                      Spacious
+                    </DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                    Show / Hide
+                  </DropdownMenuLabel>
+                  <DropdownMenuCheckboxItem
+                    checked={localViewSettings.showMealTypeHeaders}
+                    onCheckedChange={() =>
+                      handleVisibilityToggle("showMealTypeHeaders")
+                    }
+                  >
+                    Meal Type Headers
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem
+                    checked={localViewSettings.showNutritionBadges}
+                    onCheckedChange={() =>
+                      handleVisibilityToggle("showNutritionBadges")
+                    }
+                  >
+                    Nutrition Info
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem
+                    checked={localViewSettings.showPrepTime}
+                    onCheckedChange={() =>
+                      handleVisibilityToggle("showPrepTime")
+                    }
+                  >
+                    Prep Time
+                  </DropdownMenuCheckboxItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem onClick={() => setTemplateManagerOpen(true)}>
               <FolderOpen className="h-4 w-4 mr-2" />
               Templates
             </DropdownMenuItem>
@@ -344,7 +461,9 @@ export function PlannerHeader({
               disabled={previousWeekMealCount === 0 || isCopying}
             >
               <Copy className="h-4 w-4 mr-2" />
-              {isCopying ? "Copying..." : `Copy Last Week (${previousWeekMealCount})`}
+              {isCopying
+                ? "Copying..."
+                : `Copy Last Week (${previousWeekMealCount})`}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -389,4 +508,3 @@ export function PlannerHeader({
     </div>
   );
 }
-

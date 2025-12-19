@@ -727,71 +727,89 @@ function FolderItem({
   });
 
   const content = (
-    <div
-      className={cn(
-        "group flex items-center gap-1 h-9 px-3 relative rounded-md",
-        "transition-all duration-150",
-        depth > 0 && "ml-4",
-        isActive && [
-          "bg-primary/10 text-primary",
-          "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
-          "before:h-4 before:w-0.5 before:bg-primary before:rounded-r",
-        ],
-        !isActive && "text-muted-foreground hover:text-foreground hover:bg-accent"
-      )}
-    >
-      {/* Folder link */}
-      <Link
-        href={`/app/recipes?${params.toString()}`}
-        onClick={onClick}
-        className="flex items-center gap-2 flex-1 min-w-0"
-      >
-        {folder.emoji ? (
-          <span className="text-sm">{folder.emoji}</span>
-        ) : folder.color ? (
-          <span
-            className="w-3 h-3 rounded-full shrink-0"
-            style={{ backgroundColor: folder.color }}
-          />
-        ) : (
-          <FolderOpen className="h-3.5 w-3.5 shrink-0" />
-        )}
-        <span className="flex-1 truncate text-sm">{folder.name}</span>
-        {folder.recipe_count > 0 && (
-          <span className="text-xs text-muted-foreground">
-            {folder.recipe_count}
-          </span>
-        )}
-      </Link>
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        <div
+          className={cn(
+            "group flex items-center gap-1 h-9 px-3 relative rounded-md",
+            "transition-all duration-150",
+            depth > 0 && "ml-4",
+            isActive && [
+              "bg-primary/10 text-primary",
+              "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
+              "before:h-4 before:w-0.5 before:bg-primary before:rounded-r",
+            ],
+            !isActive && "text-muted-foreground hover:text-foreground hover:bg-accent"
+          )}
+        >
+          {/* Folder link */}
+          <Link
+            href={`/app/recipes?${params.toString()}`}
+            onClick={onClick}
+            className="flex items-center gap-2 flex-1 min-w-0"
+          >
+            {folder.emoji ? (
+              <span className="text-sm">{folder.emoji}</span>
+            ) : folder.color ? (
+              <span
+                className="w-3 h-3 rounded-full shrink-0"
+                style={{ backgroundColor: folder.color }}
+              />
+            ) : (
+              <FolderOpen className="h-3.5 w-3.5 shrink-0" />
+            )}
+            <span className="flex-1 truncate text-sm">{folder.name}</span>
+            {folder.recipe_count > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {folder.recipe_count}
+              </span>
+            )}
+          </Link>
 
-      {/* Three-dot menu - visible on hover */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0 transition-opacity"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuItem onClick={onCreateNew}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Folder
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="text-destructive focus:text-destructive"
-            onClick={() => onDelete(folder)}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete Folder
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+          {/* Three-dot menu - visible on hover */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0 transition-opacity"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={onCreateNew}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Folder
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => onDelete(folder)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Folder
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuItem onClick={onCreateNew}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Folder
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem
+          className="text-destructive"
+          onClick={() => onDelete(folder)}
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Delete Folder
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 
   if (!hasChildren) {
