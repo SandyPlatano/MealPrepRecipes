@@ -420,7 +420,10 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                   <RatingBadge
                     rating={currentRating}
                     size="sm"
-                    onClick={() => setShowRatingDialog(true)}
+                    onClick={(e) => {
+                      e.preventDefault(); // Prevent Link navigation
+                      setShowRatingDialog(true);
+                    }}
                   />
                 ) : (
                   <Tooltip>
