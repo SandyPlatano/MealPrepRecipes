@@ -38,8 +38,10 @@ export const RatingBadge = forwardRef<HTMLButtonElement, RatingBadgeProps>(
         ref={ref}
         type="button"
         onClick={(e) => {
-          // Pass the event to onClick - required for Radix UI's PopoverTrigger
-          // to work correctly when using asChild pattern
+          // Prevent Link navigation and event bubbling when used inside cards
+          // Also pass the event for Radix UI's PopoverTrigger compatibility
+          e.preventDefault();
+          e.stopPropagation();
           onClick?.(e);
         }}
         className={cn(
