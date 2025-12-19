@@ -38,9 +38,6 @@ import type { SubscriptionTier } from "@/types/subscription";
 import type { RecipeNutrition, WeeklyMacroDashboard, MacroGoals } from "@/types/nutrition";
 import type { MealTypeCustomization, PlannerViewSettings } from "@/types/settings";
 import { DEFAULT_PLANNER_VIEW_SETTINGS } from "@/types/settings";
-import type { EnergyModePreferences } from "@/types/energy-mode";
-import { DEFAULT_ENERGY_MODE_PREFERENCES } from "@/types/energy-mode";
-import { EnergyModeProvider } from "@/contexts/energy-mode-context";
 
 interface MealPlannerGridProps {
   weekStartStr: string;
@@ -65,7 +62,6 @@ interface MealPlannerGridProps {
   canNavigateWeeks?: boolean;
   mealTypeSettings?: MealTypeCustomization;
   plannerViewSettings?: PlannerViewSettings;
-  energyModePreferences?: EnergyModePreferences;
 }
 
 export function MealPlannerGrid({
@@ -93,7 +89,6 @@ export function MealPlannerGrid({
   canNavigateWeeks = false,
   mealTypeSettings,
   plannerViewSettings: initialPlannerViewSettings,
-  energyModePreferences = DEFAULT_ENERGY_MODE_PREFERENCES,
 }: MealPlannerGridProps) {
   const [isPending, startTransition] = useTransition();
   const [isSending, setIsSending] = useState(false);
@@ -266,8 +261,7 @@ export function MealPlannerGrid({
   const hasMeals = allAssignments.length > 0;
 
   return (
-    <EnergyModeProvider preferences={energyModePreferences}>
-      <TooltipProvider>
+    <TooltipProvider>
         {/* Loading Indicator */}
         {isPending && (
           <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
@@ -341,8 +335,7 @@ export function MealPlannerGrid({
             macroGoals={macroGoals}
           />
         </div>
-      </TooltipProvider>
-    </EnergyModeProvider>
+    </TooltipProvider>
   );
 }
 

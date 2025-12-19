@@ -49,10 +49,6 @@ const SETTING_LABELS: Record<string, string> = {
   "preferencesV2.aiPersonality": "AI Personality",
   "preferencesV2.customAiPrompt": "Custom AI Prompt",
 
-  // Energy Mode
-  "preferencesV2.energyMode.enabled": "Energy Mode",
-  "preferencesV2.energyMode.mode": "Energy Level",
-
   // Serving Presets
   "preferencesV2.servingSizePresets": "Serving Size Presets",
 

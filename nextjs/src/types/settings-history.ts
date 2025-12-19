@@ -8,7 +8,6 @@ export type SettingsChangeCategory =
   | "soundPrefs"
   | "keyboardPrefs"
   | "privacyPrefs"
-  | "energyModePrefs"
   | "aiPersonality"
   | "servingPresets"
   | "plannerSettings";

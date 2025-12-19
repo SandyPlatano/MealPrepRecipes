@@ -20,8 +20,6 @@ import { ServingSizePresetsManager } from "@/components/settings/serving-size-pr
 import { CustomMealTypesManager } from "@/components/settings/custom-meal-types-manager";
 import { CustomRecipeTypesManager } from "@/components/settings/custom-recipe-types-manager";
 import type { PlannerViewDensity } from "@/types/settings";
-import type { EnergyLevel } from "@/types/energy-mode";
-import { ENERGY_LEVEL_LABELS, ENERGY_LEVEL_DESCRIPTIONS } from "@/types/energy-mode";
 import { updateRecipePreferences } from "@/app/actions/settings";
 
 const DENSITY_OPTIONS: { value: PlannerViewDensity; label: string; description: string }[] = [
@@ -34,15 +32,10 @@ export default function MealPlanningSettingsPage() {
   const {
     plannerViewSettings,
     mealTypeSettings,
-    preferencesV2,
     updatePlannerSettings,
-    updateEnergyModePrefs,
   } = useSettings();
   const [googleAccount, setGoogleAccount] = useState<string | null>(null);
   const [defaultServingSize, setDefaultServingSize] = useState<number>(2);
-
-  // Energy mode preferences
-  const energyPrefs = preferencesV2.energyMode;
 
   // Fetch Google Calendar connection status
   const fetchGoogleStatus = useCallback(async () => {
@@ -154,69 +147,6 @@ export default function MealPlanningSettingsPage() {
             }}
           />
         </SettingRow>
-      </SettingSection>
-
-      {/* Energy Mode / Spoons */}
-      <SettingSection
-        title="Energy Mode"
-        badge="New"
-        description="Adapt meal suggestions based on your daily energy levels (Spoon Theory)"
-      >
-        <SettingRow
-          id="setting-energy-mode-enabled"
-          label="Enable Energy Mode"
-          description="Show daily energy check-in and filter recipes by complexity"
-        >
-          <Switch
-            id="setting-energy-mode-enabled-control"
-            checked={energyPrefs.enabled}
-            onCheckedChange={(checked) => {
-              updateEnergyModePrefs({ enabled: checked });
-            }}
-          />
-        </SettingRow>
-
-        {energyPrefs.enabled && (
-          <>
-            <SettingRow
-              id="setting-energy-default-level"
-              label="Default Energy Level"
-              description={`${ENERGY_LEVEL_LABELS[energyPrefs.defaultEnergyLevel]}: ${ENERGY_LEVEL_DESCRIPTIONS[energyPrefs.defaultEnergyLevel]}`}
-            >
-              <Select
-                value={energyPrefs.defaultEnergyLevel.toString()}
-                onValueChange={(value) => {
-                  updateEnergyModePrefs({ defaultEnergyLevel: parseInt(value) as EnergyLevel });
-                }}
-              >
-                <SelectTrigger className="w-36">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {([1, 2, 3, 4, 5] as EnergyLevel[]).map((level) => (
-                    <SelectItem key={level} value={level.toString()}>
-                      {level} - {ENERGY_LEVEL_LABELS[level]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </SettingRow>
-
-            <SettingRow
-              id="setting-energy-daily-prompt"
-              label="Show Daily Prompt"
-              description="Ask how you're feeling when opening the planner"
-            >
-              <Switch
-                id="setting-energy-daily-prompt-control"
-                checked={energyPrefs.showDailyPrompt}
-                onCheckedChange={(checked) => {
-                  updateEnergyModePrefs({ showDailyPrompt: checked });
-                }}
-              />
-            </SettingRow>
-          </>
-        )}
       </SettingSection>
 
       {/* Meal Types */}

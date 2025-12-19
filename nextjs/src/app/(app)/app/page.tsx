@@ -24,7 +24,6 @@ import { OnboardingWrapper } from "@/components/onboarding/onboarding-wrapper";
 import { hasActiveSubscription } from "@/lib/stripe/subscription";
 import { ContextualHint } from "@/components/hints/contextual-hint";
 import { HINT_IDS, HINT_CONTENT } from "@/lib/hints";
-import { DEFAULT_ENERGY_MODE_PREFERENCES, type EnergyModePreferences } from "@/types/energy-mode";
 import { PersonalizedGreeting } from "@/components/ui/personalized-greeting";
 
 interface HomePageProps {
@@ -119,8 +118,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const suggestedRecipeIds = (suggestions.data || []).map((r) => r.id);
   const mealTypeSettings = mealTypeSettingsResult.data;
   const plannerViewSettings = plannerViewSettingsResult.data;
-  const energyModePreferences: EnergyModePreferences =
-    userPreferencesV2Result.data?.energyMode || DEFAULT_ENERGY_MODE_PREFERENCES;
 
   // Get existing meal days for AI suggestions
   const existingMealDays = Object.entries(weekPlan.assignments)
@@ -218,7 +215,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           canNavigateWeeks={canNavigateWeeks}
           mealTypeSettings={mealTypeSettings}
           plannerViewSettings={plannerViewSettings}
-          energyModePreferences={energyModePreferences}
         />
       </div>
     </>

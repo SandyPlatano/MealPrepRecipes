@@ -23,7 +23,6 @@ import {
   updateKeyboardPreferencesAuto as updateKeyboardPreferences,
   updateAiPersonalityAuto as updateAiPersonality,
   updateServingSizePresetsAuto as updateServingSizePresets,
-  updateEnergyModePreferencesAuto as updateEnergyModePreferences,
   updatePrivacyPreferencesAuto as updatePrivacyPreferences,
   updateRecipeLayoutPreferencesAuto as updateRecipeLayoutPreferences,
 } from "@/app/actions/user-preferences";
@@ -35,7 +34,6 @@ import type {
   KeyboardPreferences,
   ServingSizePreset,
   AiPersonalityType,
-  EnergyModePreferences,
   PrivacyPreferences,
   RecipeLayoutPreferences,
 } from "@/types/user-preferences-v2";
@@ -44,7 +42,6 @@ import {
   DEFAULT_DISPLAY_PREFERENCES,
   DEFAULT_SOUND_PREFERENCES,
   DEFAULT_KEYBOARD_PREFERENCES,
-  DEFAULT_ENERGY_MODE_PREFERENCES,
   DEFAULT_PRIVACY_PREFERENCES,
   DEFAULT_RECIPE_LAYOUT_PREFERENCES,
 } from "@/types/user-preferences-v2";
@@ -117,9 +114,6 @@ export interface SettingsContextValue extends SettingsState {
   // Serving presets (auto-save)
   updateServingPresets: (presets: ServingSizePreset[]) => void;
 
-  // Energy mode preferences (auto-save)
-  updateEnergyModePrefs: (partial: Partial<EnergyModePreferences>) => void;
-
   // Privacy preferences (auto-save)
   updatePrivacyPrefs: (partial: Partial<PrivacyPreferences>) => void;
 
@@ -181,7 +175,6 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     keyboardPrefs?: Partial<KeyboardPreferences>;
     aiPersonality?: { personality: AiPersonalityType; customPrompt?: string | null };
     servingPresets?: ServingSizePreset[];
-    energyModePrefs?: Partial<EnergyModePreferences>;
     privacyPrefs?: Partial<PrivacyPreferences>;
     plannerSettings?: Partial<PlannerViewSettings>;
     recipeLayoutPrefs?: RecipeLayoutPreferences;
@@ -274,11 +267,6 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
       // Serving presets
       if (changes.servingPresets) {
         savePromises.push(updateServingSizePresets(changes.servingPresets));
-      }
-
-      // Energy mode preferences
-      if (changes.energyModePrefs && Object.keys(changes.energyModePrefs).length > 0) {
-        savePromises.push(updateEnergyModePreferences(changes.energyModePrefs));
       }
 
       // Privacy preferences
@@ -601,32 +589,6 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     [scheduleSave]
   );
 
-  const updateEnergyModePrefs = useCallback(
-    (partial: Partial<EnergyModePreferences>) => {
-      // Optimistic update
-      setState((prev) => {
-        // Defensive: ensure energyMode object exists
-        const currentEnergyMode = prev.preferencesV2?.energyMode ?? DEFAULT_ENERGY_MODE_PREFERENCES;
-        return {
-          ...prev,
-          preferencesV2: {
-            ...prev.preferencesV2,
-            energyMode: { ...currentEnergyMode, ...partial },
-          },
-        };
-      });
-
-      // Queue for save
-      pendingChanges.current.energyModePrefs = {
-        ...pendingChanges.current.energyModePrefs,
-        ...partial,
-      };
-
-      scheduleSave();
-    },
-    [scheduleSave]
-  );
-
   const updatePrivacyPrefs = useCallback(
     (partial: Partial<PrivacyPreferences>) => {
       // Record changes and optimistic update
@@ -872,7 +834,6 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     updateKeyboardPrefs,
     updateAiPersonalitySettings,
     updateServingPresets,
-    updateEnergyModePrefs,
     updatePrivacyPrefs,
     updatePlannerSettings,
     updateRecipeLayoutPrefs,

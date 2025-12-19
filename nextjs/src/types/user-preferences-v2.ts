@@ -4,10 +4,6 @@
 // ============================================================================
 
 import {
-  EnergyModePreferences,
-  DEFAULT_ENERGY_MODE_PREFERENCES,
-} from "./energy-mode";
-import {
   RecipeLayoutPreferences,
   DEFAULT_RECIPE_LAYOUT_PREFERENCES,
 } from "./recipe-layout";
@@ -83,7 +79,6 @@ export interface UserPreferencesV2 {
   keyboard: KeyboardPreferences;
   aiPersonality: AiPersonalityType;
   customAiPrompt: string | null;
-  energyMode: EnergyModePreferences;
   privacy: PrivacyPreferences;
   sidebar: SidebarPreferences;
   recipeLayout: RecipeLayoutPreferences;
@@ -161,7 +156,6 @@ export const DEFAULT_USER_PREFERENCES_V2: UserPreferencesV2 = {
   keyboard: DEFAULT_KEYBOARD_PREFERENCES,
   aiPersonality: "friendly",
   customAiPrompt: null,
-  energyMode: DEFAULT_ENERGY_MODE_PREFERENCES,
   privacy: DEFAULT_PRIVACY_PREFERENCES,
   sidebar: DEFAULT_SIDEBAR_PREFERENCES,
   recipeLayout: DEFAULT_RECIPE_LAYOUT_PREFERENCES,
@@ -291,10 +285,6 @@ export interface SidebarPreferences {
   hiddenItems: string[];
   pinnedSectionExpanded: boolean;
 }
-
-// Re-export energy mode types for convenience
-export type { EnergyModePreferences } from "./energy-mode";
-export { DEFAULT_ENERGY_MODE_PREFERENCES } from "./energy-mode";
 
 // Re-export recipe layout types for convenience
 export type {
