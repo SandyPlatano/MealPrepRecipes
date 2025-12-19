@@ -99,7 +99,7 @@ export function FilterConditionRow({
         <SelectTrigger className="w-[140px] sm:w-[160px]">
           <SelectValue placeholder="Select field" />
         </SelectTrigger>
-        <SelectContent className="z-[100]">
+        <SelectContent className="z-[10000]">
           {FIELD_CATEGORIES.map((category) => {
             const fields = SMART_FILTER_FIELDS.filter(
               (f) => f.category === category.key
@@ -124,7 +124,7 @@ export function FilterConditionRow({
         <SelectTrigger className="w-[130px] sm:w-[150px]">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="z-[100]">
+        <SelectContent className="z-[10000]">
           {fieldMeta?.operators.map((op) => (
             <SelectItem key={op} value={op}>
               {OPERATOR_LABELS[op]}
@@ -235,7 +235,7 @@ function ValueInput({ fieldMeta, operator, value, onChange }: ValueInputProps) {
         <SelectTrigger>
           <SelectValue placeholder="Select..." />
         </SelectTrigger>
-        <SelectContent className="z-[100]">
+        <SelectContent className="z-[10000]">
           {fieldMeta.enumOptions.map((opt) => (
             <SelectItem key={opt.value} value={opt.value}>
               {opt.label}

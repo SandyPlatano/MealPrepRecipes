@@ -226,7 +226,7 @@ export function SmartFolderDialog({
                 <SelectTrigger id="category">
                   <SelectValue placeholder="Uncategorized" />
                 </SelectTrigger>
-                <SelectContent className="z-[100]">
+                <SelectContent className="z-[10000]">
                   <SelectItem value="none">Uncategorized</SelectItem>
                   {categories.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
