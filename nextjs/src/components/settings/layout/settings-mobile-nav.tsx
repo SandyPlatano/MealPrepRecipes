@@ -54,6 +54,7 @@ export function SettingsMobileNav() {
           <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger asChild>
               <button
+                type="button"
                 className={cn(
                   "flex flex-col items-center gap-0.5 px-2 py-1.5 min-h-[56px] min-w-[56px] rounded-lg transition-all active:scale-95",
                   isOverflowActive

@@ -34,6 +34,7 @@ export function LinkPresetGrid({
               const isAdded = isPresetAdded(preset);
               return (
                 <button
+                  type="button"
                   key={preset.id}
                   onClick={() => !isAdded && onSelectPreset(preset)}
                   disabled={isAdded}

@@ -119,6 +119,7 @@ export function SettingsSearch() {
 
               return (
                 <button
+                  type="button"
                   key={setting.id}
                   onClick={() => handleSelect(setting)}
                   onMouseEnter={() => setSelectedIndex(index)}

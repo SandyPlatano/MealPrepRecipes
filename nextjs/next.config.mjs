@@ -5,8 +5,8 @@ const nextConfig = {
     turbopackFileSystemCacheForDev: true,
   },
   typescript: {
-    // Allow production builds to complete even with type errors
-    ignoreBuildErrors: true,
+    // Type checking is now enforced - fix errors before deploying
+    ignoreBuildErrors: false,
   },
   // Image optimization for external domains
   images: {

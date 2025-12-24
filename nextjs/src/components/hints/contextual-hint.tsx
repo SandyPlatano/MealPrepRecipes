@@ -50,6 +50,7 @@ export function ContextualHint({
           </p>
         </div>
         <button
+          type="button"
           onClick={handleDismiss}
           className="flex-shrink-0 p-1 rounded-md text-blue-600 hover:text-blue-800 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-200 dark:hover:bg-blue-900/50 transition-colors"
           aria-label="Dismiss hint"

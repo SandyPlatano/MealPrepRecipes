@@ -64,6 +64,7 @@ export default function AppearanceSettingsPage() {
               { value: "dark", icon: Moon, label: "Dark" },
             ].map(({ value, icon: Icon, label }) => (
               <button
+                type="button"
                 key={value}
                 onClick={() => setTheme(value)}
                 className={cn(
@@ -88,6 +89,7 @@ export default function AppearanceSettingsPage() {
           <div className="flex flex-wrap gap-2 max-w-xs">
             {ACCENT_COLOR_PALETTE.map(({ key, color }) => (
               <button
+                type="button"
                 key={key}
                 onClick={() => updateDisplayPrefs({ accentColor: color })}
                 className={cn(

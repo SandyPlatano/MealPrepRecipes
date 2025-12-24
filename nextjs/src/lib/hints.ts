@@ -6,6 +6,7 @@ export const HINT_IDS = {
   SHOPPING_LIST_INTRO: "shopping-list-intro",
   PANTRY_INTRO: "pantry-intro",
   COOK_MODE_WIZARD: "cook-mode-wizard",
+  FIRST_RECIPE_SUCCESS: "first-recipe-success",
 } as const;
 
 export type HintId = (typeof HINT_IDS)[keyof typeof HINT_IDS];
@@ -40,6 +41,11 @@ export const HINT_CONTENT: Record<HintId, HintContent> = {
     title: "Set Up Cook Mode",
     description:
       "Customize your cooking experience with font sizes, themes, and helpful features.",
+  },
+  [HINT_IDS.FIRST_RECIPE_SUCCESS]: {
+    title: "Great First Recipe!",
+    description:
+      "Add it to your meal plan, rate it after cooking, and use Cmd+K to search anytime.",
   },
 };
 

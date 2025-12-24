@@ -76,6 +76,7 @@ export function PresetCard({
   if (isCompact) {
     return (
       <button
+        type="button"
         onClick={handleQuickAdd}
         disabled={isAdding}
         className={cn(
@@ -123,6 +124,7 @@ export function PresetCard({
 
       {/* Main tap area */}
       <button
+        type="button"
         onClick={handleQuickAdd}
         disabled={isAdding}
         className={cn(
@@ -251,6 +253,7 @@ export function CreatePresetCard({ onClick, isCompact = false }: CreatePresetCar
   if (isCompact) {
     return (
       <button
+        type="button"
         onClick={onClick}
         className={cn(
           "flex flex-col items-center justify-center",
@@ -267,6 +270,7 @@ export function CreatePresetCard({ onClick, isCompact = false }: CreatePresetCar
 
   return (
     <button
+      type="button"
       onClick={onClick}
       className={cn(
         "w-full p-4 rounded-xl border border-dashed border-primary/30",

@@ -353,6 +353,7 @@ export function GlobalSearchModal() {
           </kbd>
           {/* Mobile close button - larger touch target */}
           <button
+            type="button"
             onClick={closeSearch}
             className="sm:hidden p-2 -m-2 rounded-full hover:bg-accent text-muted-foreground"
             aria-label="Close search"

@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Eye, Pencil, ChefHat, CalendarOff, ChevronRight } from "lucide-react";
+import { Trash2, Eye, Pencil, ChefHat, CalendarOff, ChevronRight, Check } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -21,11 +21,14 @@ import {
 import { RecipePickerModal } from "./recipe-picker-modal";
 import { MealSlotHeader } from "./meal-slot-header";
 import { MealTypeSelector } from "./meal-type-selector";
+import { QuickAddDropdown } from "./quick-add-dropdown";
+import { DraggableMeal } from "./draggable-meal";
+import { RecipePreviewPopover } from "./recipe-preview-popover";
 import { cn } from "@/lib/utils";
 import type { DayOfWeek, MealAssignmentWithRecipe, MealType } from "@/types/meal-plan";
 import { groupMealsByType, getMealTypeConfig, MEAL_TYPE_ORDER } from "@/types/meal-plan";
 import type { RecipeNutrition } from "@/types/nutrition";
-import type { MealTypeCustomization, MealTypeKey, PlannerViewSettings } from "@/types/settings";
+import type { MealTypeCustomization, MealTypeKey, PlannerViewSettings, DefaultCooksByDay } from "@/types/settings";
 
 interface Recipe {
   id: string;
@@ -55,6 +58,14 @@ interface PlannerDayRowProps {
   nutritionData?: Map<string, RecipeNutrition> | null;
   mealTypeSettings?: MealTypeCustomization;
   viewSettings?: PlannerViewSettings;
+  defaultCooksByDay?: DefaultCooksByDay;
+  isFocused?: boolean;
+  keyboardModalOpen?: boolean;
+  onKeyboardModalClose?: () => void;
+  // Selection mode props
+  isSelectionMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelection?: () => void;
 }
 
 export const PlannerDayRow = memo(function PlannerDayRow({
@@ -77,10 +88,32 @@ export const PlannerDayRow = memo(function PlannerDayRow({
   nutritionData = null,
   mealTypeSettings,
   viewSettings,
+  defaultCooksByDay = {},
+  isFocused = false,
+  keyboardModalOpen = false,
+  onKeyboardModalClose,
+  isSelectionMode = false,
+  isSelected = false,
+  onToggleSelection,
 }: PlannerDayRowProps) {
   const [isPending, startTransition] = useTransition();
   const [modalOpen, setModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+
+  // Handle keyboard-triggered modal
+  useEffect(() => {
+    if (keyboardModalOpen && !modalOpen) {
+      setModalOpen(true);
+    }
+  }, [keyboardModalOpen, modalOpen]);
+
+  // Handle modal close (including keyboard-triggered)
+  const handleModalClose = (open: boolean) => {
+    setModalOpen(open);
+    if (!open && onKeyboardModalClose) {
+      onKeyboardModalClose();
+    }
+  };
 
   // Track when component is mounted (client-side only) to avoid hydration mismatch
   useEffect(() => {
@@ -102,16 +135,40 @@ export const PlannerDayRow = memo(function PlannerDayRow({
   const dayAbbrev = day.slice(0, 3).toUpperCase();
   // Use a consistent format that doesn't depend on locale
   const monthAbbrev = date.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
+  // Keyboard shortcut number (1-7 for Mon-Sun)
+  const keyboardNumber = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].indexOf(day) + 1;
 
   return (
-    <div className={`flex items-start gap-3 md:gap-4 transition-opacity ${isPending ? "opacity-60" : ""}`}>
+    <div className={`group flex items-start gap-3 md:gap-4 transition-opacity ${isPending ? "opacity-60" : ""}`}>
       {/* Day Badge - Floats on the left */}
       <div
         className={cn(
           "flex flex-col items-center justify-center min-w-[56px] md:min-w-[72px] lg:min-w-[80px] pt-3 md:pt-4",
-          isToday && "text-primary"
+          isToday && "text-primary",
+          isSelectionMode && "cursor-pointer"
         )}
+        onClick={isSelectionMode ? onToggleSelection : undefined}
       >
+        {/* Selection Checkbox (shown in selection mode) */}
+        {isSelectionMode && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSelection?.();
+            }}
+            className={cn(
+              "size-8 md:size-7 rounded-md border-2 flex items-center justify-center transition-all mb-2",
+              isSelected
+                ? "bg-primary border-primary text-primary-foreground"
+                : "border-muted-foreground/30 hover:border-primary/50"
+            )}
+            aria-label={isSelected ? "Deselect day" : "Select day"}
+          >
+            {isSelected && <Check className="size-5 md:size-4" />}
+          </button>
+        )}
+
         <div className="text-2xl md:text-3xl lg:text-4xl font-bold font-mono leading-none">
           {dayNumber}
         </div>
@@ -127,6 +184,18 @@ export const PlannerDayRow = memo(function PlannerDayRow({
             <CalendarOff className="size-3 md:size-3.5 text-muted-foreground" />
           </div>
         )}
+        {/* Keyboard shortcut hint - hidden on mobile */}
+        <div
+          className={cn(
+            "hidden md:flex items-center justify-center mt-1.5 text-[10px] font-mono px-1.5 py-0.5 rounded transition-all",
+            isFocused
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground opacity-0 group-hover:opacity-100"
+          )}
+          title={`Press ${keyboardNumber} to focus, then A to add`}
+        >
+          {keyboardNumber}
+        </div>
       </div>
 
       {/* Card with Recipes */}
@@ -134,19 +203,22 @@ export const PlannerDayRow = memo(function PlannerDayRow({
         className={cn(
           "flex-1 transition-all min-h-[120px]",
           isToday && "ring-2 ring-primary",
-          isPast && "opacity-70"
+          isPast && "opacity-70",
+          isFocused && !isToday && "ring-2 ring-primary/50 shadow-md",
+          isSelectionMode && isSelected && "ring-2 ring-primary bg-primary/5"
         )}
+        onClick={isSelectionMode ? onToggleSelection : undefined}
       >
         <CardContent
           className={cn(
             // Base spacing - flex column with gap
             "flex flex-col gap-3 md:gap-4",
-            // Density-based padding
-            viewSettings?.density === "compact" && "p-2 gap-2",
-            viewSettings?.density === "comfortable" && "p-3 md:p-4",
-            viewSettings?.density === "spacious" && "p-4 md:p-6 gap-4 md:gap-6",
-            // Default if no viewSettings
-            !viewSettings?.density && "p-3 md:p-4"
+            // Density-based padding (extra left for drag handle)
+            viewSettings?.density === "compact" && "p-2 pl-6 md:pl-8 gap-2",
+            viewSettings?.density === "comfortable" && "p-3 md:p-4 pl-6 md:pl-8",
+            viewSettings?.density === "spacious" && "p-4 md:p-6 pl-6 md:pl-8 gap-4 md:gap-6",
+            // Default if no viewSettings (extra left for drag handle)
+            !viewSettings?.density && "p-3 md:p-4 pl-6 md:pl-8"
           )}
         >
           {assignments.length === 0 ? (
@@ -180,50 +252,53 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                     />
                   )}
                   {typeMeals.map((assignment) => (
-                    <RecipeRow
+                    <DraggableMeal
                       key={assignment.id}
-                      assignment={assignment}
-                      cookNames={cookNames}
-                      cookColors={cookColors}
-                      onUpdateCook={onUpdateCook}
-                      onUpdateMealType={onUpdateMealType}
-                      onRemove={onRemoveMeal}
-                      onSwap={() => {
-                        // First remove the current recipe, then open modal to add new one
-                        onRemoveMeal(assignment.id);
-                        setModalOpen(true);
-                      }}
-                      nutrition={nutritionData?.get(assignment.recipe_id) || null}
-                      mealTypeSettings={mealTypeSettings}
-                      showNutrition={viewSettings?.showNutritionBadges !== false}
-                      showPrepTime={viewSettings?.showPrepTime !== false}
-                      compact={viewSettings?.density === "compact"}
-                    />
+                      id={assignment.id}
+                      disabled={isPast}
+                    >
+                      <RecipeRow
+                        assignment={assignment}
+                        cookNames={cookNames}
+                        cookColors={cookColors}
+                        onUpdateCook={onUpdateCook}
+                        onUpdateMealType={onUpdateMealType}
+                        onRemove={onRemoveMeal}
+                        onSwap={() => {
+                          // First remove the current recipe, then open modal to add new one
+                          onRemoveMeal(assignment.id);
+                          setModalOpen(true);
+                        }}
+                        nutrition={nutritionData?.get(assignment.recipe_id) || null}
+                        mealTypeSettings={mealTypeSettings}
+                        showNutrition={viewSettings?.showNutritionBadges !== false}
+                        showPrepTime={viewSettings?.showPrepTime !== false}
+                        compact={viewSettings?.density === "compact"}
+                      />
+                    </DraggableMeal>
                   ))}
                 </div>
               );
             })
           )}
 
-          {/* Add Meal Button */}
+          {/* Add Meal Button with Quick-Add */}
           {!isPast && (
             <>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setModalOpen(true)}
-                className={cn(
-                  "w-full h-12 md:h-11 text-sm md:text-base border-2 border-dashed rounded-lg",
-                  "hover:border-primary hover:bg-primary/5 transition-colors"
-                )}
-              >
-                <Plus className="size-5 mr-2" />
-                Add Meal
-              </Button>
+              <QuickAddDropdown
+                recipes={recipes}
+                recentRecipeIds={recentRecipeIds}
+                onQuickAdd={async (recipeId) => {
+                  await onAddMeal(recipeId, day);
+                }}
+                onOpenFullPicker={() => setModalOpen(true)}
+                disabled={isPending}
+                compact={viewSettings?.density === "compact"}
+              />
 
               <RecipePickerModal
                 open={modalOpen}
-                onOpenChange={setModalOpen}
+                onOpenChange={handleModalClose}
                 day={day}
                 recipes={recipes}
                 favorites={favorites}
@@ -232,6 +307,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                 cookNames={cookNames}
                 cookColors={cookColors}
                 userAllergenAlerts={userAllergenAlerts}
+                defaultCooksByDay={defaultCooksByDay}
                 onAdd={async (recipeIds, cook, mealType) => {
                   startTransition(async () => {
                     // Add each recipe with the cook and meal type assignment
@@ -383,15 +459,20 @@ function RecipeRow({
 
           {/* Recipe Title & Meta */}
           <div className="flex-1 min-w-0">
-            <p
-              className={cn(
-                "font-medium truncate",
-                compact ? "text-sm" : "text-sm md:text-base"
-              )}
-              title={assignment.recipe.title}
+            <RecipePreviewPopover
+              recipe={assignment.recipe}
+              nutrition={nutrition}
             >
-              {assignment.recipe.title}
-            </p>
+              <p
+                className={cn(
+                  "font-medium truncate hover:underline underline-offset-2",
+                  compact ? "text-sm" : "text-sm md:text-base"
+                )}
+                title={assignment.recipe.title}
+              >
+                {assignment.recipe.title}
+              </p>
+            </RecipePreviewPopover>
             {/* Meta row */}
             {(showPrepTime && assignment.recipe.prep_time) || (showNutrition && nutrition) ? (
               <div className="flex items-center gap-2 mt-0.5 flex-wrap">

@@ -8,9 +8,9 @@ import {
   LogOut,
   Settings,
   User as UserIcon,
-  Search,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -30,11 +30,10 @@ import { useSidebar } from "./sidebar-context";
 interface SidebarUserAreaProps {
   user: User | null;
   logoutAction: () => Promise<void>;
-  onSearchClick?: () => void;
 }
 
-export function SidebarUserArea({ user, logoutAction, onSearchClick }: SidebarUserAreaProps) {
-  const { isIconOnly, closeMobile, isMobile } = useSidebar();
+export function SidebarUserArea({ user, logoutAction }: SidebarUserAreaProps) {
+  const { isIconOnly, closeMobile, isMobile, isCollapsed, toggleCollapse } = useSidebar();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
   // Get user display info
@@ -71,7 +70,7 @@ export function SidebarUserArea({ user, logoutAction, onSearchClick }: SidebarUs
     </Avatar>
   );
 
-  // Collapsed view: avatar with dropdown + search icon
+  // Collapsed view: avatar with dropdown only (expand toggle is below quick nav)
   if (isIconOnly) {
     return (
       <div className="p-2 border-b flex flex-col items-center gap-2">
@@ -117,31 +116,11 @@ export function SidebarUserArea({ user, logoutAction, onSearchClick }: SidebarUs
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        {/* Search button in collapsed mode */}
-        {onSearchClick && (
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onSearchClick}
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
-              >
-                <Search className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right" className="flex items-center gap-2">
-              <span>Search</span>
-              <kbd className="text-[10px] font-medium bg-muted px-1.5 py-0.5 rounded">/</kbd>
-            </TooltipContent>
-          </Tooltip>
-        )}
       </div>
     );
   }
 
-  // Expanded view: full user area with dropdown
+  // Expanded view: full user area with dropdown + collapse toggle
   return (
     <div className="p-3 border-b">
       <div className="flex items-center gap-1">
@@ -188,22 +167,26 @@ export function SidebarUserArea({ user, logoutAction, onSearchClick }: SidebarUs
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Search button */}
-        {onSearchClick && (
+        {/* Sidebar collapse toggle - only show on desktop */}
+        {!isMobile && (
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={onSearchClick}
+                onClick={toggleCollapse}
                 className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
               >
-                <Search className="h-4 w-4" />
+                {isCollapsed ? (
+                  <ChevronsRight className="h-4 w-4" />
+                ) : (
+                  <ChevronsLeft className="h-4 w-4" />
+                )}
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <span>Search</span>
-              <kbd className="ml-2 text-[10px] bg-muted px-1.5 py-0.5 rounded">/</kbd>
+            <TooltipContent side="bottom" className="flex items-center gap-2">
+              <span>{isCollapsed ? "Expand" : "Collapse"} sidebar</span>
+              <kbd className="text-[10px] font-medium bg-muted px-1.5 py-0.5 rounded">⌘\</kbd>
             </TooltipContent>
           </Tooltip>
         )}

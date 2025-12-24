@@ -265,6 +265,11 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
               required
               maxLength={200}
             />
+            {title.length > 150 && (
+              <p className={`text-xs ${title.length >= 200 ? "text-destructive" : "text-muted-foreground"}`}>
+                {title.length}/200 characters
+              </p>
+            )}
           </div>
 
           {/* Image Upload */}
@@ -750,11 +755,16 @@ export function RecipeForm({ recipe, initialData, nutritionEnabled = false, hous
         )}
 
         <div className="flex gap-4">
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading || uploadingImage}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {isEditing ? "Saving..." : "Creating..."}
+              </>
+            ) : uploadingImage ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Uploading Image...
               </>
             ) : isEditing ? (
               "Save Changes"

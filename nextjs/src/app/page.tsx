@@ -1,11 +1,6 @@
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import Link from 'next/link';
+import { Menu } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetClose,
@@ -13,235 +8,229 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import Link from "next/link";
-import {
-  ArrowRight,
-  Check,
-  Menu,
-  Calendar,
-  ShoppingCart,
-  Activity,
-  Utensils,
-} from "lucide-react";
-import { FAQ } from "@/components/landing/faq";
-import { BrandLogoCompact } from "@/components/brand/logo";
-import { HeroSection } from "@/components/landing/hero-section";
-import { TabbedDemo } from "@/components/landing/tabbed-demo";
-import { MetricsSection } from "@/components/landing/metrics-section";
-import { CTASection } from "@/components/landing/cta-section";
-import { InteractiveFeatures } from "@/components/landing/interactive-features";
+} from '@/components/ui/sheet';
+import { PixelBrandLogoCompact } from '@/components/landing/pixel-art';
+import { HeroSection } from '@/components/landing/hero-section';
+import { JourneySection } from '@/components/landing/journey-section';
+import { TerminalFeature } from '@/components/landing/terminal-feature';
+import { PricingSection } from '@/components/landing/pricing-section';
+import { FAQ } from '@/components/landing/faq';
+import { CTASection } from '@/components/landing/cta-section';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LANDING PAGE
+// Clean, pixel-art themed landing with alternating dark/cream sections
+// ═══════════════════════════════════════════════════════════════════════════
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-dark text-cream">
+    <main className="min-h-screen bg-[#111111]">
       {/* Navigation */}
-      <nav className="border-b border-dark-border sticky top-0 bg-dark/95 backdrop-blur supports-[backdrop-filter]:bg-dark/80 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="hover:opacity-80 transition-opacity">
-            <BrandLogoCompact />
-          </Link>
+      <Navigation />
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
-            <Link
-              href="/about"
-              className="text-sm font-medium text-cream/70 hover:text-cream transition-colors"
-            >
-              About
-            </Link>
-            <Link
-              href="/pricing"
-              className="text-sm font-medium text-cream/70 hover:text-cream transition-colors"
-            >
-              Pricing
-            </Link>
-            <Link
-              href="/login"
-              className="text-sm font-medium text-cream/70 hover:text-cream transition-colors"
-            >
-              Log in
-            </Link>
-            <Link href="/signup">
-              <Button className="shadow-glow-red hover:shadow-glow-red-strong transition-all">
-                Sign up free
-              </Button>
-            </Link>
-          </div>
-
-          {/* Mobile Navigation */}
-          <div className="md:hidden flex items-center gap-2">
-            <Link href="/login">
-              <Button size="sm" variant="ghost" className="text-cream/70 hover:text-cream hover:bg-dark-lighter">
-                Log in
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button size="sm">Sign Up</Button>
-            </Link>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-cream/70 hover:text-cream hover:bg-dark-lighter">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] bg-dark-lighter border-dark-border">
-                <SheetHeader>
-                  <SheetTitle className="font-mono text-left text-cream">Menu</SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col gap-2 mt-6">
-                  <SheetClose asChild>
-                    <Link href="/pricing">
-                      <Button variant="ghost" className="w-full justify-start text-base text-cream/70 hover:text-cream hover:bg-dark-accent">
-                        Pricing
-                      </Button>
-                    </Link>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <Link href="/about">
-                      <Button variant="ghost" className="w-full justify-start text-base text-cream/70 hover:text-cream hover:bg-dark-accent">
-                        About
-                      </Button>
-                    </Link>
-                  </SheetClose>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
+      {/* Hero - Dark */}
       <HeroSection />
 
-      {/* Quick Features Strip */}
-      <section className="py-12 bg-dark-lighter border-y border-dark-border">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            <QuickFeature icon={<Calendar className="h-5 w-5" />} label="Weekly Planning" />
-            <QuickFeature icon={<ShoppingCart className="h-5 w-5" />} label="Smart Shopping" />
-            <QuickFeature icon={<Utensils className="h-5 w-5" />} label="Cook Mode" />
-            <QuickFeature icon={<Activity className="h-5 w-5" />} label="Nutrition Tracking" />
-          </div>
-        </div>
-      </section>
+      {/* Journey Section - Progressive user flow: Import → Plan → Shop → Cook */}
+      <div id="features">
+        <JourneySection />
+      </div>
 
-      {/* Tabbed Demo Section */}
-      <TabbedDemo />
+      {/* Terminal Feature - Dark (additional detail for developers) */}
+      <TerminalFeature />
 
-      {/* Interactive Features */}
-      <InteractiveFeatures />
 
-      {/* Metrics - Compact */}
-      <MetricsSection />
+      {/* Pricing - Dark */}
+      <div id="pricing">
+        <PricingSection />
+      </div>
 
-      {/* Pricing Section - Tightened */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-cream mb-3">
-              Free to start
-            </h2>
-            <p className="text-cream/70">No credit card required.</p>
-          </div>
-
-          <div className="max-w-3xl mx-auto grid md:grid-cols-2 gap-6">
-            {/* Free Plan */}
-            <Card className="border-dark-border bg-dark-lighter">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xl text-cream">Free</CardTitle>
-                <div className="pt-2">
-                  <span className="text-3xl font-mono font-bold text-cream">$0</span>
-                </div>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-4">
-                <ul className="flex flex-col gap-2 text-sm">
-                  <PricingFeature>Unlimited recipes</PricingFeature>
-                  <PricingFeature>Weekly meal planning</PricingFeature>
-                  <PricingFeature>Auto shopping lists</PricingFeature>
-                  <PricingFeature>Cook Mode with timers</PricingFeature>
-                  <PricingFeature>AI recipe import</PricingFeature>
-                </ul>
-                <Link href="/signup" className="block">
-                  <Button className="w-full border-dark-border text-cream hover:bg-dark-accent" variant="outline">
-                    Get started
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            {/* Pro Plan */}
-            <Card className="border-2 border-primary bg-dark-lighter shadow-glow-red relative">
-              <div className="absolute top-0 right-0 bg-primary text-white text-xs font-medium px-2 py-0.5 rounded-bl-lg">
-                Popular
-              </div>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xl text-cream">Pro</CardTitle>
-                <div className="pt-2">
-                  <span className="text-3xl font-mono font-bold text-cream">$7</span>
-                  <span className="text-cream/60 text-sm">/mo</span>
-                </div>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-4">
-                <ul className="flex flex-col gap-2 text-sm">
-                  <PricingFeature>Everything in Free</PricingFeature>
-                  <PricingFeature>Household sharing</PricingFeature>
-                  <PricingFeature>Google Calendar sync</PricingFeature>
-                  <PricingFeature>Multi-week planning</PricingFeature>
-                  <PricingFeature>AI meal suggestions</PricingFeature>
-                </ul>
-                <Link href="/signup" className="block">
-                  <Button className="w-full shadow-glow-red">Start free trial</Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ - Compact */}
-      <div className="bg-dark-lighter">
+      {/* FAQ - Cream */}
+      <div id="faq">
         <FAQ />
       </div>
 
-      {/* CTA Section */}
+      {/* CTA - Dark */}
       <CTASection />
 
-      {/* Footer - Simplified */}
-      <footer className="border-t border-dark-border py-8 bg-dark">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <BrandLogoCompact />
-            <div className="flex items-center gap-6 text-sm text-cream/60">
-              <Link href="/about" className="hover:text-cream transition-colors">About</Link>
-              <Link href="/pricing" className="hover:text-cream transition-colors">Pricing</Link>
-              <Link href="/privacy" className="hover:text-cream transition-colors">Privacy</Link>
-              <Link href="/terms" className="hover:text-cream transition-colors">Terms</Link>
-            </div>
-            <p className="text-sm text-cream/40">Made with love (and meal plans)</p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer */}
+      <Footer />
     </main>
   );
 }
 
-// Compact quick feature for the strip
-function QuickFeature({ icon, label }: { icon: React.ReactNode; label: string }) {
+// ─────────────────────────────────────────────────────────────────────────────
+// Navigation
+// ─────────────────────────────────────────────────────────────────────────────
+
+function Navigation() {
   return (
-    <div className="flex items-center justify-center gap-2 text-cream/80">
-      <span className="text-primary">{icon}</span>
-      <span className="text-sm font-medium">{label}</span>
-    </div>
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b-3 border-[#111111] bg-[#FDFBF7]">
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+        <Link href="/" className="hover:opacity-80 transition-opacity">
+          <PixelBrandLogoCompact variant="inline" colorMode="light" />
+        </Link>
+
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-6">
+          <NavLink href="#features">Features</NavLink>
+          <NavLink href="#pricing">Pricing</NavLink>
+          <NavLink href="#faq">FAQ</NavLink>
+          <NavLink href="/about">About</NavLink>
+          <Link
+            href="/login"
+            className="text-sm font-mono font-medium text-[#111111]/70 hover:text-[#111111] transition-colors"
+          >
+            Log in
+          </Link>
+          <Link href="/signup">
+            <button type="button" className="btn-pixel btn-pixel-primary text-sm py-2 px-4">
+              Sign up free
+            </button>
+          </Link>
+        </div>
+
+        {/* Mobile Navigation */}
+        <div className="md:hidden flex items-center gap-2">
+          <Link href="/login">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-[#111111]/70 hover:text-[#111111] font-mono"
+            >
+              Log in
+            </Button>
+          </Link>
+          <Link href="/signup">
+            <button type="button" className="btn-pixel btn-pixel-primary text-sm py-2.5 px-4 min-h-[44px]">
+              Sign Up
+            </button>
+          </Link>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-[#111111]/70 hover:text-[#111111]"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="right"
+              className="w-[280px] bg-[#FDFBF7] border-l-3 border-[#111111]"
+            >
+              <SheetHeader>
+                <SheetTitle className="font-mono text-left text-[#111111]">
+                  Menu
+                </SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col gap-2 mt-6">
+                <SheetClose asChild>
+                  <Link href="#features">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-base font-mono text-[#111111]/70 hover:text-[#FF4400] hover:bg-[#111111]/5"
+                    >
+                      Features
+                    </Button>
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link href="#pricing">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-base font-mono text-[#111111]/70 hover:text-[#FF4400] hover:bg-[#111111]/5"
+                    >
+                      Pricing
+                    </Button>
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link href="#faq">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-base font-mono text-[#111111]/70 hover:text-[#FF4400] hover:bg-[#111111]/5"
+                    >
+                      FAQ
+                    </Button>
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link href="/about">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-base font-mono text-[#111111]/70 hover:text-[#FF4400] hover:bg-[#111111]/5"
+                    >
+                      About
+                    </Button>
+                  </Link>
+                </SheetClose>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </div>
+    </nav>
   );
 }
 
-// Pricing feature checkmark
-function PricingFeature({ children }: { children: React.ReactNode }) {
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <li className="flex items-center gap-2">
-      <Check className="h-4 w-4 text-bold-green shrink-0" />
-      <span className="text-cream">{children}</span>
-    </li>
+    <Link
+      href={href}
+      className="text-sm font-mono font-medium text-[#111111]/70 hover:text-[#FF4400] focus-visible:text-[#FF4400] focus-visible:outline-none focus-visible:underline underline-offset-4 transition-colors"
+    >
+      {children}
+    </Link>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Footer
+// ─────────────────────────────────────────────────────────────────────────────
+
+function Footer() {
+  return (
+    <footer className="border-t-4 border-[#FDFBF7]/20 py-8 bg-[#111111]">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <Link href="/" className="hover:opacity-80 transition-opacity">
+            <PixelBrandLogoCompact variant="inline" colorMode="dark" />
+          </Link>
+
+          <div className="flex items-center gap-6 text-sm font-mono text-[#FDFBF7]/60">
+            <Link href="#features" className="hover:text-[#FF4400] focus-visible:text-[#FF4400] focus-visible:outline-none transition-colors">
+              Features
+            </Link>
+            <Link href="#pricing" className="hover:text-[#FF4400] focus-visible:text-[#FF4400] focus-visible:outline-none transition-colors">
+              Pricing
+            </Link>
+            <Link href="/about" className="hover:text-[#FF4400] focus-visible:text-[#FF4400] focus-visible:outline-none transition-colors">
+              About
+            </Link>
+            <Link href="/privacy" className="hover:text-[#FF4400] focus-visible:text-[#FF4400] focus-visible:outline-none transition-colors">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-[#FF4400] focus-visible:text-[#FF4400] focus-visible:outline-none transition-colors">
+              Terms
+            </Link>
+          </div>
+
+          <p className="text-sm text-[#FDFBF7]/40">
+            Made with{' '}
+            <span className="inline-block w-3 h-3 bg-[#ff66c4] mx-1" />
+            and meal plans
+          </p>
+        </div>
+
+        {/* Copyright */}
+        <div className="mt-6 pt-6 border-t border-[#FDFBF7]/10 text-center">
+          <p className="text-xs text-[#FDFBF7]/30 font-mono">
+            &copy; {new Date().getFullYear()} Meal Prep OS. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
   );
 }

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Plus, X, GripVertical } from "lucide-react";
 import { toast } from "sonner";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { ServingSizePreset } from "@/types/user-preferences-v2";
@@ -55,7 +55,7 @@ export function ServingSizePresetsManager() {
   };
 
   // Handle drag end
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -124,7 +124,7 @@ function SortablePresetItem({ index, preset, onRemove }: { index: number; preset
       style={style}
       className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg"
     >
-      <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+      <button type="button" {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing" aria-label="Drag to reorder">
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </button>
       <Badge variant="secondary" className="flex-1">

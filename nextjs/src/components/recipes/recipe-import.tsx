@@ -494,6 +494,7 @@ export function RecipeImport() {
                   )}
                 >
                   <button
+                    type="button"
                     onClick={() => setCurrentReviewIndex(idx)}
                     disabled={isCreatingAll}
                     className="truncate max-w-[150px]"
@@ -502,6 +503,7 @@ export function RecipeImport() {
                     {(recipe.title?.length || 0) > 20 && "..."}
                   </button>
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleRemoveFromQueue(idx);

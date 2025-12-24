@@ -214,6 +214,7 @@ export function MealTypeCustomizationSettings({ initialSettings }: MealTypeCusto
 
           return (
             <button
+              type="button"
               key={mealType}
               onClick={() => handleEdit(mealType)}
               className={cn(
@@ -344,6 +345,7 @@ export function MealTypeCustomizationSettings({ initialSettings }: MealTypeCusto
                 <div className="grid grid-cols-8 gap-2">
                   {MEAL_TYPE_COLOR_PALETTE.map((c) => (
                     <button
+                      type="button"
                       key={c.key}
                       onClick={() => handleColorSelect(c.color)}
                       className={cn(

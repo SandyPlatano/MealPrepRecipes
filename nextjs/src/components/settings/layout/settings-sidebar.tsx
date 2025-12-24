@@ -63,6 +63,7 @@ export function SettingsSidebar() {
                   <div className="mt-1 ml-4 flex flex-col gap-0.5 border-l border-border/50 pl-3">
                     {category.subSections!.map((subSection) => (
                       <button
+                        type="button"
                         key={subSection.id}
                         onClick={() => handleSubSectionClick(subSection)}
                         className={cn(

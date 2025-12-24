@@ -205,6 +205,7 @@ export function DisplayPreferencesSection({
 
             return (
               <button
+                type="button"
                 key={opt.value}
                 onClick={() => handleUpdate({ ratingScale: opt.value })}
                 className={cn(
@@ -271,6 +272,7 @@ export function DisplayPreferencesSection({
 
             return (
               <button
+                type="button"
                 key={opt.value}
                 onClick={() => handleUpdate({ theme: opt.value })}
                 className={cn(
@@ -300,6 +302,7 @@ export function DisplayPreferencesSection({
         <div className="grid grid-cols-9 sm:grid-cols-12 lg:grid-cols-17 gap-2">
           {ACCENT_COLOR_PALETTE.map((c) => (
             <button
+              type="button"
               key={c.key}
               onClick={() => handleColorSelect(c.color)}
               className={cn(

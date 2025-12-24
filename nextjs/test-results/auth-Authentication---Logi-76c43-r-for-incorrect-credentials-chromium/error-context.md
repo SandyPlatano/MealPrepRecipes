@@ -1,0 +1,59 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+    - img [ref=e8]
+  - alert [ref=e11]
+  - generic [ref=e13]:
+    - generic [ref=e14]:
+      - link "Babe, What's for Dinner?" [ref=e15] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e17]:
+          - img [ref=e18]
+          - generic [ref=e20]:
+            - generic [ref=e21]: Babe,
+            - generic [ref=e22]: What's for Dinner?
+      - paragraph [ref=e23]: Finally, an answer.
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - heading "Welcome back" [level=3] [ref=e26]
+        - paragraph [ref=e27]: Enter your email to sign in to your account
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e30]: Hmm, that doesn't look right. Check your email and password?
+          - generic [ref=e31]:
+            - generic [ref=e32]: Email
+            - textbox "Email" [ref=e33]:
+              - /placeholder: you@example.com
+          - generic [ref=e34]:
+            - generic [ref=e35]:
+              - generic [ref=e36]: Password
+              - link "Forgot password?" [ref=e37] [cursor=pointer]:
+                - /url: /forgot-password
+            - textbox "Password" [ref=e38]:
+              - /placeholder: ••••••••
+        - generic [ref=e39]:
+          - button "Sign in" [active] [ref=e40]
+          - generic [ref=e45]: Or continue with
+          - button "Google" [ref=e46]:
+            - img
+            - text: Google
+          - paragraph [ref=e47]:
+            - text: Don't have an account?
+            - link "Sign up" [ref=e48] [cursor=pointer]:
+              - /url: /signup
+    - paragraph [ref=e49]: Made with love (and mild guilt)
+  - region "Notifications alt+T"
+  - dialog "We use cookies" [ref=e50]:
+    - generic [ref=e53]:
+      - generic [ref=e54]:
+        - heading "We use cookies" [level=3] [ref=e56]
+        - paragraph [ref=e57]:
+          - text: We use essential cookies to keep you logged in and remember your preferences. No tracking or advertising cookies.
+          - link "Learn more" [ref=e58] [cursor=pointer]:
+            - /url: /privacy
+      - generic [ref=e59]:
+        - button "Manage Settings" [ref=e60]
+        - button "Accept" [ref=e61]
+```

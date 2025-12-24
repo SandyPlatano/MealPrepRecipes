@@ -18,10 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, ChefHat } from "lucide-react";
+import { Search, ChefHat, X } from "lucide-react";
 import { RecipePickerCard } from "./recipe-picker-card";
 import { MealTypeSelector } from "./meal-type-selector";
+import { useRecipePickerState } from "@/contexts/recipe-picker-context";
 import type { DayOfWeek, MealType } from "@/types/meal-plan";
+import type { DefaultCooksByDay } from "@/types/settings";
 import { inferMealType } from "@/lib/meal-type-inference";
 
 interface Recipe {
@@ -46,6 +48,7 @@ interface RecipePickerModalProps {
   cookNames: string[];
   cookColors?: Record<string, string>;
   userAllergenAlerts?: string[];
+  defaultCooksByDay?: DefaultCooksByDay;
   onAdd: (recipeIds: string[], cook: string | null, mealType: MealType | null) => Promise<void>;
 }
 
@@ -59,15 +62,28 @@ export function RecipePickerModal({
   suggestedRecipeIds,
   cookNames,
   cookColors = {},
+  defaultCooksByDay = {},
   onAdd,
 }: RecipePickerModalProps) {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCook, setSelectedCook] = useState<string>("none");
+  // Use persistent context for search and tab state
+  const { searchQuery, setSearchQuery, activeTab, setActiveTab, clearSearch } = useRecipePickerState();
+
+  // Get default cook for this day
+  const defaultCookForDay = defaultCooksByDay[day] ?? null;
+
+  // Local state for selection (resets on close)
+  const [selectedCook, setSelectedCook] = useState<string>(defaultCookForDay ?? "none");
   const [selectedMealType, setSelectedMealType] = useState<MealType | null>(null);
   const [selectedRecipeIds, setSelectedRecipeIds] = useState<Set<string>>(new Set());
   const [isAdding, setIsAdding] = useState(false);
-  const [activeTab, setActiveTab] = useState<"all" | "favorites" | "recent" | "suggestions">("all");
+
+  // Reset to default cook when modal opens or day changes
+  useEffect(() => {
+    if (open) {
+      setSelectedCook(defaultCookForDay ?? "none");
+    }
+  }, [open, defaultCookForDay]);
 
   // Auto-infer meal type when first recipe is selected
   useEffect(() => {
@@ -155,12 +171,10 @@ export function RecipePickerModal({
       const cook = selectedCook === "none" ? null : selectedCook;
       await onAdd(Array.from(selectedRecipeIds), cook, selectedMealType);
 
-      // Reset state
+      // Reset selection state only (search/tab remain for next time)
       setSelectedRecipeIds(new Set());
       setSelectedCook("none");
       setSelectedMealType(null);
-      setSearchQuery("");
-      setActiveTab("all");
       onOpenChange(false);
     } catch (error) {
       console.error("Error adding recipes:", error);
@@ -170,11 +184,10 @@ export function RecipePickerModal({
   };
 
   const handleClose = () => {
+    // Reset selection state only (search/tab remain for next time)
     setSelectedRecipeIds(new Set());
     setSelectedCook("none");
     setSelectedMealType(null);
-    setSearchQuery("");
-    setActiveTab("all");
     onOpenChange(false);
   };
 
@@ -220,8 +233,18 @@ export function RecipePickerModal({
                 placeholder="Search recipes..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
+                className="pl-9 pr-9"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Clear search"
+                >
+                  <X className="size-4" />
+                </button>
+              )}
             </div>
             <MealTypeSelector
               value={selectedMealType}
@@ -284,7 +307,7 @@ export function RecipePickerModal({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setSearchQuery("")}
+                    onClick={clearSearch}
                   >
                     Clear search
                   </Button>

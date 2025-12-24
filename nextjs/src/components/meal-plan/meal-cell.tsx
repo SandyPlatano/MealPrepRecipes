@@ -225,7 +225,7 @@ export function MealCell({
             disabled={isUpdating}
           >
             <SelectTrigger
-              className="h-7 text-xs"
+              className="h-9 text-xs"
               style={getCookColorStyle(assignment.cook)}
             >
               <ChefHat className="size-3 mr-1" />

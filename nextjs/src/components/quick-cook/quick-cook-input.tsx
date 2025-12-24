@@ -248,6 +248,7 @@ export function QuickCookInput({
                   >
                     {ingredient}
                     <button
+                      type="button"
                       onClick={() => handleRemoveIngredient(ingredient)}
                       className="ml-1 hover:text-destructive"
                     >

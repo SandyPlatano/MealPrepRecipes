@@ -85,6 +85,7 @@ export function AiPersonalitySection({
 
             return (
               <button
+                type="button"
                 key={preset.id}
                 onClick={() => handleSelectPersonality(preset.id)}
                 className={cn(
@@ -117,6 +118,7 @@ export function AiPersonalitySection({
 
         {/* Custom Option */}
         <button
+          type="button"
           onClick={() => handleSelectPersonality("custom")}
           className={cn(
             "flex flex-col items-start p-4 rounded-lg border-2 transition-all text-left",

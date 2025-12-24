@@ -3,15 +3,20 @@
 import * as React from "react";
 import type { User } from "@supabase/supabase-js";
 import { cn } from "@/lib/utils";
-import { Search } from "lucide-react";
+import { Search, ChevronsRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 import {
   SidebarProvider,
   useSidebar,
   AppSidebar,
   MobileSidebarSheet,
   MobileSidebarTrigger,
-  SidebarExpandTrigger,
   SIDEBAR_DIMENSIONS,
   type AppSidebarProps,
 } from "@/components/sidebar";
@@ -34,6 +39,41 @@ interface AppShellProps {
   // Optional counts
   shoppingListCount?: number;
   favoritesCount?: number;
+}
+
+// Floating expand button that appears when sidebar is fully collapsed
+function SidebarExpandButton() {
+  const { expand } = useSidebar();
+
+  return (
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={expand}
+            className={cn(
+              "fixed top-3 left-3 z-50",
+              "h-9 w-9 rounded-lg",
+              "bg-background/90 backdrop-blur-sm",
+              "border-border shadow-md",
+              "hover:bg-accent hover:scale-105",
+              "transition-all duration-150",
+              "animate-in fade-in-0 slide-in-from-left-2 duration-200"
+            )}
+            aria-label="Expand sidebar"
+          >
+            <ChevronsRight className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="right" className="flex items-center gap-2">
+          <span>Expand sidebar</span>
+          <kbd className="text-[10px] font-medium bg-muted px-1.5 py-0.5 rounded">⌘\</kbd>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
 }
 
 export function AppShell(props: AppShellProps) {
@@ -124,12 +164,13 @@ function AppShellContent({
         <MobileSidebarSheet
           user={user}
           logoutAction={logoutAction}
+          onSearchClick={handleSearchClick}
           {...sidebarProps}
         />
 
-        {/* Main Content - padding accounts for bottom nav height */}
-        <main className="flex-1">
-          <div className="container mx-auto w-full px-4 py-8 pb-20">
+        {/* Main Content - padding accounts for bottom nav height + safe area */}
+        <main className="flex-1 pb-[calc(56px+env(safe-area-inset-bottom,0px))]">
+          <div className="container mx-auto w-full px-4 py-8">
             {children}
           </div>
         </main>
@@ -141,6 +182,7 @@ function AppShellContent({
   }
 
   // Desktop layout: sidebar + content (simple flex layout)
+  // When collapsed, fully hide sidebar (width 0) and show floating expand button
   return (
     <div className="flex min-h-screen bg-background">
       {/* Sidebar wrapper with collapse animation */}
@@ -159,8 +201,8 @@ function AppShellContent({
         />
       </div>
 
-      {/* Floating expand button - appears when sidebar is collapsed */}
-      <SidebarExpandTrigger />
+      {/* Floating expand button - appears when sidebar is fully collapsed */}
+      {isCollapsed && <SidebarExpandButton />}
 
       {/* Main Content - takes remaining space */}
       <main className="flex-1 min-w-0 h-screen overflow-y-auto">

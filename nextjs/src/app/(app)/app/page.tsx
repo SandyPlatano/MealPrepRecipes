@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getWeekPlan, getRecipesForPlanning } from "@/app/actions/meal-plans";
-import { getSettings, getMealTypeCustomization, getPlannerViewSettings } from "@/app/actions/settings";
+import { getSettings, getMealTypeCustomization, getPlannerViewSettings, getDefaultCooksByDay } from "@/app/actions/settings";
 import { getUserPreferencesV2 } from "@/app/actions/user-preferences";
 import { getFavorites } from "@/app/actions/recipes";
 import {
@@ -78,6 +78,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     nutritionTrackingResult,
     mealTypeSettingsResult,
     plannerViewSettingsResult,
+    defaultCooksByDayResult,
     userPreferencesV2Result,
   ] = await Promise.all([
     getWeekPlan(weekStartStr),
@@ -91,6 +92,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     isNutritionTrackingEnabled(),
     getMealTypeCustomization(),
     getPlannerViewSettings(),
+    getDefaultCooksByDay(),
     user ? getUserPreferencesV2(user.id) : Promise.resolve({ error: null, data: null }),
   ]);
 
@@ -118,6 +120,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const suggestedRecipeIds = (suggestions.data || []).map((r) => r.id);
   const mealTypeSettings = mealTypeSettingsResult.data;
   const plannerViewSettings = plannerViewSettingsResult.data;
+  const defaultCooksByDay = defaultCooksByDayResult.data;
 
   // Get existing meal days for AI suggestions
   const existingMealDays = Object.entries(weekPlan.assignments)
@@ -215,6 +218,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           canNavigateWeeks={canNavigateWeeks}
           mealTypeSettings={mealTypeSettings}
           plannerViewSettings={plannerViewSettings}
+          defaultCooksByDay={defaultCooksByDay}
         />
       </div>
     </>

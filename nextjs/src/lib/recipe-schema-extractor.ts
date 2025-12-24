@@ -86,7 +86,7 @@ export function extractRecipeSchema(html: string): RecipeSchema | null {
         // Check for @graph format (sometimes recipes are nested)
         if (jsonData["@graph"] && Array.isArray(jsonData["@graph"])) {
           const recipe = jsonData["@graph"].find(
-            (item: any) => item["@type"] === "Recipe"
+            (item: Record<string, unknown>) => item["@type"] === "Recipe"
           );
           if (recipe) {
             return recipe as RecipeSchema;

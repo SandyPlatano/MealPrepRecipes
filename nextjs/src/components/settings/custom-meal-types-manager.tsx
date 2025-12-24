@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Pencil, Trash2, GripVertical, Smile, Palette, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import data from "@emoji-mart/data";
@@ -140,7 +140,7 @@ export function CustomMealTypesManager() {
   };
 
   // Reorder
-  const handleDragEnd = async (event: any) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     if (!household?.household?.id) return;
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -239,6 +239,7 @@ export function CustomMealTypesManager() {
               <div className="grid grid-cols-8 gap-2">
                 {MEAL_TYPE_COLOR_PALETTE.map((c) => (
                   <button
+                    type="button"
                     key={c.key}
                     onClick={() => handleColorSelect(c.color)}
                     className={cn(
@@ -246,6 +247,7 @@ export function CustomMealTypesManager() {
                       formData.color === c.color && "ring-2 ring-offset-2 ring-primary scale-110"
                     )}
                     style={{ backgroundColor: c.color }}
+                    aria-label={`Select color ${c.key}`}
                   />
                 ))}
               </div>
@@ -312,7 +314,7 @@ function SortableMealTypeItem({
 
   return (
     <div ref={setNodeRef} style={style} className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg">
-      <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+      <button type="button" {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing" aria-label="Drag to reorder">
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </button>
       <span className="text-xl">{type.emoji}</span>

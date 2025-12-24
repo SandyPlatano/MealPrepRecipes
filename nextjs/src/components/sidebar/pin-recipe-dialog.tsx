@@ -123,6 +123,7 @@ export function PinRecipeDialog({ trigger }: PinRecipeDialogProps) {
                   const alreadyPinned = isPinned(recipe.id);
                   return (
                     <button
+                      type="button"
                       key={recipe.id}
                       onClick={() => !alreadyPinned && handlePin(recipe)}
                       disabled={alreadyPinned}

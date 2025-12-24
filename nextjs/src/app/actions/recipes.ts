@@ -135,7 +135,7 @@ export async function createRecipe(formData: RecipeFormData) {
   }
 
   revalidatePath("/app/recipes");
-  revalidateTag(`recipes-${authUser.id}`);
+  revalidateTag(`recipes-${authUser.id}`, "default");
   return { error: null, data: data as Recipe };
 }
 
@@ -230,7 +230,7 @@ export async function updateRecipe(id: string, formData: Partial<RecipeFormData>
 
   revalidatePath("/app/recipes");
   revalidatePath(`/app/recipes/${id}`);
-  revalidateTag(`recipes-${authUser.id}`);
+  revalidateTag(`recipes-${authUser.id}`, "default");
   return { error: null, data: data as Recipe };
 }
 
@@ -256,7 +256,7 @@ export async function deleteRecipe(id: string) {
   }
 
   revalidatePath("/app/recipes");
-  revalidateTag(`recipes-${authUser.id}`);
+  revalidateTag(`recipes-${authUser.id}`, "default");
   return { error: null };
 }
 
@@ -283,7 +283,7 @@ export async function updateRecipeRating(id: string, rating: number) {
 
   revalidatePath("/app/recipes");
   revalidatePath(`/app/recipes/${id}`);
-  revalidateTag(`recipes-${authUser.id}`);
+  revalidateTag(`recipes-${authUser.id}`, "default");
   return { error: null };
 }
 

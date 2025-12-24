@@ -173,7 +173,7 @@ export async function createSmartFolder(
   };
 
   revalidatePath("/app/recipes");
-  revalidateTag(`folders-${household.household_id}`);
+  revalidateTag(`folders-${household.household_id}`, "default");
   return { error: null, data: smartFolder };
 }
 
@@ -250,7 +250,7 @@ export async function updateSmartFolder(
   };
 
   revalidatePath("/app/recipes");
-  revalidateTag(`folders-${household.household_id}`);
+  revalidateTag(`folders-${household.household_id}`, "default");
   return { error: null, data: smartFolder };
 }
 
@@ -295,7 +295,7 @@ export async function deleteSmartFolder(
   }
 
   revalidatePath("/app/recipes");
-  revalidateTag(`folders-${household.household_id}`);
+  revalidateTag(`folders-${household.household_id}`, "default");
   return { error: null };
 }
 

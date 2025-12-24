@@ -479,6 +479,7 @@ export function CookModeSettingsContent({
               <div className="flex flex-wrap gap-2 max-w-xs">
                 {ACCENT_COLOR_PALETTE.map(({ key, color }) => (
                   <button
+                    type="button"
                     key={key}
                     onClick={() => updateDisplaySettings({ accentColor: color })}
                     className={cn(

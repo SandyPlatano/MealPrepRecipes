@@ -434,7 +434,7 @@ export async function addMealAssignment(
     );
   }
 
-  revalidateTag(`meal-plan-${household!.household_id}`);
+  revalidateTag(`meal-plan-${household!.household_id}`, "default");
   revalidatePath("/app");
   revalidatePath("/app/plan");
   revalidatePath("/app/shop");
@@ -495,7 +495,7 @@ export async function removeMealAssignment(assignmentId: string) {
     }
   }
 
-  revalidateTag(`meal-plan-${household!.household_id}`);
+  revalidateTag(`meal-plan-${household!.household_id}`, "default");
   revalidatePath("/app");
   revalidatePath("/app/plan");
   revalidatePath("/app/shop");
@@ -528,7 +528,7 @@ export async function updateMealAssignment(
   // Get household for cache tag
   const { household } = await getCachedUserWithHousehold();
   if (household) {
-    revalidateTag(`meal-plan-${household.household_id}`);
+    revalidateTag(`meal-plan-${household.household_id}`, "default");
   }
   revalidatePath("/app");
   revalidatePath("/app/plan");
@@ -644,7 +644,7 @@ export async function clearDayAssignments(weekStart: string, dayOfWeek: DayOfWee
     }
   }
 
-  revalidateTag(`meal-plan-${household.household_id}`);
+  revalidateTag(`meal-plan-${household.household_id}`, "default");
   revalidatePath("/app");
   revalidatePath("/app/plan");
   revalidatePath("/app/shop");
@@ -701,7 +701,7 @@ export async function markMealPlanAsSent(weekStart: string) {
 
   console.log("[markMealPlanAsSent] Successfully updated meal plan:", updatedPlans[0].id, "sent_at:", updatedPlans[0].sent_at);
 
-  revalidateTag(`meal-plan-${household.household_id}`);
+  revalidateTag(`meal-plan-${household.household_id}`, "default");
   revalidatePath("/app/history");
   return { error: null, data: updatedPlans[0] };
 }
@@ -961,7 +961,7 @@ export async function createMealPlanTemplate(
     return { error: templateError.message };
   }
 
-  revalidateTag(`meal-plan-${household.household_id}`);
+  revalidateTag(`meal-plan-${household.household_id}`, "default");
   return { error: null, data: template as MealPlanTemplate };
 }
 
@@ -998,7 +998,7 @@ export async function updateMealPlanTemplate(
     return { error: error.message };
   }
 
-  revalidateTag(`meal-plan-${household.household_id}`);
+  revalidateTag(`meal-plan-${household.household_id}`, "default");
   return { error: null, data: template as MealPlanTemplate };
 }
 
@@ -1022,7 +1022,7 @@ export async function deleteMealPlanTemplate(templateId: string) {
     return { error: error.message };
   }
 
-  revalidateTag(`meal-plan-${household.household_id}`);
+  revalidateTag(`meal-plan-${household.household_id}`, "default");
   return { error: null };
 }
 
@@ -1138,7 +1138,7 @@ export async function applyMealPlanTemplate(
     }
   }
 
-  revalidateTag(`meal-plan-${household.household_id}`);
+  revalidateTag(`meal-plan-${household.household_id}`, "default");
   revalidatePath("/app");
   revalidatePath("/app/plan");
   revalidatePath("/app/shop");
@@ -1202,7 +1202,7 @@ export async function clearWeekMealPlan(weekStart: string): Promise<{
       .eq("shopping_list_id", shoppingList.id);
   }
 
-  revalidateTag(`meal-plan-${household.household_id}`);
+  revalidateTag(`meal-plan-${household.household_id}`, "default");
   revalidatePath("/app");
   revalidatePath("/app/plan");
   revalidatePath("/app/shop");
@@ -1390,7 +1390,7 @@ export async function deleteMealPlan(planId: string): Promise<{
     return { error: deleteError.message };
   }
 
-  revalidateTag(`meal-plan-${household.household_id}`);
+  revalidateTag(`meal-plan-${household.household_id}`, "default");
   revalidatePath("/app/history");
   return { error: null };
 }

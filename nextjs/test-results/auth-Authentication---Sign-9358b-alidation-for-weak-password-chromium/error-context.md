@@ -1,0 +1,56 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - link "Babe, What's for Dinner?" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e7]:
+          - img [ref=e8]
+          - generic [ref=e10]:
+            - generic [ref=e11]: Babe,
+            - generic [ref=e12]: What's for Dinner?
+      - paragraph [ref=e13]: Finally, an answer.
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - heading "Create an account" [level=3] [ref=e16]
+        - paragraph [ref=e17]: We'll send you a magic link to get started. No password needed!
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e21]: Name
+            - textbox "Name" [ref=e22]:
+              - /placeholder: What should we call you?
+          - generic [ref=e23]:
+            - generic [ref=e24]: Email
+            - textbox "Email" [active] [ref=e25]:
+              - /placeholder: you@example.com
+              - text: test@example.com
+        - generic [ref=e26]:
+          - button "Send magic link" [ref=e27]
+          - generic [ref=e32]: Or continue with
+          - button "Google" [ref=e33]:
+            - img
+            - text: Google
+          - paragraph [ref=e34]:
+            - text: Already have an account?
+            - link "Sign in" [ref=e35] [cursor=pointer]:
+              - /url: /login
+    - paragraph [ref=e36]: Made with love (and mild guilt)
+  - region "Notifications alt+T"
+  - dialog "We use cookies" [ref=e37]:
+    - generic [ref=e40]:
+      - generic [ref=e41]:
+        - heading "We use cookies" [level=3] [ref=e43]
+        - paragraph [ref=e44]:
+          - text: We use essential cookies to keep you logged in and remember your preferences. No tracking or advertising cookies.
+          - link "Learn more" [ref=e45] [cursor=pointer]:
+            - /url: /privacy
+      - generic [ref=e46]:
+        - button "Manage Settings" [ref=e47]
+        - button "Accept" [ref=e48]
+  - button "Open Next.js Dev Tools" [ref=e54] [cursor=pointer]:
+    - img [ref=e55]
+  - alert [ref=e58]
+```

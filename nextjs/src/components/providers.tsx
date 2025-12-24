@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import { KeyboardShortcutsProvider } from "@/components/keyboard-shortcuts-provider";
+import { RecipePickerProvider } from "@/contexts/recipe-picker-context";
 
 // Dynamic import for global search to avoid SSR issues
 const GlobalSearchProvider = dynamic(
@@ -26,12 +27,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
       storageKey="theme"
     >
       <TooltipProvider delayDuration={0}>
-        <GlobalSearchProvider>
-          {children}
-          <ServiceWorkerRegistration />
-          <KeyboardShortcutsProvider />
-          <GlobalSearchModal />
-        </GlobalSearchProvider>
+        <RecipePickerProvider>
+          <GlobalSearchProvider>
+            {children}
+            <ServiceWorkerRegistration />
+            <KeyboardShortcutsProvider />
+            <GlobalSearchModal />
+          </GlobalSearchProvider>
+        </RecipePickerProvider>
       </TooltipProvider>
     </ThemeProvider>
   );

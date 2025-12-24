@@ -11,7 +11,8 @@ export interface RecipeFilterState {
   tagFilter: string;
   dietFilter: string;
   favoritesOnly: boolean;
-  ratingFilter: number[];
+  ratingFilter: number[]; // Legacy - kept for backwards compatibility
+  minRating: number | null; // New interactive rating filter
   ratedFilter: "all" | "rated" | "unrated";
   sortBy: "recent" | "most-cooked" | "highest-rated" | "alphabetical";
   showFilters: boolean;
@@ -25,14 +26,15 @@ const DEFAULT_FILTER_STATE: RecipeFilterState = {
   tagFilter: "all",
   dietFilter: "all",
   favoritesOnly: false,
-  ratingFilter: [],
+  ratingFilter: [], // Legacy
+  minRating: null,
   ratedFilter: "all",
   sortBy: "recent",
   showFilters: false,
 };
 
 const STORAGE_KEY = "recipe_filter_state";
-const FILTER_VERSION = 1;
+const FILTER_VERSION = 2; // Bumped for minRating addition
 
 interface StoredFilterState {
   version: number;
@@ -164,6 +166,7 @@ export function useRecipeFilters(persistSearch = false) {
     filters.dietFilter !== "all" ||
     filters.favoritesOnly ||
     filters.ratingFilter.length > 0 ||
+    filters.minRating !== null ||
     filters.ratedFilter !== "all";
 
   return {

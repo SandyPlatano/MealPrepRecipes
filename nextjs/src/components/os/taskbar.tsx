@@ -140,6 +140,7 @@ function TaskbarWindowButton({
 }: TaskbarWindowButtonProps) {
   return (
     <button
+      type="button"
       className={cn(
         "h-[22px] min-w-[120px] max-w-[180px] px-2",
         "flex items-center gap-1.5",

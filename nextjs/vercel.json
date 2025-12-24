@@ -3,6 +3,14 @@
     {
       "path": "/api/cron/reset-ai-quota",
       "schedule": "0 0 * * 1"
+    },
+    {
+      "path": "/api/cron/process-nutrition-queue",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/refresh-trending",
+      "schedule": "0 2 * * *"
     }
   ]
 }

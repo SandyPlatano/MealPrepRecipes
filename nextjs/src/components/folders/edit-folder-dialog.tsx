@@ -116,6 +116,7 @@ export function EditFolderDialog({
             <Label>Color (optional)</Label>
             <div className="flex flex-wrap gap-2 items-center">
               <button
+                type="button"
                 className={`h-8 px-3 rounded-full border-2 border-dashed transition-transform text-xs ${
                   color === null
                     ? "ring-2 ring-offset-2 ring-primary scale-110 border-primary"
@@ -127,6 +128,7 @@ export function EditFolderDialog({
               </button>
               {FOLDER_COLORS.map((c) => (
                 <button
+                  type="button"
                   key={c}
                   className={`w-8 h-8 rounded-full transition-transform ${
                     color === c

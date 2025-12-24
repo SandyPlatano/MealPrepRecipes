@@ -601,6 +601,7 @@ export function CookingMode({
       {/* Mobile FAB for Ingredients - Only visible on mobile/tablet */}
       {settings.visibility.showIngredients && (
         <button
+          type="button"
           onClick={() => setIngredientsSheetOpen(true)}
           className={cn(
             "fixed bottom-8 right-6 z-40 lg:hidden",

@@ -340,6 +340,7 @@ export function CookModeVoiceEditor({
               <Badge key={word} variant="secondary" className="gap-1">
                 {word}
                 <button
+                  type="button"
                   onClick={() => handleRemoveWakeWord(word)}
                   className="ml-1 hover:text-destructive"
                   aria-label={`Remove ${word}`}
@@ -406,6 +407,7 @@ export function CookModeVoiceEditor({
                       <Badge key={phrase} variant="outline" className="gap-1">
                         {phrase}
                         <button
+                          type="button"
                           onClick={() => handleRemovePhrase(action, phrase)}
                           className="ml-1 hover:text-destructive"
                           aria-label={`Remove ${phrase}`}

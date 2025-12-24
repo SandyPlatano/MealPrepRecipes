@@ -100,6 +100,7 @@ export function CreateFolderDialog({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Weeknight Dinners"
+              autoFocus
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleCreate();
@@ -139,6 +140,7 @@ export function CreateFolderDialog({
             <Label>Color (optional)</Label>
             <div className="flex flex-wrap gap-2 items-center">
               <button
+                type="button"
                 className={`h-8 px-3 rounded-full border-2 border-dashed transition-transform text-xs ${
                   color === null
                     ? "ring-2 ring-offset-2 ring-primary scale-110 border-primary"
@@ -150,6 +152,7 @@ export function CreateFolderDialog({
               </button>
               {FOLDER_COLORS.map((c) => (
                 <button
+                  type="button"
                   key={c}
                   className={`w-8 h-8 rounded-full transition-transform ${
                     color === c
@@ -158,6 +161,7 @@ export function CreateFolderDialog({
                   }`}
                   style={{ backgroundColor: c }}
                   onClick={() => setColor(c)}
+                  aria-label={`Select color ${c}`}
                 />
               ))}
             </div>

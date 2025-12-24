@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "name": "MealPrepRecipes Monitoring Configuration",
+  "description": "Configuration for uptime and health monitoring",
+
+  "healthEndpoint": {
+    "url": "/api/health",
+    "method": "GET",
+    "expectedStatus": [200],
+    "timeout": 10000,
+    "interval": 60000
+  },
+
+  "alerts": {
+    "email": {
+      "enabled": true,
+      "recipients": ["your-email@example.com"],
+      "onStatusChange": true,
+      "onDegraded": true,
+      "onUnhealthy": true
+    },
+    "slack": {
+      "enabled": false,
+      "webhookUrl": "",
+      "channel": "#alerts"
+    }
+  },
+
+  "endpoints": [
+    {
+      "name": "Health Check",
+      "url": "/api/health",
+      "method": "GET",
+      "expectedStatus": [200],
+      "frequency": "1m",
+      "timeout": "10s",
+      "regions": ["us-east-1", "eu-west-1"],
+      "assertions": [
+        {
+          "type": "json",
+          "path": "$.status",
+          "value": "healthy"
+        }
+      ]
+    },
+    {
+      "name": "Homepage",
+      "url": "/",
+      "method": "GET",
+      "expectedStatus": [200],
+      "frequency": "5m",
+      "timeout": "15s"
+    },
+    {
+      "name": "Login Page",
+      "url": "/login",
+      "method": "GET",
+      "expectedStatus": [200],
+      "frequency": "5m",
+      "timeout": "15s"
+    },
+    {
+      "name": "API - Auth Status",
+      "url": "/api/test-auth",
+      "method": "GET",
+      "expectedStatus": [200, 403],
+      "frequency": "5m",
+      "timeout": "10s"
+    }
+  ],
+
+  "sla": {
+    "target": 99.9,
+    "excludeMaintenanceWindows": true
+  },
+
+  "services": {
+    "betterUptime": {
+      "setup": "https://betterstack.com/better-uptime",
+      "apiKey": "Set in BETTER_UPTIME_API_KEY env var"
+    },
+    "vercelAnalytics": {
+      "enabled": true,
+      "webVitals": true,
+      "audiences": true
+    },
+    "sentry": {
+      "enabled": true,
+      "dsn": "Set in NEXT_PUBLIC_SENTRY_DSN env var",
+      "tracesSampleRate": 0.1,
+      "profilesSampleRate": 0.1
+    }
+  }
+}

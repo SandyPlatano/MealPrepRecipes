@@ -11,7 +11,7 @@ interface SwipeGestureOptions {
 }
 
 interface SwipeGestureReturn {
-  ref: React.RefObject<HTMLDivElement>;
+  ref: React.RefObject<HTMLDivElement | null>;
   isSwiping: boolean;
 }
 

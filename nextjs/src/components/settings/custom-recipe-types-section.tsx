@@ -107,6 +107,7 @@ function SortableRecipeTypeCard({ type, onEdit, onDelete }: SortableItemProps) {
     >
       {/* Drag handle */}
       <button
+        type="button"
         className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors"
         {...listeners}
       >
@@ -506,6 +507,7 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
               <div className="grid grid-cols-8 gap-2">
                 {MEAL_TYPE_COLOR_PALETTE.map((c) => (
                   <button
+                    type="button"
                     key={c.key}
                     onClick={() => handleColorSelect(c.color)}
                     className={cn(

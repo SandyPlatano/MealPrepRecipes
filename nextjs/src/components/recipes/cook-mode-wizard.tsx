@@ -425,19 +425,13 @@ function WizardToggle({
   onCheckedChange,
 }: WizardToggleProps) {
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <button
+      type="button"
       onClick={() => onCheckedChange(!checked)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onCheckedChange(!checked);
-        }
-      }}
       className={cn(
-        "flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-colors",
+        "flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-colors text-left w-full",
         "hover:bg-muted/50",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
         checked && "bg-primary/5 border-primary/50"
       )}
     >
@@ -450,6 +444,6 @@ function WizardToggle({
         onCheckedChange={onCheckedChange}
         onClick={(e) => e.stopPropagation()}
       />
-    </div>
+    </button>
   );
 }

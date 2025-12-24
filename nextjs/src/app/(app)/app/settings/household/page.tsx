@@ -16,6 +16,7 @@ import { MemberRoleEditor } from "@/components/settings/household/member-role-ed
 import { ChildPermissionsEditor } from "@/components/settings/household/child-permissions-editor";
 import { ContributionDashboard } from "@/components/settings/household/contribution-dashboard";
 import { InvitationManager } from "@/components/settings/household/invitation-manager";
+import { DefaultCooksByDayEditor } from "@/components/household/default-cooks-by-day-editor";
 import {
   updatePermissionMode,
   updateMemberRole,
@@ -334,6 +335,7 @@ export default function HouseholdSettingsPage() {
                 <div className="flex gap-1">
                   {COOK_COLORS.map((color) => (
                     <button
+                      type="button"
                       key={color}
                       onClick={() => setCookColor(name, color)}
                       className={cn(
@@ -372,6 +374,12 @@ export default function HouseholdSettingsPage() {
           </div>
         </div>
       </SettingSection>
+
+      {/* Default Cooks by Day - for quick-add feature */}
+      <DefaultCooksByDayEditor
+        cookNames={cookNames}
+        cookColors={cookColors}
+      />
     </div>
   );
 }

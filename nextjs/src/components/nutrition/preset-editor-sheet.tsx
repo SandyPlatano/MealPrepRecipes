@@ -521,6 +521,7 @@ function PresetListItem({
         <div className="flex items-center gap-4">
           {/* Pin toggle */}
           <button
+            type="button"
             onClick={onTogglePin}
             className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
@@ -539,6 +540,7 @@ function PresetListItem({
 
           {/* Hide toggle */}
           <button
+            type="button"
             onClick={onToggleHidden}
             className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >

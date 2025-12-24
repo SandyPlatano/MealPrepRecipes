@@ -18,16 +18,17 @@ export const dynamic = "force-dynamic";
  * Returns: Session info and sets authentication cookies
  */
 export async function POST(request: NextRequest) {
-  // Only allow in development/test environments
-  const isDev = process.env.NODE_ENV === "development";
-  const isTest = process.env.ENABLE_TEST_AUTH === "true";
-  
-  if (!isDev && !isTest) {
+  // Only allow in development environment
+  // SECURITY: This endpoint MUST NOT be accessible in production
+  if (process.env.NODE_ENV !== "development") {
     return NextResponse.json(
       { error: "Test authentication is not available in production" },
       { status: 403 }
     );
   }
+
+  const isDev = true; // Always true at this point (for backward compatibility below)
+  const isTest = true;
 
   try {
     const { email, password } = await request.json();

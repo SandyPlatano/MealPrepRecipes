@@ -100,6 +100,7 @@ export const OsButton = forwardRef<HTMLButtonElement, OsButtonProps>(
 
     return (
       <button
+        type="button"
         ref={ref}
         className={cn(
           osButtonVariants({ variant, size }),

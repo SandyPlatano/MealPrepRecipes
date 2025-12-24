@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { BrandLogoCompact } from '@/components/brand/logo';
+import { PixelBrandLogoCompact } from '@/components/landing/pixel-art';
 import { AppNav, type NavItem } from './app-nav';
 import { MobileMenu } from './mobile-menu';
 import { SettingsButton } from './settings-button';
@@ -24,7 +24,7 @@ export function AppHeader({ navItems, settingsItem, logoutAction }: AppHeaderPro
     <ScrollHeader>
       <div className="container mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
         <Link href="/app" className="hover:opacity-80 transition-opacity flex-shrink-0">
-          <BrandLogoCompact />
+          <PixelBrandLogoCompact variant="inline" colorMode="light" />
         </Link>
 
         <div className="flex items-center gap-3">

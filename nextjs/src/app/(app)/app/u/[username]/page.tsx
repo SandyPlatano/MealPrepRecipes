@@ -137,6 +137,7 @@ export default function UserProfilePage() {
                   </span>
                 </div>
                 <button
+                  type="button"
                   onClick={() => openFollowersModal("followers")}
                   className="flex items-center gap-1.5 hover:underline"
                 >
@@ -147,6 +148,7 @@ export default function UserProfilePage() {
                   </span>
                 </button>
                 <button
+                  type="button"
                   onClick={() => openFollowersModal("following")}
                   className="text-muted-foreground hover:underline"
                 >

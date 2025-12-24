@@ -39,6 +39,7 @@ import {
   Lock,
   Eye,
   SlidersHorizontal,
+  CheckSquare,
 } from "lucide-react";
 import { formatWeekRange, getWeekStart } from "@/types/meal-plan";
 import { SaveTemplateDialog } from "./save-template-dialog";
@@ -65,6 +66,8 @@ interface PlannerHeaderProps {
   canNavigateWeeks?: boolean;
   plannerViewSettings?: PlannerViewSettings;
   onPlannerViewChange?: (settings: PlannerViewSettings) => void;
+  isSelectionMode?: boolean;
+  onToggleSelectionMode?: () => void;
 }
 
 export function PlannerHeader({
@@ -80,6 +83,8 @@ export function PlannerHeader({
   canNavigateWeeks = false,
   plannerViewSettings,
   onPlannerViewChange,
+  isSelectionMode = false,
+  onToggleSelectionMode,
 }: PlannerHeaderProps) {
   const router = useRouter();
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -443,6 +448,16 @@ export function PlannerHeader({
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
+            <DropdownMenuSeparator />
+
+            {/* Bulk Selection Mode */}
+            <DropdownMenuItem
+              onClick={onToggleSelectionMode}
+              disabled={!hasMeals}
+            >
+              <CheckSquare className="h-4 w-4 mr-2" />
+              {isSelectionMode ? "Exit Selection" : "Select Days"}
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
 
             <DropdownMenuItem onClick={() => setTemplateManagerOpen(true)}>

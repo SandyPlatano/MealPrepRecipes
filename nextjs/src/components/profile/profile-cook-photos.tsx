@@ -43,6 +43,7 @@ export function ProfileCookPhotos({ photos, username }: ProfileCookPhotosProps) 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {photos.map((photo) => (
               <button
+                type="button"
                 key={photo.id}
                 onClick={() => setSelectedPhoto(photo)}
                 className="group relative aspect-square rounded-lg overflow-hidden bg-muted hover:ring-2 hover:ring-primary transition-all"

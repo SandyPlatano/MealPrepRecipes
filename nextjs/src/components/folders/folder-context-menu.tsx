@@ -215,6 +215,7 @@ export function FolderContextMenu({
               <div className="grid grid-cols-4 gap-1 p-2">
                 {FOLDER_COLORS.map((color) => (
                   <button
+                    type="button"
                     key={color}
                     onClick={() => handleColorChange(color)}
                     className="h-8 w-8 rounded-md border-2 hover:scale-110 transition-transform"
@@ -242,6 +243,7 @@ export function FolderContextMenu({
               <div className="grid grid-cols-6 gap-1 p-2 max-h-64 overflow-y-auto">
                 {FOLDER_EMOJIS.map((emoji) => (
                   <button
+                    type="button"
                     key={emoji}
                     onClick={() => handleEmojiChange(emoji)}
                     className="h-8 w-8 rounded-md hover:bg-accent flex items-center justify-center text-lg border-2"

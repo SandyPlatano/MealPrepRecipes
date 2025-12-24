@@ -31,7 +31,7 @@ import { getRecipeByShareToken, trackRecipeView } from "@/app/actions/sharing";
 import type { RecipeType } from "@/types/recipe";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { BrandLogoCompact } from "@/components/brand/logo";
+import { PixelBrandLogoCompact } from "@/components/landing/pixel-art";
 
 interface SharedRecipePageProps {
   params: Promise<{ token: string }>;
@@ -104,7 +104,7 @@ export default async function SharedRecipePage({
       <header className="border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="hover:opacity-80 transition-opacity">
-            <BrandLogoCompact />
+            <PixelBrandLogoCompact variant="inline" colorMode="light" />
           </Link>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" asChild>

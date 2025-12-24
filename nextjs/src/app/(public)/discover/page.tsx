@@ -6,7 +6,7 @@ import { CommunityRecipeGrid } from "@/components/social/community-recipe-grid";
 import { TrendingCarousel } from "@/components/social/trending-carousel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { BrandLogoCompact } from "@/components/brand/logo";
+import { PixelBrandLogoCompact } from "@/components/landing/pixel-art";
 import { Sparkles, TrendingUp, ChefHat, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -34,7 +34,7 @@ export default async function PublicDiscoverPage() {
       <header className="border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="hover:opacity-80 transition-opacity">
-            <BrandLogoCompact />
+            <PixelBrandLogoCompact variant="inline" colorMode="light" />
           </Link>
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild>

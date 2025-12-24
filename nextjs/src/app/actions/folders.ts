@@ -247,7 +247,7 @@ export async function createFolder(
   }
 
   revalidatePath("/app/recipes");
-  revalidateTag(`folders-${household.household_id}`);
+  revalidateTag(`folders-${household.household_id}`, "default");
   return { error: null, data: data as RecipeFolder };
 }
 
@@ -290,7 +290,7 @@ export async function updateFolder(
   }
 
   revalidatePath("/app/recipes");
-  revalidateTag(`folders-${household.household_id}`);
+  revalidateTag(`folders-${household.household_id}`, "default");
   return { error: null, data: data as RecipeFolder };
 }
 
@@ -389,7 +389,7 @@ export async function duplicateFolder(
   }
 
   revalidatePath("/app/recipes");
-  revalidateTag(`folders-${household.household_id}`);
+  revalidateTag(`folders-${household.household_id}`, "default");
   return { error: null, data: newFolder as RecipeFolder };
 }
 
@@ -418,7 +418,7 @@ export async function deleteFolder(
   }
 
   revalidatePath("/app/recipes");
-  revalidateTag(`folders-${household.household_id}`);
+  revalidateTag(`folders-${household.household_id}`, "default");
   return { error: null };
 }
 
@@ -674,7 +674,7 @@ export async function createFolderCategory(
   }
 
   revalidatePath("/app/recipes");
-  revalidateTag(`folder-categories-${household.household_id}`);
+  revalidateTag(`folder-categories-${household.household_id}`, "default");
   return { error: null, data: data as FolderCategory };
 }
 
@@ -715,7 +715,7 @@ export async function updateFolderCategory(
   }
 
   revalidatePath("/app/recipes");
-  revalidateTag(`folder-categories-${household.household_id}`);
+  revalidateTag(`folder-categories-${household.household_id}`, "default");
   return { error: null, data: data as FolderCategory };
 }
 
@@ -767,7 +767,7 @@ export async function deleteFolderCategory(
   }
 
   revalidatePath("/app/recipes");
-  revalidateTag(`folder-categories-${household.household_id}`);
+  revalidateTag(`folder-categories-${household.household_id}`, "default");
   return { error: null };
 }
 

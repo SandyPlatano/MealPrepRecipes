@@ -1,11 +1,20 @@
 "use client";
 
 import { useState, useMemo, useCallback, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Loader2 } from "lucide-react";
+import { useSwipeGesture } from "@/hooks/use-swipe-gesture";
+import { usePlannerKeyboard } from "@/hooks/use-planner-keyboard";
 import { PlannerHeader } from "./planner-header";
 import { PlannerSummary } from "./planner-summary";
 import { PlannerDayRow } from "./planner-day-row";
+import { PlannerDndContext } from "./planner-dnd-context";
+import { DroppableDay } from "./droppable-day";
+import { PlannerFab } from "./planner-fab";
+import { RecipePickerModal } from "./recipe-picker-modal";
+import { BulkSelectionToolbar } from "./bulk-selection-toolbar";
+import { copySelectedDaysToNextWeek } from "@/app/actions/meal-plan-suggestions";
 import {
   addMealAssignment,
   removeMealAssignment,
@@ -36,7 +45,7 @@ interface Recipe {
 
 import type { SubscriptionTier } from "@/types/subscription";
 import type { RecipeNutrition, WeeklyMacroDashboard, MacroGoals } from "@/types/nutrition";
-import type { MealTypeCustomization, PlannerViewSettings } from "@/types/settings";
+import type { MealTypeCustomization, PlannerViewSettings, DefaultCooksByDay } from "@/types/settings";
 import { DEFAULT_PLANNER_VIEW_SETTINGS } from "@/types/settings";
 
 interface MealPlannerGridProps {
@@ -62,6 +71,7 @@ interface MealPlannerGridProps {
   canNavigateWeeks?: boolean;
   mealTypeSettings?: MealTypeCustomization;
   plannerViewSettings?: PlannerViewSettings;
+  defaultCooksByDay?: DefaultCooksByDay;
 }
 
 export function MealPlannerGrid({
@@ -89,9 +99,48 @@ export function MealPlannerGrid({
   canNavigateWeeks = false,
   mealTypeSettings,
   plannerViewSettings: initialPlannerViewSettings,
+  defaultCooksByDay = {},
 }: MealPlannerGridProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isSending, setIsSending] = useState(false);
+
+  // Swipe gesture for week navigation (mobile)
+  const navigateWeek = useCallback((direction: "prev" | "next") => {
+    if (!canNavigateWeeks) return; // Don't navigate if user can't navigate weeks
+    const newDate = new Date(weekStartStr + "T00:00:00");
+    newDate.setDate(newDate.getDate() + (direction === "next" ? 7 : -7));
+    const weekStr = newDate.toISOString().split("T")[0];
+    router.push(`/app/plan?week=${weekStr}`);
+  }, [weekStartStr, canNavigateWeeks, router]);
+
+  const { ref: swipeRef, isSwiping } = useSwipeGesture({
+    onSwipeLeft: () => navigateWeek("next"),
+    onSwipeRight: () => navigateWeek("prev"),
+    threshold: 75,
+    enabled: canNavigateWeeks,
+    hapticFeedback: true,
+  });
+
+  // Track open modal state for keyboard navigation
+  const [keyboardModalDay, setKeyboardModalDay] = useState<typeof DAYS_OF_WEEK[number] | null>(null);
+
+  // FAB modal state (for mobile quick-add)
+  const [fabModalDay, setFabModalDay] = useState<typeof DAYS_OF_WEEK[number] | null>(null);
+
+  // Bulk selection mode
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedDays, setSelectedDays] = useState<Set<DayOfWeek>>(new Set());
+
+  // Keyboard shortcuts for planner navigation
+  const { focusedDayIndex } = usePlannerKeyboard({
+    enabled: true,
+    onAddMeal: (day) => {
+      // Trigger modal open for the focused day
+      setKeyboardModalDay(day);
+    },
+    onNavigateWeek: navigateWeek,
+  });
 
   // Planner view settings state (for optimistic updates from the header toggle)
   const [plannerViewSettings, setPlannerViewSettings] = useState<PlannerViewSettings>(
@@ -260,6 +309,55 @@ export function MealPlannerGrid({
 
   const hasMeals = allAssignments.length > 0;
 
+  // Calculate meal counts per day for bulk actions
+  const mealCountsPerDay = useMemo(() => {
+    const counts: Record<DayOfWeek, number> = {} as Record<DayOfWeek, number>;
+    for (const day of DAYS_OF_WEEK) {
+      counts[day] = assignmentsWithOptimisticCooks[day]?.length || 0;
+    }
+    return counts;
+  }, [assignmentsWithOptimisticCooks]);
+
+  // Toggle day selection
+  const toggleDaySelection = useCallback((day: DayOfWeek) => {
+    setSelectedDays((prev) => {
+      const next = new Set(prev);
+      if (next.has(day)) {
+        next.delete(day);
+      } else {
+        next.add(day);
+      }
+      return next;
+    });
+  }, []);
+
+  // Select all days with meals
+  const selectAllDays = useCallback(() => {
+    const daysWithMeals = DAYS_OF_WEEK.filter((day) => mealCountsPerDay[day] > 0);
+    setSelectedDays(new Set(daysWithMeals));
+  }, [mealCountsPerDay]);
+
+  // Clear selected days handler
+  const handleClearSelectedDays = useCallback(async (days: DayOfWeek[]) => {
+    for (const day of days) {
+      await clearDayAssignments(weekStartStr, day);
+    }
+  }, [weekStartStr]);
+
+  // Copy selected days to next week
+  const handleCopyToNextWeek = useCallback(async (days: DayOfWeek[]) => {
+    const nextWeekStart = new Date(weekStartStr + "T00:00:00");
+    nextWeekStart.setDate(nextWeekStart.getDate() + 7);
+    const nextWeekStr = nextWeekStart.toISOString().split("T")[0];
+    await copySelectedDaysToNextWeek(weekStartStr, nextWeekStr, days);
+  }, [weekStartStr]);
+
+  // Cancel selection mode
+  const cancelSelectionMode = useCallback(() => {
+    setIsSelectionMode(false);
+    setSelectedDays(new Set());
+  }, []);
+
   return (
     <TooltipProvider>
         {/* Loading Indicator */}
@@ -288,41 +386,69 @@ export function MealPlannerGrid({
               canNavigateWeeks={canNavigateWeeks}
               plannerViewSettings={plannerViewSettings}
               onPlannerViewChange={setPlannerViewSettings}
+              isSelectionMode={isSelectionMode}
+              onToggleSelectionMode={() => setIsSelectionMode((prev) => !prev)}
             />
           </div>
 
-          {/* Vertical Stacked Cards - increased spacing on mobile for touch */}
-          <div className={`flex flex-col gap-4 md:gap-4 transition-opacity ${isPending ? "opacity-60" : ""}`}>
-            {DAYS_OF_WEEK.map((day, index) => {
-              const dayDate = new Date(weekStartDate);
-              dayDate.setDate(dayDate.getDate() + index);
+          {/* Bulk Selection Toolbar */}
+          {isSelectionMode && (
+            <BulkSelectionToolbar
+              selectedDays={selectedDays}
+              mealCounts={mealCountsPerDay}
+              onClearDays={handleClearSelectedDays}
+              onCopyToNextWeek={handleCopyToNextWeek}
+              onCancel={cancelSelectionMode}
+              onSelectAll={selectAllDays}
+              totalDays={DAYS_OF_WEEK.length}
+            />
+          )}
 
-              return (
-                <PlannerDayRow
-                  key={day}
-                  day={day}
-                  date={dayDate}
-                  assignments={assignmentsWithOptimisticCooks[day]}
-                  recipes={recipes}
-                  favorites={favorites}
-                  recentRecipeIds={recentRecipeIds}
-                  suggestedRecipeIds={suggestedRecipeIds}
-                  cookNames={cookNames}
-                  cookColors={cookColors}
-                  userAllergenAlerts={userAllergenAlerts}
-                  isCalendarExcluded={calendarExcludedDays.includes(day)}
-                  googleConnected={googleConnected}
-                  onAddMeal={handleAddMeal}
-                  onUpdateCook={handleUpdateCook}
-                  onUpdateMealType={handleUpdateMealType}
-                  onRemoveMeal={handleRemoveMeal}
-                  nutritionData={nutritionData}
-                  mealTypeSettings={mealTypeSettings}
-                  viewSettings={plannerViewSettings}
-                />
-              );
-            })}
-          </div>
+          {/* Vertical Stacked Cards - swipe enabled for week navigation on mobile */}
+          <PlannerDndContext assignments={assignmentsWithOptimisticCooks}>
+            <div
+              ref={swipeRef}
+              className={`flex flex-col gap-4 md:gap-4 transition-opacity ${isPending ? "opacity-60" : ""} ${isSwiping ? "select-none" : ""}`}
+            >
+              {DAYS_OF_WEEK.map((day, index) => {
+                const dayDate = new Date(weekStartDate);
+                dayDate.setDate(dayDate.getDate() + index);
+
+                return (
+                  <DroppableDay key={day} day={day}>
+                    <PlannerDayRow
+                      day={day}
+                      date={dayDate}
+                      assignments={assignmentsWithOptimisticCooks[day]}
+                      recipes={recipes}
+                      favorites={favorites}
+                      recentRecipeIds={recentRecipeIds}
+                      suggestedRecipeIds={suggestedRecipeIds}
+                      cookNames={cookNames}
+                      cookColors={cookColors}
+                      userAllergenAlerts={userAllergenAlerts}
+                      isCalendarExcluded={calendarExcludedDays.includes(day)}
+                      googleConnected={googleConnected}
+                      onAddMeal={handleAddMeal}
+                      onUpdateCook={handleUpdateCook}
+                      onUpdateMealType={handleUpdateMealType}
+                      onRemoveMeal={handleRemoveMeal}
+                      nutritionData={nutritionData}
+                      mealTypeSettings={mealTypeSettings}
+                      viewSettings={plannerViewSettings}
+                      defaultCooksByDay={defaultCooksByDay}
+                      isFocused={focusedDayIndex === index}
+                      keyboardModalOpen={keyboardModalDay === day}
+                      onKeyboardModalClose={() => setKeyboardModalDay(null)}
+                      isSelectionMode={isSelectionMode}
+                      isSelected={selectedDays.has(day)}
+                      onToggleSelection={() => toggleDaySelection(day)}
+                    />
+                  </DroppableDay>
+                );
+              })}
+            </div>
+          </PlannerDndContext>
 
           {/* Summary Footer */}
           <PlannerSummary
@@ -335,6 +461,33 @@ export function MealPlannerGrid({
             macroGoals={macroGoals}
           />
         </div>
+
+        {/* Mobile FAB for quick meal adding */}
+        <PlannerFab
+          weekStartDate={weekStartDate}
+          onSelectDay={(day) => setFabModalDay(day)}
+        />
+
+        {/* FAB Recipe Picker Modal */}
+        {fabModalDay && (
+          <RecipePickerModal
+            open={!!fabModalDay}
+            onOpenChange={(open) => !open && setFabModalDay(null)}
+            day={fabModalDay}
+            recipes={recipes}
+            favorites={favorites}
+            recentRecipeIds={recentRecipeIds}
+            suggestedRecipeIds={suggestedRecipeIds}
+            cookNames={cookNames}
+            cookColors={cookColors}
+            defaultCooksByDay={defaultCooksByDay}
+            onAdd={async (recipeIds, cook, mealType) => {
+              for (const recipeId of recipeIds) {
+                await handleAddMeal(recipeId, fabModalDay, cook || undefined, mealType);
+              }
+            }}
+          />
+        )}
     </TooltipProvider>
   );
 }

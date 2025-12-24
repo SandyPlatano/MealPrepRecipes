@@ -71,6 +71,7 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
 
   return (
     <button
+      type="button"
       onClick={handleClick}
       disabled={isPending}
       className={cn(

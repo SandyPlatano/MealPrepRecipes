@@ -21,6 +21,7 @@ import {
   Cookie,
   BookOpen,
   ExternalLink,
+  Store,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -114,6 +115,7 @@ import {
 } from "@/lib/use-offline";
 import { Confetti } from "@/components/ui/confetti";
 import { SubstitutionButton } from "./substitution-button";
+import { SwipeableShoppingItem } from "./swipeable-shopping-item";
 import { SubstitutionSheet } from "./substitution-sheet";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ShoppingCart } from "lucide-react";
@@ -154,6 +156,8 @@ export function ShoppingListView({
     initialCategoryOrder
   );
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [storeMode, setStoreMode] = useState(false);
   const [isRecipesOpen, setIsRecipesOpen] = useState(false);
   const [isSendingPlan, setIsSendingPlan] = useState(false);
   const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
@@ -490,6 +494,89 @@ export function ShoppingListView({
     await updateShowRecipeSources(checked);
   };
 
+  // Toggle category expansion (accordion behavior on mobile)
+  const handleToggleCategory = (category: string) => {
+    setExpandedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(category)) {
+        next.delete(category);
+      } else {
+        next.add(category);
+      }
+      return next;
+    });
+  };
+
+  // Auto-expand first category with unchecked items on initial load
+  useEffect(() => {
+    if (sortedCategories.length > 0 && expandedCategories.size === 0) {
+      const firstWithUnchecked = sortedCategories.find(cat =>
+        groupedItems[cat]?.some(item => !item.is_checked)
+      );
+      if (firstWithUnchecked) {
+        setExpandedCategories(new Set([firstWithUnchecked]));
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Store Mode: Load from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("shopping-store-mode");
+    if (saved === "true") {
+      setStoreMode(true);
+    }
+  }, []);
+
+  // Store Mode: Toggle handler with localStorage persistence
+  const handleToggleStoreMode = () => {
+    const newValue = !storeMode;
+    setStoreMode(newValue);
+    localStorage.setItem("shopping-store-mode", String(newValue));
+    triggerHaptic("medium");
+
+    if (newValue) {
+      // Entering store mode: collapse all, expand first with unchecked
+      const firstWithUnchecked = sortedCategories.find(cat =>
+        groupedItems[cat]?.some(item => !item.is_checked)
+      );
+      if (firstWithUnchecked) {
+        setExpandedCategories(new Set([firstWithUnchecked]));
+      } else {
+        setExpandedCategories(new Set());
+      }
+      toast.success("Store Mode activated - focus on one category at a time");
+    } else {
+      toast.success("Store Mode deactivated");
+    }
+  };
+
+  // Store Mode: Auto-advance to next category when current is completed
+  useEffect(() => {
+    if (!storeMode || expandedCategories.size === 0) return;
+
+    // Check if all expanded categories are complete
+    const expandedArray = Array.from(expandedCategories);
+    const allExpandedComplete = expandedArray.every(cat => {
+      const items = groupedItems[cat];
+      return items?.every(item => item.is_checked);
+    });
+
+    if (allExpandedComplete) {
+      // Find next category with unchecked items
+      const nextWithUnchecked = sortedCategories.find(cat =>
+        !expandedCategories.has(cat) && groupedItems[cat]?.some(item => !item.is_checked)
+      );
+
+      if (nextWithUnchecked) {
+        triggerHaptic("success");
+        setExpandedCategories(new Set([nextWithUnchecked]));
+        toast.success(`Moving to ${nextWithUnchecked}`, { duration: 2000 });
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeMode, groupedItems]);
+
   // Remove all items from a specific recipe
   const handleRemoveRecipeItems = async (recipeId: string, recipeTitle: string) => {
     const result = await removeItemsByRecipeId(recipeId);
@@ -683,6 +770,21 @@ export function ShoppingListView({
               />
             </div>
 
+            {/* Store Mode Toggle */}
+            <Button
+              variant={storeMode ? "default" : "outline"}
+              className="flex-1"
+              onClick={handleToggleStoreMode}
+            >
+              <Store className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">
+                {storeMode ? "Exit Store" : "Store Mode"}
+              </span>
+              <span className="sm:hidden">
+                {storeMode ? "Exit" : "Store"}
+              </span>
+            </Button>
+
             {/* Clear All Items */}
             <Button
               variant="destructive-outline"
@@ -753,28 +855,6 @@ export function ShoppingListView({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Progress */}
-      {totalCount > 0 && (
-        <div className="flex flex-col gap-2">
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary transition-all duration-500 ease-out"
-              style={{ width: `${(checkedCount / totalCount) * 100}%` }}
-            />
-          </div>
-          <div className="text-sm text-muted-foreground flex items-center justify-between">
-            <span>
-              {checkedCount} of {totalCount} items
-            </span>
-            {checkedCount === totalCount && totalCount > 0 && (
-              <span className="text-green-600 font-medium">
-                🎉 Shopping done!
-              </span>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Shopping List Items by Category */}
       {totalCount === 0 ? (
         <EmptyState
@@ -815,6 +895,9 @@ export function ShoppingListView({
                   userUnitSystem={userUnitSystem}
                   showRecipeSources={showRecipeSources}
                   onRemoveRecipeItems={handleRemoveRecipeItems}
+                  isExpanded={expandedCategories.has(category)}
+                  onToggle={() => handleToggleCategory(category)}
+                  storeMode={storeMode}
                 />
               ))}
             </div>
@@ -829,6 +912,33 @@ export function ShoppingListView({
             )}
           </DragOverlay>
         </DndContext>
+      )}
+
+      {/* Spacer for sticky progress bar on mobile */}
+      {totalCount > 0 && <div className="h-20 sm:h-0" />}
+
+      {/* Sticky Progress Bar - Bottom anchored on mobile */}
+      {totalCount > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 sm:relative sm:mt-6 bg-background/95 backdrop-blur-sm border-t sm:border-t-0 sm:border sm:rounded-lg p-4 sm:p-4 shadow-lg sm:shadow-none z-40 safe-area-bottom">
+          <div className="max-w-4xl mx-auto flex flex-col gap-2">
+            <div className="h-3 sm:h-2 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all duration-500 ease-out"
+                style={{ width: `${(checkedCount / totalCount) * 100}%` }}
+              />
+            </div>
+            <div className="text-sm text-muted-foreground flex items-center justify-between">
+              <span className="font-medium">
+                {checkedCount} of {totalCount} items
+              </span>
+              {checkedCount === totalCount && totalCount > 0 && (
+                <span className="text-green-600 font-medium">
+                  🎉 Shopping done!
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -849,6 +959,9 @@ interface SortableCategorySectionProps {
   userUnitSystem: UnitSystem;
   showRecipeSources: boolean;
   onRemoveRecipeItems: (recipeId: string, recipeTitle: string) => void;
+  isExpanded: boolean;
+  onToggle: () => void;
+  storeMode: boolean;
 }
 
 const SortableCategorySection = memo(function SortableCategorySection({
@@ -859,6 +972,9 @@ const SortableCategorySection = memo(function SortableCategorySection({
   userUnitSystem,
   showRecipeSources,
   onRemoveRecipeItems,
+  isExpanded,
+  onToggle,
+  storeMode,
 }: SortableCategorySectionProps) {
   const {
     attributes,
@@ -880,46 +996,61 @@ const SortableCategorySection = memo(function SortableCategorySection({
   const allChecked = checkedCount === items.length;
 
   return (
-    <Card
-      ref={setNodeRef}
-      style={style}
-      className={`${allChecked ? "opacity-60" : ""} ${
-        isDragging ? "opacity-50 shadow-lg ring-2 ring-primary z-50" : ""
-      }`}
-    >
-      <CardHeader className="py-3">
-        <CardTitle className="text-sm font-medium flex items-center justify-between">
-          <span className="flex items-center gap-2">
-            <div
-              {...attributes}
-              {...listeners}
-              className="cursor-grab active:cursor-grabbing touch-none p-2 -ml-2 rounded hover:bg-muted"
-            >
-              <GripVertical className="h-5 w-5 text-muted-foreground" />
-            </div>
-            {category}
-          </span>
-          <span className="text-xs text-muted-foreground font-normal">
-            {checkedCount}/{items.length}
-          </span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <ul className="flex flex-col gap-2">
-          {items.map((item) => (
-            <ShoppingItemRow
-              key={item.id}
-              item={item}
-              onPantryToggle={onPantryToggle}
-              onSubstitute={onSubstitute}
-              userUnitSystem={userUnitSystem}
-              showRecipeSources={showRecipeSources}
-              onRemoveRecipeItems={onRemoveRecipeItems}
-            />
-          ))}
-        </ul>
-      </CardContent>
-    </Card>
+    <Collapsible open={isExpanded} onOpenChange={onToggle}>
+      <Card
+        ref={setNodeRef}
+        style={style}
+        className={`${allChecked ? "opacity-60" : ""} ${
+          isDragging ? "opacity-50 shadow-lg ring-2 ring-primary z-50" : ""
+        }`}
+      >
+        <CollapsibleTrigger className="w-full text-left">
+          <CardHeader className="py-3 hover:bg-muted/50 transition-colors cursor-pointer">
+            <CardTitle className="text-sm font-medium flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <div
+                  {...attributes}
+                  {...listeners}
+                  className="cursor-grab active:cursor-grabbing touch-none p-2 -ml-2 rounded hover:bg-muted"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <GripVertical className="h-5 w-5 text-muted-foreground" />
+                </div>
+                {category}
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground font-normal">
+                  {checkedCount}/{items.length}
+                </span>
+                {isExpanded ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
+              </span>
+            </CardTitle>
+          </CardHeader>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <CardContent className="pt-0">
+            <ul className="flex flex-col gap-2">
+              {items.map((item) => (
+                <ShoppingItemRow
+                  key={item.id}
+                  item={item}
+                  onPantryToggle={onPantryToggle}
+                  onSubstitute={onSubstitute}
+                  userUnitSystem={userUnitSystem}
+                  showRecipeSources={showRecipeSources}
+                  onRemoveRecipeItems={onRemoveRecipeItems}
+                  storeMode={storeMode}
+                />
+              ))}
+            </ul>
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
   );
 });
 
@@ -963,6 +1094,7 @@ interface ShoppingItemRowProps {
   userUnitSystem: UnitSystem;
   showRecipeSources: boolean;
   onRemoveRecipeItems: (recipeId: string, recipeTitle: string) => void;
+  storeMode: boolean;
 }
 
 const ShoppingItemRow = memo(function ShoppingItemRow({
@@ -972,13 +1104,29 @@ const ShoppingItemRow = memo(function ShoppingItemRow({
   userUnitSystem,
   showRecipeSources,
   onRemoveRecipeItems,
+  storeMode,
 }: ShoppingItemRowProps) {
   const [isRemoving, setIsRemoving] = useState(false);
   const [isTogglingPantry, setIsTogglingPantry] = useState(false);
 
   const handleToggle = async () => {
     triggerHaptic("selection");
+    const wasChecked = item.is_checked;
     await toggleShoppingListItem(item.id);
+
+    // Show undo toast when checking off an item (not when unchecking)
+    if (!wasChecked) {
+      toast(`✓ ${item.ingredient} checked off`, {
+        duration: 5000,
+        action: {
+          label: "Undo",
+          onClick: async () => {
+            triggerHaptic("light");
+            await toggleShoppingListItem(item.id);
+          },
+        },
+      });
+    }
   };
 
   const handleRemove = async () => {
@@ -1005,32 +1153,57 @@ const ShoppingItemRow = memo(function ShoppingItemRow({
     setIsTogglingPantry(false);
   };
 
-  // Build the full ingredient string and convert to user's preferred unit system
-  const rawText = [item.quantity, item.unit, item.ingredient]
-    .filter(Boolean)
-    .join(" ");
-  const displayText = convertIngredientToSystem(rawText, userUnitSystem);
+  // Build quantity display separately for visual prominence
+  const quantityPart = [item.quantity, item.unit].filter(Boolean).join(" ");
+  const convertedQuantity = quantityPart
+    ? convertIngredientToSystem(quantityPart, userUnitSystem)
+    : null;
 
   return (
-    <TooltipProvider>
-      <li
-        className={`flex items-center gap-3 group py-1 ${
-          item.is_in_pantry ? "opacity-50" : ""
-        }`}
-      >
+    <SwipeableShoppingItem
+      onSwipeComplete={handleToggle}
+      disabled={item.is_checked}
+      isChecked={item.is_checked}
+    >
+      <TooltipProvider>
+        <li
+          className={`flex items-center gap-3 group cursor-pointer rounded-md hover:bg-muted/50 -mx-2 px-2 transition-colors ${
+            storeMode
+              ? "min-h-[56px] py-3" // Larger targets in store mode
+              : "min-h-[48px] py-2 sm:py-1 sm:min-h-0"
+          } ${item.is_in_pantry ? "opacity-50" : ""}`}
+          onClick={handleToggle}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleToggle();
+            }
+          }}
+        >
         <Checkbox
           id={item.id}
           checked={item.is_checked}
           onCheckedChange={handleToggle}
-          className="h-6 w-6 sm:h-5 sm:w-5"
+          onClick={(e) => e.stopPropagation()}
+          className="h-6 w-6 sm:h-5 sm:w-5 pointer-events-auto"
         />
-        <label
-          htmlFor={item.id}
-          className={`flex-1 text-sm cursor-pointer flex items-center gap-2 flex-wrap ${
+        <span
+          className={`flex-1 text-sm flex items-center gap-2 flex-wrap ${
             item.is_checked ? "line-through text-muted-foreground" : ""
           }`}
         >
-          <span>{displayText}</span>
+          {/* Quantity - prominent display */}
+          {convertedQuantity && (
+            <span className="font-semibold text-primary min-w-[60px] tabular-nums">
+              {convertedQuantity}
+            </span>
+          )}
+          {/* Ingredient name - secondary */}
+          <span className={convertedQuantity ? "text-muted-foreground" : ""}>
+            {item.ingredient}
+          </span>
 
           {/* Recipe Source Badge - only when toggle is ON */}
           {showRecipeSources && item.recipe_title && item.recipe_id && (
@@ -1085,7 +1258,7 @@ const ShoppingItemRow = memo(function ShoppingItemRow({
           {item.substituted_from && (
             <span className="text-xs text-blue-600">(was: {item.substituted_from})</span>
           )}
-        </label>
+        </span>
         <SubstitutionButton
           onClick={() =>
             onSubstitute({
@@ -1109,7 +1282,10 @@ const ShoppingItemRow = memo(function ShoppingItemRow({
                   ? "opacity-100 text-green-600"
                   : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
               }`}
-              onClick={handlePantryToggle}
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePantryToggle();
+              }}
               disabled={isTogglingPantry}
             >
               <Cookie className="h-5 w-5 sm:h-4 sm:w-4" />
@@ -1125,12 +1301,16 @@ const ShoppingItemRow = memo(function ShoppingItemRow({
           variant="ghost"
           size="icon"
           className="h-10 w-10 sm:h-8 sm:w-8 flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
-          onClick={handleRemove}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRemove();
+          }}
           disabled={isRemoving}
         >
           <Trash2 className="h-5 w-5 sm:h-4 sm:w-4" />
         </Button>
-      </li>
-    </TooltipProvider>
+        </li>
+      </TooltipProvider>
+    </SwipeableShoppingItem>
   );
 });

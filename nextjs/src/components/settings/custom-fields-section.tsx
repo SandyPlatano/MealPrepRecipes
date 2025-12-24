@@ -540,6 +540,7 @@ export function CustomFieldsSection({
 
                   return (
                     <button
+                      type="button"
                       key={type}
                       onClick={() => setFormData((prev) => ({ ...prev, fieldType: type }))}
                       className={cn(

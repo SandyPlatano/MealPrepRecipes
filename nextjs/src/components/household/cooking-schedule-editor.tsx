@@ -254,6 +254,7 @@ function ScheduleCellComponent({ schedule, onClick }: ScheduleCellProps) {
 
   return (
     <button
+      type="button"
       onClick={onClick}
       className={cn(
         "w-full h-20 rounded-md border-2 transition-all hover:border-primary hover:bg-accent/50",

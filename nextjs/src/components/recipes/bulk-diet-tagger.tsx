@@ -194,6 +194,7 @@ export function BulkDietTagger({
                 const isSelected = selectedDiet === diet.label;
                 return (
                   <button
+                    type="button"
                     key={diet.label}
                     onClick={() => setSelectedDiet(diet.label)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all ${
@@ -230,6 +231,7 @@ export function BulkDietTagger({
               />
               {searchQuery && (
                 <button
+                  type="button"
                   onClick={() => setSearchQuery("")}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >

@@ -7,7 +7,9 @@ import { getFolders } from "@/app/actions/folders";
 import { getSystemSmartFolders, getUserSmartFolders, getCookingHistoryContext } from "@/app/actions/smart-folders";
 import { createClient } from "@/lib/supabase/server";
 import { RecipesPageClient } from "@/components/recipes/recipes-page-client";
+import { RecipeGridSkeleton } from "@/components/recipes/recipe-card-skeleton";
 import { ContextualHint } from "@/components/hints/contextual-hint";
+import { FirstRecipeHint } from "@/components/hints/first-recipe-hint";
 import { HINT_IDS, HINT_CONTENT } from "@/lib/hints";
 import type { FolderWithChildren } from "@/types/folder";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -142,6 +144,8 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
         description={HINT_CONTENT[HINT_IDS.RECIPES_INTRO].description}
       />
 
+      <FirstRecipeHint recipeCount={recipes.length} />
+
       {recipes.length === 0 ? (
         <EmptyState
           icon={<UtensilsCrossed className="h-12 w-12 text-muted-foreground" />}
@@ -154,7 +158,7 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
           }
         />
       ) : (
-        <Suspense fallback={<div>Loading recipes...</div>}>
+        <Suspense fallback={<RecipeGridSkeleton count={6} />}>
           <RecipesPageClient
             recipes={recipesWithFavorites}
             recipeCookCounts={recipeCookCounts}

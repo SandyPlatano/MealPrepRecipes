@@ -211,6 +211,7 @@ function WindowButton({
 
   return (
     <button
+      type="button"
       className={cn(
         "w-4 h-4 flex items-center justify-center",
         "bg-os-chrome",
@@ -248,6 +249,7 @@ interface MenuItemProps {
 export function MenuItem({ children, onClick, disabled }: MenuItemProps) {
   return (
     <button
+      type="button"
       className={cn(
         "px-2 py-[1px] text-[11px] font-system",
         "hover:bg-os-titlebar hover:text-os-text-light",

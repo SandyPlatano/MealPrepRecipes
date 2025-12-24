@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Search, X, Plus, Heart, Clock, Sparkles, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRecipePickerState } from "@/contexts/recipe-picker-context";
 import type { DayOfWeek } from "@/types/meal-plan";
 
 interface Recipe {
@@ -38,8 +39,15 @@ export function MobileRecipePickerSheet({
   onSelect,
   onClose,
 }: MobileRecipePickerSheetProps) {
-  const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<FilterTab>("all");
+  // Use persistent context for search and tab state (shared with desktop modal)
+  const { searchQuery, setSearchQuery, activeTab: contextTab, setActiveTab: setContextTab, clearSearch } = useRecipePickerState();
+  // Map context tab to mobile tab (mobile doesn't have "suggestions")
+  const activeTab: FilterTab = contextTab === "suggestions" ? "all" : (contextTab as FilterTab);
+  const setActiveTab = (tab: FilterTab) => setContextTab(tab);
+  // Use context's searchQuery
+  const search = searchQuery;
+  const setSearch = setSearchQuery;
+
   const [isAdding, setIsAdding] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -85,13 +93,7 @@ export function MobileRecipePickerSheet({
     };
   }, [isOpen]);
 
-  // Reset state when closed
-  useEffect(() => {
-    if (!isOpen) {
-      setSearch("");
-      setActiveTab("all");
-    }
-  }, [isOpen]);
+  // Note: Search and tab state persist via context (no reset on close)
 
   const filteredRecipes = useMemo(() => {
     let result = recipes;
@@ -179,6 +181,7 @@ export function MobileRecipePickerSheet({
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2">
           <button
+            type="button"
             onClick={onClose}
             className="w-12 h-1.5 rounded-full bg-muted-foreground/30 hover:bg-muted-foreground/50 transition-colors"
             aria-label="Close"
@@ -217,7 +220,7 @@ export function MobileRecipePickerSheet({
                 variant="ghost"
                 size="icon"
                 className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
-                onClick={() => setSearch("")}
+                onClick={clearSearch}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -263,7 +266,7 @@ export function MobileRecipePickerSheet({
                 <Button
                   variant="link"
                   className="mt-2"
-                  onClick={() => setSearch("")}
+                  onClick={clearSearch}
                 >
                   Clear search
                 </Button>
@@ -273,6 +276,7 @@ export function MobileRecipePickerSheet({
             <div className="flex flex-col gap-2 pb-6">
               {filteredRecipes.map((recipe) => (
                 <button
+                  type="button"
                   key={recipe.id}
                   onClick={() => handleSelect(recipe.id)}
                   disabled={isAdding !== null}

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { dismissCookieDialog } from "./fixtures/auth";
 
 /**
  * E2E Tests for Onboarding Flow
@@ -8,7 +9,22 @@ import { test, expect } from "@playwright/test";
  * - Step 2: Cook names management
  * - Step 3: Nutrition goals (presets and custom)
  * - Step 4: Completion
+ *
+ * Note: These tests require authentication. They will be skipped
+ * if the user is redirected to the login page.
  */
+
+// Helper to navigate to app and check auth
+async function navigateToApp(page: import("@playwright/test").Page) {
+  await page.goto("/app/recipes");
+
+  if (page.url().includes("/login")) {
+    return false; // Not authenticated
+  }
+
+  await dismissCookieDialog(page);
+  return true;
+}
 
 test.describe("Onboarding Flow", () => {
   // Note: These tests require a test user to be logged in
@@ -16,9 +32,10 @@ test.describe("Onboarding Flow", () => {
 
   test.describe("Step Navigation", () => {
     test("should display progress bar that updates with each step", async ({ page }) => {
-      // This test would need auth setup
-      // For now, we document the expected behavior
-      await page.goto("/app/recipes");
+      if (!(await navigateToApp(page))) {
+        test.skip();
+        return;
+      }
 
       // Look for onboarding dialog if user is new
       const dialog = page.getByRole("dialog");
@@ -31,7 +48,10 @@ test.describe("Onboarding Flow", () => {
     });
 
     test("should allow navigation between steps with Back button", async ({ page }) => {
-      await page.goto("/app/recipes");
+      if (!(await navigateToApp(page))) {
+        test.skip();
+        return;
+      }
 
       const dialog = page.getByRole("dialog");
       if (await dialog.isVisible()) {
@@ -55,7 +75,10 @@ test.describe("Onboarding Flow", () => {
 
   test.describe("Step 1: Name Entry", () => {
     test("should require first name to continue", async ({ page }) => {
-      await page.goto("/app/recipes");
+      if (!(await navigateToApp(page))) {
+        test.skip();
+        return;
+      }
 
       const dialog = page.getByRole("dialog");
       if (await dialog.isVisible()) {
@@ -73,7 +96,10 @@ test.describe("Onboarding Flow", () => {
     });
 
     test("should accept optional last name", async ({ page }) => {
-      await page.goto("/app/recipes");
+      if (!(await navigateToApp(page))) {
+        test.skip();
+        return;
+      }
 
       const dialog = page.getByRole("dialog");
       if (await dialog.isVisible()) {
@@ -88,7 +114,10 @@ test.describe("Onboarding Flow", () => {
 
   test.describe("Step 2: Cook Names", () => {
     test("should allow adding multiple cooks", async ({ page }) => {
-      await page.goto("/app/recipes");
+      if (!(await navigateToApp(page))) {
+        test.skip();
+        return;
+      }
 
       const dialog = page.getByRole("dialog");
       if (await dialog.isVisible()) {
@@ -109,7 +138,10 @@ test.describe("Onboarding Flow", () => {
     });
 
     test("should allow removing cooks", async ({ page }) => {
-      await page.goto("/app/recipes");
+      if (!(await navigateToApp(page))) {
+        test.skip();
+        return;
+      }
 
       const dialog = page.getByRole("dialog");
       if (await dialog.isVisible()) {
@@ -120,8 +152,8 @@ test.describe("Onboarding Flow", () => {
         // Add a cook
         await dialog.getByRole("button", { name: /add another person/i }).click();
 
-        // Remove one
-        const removeButtons = dialog.getByRole("button", { name: "×" });
+        // Remove one - look for remove buttons (X icon)
+        const removeButtons = dialog.locator('button[aria-label*="remove"], button:has-text("×")');
         if ((await removeButtons.count()) > 0) {
           await removeButtons.first().click();
         }
@@ -129,7 +161,10 @@ test.describe("Onboarding Flow", () => {
     });
 
     test("should allow selecting cook colors", async ({ page }) => {
-      await page.goto("/app/recipes");
+      if (!(await navigateToApp(page))) {
+        test.skip();
+        return;
+      }
 
       const dialog = page.getByRole("dialog");
       if (await dialog.isVisible()) {
@@ -146,7 +181,10 @@ test.describe("Onboarding Flow", () => {
 
   test.describe("Step 3: Nutrition Goals", () => {
     test("should display preset options", async ({ page }) => {
-      await page.goto("/app/recipes");
+      if (!(await navigateToApp(page))) {
+        test.skip();
+        return;
+      }
 
       const dialog = page.getByRole("dialog");
       if (await dialog.isVisible()) {
@@ -164,7 +202,10 @@ test.describe("Onboarding Flow", () => {
     });
 
     test("should allow selecting a preset", async ({ page }) => {
-      await page.goto("/app/recipes");
+      if (!(await navigateToApp(page))) {
+        test.skip();
+        return;
+      }
 
       const dialog = page.getByRole("dialog");
       if (await dialog.isVisible()) {
@@ -183,7 +224,10 @@ test.describe("Onboarding Flow", () => {
     });
 
     test("should show custom inputs when Custom is selected", async ({ page }) => {
-      await page.goto("/app/recipes");
+      if (!(await navigateToApp(page))) {
+        test.skip();
+        return;
+      }
 
       const dialog = page.getByRole("dialog");
       if (await dialog.isVisible()) {
@@ -204,7 +248,10 @@ test.describe("Onboarding Flow", () => {
     });
 
     test("should allow entering custom macro values", async ({ page }) => {
-      await page.goto("/app/recipes");
+      if (!(await navigateToApp(page))) {
+        test.skip();
+        return;
+      }
 
       const dialog = page.getByRole("dialog");
       if (await dialog.isVisible()) {
@@ -229,7 +276,10 @@ test.describe("Onboarding Flow", () => {
     });
 
     test("should allow skipping nutrition setup", async ({ page }) => {
-      await page.goto("/app/recipes");
+      if (!(await navigateToApp(page))) {
+        test.skip();
+        return;
+      }
 
       const dialog = page.getByRole("dialog");
       if (await dialog.isVisible()) {
@@ -252,7 +302,10 @@ test.describe("Onboarding Flow", () => {
 
   test.describe("Step 4: Completion", () => {
     test("should display quick tips", async ({ page }) => {
-      await page.goto("/app/recipes");
+      if (!(await navigateToApp(page))) {
+        test.skip();
+        return;
+      }
 
       const dialog = page.getByRole("dialog");
       if (await dialog.isVisible()) {
@@ -271,7 +324,10 @@ test.describe("Onboarding Flow", () => {
     });
 
     test("should have completion button", async ({ page }) => {
-      await page.goto("/app/recipes");
+      if (!(await navigateToApp(page))) {
+        test.skip();
+        return;
+      }
 
       const dialog = page.getByRole("dialog");
       if (await dialog.isVisible()) {
@@ -290,7 +346,11 @@ test.describe("Onboarding Flow", () => {
   test.describe("Responsive Design", () => {
     test("should work on mobile viewport", async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
-      await page.goto("/app/recipes");
+
+      if (!(await navigateToApp(page))) {
+        test.skip();
+        return;
+      }
 
       const dialog = page.getByRole("dialog");
       if (await dialog.isVisible()) {
@@ -307,6 +367,13 @@ test.describe("Onboarding Accessibility", () => {
   test("should have proper ARIA labels", async ({ page }) => {
     await page.goto("/app/recipes");
 
+    if (page.url().includes("/login")) {
+      test.skip();
+      return;
+    }
+
+    await dismissCookieDialog(page);
+
     const dialog = page.getByRole("dialog");
     if (await dialog.isVisible()) {
       // Dialog should have title
@@ -320,6 +387,13 @@ test.describe("Onboarding Accessibility", () => {
 
   test("should be keyboard navigable", async ({ page }) => {
     await page.goto("/app/recipes");
+
+    if (page.url().includes("/login")) {
+      test.skip();
+      return;
+    }
+
+    await dismissCookieDialog(page);
 
     const dialog = page.getByRole("dialog");
     if (await dialog.isVisible()) {

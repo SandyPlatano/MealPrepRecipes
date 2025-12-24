@@ -475,6 +475,20 @@ export const MEAL_TYPE_COLOR_PALETTE = [
 ] as const;
 
 // ============================================================================
+// Default Cook by Day Settings Types
+// ============================================================================
+
+import type { DayOfWeek } from "./meal-plan";
+
+/**
+ * Default cook assignments per day of week
+ * Used to pre-select cook when adding meals to the planner
+ */
+export type DefaultCooksByDay = Partial<Record<DayOfWeek, string | null>>;
+
+export const DEFAULT_COOKS_BY_DAY: DefaultCooksByDay = {};
+
+// ============================================================================
 // Planner View Settings Types
 // ============================================================================
 
@@ -595,6 +609,8 @@ export interface UserSettingsPreferences {
   calendar?: CalendarPreferences;
   /** Customizable thresholds for recipe difficulty calculation */
   difficultyThresholds?: DifficultyThresholds;
+  /** Default cook assignment per day of week for faster planning */
+  defaultCooksByDay?: DefaultCooksByDay;
 }
 
 /**

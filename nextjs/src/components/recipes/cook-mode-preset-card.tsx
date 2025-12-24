@@ -5,7 +5,6 @@
  * Selectable card for choosing a cook mode preset
  */
 
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, Minus, Sparkles, Hand, Focus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -33,18 +32,13 @@ export function CookModePresetCard({
   const IconComponent = ICON_MAP[preset.icon] || Sparkles;
 
   return (
-    <Card
-      role="button"
-      tabIndex={0}
+    <button
+      type="button"
       onClick={onSelect}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onSelect();
-        }
-      }}
+      aria-pressed={isSelected}
       className={cn(
-        "relative p-5 lg:p-6 cursor-pointer transition-all duration-200",
+        "relative p-5 lg:p-6 cursor-pointer transition-all duration-200 text-left w-full",
+        "rounded-xl border bg-card text-card-foreground shadow-sm",
         "hover:shadow-md hover:border-primary/50",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
         isSelected && "ring-2 ring-primary border-primary bg-primary/5"
@@ -103,6 +97,6 @@ export function CookModePresetCard({
           )}
         </div>
       </div>
-    </Card>
+    </button>
   );
 }

@@ -71,6 +71,7 @@ import { buildRecipeMetadata } from "@/lib/recipe/metadata-utils";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/sidebar";
 import { useDifficultyThresholds } from "@/contexts/difficulty-thresholds-context";
+import { HighlightText } from "@/components/ui/highlight-text";
 
 // Get icon based on recipe type (smaller for compact badge)
 function getRecipeIcon(recipeType: RecipeType) {
@@ -130,9 +131,11 @@ interface RecipeCardProps {
   folders?: FolderWithChildren[];
   /** Callback when user clicks "Add to Folders" */
   onAddToFolder?: (recipeId: string) => void;
+  /** Current search term for highlighting matches */
+  searchTerm?: string;
 }
 
-export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userAllergenAlerts = [], customDietaryRestrictions = [], customBadges = [], animationIndex, folders = [], onAddToFolder }: RecipeCardProps) {
+export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userAllergenAlerts = [], customDietaryRestrictions = [], customBadges = [], animationIndex, folders: _folders = [], onAddToFolder, searchTerm = "" }: RecipeCardProps) {
   const { isMobile } = useSidebar();
   const { thresholds: difficultyThresholds } = useDifficultyThresholds();
   const [isFavorite, setIsFavorite] = useState(recipe.is_favorite);
@@ -360,6 +363,63 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
               </div>
             )}
 
+            {/* NEW Badge - for recently added recipes (last 7 days) */}
+            {(() => {
+              const isNew = recipe.created_at &&
+                (Date.now() - new Date(recipe.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000;
+              return isNew ? (
+                <div className="absolute top-2 left-2 z-10">
+                  <Badge
+                    variant="default"
+                    className="bg-emerald-500 hover:bg-emerald-500 text-white text-[10px] px-1.5 py-0.5 font-semibold shadow-md"
+                  >
+                    NEW
+                  </Badge>
+                </div>
+              ) : null;
+            })()}
+
+            {/* Quick Action Hover Bar - Desktop Only */}
+            {!isMobile && (
+              <div
+                className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-2 p-3 bg-gradient-to-t from-black/80 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                onClick={(e) => e.preventDefault()}
+              >
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="h-8 px-3 bg-white/90 hover:bg-white text-black shadow-lg"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    router.push(`/app/recipes/${recipe.id}/cook`);
+                  }}
+                >
+                  <ChefHat className="size-4 mr-1.5" />
+                  Cook
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="h-8 px-3 bg-white/90 hover:bg-white text-black shadow-lg"
+                  onClick={handleAddToCart}
+                  disabled={isAddingToPlan}
+                >
+                  <UtensilsCrossed className="size-4 mr-1.5" />
+                  Plan
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="h-8 px-3 bg-white/90 hover:bg-white text-black shadow-lg"
+                  onClick={handleShare}
+                >
+                  <Share2 className="size-4 mr-1.5" />
+                  Share
+                </Button>
+              </div>
+            )}
+
             {/* More Menu - Top Right (subtle) */}
             <div
               className="absolute top-2 right-2 z-10"
@@ -427,48 +487,50 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
             </div>
           </div>
 
-          {/* Allergen & Dietary Restriction Warning Banner */}
-          {hasAnyWarnings && (
-            <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 px-4 py-3 flex items-start gap-2">
-              <AlertTriangle className="size-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                  Contains items you&apos;ve flagged
-                </p>
-                <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
-                  {allWarnings.join(", ")}
-                </p>
+          {/* Optional Badges Section - fixed height area for consistent card heights */}
+          <div className="min-h-[32px] flex flex-col justify-center shrink-0">
+            {/* Allergen & Dietary Restriction Warning Banner */}
+            {hasAnyWarnings && (
+              <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 px-4 py-2 flex items-start gap-2">
+                <AlertTriangle className="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-amber-800 dark:text-amber-200">
+                    Contains: {allWarnings.join(", ")}
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Nutrition Badges */}
-          {nutritionBadges.length > 0 && (
-            <div className="px-4 py-2 flex flex-wrap gap-1.5 border-b">
-              {nutritionBadges.map((badge) => {
-                const colors = getBadgeColorClasses(badge.color);
-                return (
-                  <span
-                    key={badge.key}
-                    className={cn(
-                      "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium",
-                      colors.bg,
-                      colors.text,
-                      colors.border
-                    )}
-                    title={badge.description}
-                  >
-                    {badge.label}
-                  </span>
-                );
-              })}
-            </div>
-          )}
+            {/* Nutrition Badges */}
+            {nutritionBadges.length > 0 && (
+              <div className="px-4 py-1.5 flex flex-wrap gap-1 border-b">
+                {nutritionBadges.map((badge) => {
+                  const colors = getBadgeColorClasses(badge.color);
+                  return (
+                    <span
+                      key={badge.key}
+                      className={cn(
+                        "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-medium",
+                        colors.bg,
+                        colors.text,
+                        colors.border
+                      )}
+                      title={badge.description}
+                    >
+                      {badge.label}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
-          {/* Title Section - with rating */}
-          <div className="px-4 py-4 border-b border-border">
-            <div className="flex items-start justify-between gap-2">
-              <CardTitle className="text-lg leading-tight line-clamp-2 flex-1">{recipe.title}</CardTitle>
+          {/* Title Section - with rating - fixed height for consistency */}
+          <div className="px-4 py-3 border-b border-border shrink-0 min-h-[60px] flex items-center">
+            <div className="flex items-start justify-between gap-2 w-full">
+              <CardTitle className="text-base leading-snug line-clamp-2 flex-1">
+                <HighlightText text={recipe.title} searchTerm={searchTerm} />
+              </CardTitle>
               {/* Rating - clickable to open cooking history */}
               <div onClick={(e) => e.stopPropagation()}>
                 {currentRating ? (
@@ -492,8 +554,8 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
             </div>
           </div>
 
-          {/* Badge + Metadata Row */}
-          <div className="px-4 py-3 border-b border-border flex items-center gap-2 flex-wrap">
+          {/* Badge + Metadata Row - shrink-0 for consistent height */}
+          <div className="px-4 py-2 border-b border-border flex items-center gap-2 flex-wrap shrink-0">
             {/* Recipe Type Badge - Smaller */}
             <div
               className={cn(
@@ -575,7 +637,12 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
               <div className="py-3">
                 <p className="text-sm font-medium mb-1">Key Ingredients</p>
                 <p className="text-sm text-muted-foreground">
-                  {recipe.ingredients.slice(0, 5).join(", ")}
+                  {recipe.ingredients.slice(0, 5).map((ingredient, idx) => (
+                    <span key={idx}>
+                      {idx > 0 && ", "}
+                      <HighlightText text={ingredient} searchTerm={searchTerm} />
+                    </span>
+                  ))}
                   {recipe.ingredients.length > 5 && "..."}
                 </p>
               </div>

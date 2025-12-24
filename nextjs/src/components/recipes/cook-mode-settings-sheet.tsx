@@ -233,6 +233,7 @@ export function CookModeSettingsSheet({
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2">
           <button
+            type="button"
             onClick={onClose}
             className="w-12 h-1.5 rounded-full bg-muted-foreground/30 hover:bg-muted-foreground/50 transition-colors"
             aria-label="Close"

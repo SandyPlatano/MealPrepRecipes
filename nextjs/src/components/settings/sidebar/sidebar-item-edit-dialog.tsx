@@ -183,6 +183,7 @@ export function SidebarItemEditDialog({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={defaultLabel}
+              autoFocus
             />
             {isBuiltIn && name !== "" && name !== defaultLabel && (
               <p className="text-xs text-muted-foreground">

@@ -3,6 +3,8 @@ import { Inter, JetBrains_Mono, Caveat } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import { CookieConsent } from "@/components/cookie-consent";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const inter = Inter({
@@ -130,6 +132,8 @@ export default function RootLayout({
           <Toaster />
           <CookieConsent />
         </Providers>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

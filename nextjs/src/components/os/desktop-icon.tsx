@@ -33,6 +33,7 @@ export function DesktopIcon({
 }: DesktopIconProps) {
   return (
     <button
+      type="button"
       className={cn(
         "flex flex-col items-center gap-1 p-1 w-[72px]",
         "cursor-pointer select-none",

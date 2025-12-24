@@ -139,7 +139,7 @@ export async function updateRecipeNutrition(
     // Revalidate relevant paths
     revalidatePath(`/app/recipes/${recipeId}`);
     revalidatePath("/app/recipes");
-    revalidateTag(`recipes-${user.id}`);
+    revalidateTag(`recipes-${user.id}`, "default");
 
     // Also revalidate meal plans that might use this recipe
     revalidatePath("/app/plan");
@@ -199,7 +199,7 @@ export async function deleteRecipeNutrition(recipeId: string): Promise<{
     // Revalidate relevant paths
     revalidatePath(`/app/recipes/${recipeId}`);
     revalidatePath("/app/recipes");
-    revalidateTag(`recipes-${user.id}`);
+    revalidateTag(`recipes-${user.id}`, "default");
     revalidatePath("/app/plan");
 
     return { success: true, error: null };

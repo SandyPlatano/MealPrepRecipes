@@ -267,6 +267,7 @@ export function ServingPresetsSection({
                   {/* Drag Handle */}
                   <div className="flex flex-col gap-0.5">
                     <button
+                      type="button"
                       onClick={() => handleMoveUp(index)}
                       disabled={index === 0 || isSaving}
                       className="text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
@@ -275,6 +276,7 @@ export function ServingPresetsSection({
                       <GripVertical className="size-3" />
                     </button>
                     <button
+                      type="button"
                       onClick={() => handleMoveDown(index)}
                       disabled={index === presets.length - 1 || isSaving}
                       className="text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"

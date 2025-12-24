@@ -114,6 +114,7 @@ export function AddToFolderSheet({
             <div className="flex flex-col gap-1 pb-4">
               {flatFolders.map(({ folder, depth }) => (
                 <button
+                  type="button"
                   key={folder.id}
                   className={cn(
                     "w-full flex items-center gap-3 p-3 rounded-lg transition-colors",

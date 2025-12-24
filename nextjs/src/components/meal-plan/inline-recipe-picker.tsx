@@ -179,6 +179,7 @@ export function InlineRecipePicker({
           <div className="flex flex-col gap-1">
             {filteredRecipes.slice(0, 20).map((recipe) => (
               <button
+                type="button"
                 key={recipe.id}
                 onClick={() => handleSelect(recipe.id)}
                 disabled={isAdding !== null}

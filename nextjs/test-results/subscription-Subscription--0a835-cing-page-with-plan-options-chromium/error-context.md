@@ -1,0 +1,284 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - link "Babe, What's for Dinner?" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e6]:
+          - link "About" [ref=e7] [cursor=pointer]:
+            - /url: /about
+          - link "Pricing" [ref=e8] [cursor=pointer]:
+            - /url: /pricing
+          - link "Log in" [ref=e9] [cursor=pointer]:
+            - /url: /login
+          - link "Sign Up Free" [ref=e10] [cursor=pointer]:
+            - /url: /signup
+            - button "Sign Up Free" [ref=e11]
+    - main [ref=e12]:
+      - generic [ref=e13]:
+        - generic [ref=e16]:
+          - heading "Simple, transparent pricing" [level=1] [ref=e17]
+          - paragraph [ref=e18]: Start free. Upgrade when you need more.
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]:
+              - heading "Free" [level=3] [ref=e24]
+              - paragraph [ref=e25]: Everything you need to start meal planning
+              - generic [ref=e26]:
+                - generic [ref=e27]: $0
+                - text: forever
+            - generic [ref=e28]:
+              - link "Get Started Free" [ref=e29] [cursor=pointer]:
+                - /url: /signup
+                - button "Get Started Free" [ref=e30]:
+                  - text: Get Started Free
+                  - img
+              - generic [ref=e31]:
+                - paragraph [ref=e32]: "Includes:"
+                - list [ref=e33]:
+                  - listitem [ref=e34]:
+                    - img [ref=e35]
+                    - generic [ref=e37]: 20 AI meal suggestions per month
+                  - listitem [ref=e38]:
+                    - img [ref=e39]
+                    - generic [ref=e41]: Up to 50 recipes
+                  - listitem [ref=e42]:
+                    - img [ref=e43]
+                    - generic [ref=e45]: Basic meal planning
+                  - listitem [ref=e46]:
+                    - img [ref=e47]
+                    - generic [ref=e49]: Shopping list generation
+                  - listitem [ref=e50]:
+                    - img [ref=e51]
+                    - generic [ref=e53]: 3 household members
+          - generic [ref=e54]:
+            - generic [ref=e55]:
+              - img [ref=e56]
+              - text: Popular
+            - generic [ref=e59]:
+              - heading "Pro" [level=3] [ref=e60]
+              - paragraph [ref=e61]: Perfect for growing families
+              - generic [ref=e62]:
+                - generic [ref=e63]: $7
+                - text: per month
+            - generic [ref=e64]:
+              - button "Upgrade to Pro" [ref=e65]:
+                - text: Upgrade to Pro
+                - img
+              - generic [ref=e66]:
+                - paragraph [ref=e67]: "Everything in Free, plus:"
+                - list [ref=e68]:
+                  - listitem [ref=e69]:
+                    - img [ref=e70]
+                    - generic [ref=e72]: 100 AI meal suggestions per month
+                  - listitem [ref=e73]:
+                    - img [ref=e74]
+                    - generic [ref=e76]: Up to 500 recipes
+                  - listitem [ref=e77]:
+                    - img [ref=e78]
+                    - generic [ref=e80]: Advanced meal planning
+                  - listitem [ref=e81]:
+                    - img [ref=e82]
+                    - generic [ref=e84]: Smart pantry scanning (10 scans/month)
+                  - listitem [ref=e85]:
+                    - img [ref=e86]
+                    - generic [ref=e88]: Google Calendar sync
+                  - listitem [ref=e89]:
+                    - img [ref=e90]
+                    - generic [ref=e92]: 5 household members
+                  - listitem [ref=e93]:
+                    - img [ref=e94]
+                    - generic [ref=e96]: Priority support
+          - generic [ref=e97]:
+            - generic [ref=e98]:
+              - heading "Premium" [level=3] [ref=e99]
+              - paragraph [ref=e100]: For serious meal planners
+              - generic [ref=e101]:
+                - generic [ref=e102]: $12
+                - text: per month
+            - generic [ref=e103]:
+              - button "Upgrade to Premium" [ref=e104]:
+                - text: Upgrade to Premium
+                - img
+              - generic [ref=e105]:
+                - paragraph [ref=e106]: "Everything in Pro, plus:"
+                - list [ref=e107]:
+                  - listitem [ref=e108]:
+                    - img [ref=e109]
+                    - generic [ref=e111]: Unlimited AI meal suggestions
+                  - listitem [ref=e112]:
+                    - img [ref=e113]
+                    - generic [ref=e115]: Unlimited recipes
+                  - listitem [ref=e116]:
+                    - img [ref=e117]
+                    - generic [ref=e119]: Advanced nutrition tracking
+                  - listitem [ref=e120]:
+                    - img [ref=e121]
+                    - generic [ref=e123]: Unlimited pantry scanning
+                  - listitem [ref=e124]:
+                    - img [ref=e125]
+                    - generic [ref=e127]: Google Calendar sync
+                  - listitem [ref=e128]:
+                    - img [ref=e129]
+                    - generic [ref=e131]: 10 household members
+                  - listitem [ref=e132]:
+                    - img [ref=e133]
+                    - generic [ref=e135]: Priority support
+                  - listitem [ref=e136]:
+                    - img [ref=e137]
+                    - generic [ref=e139]: Early access to new features
+        - generic [ref=e142]:
+          - heading "Compare plans" [level=2] [ref=e143]
+          - table [ref=e145]:
+            - rowgroup [ref=e146]:
+              - row "Feature Free Pro Premium" [ref=e147]:
+                - columnheader "Feature" [ref=e148]
+                - columnheader "Free" [ref=e149]
+                - columnheader "Pro" [ref=e150]
+                - columnheader "Premium" [ref=e151]
+            - rowgroup [ref=e152]:
+              - row "AI meal suggestions 20/month 100/month Unlimited" [ref=e153]:
+                - cell "AI meal suggestions" [ref=e154]
+                - cell "20/month" [ref=e155]
+                - cell "100/month" [ref=e156]
+                - cell "Unlimited" [ref=e157]
+              - row "Recipes Up to 50 Up to 500 Unlimited" [ref=e158]:
+                - cell "Recipes" [ref=e159]
+                - cell "Up to 50" [ref=e160]
+                - cell "Up to 500" [ref=e161]
+                - cell "Unlimited" [ref=e162]
+              - row "Household members 3 5 10" [ref=e163]:
+                - cell "Household members" [ref=e164]
+                - cell "3" [ref=e165]
+                - cell "5" [ref=e166]
+                - cell "10" [ref=e167]
+              - row "Pantry scanning 10/month Unlimited" [ref=e168]:
+                - cell "Pantry scanning" [ref=e169]
+                - cell [ref=e170]:
+                  - img [ref=e171]
+                - cell "10/month" [ref=e174]
+                - cell "Unlimited" [ref=e175]
+              - row "Meal planning" [ref=e176]:
+                - cell "Meal planning" [ref=e177]
+                - cell [ref=e178]:
+                  - img [ref=e179]
+                - cell [ref=e181]:
+                  - img [ref=e182]
+                - cell [ref=e184]:
+                  - img [ref=e185]
+              - row "Shopping lists" [ref=e187]:
+                - cell "Shopping lists" [ref=e188]
+                - cell [ref=e189]:
+                  - img [ref=e190]
+                - cell [ref=e192]:
+                  - img [ref=e193]
+                - cell [ref=e195]:
+                  - img [ref=e196]
+              - row "Google Calendar sync" [ref=e198]:
+                - cell "Google Calendar sync" [ref=e199]
+                - cell [ref=e200]:
+                  - img [ref=e201]
+                - cell [ref=e204]:
+                  - img [ref=e205]
+                - cell [ref=e207]:
+                  - img [ref=e208]
+              - row "Advanced nutrition tracking" [ref=e210]:
+                - cell "Advanced nutrition tracking" [ref=e211]
+                - cell [ref=e212]:
+                  - img [ref=e213]
+                - cell [ref=e216]:
+                  - img [ref=e217]
+                - cell [ref=e220]:
+                  - img [ref=e221]
+              - row "Priority support" [ref=e223]:
+                - cell "Priority support" [ref=e224]
+                - cell [ref=e225]:
+                  - img [ref=e226]
+                - cell [ref=e229]:
+                  - img [ref=e230]
+                - cell [ref=e232]:
+                  - img [ref=e233]
+              - row "Early access to new features" [ref=e235]:
+                - cell "Early access to new features" [ref=e236]
+                - cell [ref=e237]:
+                  - img [ref=e238]
+                - cell [ref=e241]:
+                  - img [ref=e242]
+                - cell [ref=e245]:
+                  - img [ref=e246]
+        - generic [ref=e248]:
+          - img [ref=e250]
+          - generic [ref=e277]:
+            - generic [ref=e278]:
+              - generic [ref=e279]: FAQ
+              - heading "Questions & Answers" [level=2] [ref=e280]
+              - paragraph [ref=e281]: Everything you need to know about meal planning.
+            - generic [ref=e282]:
+              - heading "Is it really free?" [level=3] [ref=e284]:
+                - button "Is it really free?" [ref=e285]:
+                  - text: Is it really free?
+                  - img [ref=e286]
+              - heading "How does the AI recipe import work?" [level=3] [ref=e289]:
+                - button "How does the AI recipe import work?" [ref=e290]:
+                  - text: How does the AI recipe import work?
+                  - img [ref=e291]
+              - heading "Can my partner and I use it together?" [level=3] [ref=e294]:
+                - button "Can my partner and I use it together?" [ref=e295]:
+                  - text: Can my partner and I use it together?
+                  - img [ref=e296]
+              - heading "What happens to my recipes?" [level=3] [ref=e299]:
+                - button "What happens to my recipes?" [ref=e300]:
+                  - text: What happens to my recipes?
+                  - img [ref=e301]
+              - heading "Can I import recipes from any website?" [level=3] [ref=e304]:
+                - button "Can I import recipes from any website?" [ref=e305]:
+                  - text: Can I import recipes from any website?
+                  - img [ref=e306]
+              - heading "How do shopping lists work?" [level=3] [ref=e309]:
+                - button "How do shopping lists work?" [ref=e310]:
+                  - text: How do shopping lists work?
+                  - img [ref=e311]
+              - heading "Is there a mobile app?" [level=3] [ref=e314]:
+                - button "Is there a mobile app?" [ref=e315]:
+                  - text: Is there a mobile app?
+                  - img [ref=e316]
+              - heading "Can I cancel anytime?" [level=3] [ref=e319]:
+                - button "Can I cancel anytime?" [ref=e320]:
+                  - text: Can I cancel anytime?
+                  - img [ref=e321]
+        - generic [ref=e325]:
+          - heading "Ready to start planning?" [level=2] [ref=e326]
+          - paragraph [ref=e327]: Join for free. No credit card required.
+          - link "Get Started Free" [ref=e328] [cursor=pointer]:
+            - /url: /signup
+            - button "Get Started Free" [ref=e329]:
+              - text: Get Started Free
+              - img
+    - contentinfo [ref=e330]:
+      - generic [ref=e332]:
+        - generic [ref=e333]: Babe, What's for Dinner?
+        - generic [ref=e334]:
+          - link "Privacy" [ref=e335] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms" [ref=e336] [cursor=pointer]:
+            - /url: /terms
+        - paragraph [ref=e337]: Made with love (and mild guilt)
+  - region "Notifications alt+T"
+  - dialog "We use cookies" [ref=e338]:
+    - generic [ref=e341]:
+      - generic [ref=e342]:
+        - heading "We use cookies" [level=3] [ref=e344]
+        - paragraph [ref=e345]:
+          - text: We use essential cookies to keep you logged in and remember your preferences. No tracking or advertising cookies.
+          - link "Learn more" [ref=e346] [cursor=pointer]:
+            - /url: /privacy
+      - generic [ref=e347]:
+        - button "Manage Settings" [ref=e348]
+        - button "Accept" [ref=e349]
+  - button "Open Next.js Dev Tools" [ref=e355] [cursor=pointer]:
+    - img [ref=e356]
+  - alert [ref=e359]
+```

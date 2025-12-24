@@ -15,6 +15,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useSidebar } from "./sidebar-context";
 import { SidebarUserArea } from "./sidebar-user-area";
 import { SidebarNavItem } from "./sidebar-nav-item";
+import { SidebarQuickNav } from "./sidebar-quick-nav";
 import { SidebarCollections } from "./sidebar-collections";
 import { SidebarBottomNav } from "./sidebar-bottom-nav";
 import type {
@@ -46,7 +47,7 @@ export function MobileSidebarSheet({
   systemSmartFolders,
   userSmartFolders,
   totalRecipeCount,
-  shoppingListCount,
+  shoppingListCount: _shoppingListCount,
   favoritesCount,
   onSearchClick,
   onNewRecipeClick,
@@ -65,17 +66,22 @@ export function MobileSidebarSheet({
         </SheetHeader>
 
         <TooltipProvider delayDuration={0}>
-          {/* User Area - Top (includes search icon) */}
+          {/* User Area - Top */}
           <SidebarUserArea
             user={user}
             logoutAction={logoutAction}
-            onSearchClick={onSearchClick}
           />
 
           {/* Scrollable Content - Secondary navigation only */}
           {/* Primary nav (Plan, Recipes, Shop, Stats) is now in bottom tabs */}
           <ScrollArea className="flex-1">
             <div className="py-2 flex flex-col gap-1">
+              {/* Quick Nav - Home, Search, New Recipe */}
+              <SidebarQuickNav
+                onSearchClick={onSearchClick}
+                onNewRecipeClick={onNewRecipeClick}
+              />
+
               {/* Favorites - quick access to loved recipes */}
               <div className="px-3 py-2">
                 <SidebarNavItem
