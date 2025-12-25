@@ -45,7 +45,7 @@ export async function getSystemSmartFolders(): Promise<{
 
   const { data, error } = await supabase
     .from("system_smart_folders")
-    .select("*")
+    .select("id, name, description, emoji, color, smart_filters, sort_order, created_at")
     .order("sort_order", { ascending: true });
 
   if (error) {
@@ -85,7 +85,7 @@ export async function getUserSmartFolders(): Promise<{
 
   const { data: folders, error } = await supabase
     .from("recipe_folders")
-    .select("*")
+    .select("id, household_id, created_by_user_id, name, emoji, color, is_smart, smart_filters, parent_folder_id, cover_recipe_id, category_id, sort_order, created_at, updated_at")
     .eq("household_id", household.household_id)
     .eq("is_smart", true)
     .order("sort_order", { ascending: true });

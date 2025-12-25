@@ -45,7 +45,7 @@ export async function getOrCreateShoppingList() {
     // Find or create the current week's meal plan
     let { data: mealPlan } = await supabase
       .from("meal_plans")
-      .select("*")
+      .select("id, household_id, week_start, sent_at, created_at, updated_at")
       .eq("household_id", membership.household_id)
       .eq("week_start", weekStartStr)
       .maybeSingle();
@@ -58,11 +58,11 @@ export async function getOrCreateShoppingList() {
           household_id: membership.household_id,
           week_start: weekStartStr,
         })
-        .select()
+        .select("id, household_id, week_start, sent_at, created_at, updated_at")
         .single();
 
-      if (planError) {
-        return { error: planError.message, data: null };
+      if (planError || !newPlan) {
+        return { error: planError?.message || "Failed to create meal plan", data: null };
       }
       mealPlan = newPlan;
     }
@@ -70,7 +70,7 @@ export async function getOrCreateShoppingList() {
     // Try to get existing shopping list linked to this meal plan
     let { data: shoppingList } = await supabase
       .from("shopping_lists")
-      .select("*")
+      .select("id, household_id, meal_plan_id, created_at, updated_at")
       .eq("meal_plan_id", mealPlan.id)
       .maybeSingle();
 
@@ -132,7 +132,7 @@ export async function getShoppingListWithItems(): Promise<{
   // Get items
   const { data: items, error } = await supabase
     .from("shopping_list_items")
-    .select("*")
+    .select("id, shopping_list_id, ingredient, quantity, unit, category, is_checked, recipe_id, recipe_title, created_at, substituted_from, substitution_log_id")
     .eq("shopping_list_id", listResult.data.id)
     .order("category")
     .order("ingredient");
@@ -686,7 +686,7 @@ export async function generateMultiWeekShoppingList(
   // Fetch the updated shopping list with items
   const { data: items, error: fetchError } = await supabase
     .from("shopping_list_items")
-    .select("*")
+    .select("id, shopping_list_id, ingredient, quantity, unit, category, is_checked, recipe_id, recipe_title, created_at, substituted_from, substitution_log_id")
     .eq("shopping_list_id", shoppingList.id)
     .order("category")
     .order("ingredient");

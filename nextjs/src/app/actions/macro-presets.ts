@@ -36,7 +36,7 @@ export async function getMacroPresets(includeHidden = false): Promise<{
 
     let query = supabase
       .from("macro_presets")
-      .select("*")
+      .select("id, user_id, name, emoji, calories, protein_g, carbs_g, fat_g, is_system, is_pinned, is_hidden, sort_order, pin_order, created_at, updated_at")
       .eq("user_id", user.id);
 
     if (!includeHidden) {
@@ -82,7 +82,7 @@ export async function getMacroPreset(id: string): Promise<{
 
     const { data, error } = await supabase
       .from("macro_presets")
-      .select("*")
+      .select("id, user_id, name, emoji, calories, protein_g, carbs_g, fat_g, is_system, is_pinned, is_hidden, sort_order, pin_order, created_at, updated_at")
       .eq("id", id)
       .eq("user_id", user.id)
       .single();
@@ -576,7 +576,7 @@ export async function quickAddFromPreset(
     // Get preset values
     const { data: preset, error: presetError } = await supabase
       .from("macro_presets")
-      .select("*")
+      .select("id, user_id, name, emoji, calories, protein_g, carbs_g, fat_g, is_system, is_pinned, is_hidden, sort_order, pin_order, created_at, updated_at")
       .eq("id", presetId)
       .eq("user_id", user.id)
       .single();

@@ -61,7 +61,7 @@ export async function getCustomIngredientCategories(householdId: string): Promis
 
   const { data, error } = await supabase
     .from("custom_ingredient_categories")
-    .select("*")
+    .select("id, household_id, name, slug, emoji, color, sort_order, is_system, parent_category_id, default_store_id, created_at")
     .eq("household_id", householdId)
     .order("sort_order", { ascending: true });
 

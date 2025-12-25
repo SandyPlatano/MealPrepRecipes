@@ -242,7 +242,7 @@ export async function getRecipesForExport(): Promise<{
   // Get all user's recipes
   const { data: recipes, error: recipesError } = await supabase
     .from("recipes")
-    .select("*")
+    .select("id, title, recipe_type, category, protein_type, prep_time, cook_time, servings, base_servings, ingredients, instructions, tags, notes, source_url, image_url, rating, allergen_tags, user_id, household_id, is_shared_with_household, is_public, share_token, view_count, original_recipe_id, original_author_id, avg_rating, review_count, created_at, updated_at")
     .eq("user_id", user.id)
     .order("title", { ascending: true });
 
@@ -254,7 +254,7 @@ export async function getRecipesForExport(): Promise<{
   const recipeIds = (recipes || []).map((r) => r.id);
   const { data: nutritionData } = await supabase
     .from("recipe_nutrition")
-    .select("*")
+    .select("id, recipe_id, calories, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg, source, confidence_score, input_tokens, output_tokens, cost_usd, created_at, updated_at")
     .in("recipe_id", recipeIds);
 
   // Build nutrition map

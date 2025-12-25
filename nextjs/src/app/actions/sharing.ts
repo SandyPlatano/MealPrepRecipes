@@ -500,7 +500,7 @@ export async function getCurrentUserProfile(): Promise<{
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("*")
+    .select("id, username, name, first_name, last_name, bio, avatar_url, public_profile, follower_count, following_count, created_at")
     .eq("id", authUser.id)
     .single();
 
@@ -549,7 +549,7 @@ export async function copyPublicRecipe(recipeId: string): Promise<{
   // Get the original recipe
   const { data: originalRecipe, error: recipeError } = await supabase
     .from("recipes")
-    .select("*")
+    .select("id, title, recipe_type, category, protein_type, prep_time, cook_time, servings, base_servings, ingredients, instructions, tags, notes, source_url, image_url, allergen_tags, user_id, household_id, is_shared_with_household, is_public")
     .eq("id", recipeId)
     .or("is_public.eq.true,share_token.not.is.null")
     .single();

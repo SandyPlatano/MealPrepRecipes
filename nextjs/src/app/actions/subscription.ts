@@ -33,7 +33,7 @@ export async function getSubscriptionData(): Promise<{
   // Get subscription from database (includes stripe_customer_id)
   const { data: subscription } = await supabase
     .from("subscriptions")
-    .select("*")
+    .select("tier, status, current_period_end, cancel_at_period_end, stripe_customer_id")
     .eq("user_id", user.id)
     .maybeSingle();
 

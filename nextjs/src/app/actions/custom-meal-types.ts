@@ -53,7 +53,7 @@ export async function getCustomMealTypes(householdId: string): Promise<{
 
   const { data, error } = await supabase
     .from("custom_meal_types")
-    .select("*")
+    .select("id, household_id, name, slug, emoji, color, default_time, sort_order, is_system, created_at")
     .eq("household_id", householdId)
     .order("sort_order", { ascending: true });
 

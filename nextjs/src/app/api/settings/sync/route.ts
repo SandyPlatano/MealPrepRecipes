@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     // Get existing settings to merge
     const { data: existingSettings } = await supabase
       .from("user_settings")
-      .select("*")
+      .select("id, user_id, dark_mode, cook_names, cook_colors, email_notifications, allergen_alerts, custom_dietary_restrictions, category_order, calendar_event_time, calendar_event_duration_minutes, calendar_excluded_days, dismissed_hints, macro_goals, macro_tracking_enabled, macro_goal_preset, unit_system, recipe_export_preferences, created_at, updated_at")
       .eq("user_id", user.id)
       .single();
 

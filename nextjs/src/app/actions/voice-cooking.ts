@@ -425,7 +425,7 @@ export async function getActiveTimers(sessionId: string) {
 
   const { data, error } = await supabase
     .from("voice_session_timers")
-    .select("*")
+    .select("id, session_id, label, duration_seconds, remaining_seconds, status, step_index, alert_message, started_at, completed_at, created_at, updated_at")
     .eq("session_id", sessionId)
     .in("status", ["active", "paused"])
     .order("created_at", { ascending: true });

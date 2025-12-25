@@ -77,7 +77,7 @@ export async function getCustomBadges(): Promise<ActionResult<CustomBadge[]>> {
 
   const { data, error } = await supabase
     .from("custom_nutrition_badges")
-    .select("*")
+    .select("id, household_id, name, color, conditions, is_active, created_at")
     .eq("household_id", householdId)
     .order("created_at", { ascending: false });
 
@@ -121,7 +121,7 @@ export async function getActiveCustomBadges(): Promise<ActionResult<CustomBadge[
 
   const { data, error } = await supabase
     .from("custom_nutrition_badges")
-    .select("*")
+    .select("id, household_id, name, color, conditions, is_active, created_at")
     .eq("household_id", householdId)
     .eq("is_active", true)
     .order("created_at", { ascending: false });

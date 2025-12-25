@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, memo, useTransition } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
   Card,
@@ -50,8 +51,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
 import { RatingBadge } from "@/components/ui/rating-badge";
-import { EditCookingHistoryDialog } from "@/components/recipes/edit-cooking-history-dialog";
 import { getMostRecentCookingEntry } from "@/app/actions/cooking-history";
+
+// Lazy load dialogs - only loaded when user opens them
+const EditCookingHistoryDialog = dynamic(
+  () => import("@/components/recipes/edit-cooking-history-dialog").then((mod) => mod.EditCookingHistoryDialog),
+  { ssr: false }
+);
 import type { RecipeWithFavoriteAndNutrition, RecipeType } from "@/types/recipe";
 import type { DayOfWeek } from "@/types/meal-plan";
 import type { FolderWithChildren } from "@/types/folder";
@@ -61,9 +67,19 @@ import { AddToPlanSheet } from "./add-to-plan-sheet";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
-import { MarkCookedDialog } from "./mark-cooked-dialog";
-import { ShareExportSheet } from "./share-export-sheet";
 import Image from "next/image";
+
+// Lazy load modal dialogs - only loaded when user opens them
+const MarkCookedDialog = dynamic(
+  () => import("./mark-cooked-dialog").then((mod) => mod.MarkCookedDialog),
+  { ssr: false }
+);
+
+// Lazy load share/export sheet - only loaded when user clicks share
+const ShareExportSheet = dynamic(
+  () => import("./share-export-sheet").then((mod) => mod.ShareExportSheet),
+  { ssr: false }
+);
 import { detectAllergens, mergeAllergens, getAllergenDisplayName, hasUserAllergens, hasCustomRestrictions } from "@/lib/allergen-detector";
 import { triggerHaptic } from "@/lib/haptics";
 import { calculateCustomBadges, getBadgeColorClasses, type CustomBadge } from "@/lib/nutrition/badge-calculator";

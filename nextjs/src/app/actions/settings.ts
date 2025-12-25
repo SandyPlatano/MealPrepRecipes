@@ -17,7 +17,7 @@ export async function getProfile() {
 
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("*")
+    .select("id, email, first_name, last_name, avatar_url, cover_image_url, username, bio, cooking_philosophy, profile_emoji, currently_craving, cook_with_me_status, favorite_cuisine, cooking_skill, location, website_url, public_profile, show_cooking_stats, show_badges, show_cook_photos, show_reviews, show_saved_recipes, profile_accent_color, created_at, updated_at")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -298,7 +298,7 @@ export async function updateSettings(settings: {
   // First, get existing settings to merge with new values
   const { data: existingSettings } = await supabase
     .from("user_settings")
-    .select("*")
+    .select("id, user_id, dark_mode, cook_names, cook_colors, email_notifications, allergen_alerts, custom_dietary_restrictions, category_order, calendar_event_time, calendar_event_duration_minutes, calendar_excluded_days, google_connected_account, dismissed_hints, preferences, unit_system, created_at, updated_at")
     .eq("user_id", user.id)
     .maybeSingle();
 

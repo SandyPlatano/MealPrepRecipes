@@ -329,7 +329,7 @@ export async function GET(request: NextRequest) {
     // 3. FETCH NUTRITION DATA
     const { data: nutrition, error } = await supabase
       .from("recipe_nutrition")
-      .select("*")
+      .select("id, recipe_id, calories, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg, source, confidence_score, input_tokens, output_tokens, cost_usd, created_at, updated_at")
       .eq("recipe_id", recipe_id)
       .single();
 

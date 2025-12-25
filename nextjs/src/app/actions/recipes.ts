@@ -28,7 +28,7 @@ export async function getRecipes() {
     // If user has no household, only get their own recipes
     let query = supabase
       .from("recipes")
-      .select("*");
+      .select("id, title, recipe_type, category, protein_type, prep_time, cook_time, servings, base_servings, ingredients, instructions, tags, notes, source_url, image_url, rating, allergen_tags, user_id, household_id, is_shared_with_household, is_public, share_token, view_count, original_recipe_id, original_author_id, avg_rating, review_count, created_at, updated_at");
 
     if (household?.household_id) {
       // User has household - get own recipes + shared household recipes
@@ -40,7 +40,9 @@ export async function getRecipes() {
       query = query.eq("user_id", authUser.id);
     }
 
-    const { data, error } = await query.order("created_at", { ascending: false });
+    const { data, error } = await query
+      .order("created_at", { ascending: false })
+      .limit(200); // Limit to prevent unbounded queries; implement infinite scroll for more
 
     if (error) {
       return { error: error.message, data: null };
@@ -67,7 +69,7 @@ export async function getRecipe(id: string) {
 
     const { data, error } = await supabase
       .from("recipes")
-      .select("*")
+      .select("id, title, recipe_type, category, protein_type, prep_time, cook_time, servings, base_servings, ingredients, instructions, tags, notes, source_url, image_url, rating, allergen_tags, user_id, household_id, is_shared_with_household, is_public, share_token, view_count, original_recipe_id, original_author_id, avg_rating, review_count, created_at, updated_at")
       .eq("id", id)
       .maybeSingle();
 

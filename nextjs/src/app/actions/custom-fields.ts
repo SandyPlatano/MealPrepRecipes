@@ -30,7 +30,7 @@ export async function getCustomFieldDefinitions(householdId: string): Promise<{
 
   const { data, error } = await supabase
     .from("custom_recipe_field_definitions")
-    .select("*")
+    .select("id, household_id, name, slug, field_type, description, is_required, default_value, options, validation_rules, show_in_card, show_in_filters, sort_order, icon, created_at, updated_at")
     .eq("household_id", householdId)
     .order("sort_order", { ascending: true });
 
@@ -280,7 +280,7 @@ export async function getFieldValues(recipeId: string): Promise<{
 
   const { data, error } = await supabase
     .from("custom_recipe_field_values")
-    .select("*")
+    .select("id, recipe_id, field_definition_id, value, created_at, updated_at")
     .eq("recipe_id", recipeId);
 
   if (error) {

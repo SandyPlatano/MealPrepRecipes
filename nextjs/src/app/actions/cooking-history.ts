@@ -201,23 +201,20 @@ export async function getCookingHistory(limit?: number) {
     return { error: "No household found", data: [] };
   }
 
-  let query = supabase
+  const effectiveLimit = limit ?? 50; // Default limit to prevent unbounded queries
+
+  const { data, error } = await supabase
     .from("cooking_history")
     .select(
       `
       *,
-      recipe:recipes(id, title, recipe_type, category, protein_type),
-      cooked_by_profile:profiles!cooking_history_cooked_by_fkey(first_name, last_name)
+      recipe:recipes(id, title, recipe_type, category, protein_type, image_url),
+      cooked_by_profile:profiles!cooking_history_cooked_by_fkey(first_name, last_name, avatar_url)
     `
     )
     .eq("household_id", membership.household_id)
-    .order("cooked_at", { ascending: false });
-
-  if (limit) {
-    query = query.limit(limit);
-  }
-
-  const { data, error } = await query;
+    .order("cooked_at", { ascending: false })
+    .limit(effectiveLimit);
 
   if (error) {
     console.error("Error fetching cooking history:", error);
@@ -242,11 +239,12 @@ export async function getRecipeHistory(recipeId: string) {
     .select(
       `
       *,
-      cooked_by_profile:profiles!cooking_history_cooked_by_fkey(first_name, last_name)
+      cooked_by_profile:profiles!cooking_history_cooked_by_fkey(first_name, last_name, avatar_url)
     `
     )
     .eq("recipe_id", recipeId)
-    .order("cooked_at", { ascending: false });
+    .order("cooked_at", { ascending: false })
+    .limit(30); // Limit to recent history
 
   if (error) {
     console.error("Error fetching recipe history:", error);

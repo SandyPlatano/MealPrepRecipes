@@ -134,7 +134,7 @@ export async function getFolder(
 
   const { data, error } = await supabase
     .from("recipe_folders")
-    .select("*")
+    .select("id, household_id, created_by_user_id, name, emoji, color, parent_folder_id, cover_recipe_id, category_id, sort_order, is_smart, smart_filters, created_at, updated_at")
     .eq("id", id)
     .eq("household_id", household.household_id)
     .single();
@@ -330,7 +330,7 @@ export async function duplicateFolder(
   // Get the folder to duplicate
   const { data: originalFolder, error: fetchError } = await supabase
     .from("recipe_folders")
-    .select("*")
+    .select("id, household_id, created_by_user_id, name, emoji, color, parent_folder_id, cover_recipe_id, category_id, sort_order, is_smart, smart_filters, created_at, updated_at")
     .eq("id", folderId)
     .eq("household_id", household.household_id)
     .single();
@@ -614,7 +614,7 @@ export async function getFolderCategories(): Promise<{
   // Get all categories
   const { data: categories, error: catError } = await supabase
     .from("folder_categories")
-    .select("*")
+    .select("id, household_id, created_by_user_id, name, emoji, is_system, sort_order, created_at, updated_at")
     .eq("household_id", household.household_id)
     .order("sort_order", { ascending: true });
 

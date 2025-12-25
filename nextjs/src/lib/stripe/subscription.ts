@@ -23,7 +23,7 @@ export async function getSubscriptionStatus(
 
   const { data, error } = await supabase
     .from('subscriptions')
-    .select('*')
+    .select('id, user_id, stripe_customer_id, stripe_subscription_id, status, tier, current_period_end, cancel_at_period_end, created_at, updated_at')
     .eq('user_id', userId)
     .single();
 

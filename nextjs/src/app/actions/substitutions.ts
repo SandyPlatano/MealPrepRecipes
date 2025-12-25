@@ -40,7 +40,7 @@ export async function getDefaultSubstitutions(): Promise<Substitution[]> {
 
   const { data, error } = await supabase
     .from("substitutions")
-    .select("*")
+    .select("id, original_ingredient, substitute_ingredient, notes, is_default")
     .eq("is_default", true)
     .order("original_ingredient");
 
@@ -72,7 +72,7 @@ export async function getUserSubstitutions(): Promise<UserSubstitution[]> {
 
   const { data, error } = await supabase
     .from("user_substitutions")
-    .select("*")
+    .select("id, user_id, original_ingredient, substitute_ingredient, notes")
     .eq("user_id", user.id)
     .order("original_ingredient");
 

@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     // Verify the scan belongs to the user's household
     const { data: scan, error: scanError } = await supabase
       .from('pantry_scans')
-      .select('*')
+      .select('id, household_id, scan_type, image_url, detected_items, confirmed_items, processing_status, created_at, updated_at')
       .eq('id', scan_id)
       .eq('household_id', member.household_id)
       .single();

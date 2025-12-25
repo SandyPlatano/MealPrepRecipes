@@ -32,7 +32,7 @@ export async function getPantryItems(): Promise<{
 
   const { data: items, error } = await supabase
     .from("pantry_items")
-    .select("*")
+    .select("id, household_id, ingredient, normalized_ingredient, category, source, last_restocked, created_at, updated_at")
     .eq("household_id", membership.household_id)
     .order("category")
     .order("ingredient");

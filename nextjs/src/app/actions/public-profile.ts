@@ -94,7 +94,7 @@ export async function getProfileStats(
 
   const { data, error } = await supabase
     .from("cooking_streaks")
-    .select("*")
+    .select("user_id, current_streak_days, longest_streak_days, total_meals_cooked, total_recipes_tried, weekly_target, current_week_count, last_cooked_at, streak_started_at, created_at, updated_at")
     .eq("user_id", userId)
     .single();
 

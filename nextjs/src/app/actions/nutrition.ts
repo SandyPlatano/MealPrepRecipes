@@ -53,7 +53,7 @@ export async function getRecipeNutrition(recipeId: string): Promise<{
 
     const { data, error } = await supabase
       .from("recipe_nutrition")
-      .select("*")
+      .select("id, recipe_id, calories, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg, source, confidence_score, input_tokens, output_tokens, cost_usd, created_at, updated_at")
       .eq("recipe_id", recipeId)
       .maybeSingle();
 
@@ -232,7 +232,7 @@ export async function getBulkRecipeNutrition(recipeIds: string[]): Promise<{
 
     const { data, error } = await supabase
       .from("recipe_nutrition")
-      .select("*")
+      .select("id, recipe_id, calories, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg, source, confidence_score, input_tokens, output_tokens, cost_usd, created_at, updated_at")
       .in("recipe_id", recipeIds);
 
     if (error) {
@@ -782,7 +782,7 @@ export async function getNutritionHistory(weeks: number = 4): Promise<{
 
     const { data, error } = await supabase
       .from("weekly_nutrition_summary")
-      .select("*")
+      .select("id, user_id, week_start, avg_calories, avg_protein_g, avg_carbs_g, avg_fat_g, total_days_tracked, avg_data_completeness_pct, created_at, updated_at")
       .eq("user_id", user.id)
       .gte("week_start", startDate.toISOString().split("T")[0])
       .order("week_start", { ascending: false });

@@ -37,7 +37,7 @@ export async function GET(
     // Get cooking history
     const { data: history, error: historyError } = await supabase
       .from("cooking_history")
-      .select("*")
+      .select("id, recipe_id, household_id, cooked_by, cooked_at, rating, notes, modifications, photo_url, created_at")
       .eq("recipe_id", id)
       .order("cooked_at", { ascending: false });
 

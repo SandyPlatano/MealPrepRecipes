@@ -149,7 +149,7 @@ export async function getPantryScanHistory(limit = 10): Promise<PantryScan[]> {
 
   const { data: scans, error } = await supabase
     .from('pantry_scans')
-    .select('*')
+    .select('id, household_id, user_id, image_url, scan_type, detected_items, confirmed_items, processing_status, error_message, created_at, processed_at')
     .eq('household_id', member.household_id)
     .order('created_at', { ascending: false })
     .limit(limit);
@@ -187,7 +187,7 @@ export async function getPantryScan(scanId: string): Promise<PantryScan | null> 
 
   const { data: scan, error } = await supabase
     .from('pantry_scans')
-    .select('*')
+    .select('id, household_id, user_id, image_url, scan_type, detected_items, confirmed_items, processing_status, error_message, created_at, processed_at')
     .eq('id', scanId)
     .eq('household_id', member.household_id)
     .single();

@@ -289,7 +289,7 @@ export async function getOrCreateMealPlan(weekStart: string) {
           ignoreDuplicates: false,
         }
       )
-      .select()
+      .select("id, household_id, week_start, sent_at, created_at, updated_at")
       .single();
 
     if (error) {
@@ -327,7 +327,7 @@ export async function getWeekPlan(weekStart: string): Promise<{
   // Get meal plan for the week (might not exist - use maybeSingle)
   const { data: mealPlan } = await supabase
     .from("meal_plans")
-    .select("*")
+    .select("id, household_id, week_start, sent_at, created_at, updated_at")
     .eq("household_id", household!.household_id)
     .eq("week_start", weekStart)
     .maybeSingle();
@@ -799,7 +799,7 @@ export async function getWeekPlanWithFullRecipes(weekStart: string) {
   // Get meal plan for the week
   const { data: mealPlan, error: mealPlanError } = await supabase
     .from("meal_plans")
-    .select("*")
+    .select("id, household_id, week_start, sent_at, created_at, updated_at")
     .eq("household_id", household.household_id)
     .eq("week_start", weekStart)
     .single();
@@ -926,7 +926,7 @@ export async function getMealPlanTemplates() {
 
   const { data, error } = await supabase
     .from("meal_plan_templates")
-    .select("*")
+    .select("id, household_id, name, assignments, created_at")
     .eq("household_id", household.household_id)
     .order("created_at", { ascending: false });
 
@@ -1079,7 +1079,7 @@ export async function applyMealPlanTemplate(
   // Get the template (might not exist - use maybeSingle)
   const { data: template, error: templateError } = await supabase
     .from("meal_plan_templates")
-    .select("*")
+    .select("id, household_id, name, assignments, created_at")
     .eq("id", templateId)
     .eq("household_id", household.household_id)
     .maybeSingle();

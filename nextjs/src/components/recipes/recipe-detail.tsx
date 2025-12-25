@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
   Card,
@@ -66,13 +67,30 @@ import {
 } from "@/components/ui/tooltip";
 import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
 import { deleteCookingHistoryEntry } from "@/app/actions/cooking-history";
-import { MarkCookedDialog } from "@/components/recipes/mark-cooked-dialog";
-import { EditCookingHistoryDialog } from "@/components/recipes/edit-cooking-history-dialog";
-import { RecipeExportOnlyDialog } from "@/components/recipes/export/recipe-export-only-dialog";
-import { RecipeShareDialog } from "@/components/recipes/export/recipe-share-dialog";
-import { RecipeLayoutCustomizer } from "@/components/recipes/recipe-layout-customizer";
 import { updateRecipeLayoutPreferencesAuto } from "@/app/actions/user-preferences";
 import { RatingBadge } from "@/components/ui/rating-badge";
+
+// Lazy load dialog components - only loaded when user opens them
+const MarkCookedDialog = dynamic(
+  () => import("@/components/recipes/mark-cooked-dialog").then((mod) => mod.MarkCookedDialog),
+  { ssr: false }
+);
+const EditCookingHistoryDialog = dynamic(
+  () => import("@/components/recipes/edit-cooking-history-dialog").then((mod) => mod.EditCookingHistoryDialog),
+  { ssr: false }
+);
+const RecipeExportOnlyDialog = dynamic(
+  () => import("@/components/recipes/export/recipe-export-only-dialog").then((mod) => mod.RecipeExportOnlyDialog),
+  { ssr: false }
+);
+const RecipeShareDialog = dynamic(
+  () => import("@/components/recipes/export/recipe-share-dialog").then((mod) => mod.RecipeShareDialog),
+  { ssr: false }
+);
+const RecipeLayoutCustomizer = dynamic(
+  () => import("@/components/recipes/recipe-layout-customizer").then((mod) => mod.RecipeLayoutCustomizer),
+  { ssr: false }
+);
 import { getMostRecentCookingEntry } from "@/app/actions/cooking-history";
 import type { Recipe, RecipeType } from "@/types/recipe";
 import type { RecipeNutrition } from "@/types/nutrition";

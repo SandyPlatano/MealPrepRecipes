@@ -18,7 +18,7 @@ export async function GET() {
 
     const { data: recipes, error } = await supabase
       .from("recipes")
-      .select("*")
+      .select("id, title, recipe_type, category, protein_type, prep_time, cook_time, servings, base_servings, ingredients, instructions, tags, notes, source_url, image_url, rating, allergen_tags, user_id, household_id, is_shared_with_household, is_public, share_token, view_count, original_recipe_id, original_author_id, avg_rating, review_count, created_at, updated_at")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 

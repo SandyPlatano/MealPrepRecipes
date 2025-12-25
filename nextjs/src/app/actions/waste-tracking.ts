@@ -54,7 +54,7 @@ export async function getWasteDashboard(): Promise<{
     // Current week metrics
     supabase
       .from("waste_metrics")
-      .select("*")
+      .select("id, household_id, week_start, meals_planned, meals_cooked, shopping_items_total, shopping_items_checked, pantry_items_used, estimated_waste_prevented_kg, estimated_money_saved_cents, estimated_co2_saved_kg, created_at, updated_at")
       .eq("household_id", householdId)
       .eq("week_start", currentWeekStart)
       .single(),
@@ -62,7 +62,7 @@ export async function getWasteDashboard(): Promise<{
     // Last 12 weeks for trend
     supabase
       .from("waste_metrics")
-      .select("*")
+      .select("id, household_id, week_start, meals_planned, meals_cooked, shopping_items_total, shopping_items_checked, pantry_items_used, estimated_waste_prevented_kg, estimated_money_saved_cents, estimated_co2_saved_kg, created_at, updated_at")
       .eq("household_id", householdId)
       .order("week_start", { ascending: false })
       .limit(12),
@@ -76,7 +76,7 @@ export async function getWasteDashboard(): Promise<{
     // Achievements
     supabase
       .from("waste_achievements")
-      .select("*")
+      .select("id, household_id, achievement_type, achieved_at, metadata")
       .eq("household_id", householdId)
       .order("achieved_at", { ascending: false }),
   ]);
@@ -351,7 +351,7 @@ export async function getWeeklyTrend(
 
   const { data, error } = await supabase
     .from("waste_metrics")
-    .select("*")
+    .select("id, household_id, week_start, meals_planned, meals_cooked, shopping_items_total, shopping_items_checked, pantry_items_used, estimated_waste_prevented_kg, estimated_money_saved_cents, estimated_co2_saved_kg, created_at, updated_at")
     .eq("household_id", membership.household_id)
     .order("week_start", { ascending: false })
     .limit(weeksCount);

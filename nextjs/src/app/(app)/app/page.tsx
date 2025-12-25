@@ -38,7 +38,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   // Get user's profile for onboarding check
   const { data: profile } = await supabase
     .from("profiles")
-    .select("*")
+    .select("id, first_name, last_name, email, avatar_url, cover_image_url, username, bio, cooking_philosophy, profile_emoji, currently_craving, cook_with_me_status, favorite_cuisine, cooking_skill, location, website_url, public_profile, show_cooking_stats, show_badges, show_cook_photos, show_reviews, show_saved_recipes, profile_accent_color, created_at, updated_at")
     .eq("id", user?.id)
     .single();
 

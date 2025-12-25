@@ -229,7 +229,7 @@ export async function getMyDietaryProfile(): Promise<{
 
   const { data, error } = await supabase
     .from("member_dietary_profiles")
-    .select("*")
+    .select("id, user_id, household_id, dietary_restrictions, allergens, dislikes, preferences, spice_tolerance, notes, created_at, updated_at")
     .eq("user_id", user.id)
     .eq("household_id", householdId)
     .single();
@@ -312,7 +312,7 @@ export async function getHouseholdDietaryAggregate(): Promise<{
   // Get all dietary profiles for the household
   const { data: profiles, error } = await supabase
     .from("member_dietary_profiles")
-    .select("*")
+    .select("id, user_id, household_id, dietary_restrictions, allergens, dislikes, preferences, spice_tolerance, notes, created_at, updated_at")
     .eq("household_id", householdId);
 
   if (error) {
@@ -460,7 +460,7 @@ export async function getHouseholdMembers(): Promise<{
   // Get dietary profiles separately to avoid complex join
   const { data: dietaryProfiles } = await supabase
     .from("member_dietary_profiles")
-    .select("*")
+    .select("id, user_id, household_id, dietary_restrictions, allergens, dislikes, preferences, spice_tolerance, notes, created_at, updated_at")
     .eq("household_id", householdId);
 
   // Map dietary profiles to members
