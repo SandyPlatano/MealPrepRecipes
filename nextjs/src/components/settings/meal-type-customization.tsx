@@ -38,8 +38,7 @@ import {
   DEFAULT_MEAL_TYPE_SETTINGS,
   MEAL_TYPE_COLOR_PALETTE,
 } from "@/types/settings";
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
+import { EmojiPicker } from "@/components/ui/emoji-picker";
 
 interface MealTypeCustomizationProps {
   initialSettings?: MealTypeCustomization;
@@ -305,20 +304,9 @@ export function MealTypeCustomizationSettings({ initialSettings }: MealTypeCusto
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0 border-0 z-[10000]" align="start" usePortal={false}>
-                      <Picker
-                        data={data}
+                      <EmojiPicker
                         onEmojiSelect={handleEmojiSelect}
-                        theme="auto"
-                        previewPosition="none"
-                        skinTonePosition="search"
-                        categories={[
-                          "foods",
-                          "activity",
-                          "nature",
-                          "objects",
-                          "symbols",
-                          "people",
-                        ]}
+                        categories={["foods", "activity", "nature", "objects", "symbols", "people"]}
                         perLine={8}
                       />
                     </PopoverContent>

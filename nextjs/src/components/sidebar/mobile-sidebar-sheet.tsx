@@ -18,10 +18,7 @@ import { SidebarNavItem } from "./sidebar-nav-item";
 import { SidebarQuickNav } from "./sidebar-quick-nav";
 import { SidebarCollections } from "./sidebar-collections";
 import { SidebarBottomNav } from "./sidebar-bottom-nav";
-import type {
-  FolderWithChildren,
-  FolderCategoryWithFolders,
-} from "@/types/folder";
+import type { FolderCategoryWithFolders } from "@/types/folder";
 import type { SystemSmartFolder } from "@/types/smart-folder";
 
 interface MobileSidebarSheetProps {
@@ -30,7 +27,6 @@ interface MobileSidebarSheetProps {
   // Optional data for collections
   categories?: FolderCategoryWithFolders[];
   systemSmartFolders?: SystemSmartFolder[];
-  userSmartFolders?: FolderWithChildren[];
   totalRecipeCount?: number;
   // Optional counts
   shoppingListCount?: number;
@@ -45,7 +41,6 @@ export function MobileSidebarSheet({
   logoutAction,
   categories,
   systemSmartFolders,
-  userSmartFolders,
   totalRecipeCount,
   shoppingListCount: _shoppingListCount,
   favoritesCount,
@@ -112,7 +107,6 @@ export function MobileSidebarSheet({
               <SidebarCollections
                 categories={categories}
                 systemSmartFolders={systemSmartFolders}
-                userSmartFolders={userSmartFolders}
                 totalRecipeCount={totalRecipeCount}
               />
             </div>

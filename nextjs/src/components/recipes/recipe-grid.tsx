@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { RecipeCard } from "./recipe-card";
 import { BulkDietTagger } from "./bulk-diet-tagger";
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles, Star, Leaf, Wheat, Flame, Mountain, Ship, Milk, TrendingDown, Tags, PanelLeftClose, PanelLeft } from "lucide-react";
+import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles, Star, Leaf, Wheat, Flame, Mountain, Ship, Milk, TrendingDown, Tags, PanelLeftClose, PanelLeft, ChevronDown } from "lucide-react";
 import { StarRatingFilter } from "@/components/ui/star-rating-filter";
 import { useRecipeFilters } from "@/hooks/use-recipe-filters";
 import type { RecipeWithFavoriteAndNutrition, RecipeType } from "@/types/recipe";
@@ -36,6 +36,8 @@ interface RecipeGridProps {
   folderRecipeIds?: string[] | null; // null = no folder filter, [] = show none, [...ids] = show these
   folders?: FolderWithChildren[];
   onAddToFolder?: (recipeId: string) => void;
+  // Total recipe count for header display
+  totalRecipes?: number;
 }
 
 const recipeTypes: RecipeType[] = [
@@ -60,7 +62,10 @@ const dietTypes = [
 
 type SortOption = "recent" | "most-cooked" | "highest-rated" | "alphabetical";
 
-export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, userAllergenAlerts = [], customDietaryRestrictions = [], customBadges = [], onDiscoverClick, folderRecipeIds = null, folders = [], onAddToFolder }: RecipeGridProps) {
+// Pagination: show 20 recipes initially, load more in batches
+const RECIPES_PER_PAGE = 20;
+
+export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, userAllergenAlerts = [], customDietaryRestrictions = [], customBadges = [], onDiscoverClick, folderRecipeIds = null, folders = [], onAddToFolder, totalRecipes }: RecipeGridProps) {
   // Use persistent filter state (saved to localStorage)
   const {
     search,
@@ -85,6 +90,9 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
 
   // Desktop sidebar collapsed state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Pagination state: how many recipes to show
+  const [visibleCount, setVisibleCount] = useState(RECIPES_PER_PAGE);
 
   // Extract unique proteins and tags from recipes
   const { proteins, tags } = useMemo(() => {
@@ -207,6 +215,19 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
 
     return sorted;
   }, [initialRecipes, search, typeFilter, proteinTypeFilter, tagFilter, dietFilter, favoritesOnly, ratingFilter, minRating, ratedFilter, sortBy, recipeCookCounts, folderRecipeIds, isHydrated]);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setVisibleCount(RECIPES_PER_PAGE);
+  }, [search, typeFilter, proteinTypeFilter, tagFilter, dietFilter, favoritesOnly, ratingFilter, minRating, ratedFilter, sortBy, folderRecipeIds]);
+
+  // Get recipes to display (paginated)
+  const visibleRecipes = useMemo(() => {
+    return filteredRecipes.slice(0, visibleCount);
+  }, [filteredRecipes, visibleCount]);
+
+  const hasMoreRecipes = filteredRecipes.length > visibleCount;
+  const remainingCount = filteredRecipes.length - visibleCount;
 
   // Count active filters for badge
   const activeFilterCount = [
@@ -488,9 +509,15 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Row 1: Search + Add Recipe */}
-        <div className="flex gap-2">
+      <div className="flex-1 flex flex-col gap-3">
+        {/* Row 1: Title + Search + Add Recipe */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 shrink-0">
+            <h1 className="text-lg font-semibold">Recipes</h1>
+            {totalRecipes !== undefined && (
+              <span className="text-muted-foreground">· {totalRecipes} recipes</span>
+            )}
+          </div>
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
@@ -670,23 +697,38 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
             />
           )
         ) : (
-          <TooltipProvider>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-              {filteredRecipes.map((recipe, index) => (
-                <RecipeCard
-                  key={recipe.id}
-                  recipe={recipe}
-                  userAllergenAlerts={userAllergenAlerts}
-                  customDietaryRestrictions={customDietaryRestrictions}
-                  customBadges={customBadges}
-                  animationIndex={index}
-                  folders={folders}
-                  onAddToFolder={onAddToFolder}
-                  searchTerm={search}
-                />
-              ))}
-            </div>
-          </TooltipProvider>
+          <>
+            <TooltipProvider>
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                {visibleRecipes.map((recipe, index) => (
+                  <RecipeCard
+                    key={recipe.id}
+                    recipe={recipe}
+                    userAllergenAlerts={userAllergenAlerts}
+                    customDietaryRestrictions={customDietaryRestrictions}
+                    customBadges={customBadges}
+                    animationIndex={index}
+                    folders={folders}
+                    onAddToFolder={onAddToFolder}
+                    searchTerm={search}
+                  />
+                ))}
+              </div>
+            </TooltipProvider>
+            {/* Load More Button */}
+            {hasMoreRecipes && (
+              <div className="flex justify-center mt-8">
+                <Button
+                  variant="outline"
+                  onClick={() => setVisibleCount((prev) => prev + RECIPES_PER_PAGE)}
+                  className="gap-2"
+                >
+                  <ChevronDown className="h-4 w-4" />
+                  Load more ({remainingCount} remaining)
+                </Button>
+              </div>
+            )}
+          </>
         )}
         </div>
       </div>

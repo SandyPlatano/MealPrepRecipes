@@ -28,8 +28,7 @@ import {
   getIconComponent,
   DEFAULT_SECTION_ICONS,
 } from "@/lib/sidebar/sidebar-icons";
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
+import { EmojiPicker } from "@/components/ui/emoji-picker";
 
 // Default labels for built-in sections
 const DEFAULT_SECTION_LABELS: Record<BuiltInSectionId, string> = {
@@ -168,13 +167,7 @@ export function SectionEditDialog({
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 z-[10000]" align="start" usePortal={false}>
-                  <Picker
-                    data={data}
-                    onEmojiSelect={handleEmojiSelect}
-                    theme="auto"
-                    previewPosition="none"
-                    skinTonePosition="search"
-                  />
+                  <EmojiPicker onEmojiSelect={handleEmojiSelect} />
                 </PopoverContent>
               </Popover>
 

@@ -26,87 +26,96 @@ export async function getFolders(): Promise<{
   error: string | null;
   data: FolderWithChildren[] | null;
 }> {
-  const { user, household, error: authError } = await getCachedUserWithHousehold();
+  try {
+    const { user, household, error: authError } = await getCachedUserWithHousehold();
 
-  if (authError || !user || !household?.household_id) {
-    return { error: "Not authenticated", data: null };
-  }
-
-  const supabase = await createClient();
-
-  // Get all folders for household with cover recipe image
-  const { data: folders, error } = await supabase
-    .from("recipe_folders")
-    .select(
-      `
-      *,
-      cover_recipe:recipes!recipe_folders_cover_recipe_id_fkey(image_url)
-    `
-    )
-    .eq("household_id", household.household_id)
-    .order("sort_order", { ascending: true });
-
-  if (error) {
-    return { error: error.message, data: null };
-  }
-
-  // Get recipe counts per folder
-  const { data: memberCounts } = await supabase
-    .from("recipe_folder_members")
-    .select("folder_id")
-    .in(
-      "folder_id",
-      folders.map((f) => f.id)
-    );
-
-  const countMap = new Map<string, number>();
-  memberCounts?.forEach((m) => {
-    countMap.set(m.folder_id, (countMap.get(m.folder_id) || 0) + 1);
-  });
-
-  // Build tree structure
-  const folderMap = new Map<string, FolderWithChildren>();
-  const rootFolders: FolderWithChildren[] = [];
-
-  // First pass: create folder objects
-  folders.forEach((folder) => {
-    const coverRecipe = folder.cover_recipe as { image_url: string | null } | null;
-    const folderWithChildren: FolderWithChildren = {
-      id: folder.id,
-      household_id: folder.household_id,
-      created_by_user_id: folder.created_by_user_id,
-      name: folder.name,
-      emoji: folder.emoji,
-      color: folder.color,
-      parent_folder_id: folder.parent_folder_id,
-      cover_recipe_id: folder.cover_recipe_id,
-      category_id: folder.category_id,
-      sort_order: folder.sort_order,
-      is_smart: folder.is_smart ?? false,
-      smart_filters: folder.smart_filters ?? null,
-      created_at: folder.created_at,
-      updated_at: folder.updated_at,
-      children: [],
-      recipe_count: countMap.get(folder.id) || 0,
-      cover_image_url: coverRecipe?.image_url || null,
-    };
-    folderMap.set(folder.id, folderWithChildren);
-  });
-
-  // Second pass: build tree
-  folders.forEach((folder) => {
-    const folderWithChildren = folderMap.get(folder.id)!;
-    if (folder.parent_folder_id) {
-      const parent = folderMap.get(folder.parent_folder_id);
-      if (parent) {
-        parent.children.push(folderWithChildren);
-      }
-    } else {
-      rootFolders.push(folderWithChildren);
+    if (authError || !user || !household?.household_id) {
+      return { error: "Not authenticated", data: null };
     }
-  });
 
-  return { error: null, data: rootFolders };
+    const supabase = await createClient();
+
+    // Get all folders for household with cover recipe image
+    const { data: folders, error } = await supabase
+      .from("recipe_folders")
+      .select(
+        `
+        *,
+        cover_recipe:recipes!recipe_folders_cover_recipe_id_fkey(image_url)
+      `
+      )
+      .eq("household_id", household.household_id)
+      .order("sort_order", { ascending: true });
+
+    if (error) {
+      return { error: error.message, data: null };
+    }
+
+    // Get recipe counts per folder
+    const { data: memberCounts, error: countError } = await supabase
+      .from("recipe_folder_members")
+      .select("folder_id")
+      .in(
+        "folder_id",
+        folders.map((f) => f.id)
+      );
+
+    if (countError) {
+      console.error("Failed to get folder member counts:", countError);
+    }
+
+    const countMap = new Map<string, number>();
+    memberCounts?.forEach((m) => {
+      countMap.set(m.folder_id, (countMap.get(m.folder_id) || 0) + 1);
+    });
+
+    // Build tree structure
+    const folderMap = new Map<string, FolderWithChildren>();
+    const rootFolders: FolderWithChildren[] = [];
+
+    // First pass: create folder objects
+    folders.forEach((folder) => {
+      const coverRecipe = folder.cover_recipe as { image_url: string | null } | null;
+      const folderWithChildren: FolderWithChildren = {
+        id: folder.id,
+        household_id: folder.household_id,
+        created_by_user_id: folder.created_by_user_id,
+        name: folder.name,
+        emoji: folder.emoji,
+        color: folder.color,
+        parent_folder_id: folder.parent_folder_id,
+        cover_recipe_id: folder.cover_recipe_id,
+        category_id: folder.category_id,
+        sort_order: folder.sort_order,
+        is_smart: folder.is_smart ?? false,
+        smart_filters: folder.smart_filters ?? null,
+        created_at: folder.created_at,
+        updated_at: folder.updated_at,
+        children: [],
+        recipe_count: countMap.get(folder.id) || 0,
+        cover_image_url: coverRecipe?.image_url || null,
+      };
+      folderMap.set(folder.id, folderWithChildren);
+    });
+
+    // Second pass: build tree
+    folders.forEach((folder) => {
+      const folderWithChildren = folderMap.get(folder.id)!;
+      if (folder.parent_folder_id) {
+        const parent = folderMap.get(folder.parent_folder_id);
+        if (parent) {
+          parent.children.push(folderWithChildren);
+        }
+      } else {
+        rootFolders.push(folderWithChildren);
+      }
+    });
+
+    return { error: null, data: rootFolders };
+  } catch (error) {
+    console.error("getFolders error:", error);
+    return { error: "Failed to load folders. Please try again.", data: null };
+  }
 }
 
 /**
@@ -199,56 +208,61 @@ export async function getRecipeFolderIds(
 export async function createFolder(
   formData: FolderFormData
 ): Promise<{ error: string | null; data: RecipeFolder | null }> {
-  const { user, household, error: authError } = await getCachedUserWithHousehold();
+  try {
+    const { user, household, error: authError } = await getCachedUserWithHousehold();
 
-  if (authError || !user || !household?.household_id) {
-    return { error: "Not authenticated", data: null };
-  }
-
-  // Validate max depth (parent cannot have a parent)
-  if (formData.parent_folder_id) {
-    const parentResult = await getFolder(formData.parent_folder_id);
-    if (parentResult.data?.parent_folder_id) {
-      return { error: "Maximum folder depth is 2 levels", data: null };
+    if (authError || !user || !household?.household_id) {
+      return { error: "Not authenticated", data: null };
     }
+
+    // Validate max depth (parent cannot have a parent)
+    if (formData.parent_folder_id) {
+      const parentResult = await getFolder(formData.parent_folder_id);
+      if (parentResult.data?.parent_folder_id) {
+        return { error: "Maximum folder depth is 2 levels", data: null };
+      }
+    }
+
+    const supabase = await createClient();
+
+    // Get max sort_order for new folder position
+    const { data: existingFolders } = await supabase
+      .from("recipe_folders")
+      .select("sort_order")
+      .eq("household_id", household.household_id)
+      .is("parent_folder_id", formData.parent_folder_id ?? null)
+      .order("sort_order", { ascending: false })
+      .limit(1);
+
+    const maxOrder = existingFolders?.[0]?.sort_order ?? 0;
+
+    const { data, error } = await supabase
+      .from("recipe_folders")
+      .insert({
+        household_id: household.household_id,
+        created_by_user_id: user.id,
+        name: formData.name,
+        emoji: formData.emoji || null,
+        color: formData.color || null,
+        parent_folder_id: formData.parent_folder_id || null,
+        cover_recipe_id: formData.cover_recipe_id || null,
+        category_id: formData.category_id || null,
+        sort_order: maxOrder + 1,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return { error: error.message, data: null };
+    }
+
+    revalidatePath("/app/recipes");
+    revalidateTag(`folders-${household.household_id}`, "default");
+    return { error: null, data: data as RecipeFolder };
+  } catch (error) {
+    console.error("createFolder error:", error);
+    return { error: "Failed to create folder. Please try again.", data: null };
   }
-
-  const supabase = await createClient();
-
-  // Get max sort_order for new folder position
-  const { data: existingFolders } = await supabase
-    .from("recipe_folders")
-    .select("sort_order")
-    .eq("household_id", household.household_id)
-    .is("parent_folder_id", formData.parent_folder_id ?? null)
-    .order("sort_order", { ascending: false })
-    .limit(1);
-
-  const maxOrder = existingFolders?.[0]?.sort_order ?? 0;
-
-  const { data, error } = await supabase
-    .from("recipe_folders")
-    .insert({
-      household_id: household.household_id,
-      created_by_user_id: user.id,
-      name: formData.name,
-      emoji: formData.emoji || null,
-      color: formData.color || null,
-      parent_folder_id: formData.parent_folder_id || null,
-      cover_recipe_id: formData.cover_recipe_id || null,
-      category_id: formData.category_id || null,
-      sort_order: maxOrder + 1,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    return { error: error.message, data: null };
-  }
-
-  revalidatePath("/app/recipes");
-  revalidateTag(`folders-${household.household_id}`, "default");
-  return { error: null, data: data as RecipeFolder };
 }
 
 /**
@@ -258,40 +272,45 @@ export async function updateFolder(
   id: string,
   formData: Partial<FolderFormData>
 ): Promise<{ error: string | null; data: RecipeFolder | null }> {
-  const { user, household, error: authError } = await getCachedUserWithHousehold();
+  try {
+    const { user, household, error: authError } = await getCachedUserWithHousehold();
 
-  if (authError || !user || !household?.household_id) {
-    return { error: "Not authenticated", data: null };
+    if (authError || !user || !household?.household_id) {
+      return { error: "Not authenticated", data: null };
+    }
+
+    const supabase = await createClient();
+
+    const updateData: Record<string, unknown> = {};
+    if (formData.name !== undefined) updateData.name = formData.name;
+    if (formData.emoji !== undefined) updateData.emoji = formData.emoji || null;
+    if (formData.color !== undefined) updateData.color = formData.color || null;
+    if (formData.cover_recipe_id !== undefined) {
+      updateData.cover_recipe_id = formData.cover_recipe_id || null;
+    }
+    if (formData.category_id !== undefined) {
+      updateData.category_id = formData.category_id || null;
+    }
+
+    const { data, error } = await supabase
+      .from("recipe_folders")
+      .update(updateData)
+      .eq("id", id)
+      .eq("household_id", household.household_id)
+      .select()
+      .single();
+
+    if (error) {
+      return { error: error.message, data: null };
+    }
+
+    revalidatePath("/app/recipes");
+    revalidateTag(`folders-${household.household_id}`, "default");
+    return { error: null, data: data as RecipeFolder };
+  } catch (error) {
+    console.error("updateFolder error:", error);
+    return { error: "Failed to update folder. Please try again.", data: null };
   }
-
-  const supabase = await createClient();
-
-  const updateData: Record<string, unknown> = {};
-  if (formData.name !== undefined) updateData.name = formData.name;
-  if (formData.emoji !== undefined) updateData.emoji = formData.emoji || null;
-  if (formData.color !== undefined) updateData.color = formData.color || null;
-  if (formData.cover_recipe_id !== undefined) {
-    updateData.cover_recipe_id = formData.cover_recipe_id || null;
-  }
-  if (formData.category_id !== undefined) {
-    updateData.category_id = formData.category_id || null;
-  }
-
-  const { data, error } = await supabase
-    .from("recipe_folders")
-    .update(updateData)
-    .eq("id", id)
-    .eq("household_id", household.household_id)
-    .select()
-    .single();
-
-  if (error) {
-    return { error: error.message, data: null };
-  }
-
-  revalidatePath("/app/recipes");
-  revalidateTag(`folders-${household.household_id}`, "default");
-  return { error: null, data: data as RecipeFolder };
 }
 
 /**
@@ -399,27 +418,32 @@ export async function duplicateFolder(
 export async function deleteFolder(
   id: string
 ): Promise<{ error: string | null }> {
-  const { user, household, error: authError } = await getCachedUserWithHousehold();
+  try {
+    const { user, household, error: authError } = await getCachedUserWithHousehold();
 
-  if (authError || !user || !household?.household_id) {
-    return { error: "Not authenticated" };
+    if (authError || !user || !household?.household_id) {
+      return { error: "Not authenticated" };
+    }
+
+    const supabase = await createClient();
+
+    const { error } = await supabase
+      .from("recipe_folders")
+      .delete()
+      .eq("id", id)
+      .eq("household_id", household.household_id);
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    revalidatePath("/app/recipes");
+    revalidateTag(`folders-${household.household_id}`, "default");
+    return { error: null };
+  } catch (error) {
+    console.error("deleteFolder error:", error);
+    return { error: "Failed to delete folder. Please try again." };
   }
-
-  const supabase = await createClient();
-
-  const { error } = await supabase
-    .from("recipe_folders")
-    .delete()
-    .eq("id", id)
-    .eq("household_id", household.household_id);
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  revalidatePath("/app/recipes");
-  revalidateTag(`folders-${household.household_id}`, "default");
-  return { error: null };
 }
 
 // =====================================================
@@ -612,21 +636,11 @@ export async function getFolderCategories(): Promise<{
     folders: allFolders.filter((f) => f.category_id === cat.id),
   }));
 
-  // Add uncategorized folders to a virtual "Uncategorized" group at the end
+  // Auto-assign uncategorized folders to the first category (instead of virtual "Uncategorized")
   const uncategorizedFolders = allFolders.filter((f) => f.category_id === null);
-  if (uncategorizedFolders.length > 0) {
-    categoriesWithFolders.push({
-      id: "uncategorized",
-      household_id: household.household_id,
-      created_by_user_id: user.id,
-      name: "Uncategorized",
-      emoji: null,
-      is_system: true, // Can't delete
-      sort_order: 9999,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      folders: uncategorizedFolders,
-    });
+  if (uncategorizedFolders.length > 0 && categoriesWithFolders.length > 0) {
+    // Add orphaned folders to the first category
+    categoriesWithFolders[0].folders.push(...uncategorizedFolders);
   }
 
   return { error: null, data: categoriesWithFolders };

@@ -172,9 +172,8 @@ function JourneyStepComponent({ step, isReversed, isVisible }: {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function JourneyConnector({ isVisible, index }: { isVisible: boolean; index: number }) {
-  // Alternate between orange and pink for visual variety
-  const isPink = index % 2 === 1;
-  const accentColor = isPink ? "#ff66c4" : "#F97316";
+  // Always use brand orange for consistency
+  const accentColor = "#F97316";
 
   return (
     <div className="flex justify-center py-12 relative">
@@ -230,11 +229,11 @@ function JourneyCompletion({ isVisible }: { isVisible: boolean }) {
       transition-all duration-700
       ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"}
     `}>
-      {/* Celebration icon - pink glow accent */}
+      {/* Celebration icon - orange glow */}
       <div className={`
         inline-flex items-center justify-center w-20 h-20 rounded-full
-        bg-gradient-to-br from-[#F97316] to-[#ff66c4]
-        mb-6 shadow-[0_0_30px_rgba(255,102,196,0.3)]
+        bg-gradient-to-br from-[#F97316] to-[#ea580c]
+        mb-6 shadow-[0_0_30px_rgba(249,115,22,0.3)]
         transition-all duration-700 delay-200
         ${isVisible ? "rotate-0" : "rotate-12"}
       `}>
@@ -362,7 +361,7 @@ export function JourneySection() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-20">
-          <span className="inline-block font-mono text-xs font-bold text-[#ff66c4] bg-[#ff66c4]/10 border border-[#ff66c4]/30 px-3 py-1 rounded-full mb-4">
+          <span className="inline-block font-mono text-xs font-bold text-[#F97316] bg-[#F97316]/10 border border-[#F97316]/30 px-3 py-1 rounded-full mb-4">
             Your Dinner Journey
           </span>
           <h2 className="font-mono text-3xl md:text-4xl font-bold text-white mb-4">

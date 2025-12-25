@@ -759,11 +759,11 @@ button:not(:disabled):hover {
   --brainfish-card: #121624;
   --brainfish-card-hover: #1a1f32;
 
-  /* Primary Pink Accent */
-  --brutal-pink: #ff66c4;
-  --brutal-pink-hover: #ff4db3;
-  --brutal-pink-dark: #e055a8;
-  --brutal-pink-glow: rgba(255, 102, 196, 0.3);
+  /* Primary Orange Accent (Midnight Ember brand) */
+  --brutal-orange: #F97316;
+  --brutal-orange-hover: #ea580c;
+  --brutal-orange-dark: #c2410c;
+  --brutal-orange-glow: rgba(249, 115, 22, 0.3);
 
   /* Secondary Lime Accent */
   --brutal-lime: #d3f36b;
@@ -785,10 +785,10 @@ button:not(:disabled):hover {
 }
 
 .dark {
-  --brutal-pink: #ff66c4;
-  --brutal-pink-hover: #ff7fce;
-  --brutal-pink-dark: #e055a8;
-  --brutal-pink-glow: rgba(255, 102, 196, 0.25);
+  --brutal-orange: #F97316;
+  --brutal-orange-hover: #fb923c;
+  --brutal-orange-dark: #ea580c;
+  --brutal-orange-glow: rgba(249, 115, 22, 0.25);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -809,16 +809,16 @@ button:not(:disabled):hover {
 }
 
 /* Pink variant shadows */
-.shadow-brutal-pink-sm {
-  box-shadow: 4px 4px 0px 0px var(--brutal-pink);
+.shadow-brutal-orange-sm {
+  box-shadow: 4px 4px 0px 0px var(--brutal-orange);
 }
 
-.shadow-brutal-pink-md {
-  box-shadow: 6px 6px 0px 0px var(--brutal-pink);
+.shadow-brutal-orange-md {
+  box-shadow: 6px 6px 0px 0px var(--brutal-orange);
 }
 
-.shadow-brutal-pink-lg {
-  box-shadow: 8px 8px 0px 0px var(--brutal-pink);
+.shadow-brutal-orange-lg {
+  box-shadow: 8px 8px 0px 0px var(--brutal-orange);
 }
 
 /* White variant shadows (for dark backgrounds) */
@@ -850,7 +850,7 @@ button:not(:disabled):hover {
 }
 
 .btn-brutal-primary {
-  background-color: var(--brutal-pink);
+  background-color: var(--brutal-orange);
   color: white;
   box-shadow: 4px 4px 0px 0px #000;
 }
@@ -867,7 +867,7 @@ button:not(:disabled):hover {
 
 .btn-brutal-secondary {
   background-color: white;
-  color: var(--brutal-pink);
+  color: var(--brutal-orange);
   box-shadow: 4px 4px 0px 0px #000;
 }
 
@@ -907,7 +907,7 @@ button:not(:disabled):hover {
 }
 
 .btn-brutal-dark:hover {
-  background-color: var(--brutal-pink);
+  background-color: var(--brutal-orange);
   transform: translate(2px, 2px);
   box-shadow: 6px 6px 0px 0px rgba(255, 255, 255, 0.5);
 }
@@ -933,11 +933,11 @@ button:not(:disabled):hover {
 }
 
 .card-brutal-highlighted {
-  border-color: var(--brutal-pink);
+  border-color: var(--brutal-orange);
 }
 
 .card-brutal-highlighted:hover {
-  box-shadow: 8px 8px 0px 0px var(--brutal-pink);
+  box-shadow: 8px 8px 0px 0px var(--brutal-orange);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -1006,7 +1006,7 @@ button:not(:disabled):hover {
 }
 
 .terminal-prompt {
-  color: var(--brutal-pink);
+  color: var(--brutal-orange);
 }
 
 .terminal-success {
@@ -1017,13 +1017,13 @@ button:not(:disabled):hover {
   color: var(--brutal-lime);
 }
 
-/* Blinking cursor - vibrant pink */
+/* Blinking cursor - brand orange */
 .terminal-cursor {
   display: inline-block;
   width: 10px;
   height: 18px;
-  background-color: #ff66c4;
-  box-shadow: 0 0 8px rgba(255, 102, 196, 0.6);
+  background-color: #F97316;
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.6);
   animation: blink-cursor 1s step-end infinite;
 }
 
@@ -1038,7 +1038,7 @@ button:not(:disabled):hover {
 
 .text-encrypted {
   font-family: var(--font-mono);
-  color: var(--brutal-pink);
+  color: var(--brutal-orange);
   font-size: 0.75rem;
   letter-spacing: 0.1em;
   opacity: 0.7;
@@ -1060,7 +1060,7 @@ button:not(:disabled):hover {
   display: inline-block;
   width: 8px;
   height: 8px;
-  background-color: var(--brutal-pink);
+  background-color: var(--brutal-orange);
   flex-shrink: 0;
   margin-top: 6px;
 }
@@ -1069,13 +1069,25 @@ button:not(:disabled):hover {
    Brutalist Dividers
    ───────────────────────────────────────────────────────────────────────────── */
 
-.divider-brutal-pink {
+.divider-brutal-orange {
   height: 1px;
   background: linear-gradient(
     90deg,
     transparent,
-    var(--brutal-pink) 20%,
-    var(--brutal-pink) 80%,
+    var(--brutal-orange) 20%,
+    var(--brutal-orange) 80%,
+    transparent
+  );
+  opacity: 0.5;
+}
+
+.divider-brutal {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #F97316 20%,
+    #F97316 80%,
     transparent
   );
   opacity: 0.5;
@@ -1221,7 +1233,7 @@ button:not(:disabled):hover {
   animation: bf-pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-.aurora-blob-pink {
+.aurora-blob-orange {
   top: 10%;
   right: -10%;
   width: 40vw;
@@ -1303,7 +1315,7 @@ button:not(:disabled):hover {
 }
 
 .bf-card-highlight {
-  border-color: var(--brutal-pink);
+  border-color: var(--brutal-orange);
 }
 
 .bf-card-highlight:hover {
@@ -1327,12 +1339,12 @@ button:not(:disabled):hover {
   transform: scale(1.05);
 }
 
-.floating-pill-pink {
+.floating-pill-orange {
   border-color: rgba(255, 102, 196, 0.3);
-  color: var(--brutal-pink);
+  color: var(--brutal-orange);
 }
 
-.floating-pill-pink:hover {
+.floating-pill-orange:hover {
   background: rgba(255, 102, 196, 0.1);
 }
 
@@ -1379,10 +1391,10 @@ button:not(:disabled):hover {
   letter-spacing: 0.05em;
 }
 
-.bf-badge-pink {
+.bf-badge-orange {
   background: rgba(255, 102, 196, 0.1);
   border: 1px solid rgba(255, 102, 196, 0.3);
-  color: var(--brutal-pink);
+  color: var(--brutal-orange);
 }
 
 .bf-badge-lime {
@@ -1401,11 +1413,11 @@ button:not(:disabled):hover {
    V1 Glow Effects
    ───────────────────────────────────────────────────────────────────────────── */
 
-.glow-pink {
+.glow-orange {
   box-shadow: 0 0 20px rgba(255, 102, 196, 0.3);
 }
 
-.glow-pink-strong {
+.glow-orange-strong {
   box-shadow: 0 0 40px rgba(255, 102, 196, 0.4);
 }
 
@@ -1417,7 +1429,7 @@ button:not(:disabled):hover {
   box-shadow: 0 0 40px rgba(211, 243, 107, 0.4);
 }
 
-.text-glow-pink {
+.text-glow-orange {
   text-shadow: 0 0 10px rgba(255, 102, 196, 0.5);
 }
 

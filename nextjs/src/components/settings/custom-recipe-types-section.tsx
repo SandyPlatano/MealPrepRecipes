@@ -48,8 +48,7 @@ import {
 } from "@/app/actions/custom-recipe-types";
 import type { CustomRecipeType, CustomRecipeTypeFormData } from "@/types/custom-recipe-type";
 import { MEAL_TYPE_COLOR_PALETTE } from "@/types/settings";
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
+import { EmojiPicker } from "@/components/ui/emoji-picker";
 import {
   DndContext,
   closestCenter,
@@ -467,20 +466,9 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 border-0 z-[10000]" align="start" usePortal={false}>
-                    <Picker
-                      data={data}
+                    <EmojiPicker
                       onEmojiSelect={handleEmojiSelect}
-                      theme="auto"
-                      previewPosition="none"
-                      skinTonePosition="search"
-                      categories={[
-                        "foods",
-                        "activity",
-                        "nature",
-                        "objects",
-                        "symbols",
-                        "people",
-                      ]}
+                      categories={["foods", "activity", "nature", "objects", "symbols", "people"]}
                       perLine={8}
                     />
                   </PopoverContent>

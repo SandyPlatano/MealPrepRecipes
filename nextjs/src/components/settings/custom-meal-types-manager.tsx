@@ -14,8 +14,7 @@ import { cn } from "@/lib/utils";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
+import { EmojiPicker } from "@/components/ui/emoji-picker";
 import {
   getCustomMealTypes,
   createCustomMealType,
@@ -225,7 +224,7 @@ export function CustomMealTypesManager() {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 border-0" align="start">
-                  <Picker data={data} onEmojiSelect={handleEmojiSelect} theme="auto" previewPosition="none" />
+                  <EmojiPicker onEmojiSelect={handleEmojiSelect} />
                 </PopoverContent>
               </Popover>
             </div>

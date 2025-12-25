@@ -59,11 +59,11 @@ const faqs = [
 export function FAQ() {
   return (
     <section className="py-24 bg-[#FDFBF7] border-t-4 border-b-4 border-[#111111] relative overflow-hidden">
-      {/* Background decorations - pink accents */}
-      <div className="absolute bottom-8 right-8 text-[#ff66c4]/10">
+      {/* Background decorations - hunter green accents */}
+      <div className="absolute bottom-8 right-8 text-[#1a4d2e]/10">
         <PixelDecoration variant="dots" />
       </div>
-      <div className="absolute top-12 left-8 text-[#ff66c4]/8">
+      <div className="absolute top-12 left-8 text-[#1a4d2e]/15">
         <PixelDecoration variant="corner" />
       </div>
 

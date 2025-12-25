@@ -154,7 +154,7 @@ export function PricingSection() {
       <div className="container mx-auto px-4 relative z-10">
         {/* Section header */}
         <div className="text-center mb-16">
-          <div className="inline-block badge-pixel border-[#ff66c4] text-[#ff66c4] mb-4">
+          <div className="inline-block badge-pixel border-[#F97316] text-[#F97316] mb-4">
             Pricing
           </div>
           <h2 className="font-mono text-3xl md:text-4xl font-bold text-[#FDFBF7] mb-4">
@@ -176,11 +176,11 @@ export function PricingSection() {
         <div className="text-center mt-16">
           <p className="text-[#888888] text-sm">
             Questions?{' '}
-            <a href="#faq" className="text-[#ff66c4] hover:underline hover:text-[#F97316] transition-colors">
+            <a href="#faq" className="text-[#F97316] hover:underline transition-colors">
               Check our FAQ
             </a>{' '}
             or{' '}
-            <a href="mailto:hello@mealprep.app" className="text-[#ff66c4] hover:underline hover:text-[#F97316] transition-colors">
+            <a href="mailto:hello@mealprep.app" className="text-[#F97316] hover:underline transition-colors">
               contact us
             </a>
           </p>

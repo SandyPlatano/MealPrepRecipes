@@ -35,7 +35,6 @@ export interface AppSidebarProps {
   // Optional data for collections
   categories?: FolderCategoryWithFolders[];
   systemSmartFolders?: SystemSmartFolder[];
-  userSmartFolders?: FolderWithChildren[];
   totalRecipeCount?: number;
   // Optional counts
   shoppingListCount?: number;
@@ -50,7 +49,6 @@ export function AppSidebar({
   logoutAction,
   categories,
   systemSmartFolders,
-  userSmartFolders,
   totalRecipeCount,
   shoppingListCount,
   favoritesCount,
@@ -103,7 +101,6 @@ export function AppSidebar({
             key={key}
             categories={categories}
             systemSmartFolders={systemSmartFolders}
-            userSmartFolders={userSmartFolders}
             totalRecipeCount={totalRecipeCount}
             customLabel={customLabel}
             customIcon={customIcon}

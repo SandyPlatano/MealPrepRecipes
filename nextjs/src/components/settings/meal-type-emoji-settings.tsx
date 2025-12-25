@@ -17,8 +17,7 @@ import {
   DEFAULT_MEAL_TYPE_EMOJIS,
 } from "@/types/settings";
 import { MEAL_TYPE_CONFIG } from "@/types/meal-plan";
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
+import { EmojiPicker } from "@/components/ui/emoji-picker";
 
 interface MealTypeEmojiSettingsProps {
   initialEmojis?: MealTypeEmojiSettingsType;
@@ -121,22 +120,9 @@ export function MealTypeEmojiSettings({ initialEmojis }: MealTypeEmojiSettingsPr
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 border-0 z-[10000]" align="start" usePortal={false}>
-                  <Picker
-                    data={data}
-                    onEmojiSelect={(emoji: { native: string }) =>
-                      handleEmojiSelect(mealType, emoji)
-                    }
-                    theme="auto"
-                    previewPosition="none"
-                    skinTonePosition="search"
-                    categories={[
-                      "foods",
-                      "activity",
-                      "nature",
-                      "objects",
-                      "symbols",
-                      "people",
-                    ]}
+                  <EmojiPicker
+                    onEmojiSelect={(emoji) => handleEmojiSelect(mealType, emoji)}
+                    categories={["foods", "activity", "nature", "objects", "symbols", "people"]}
                     perLine={8}
                   />
                 </PopoverContent>

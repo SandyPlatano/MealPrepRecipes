@@ -1,16 +1,17 @@
-import { toPng, toJpeg } from "html-to-image";
-
 export type ImageFormat = "png" | "jpeg";
 
 /**
  * Export a rendered HTML element to image (PNG or JPEG)
  * Captures full height of element including scrollable content
+ * Library is dynamically imported to reduce initial bundle size (~100KB saved)
  */
 export async function exportRecipeToImage(
   element: HTMLElement,
   filename: string,
   format: ImageFormat = "png"
 ): Promise<void> {
+  // Dynamic import - only load when function is called
+  const { toPng, toJpeg } = await import("html-to-image");
   // Clone the element to avoid modifying the original
   const clone = element.cloneNode(true) as HTMLElement;
 

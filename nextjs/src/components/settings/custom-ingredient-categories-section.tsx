@@ -56,8 +56,7 @@ import type {
   CustomIngredientCategoryFormData,
 } from "@/types/custom-ingredient-category";
 import { MEAL_TYPE_COLOR_PALETTE } from "@/types/settings";
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
+import { EmojiPicker } from "@/components/ui/emoji-picker";
 
 interface CustomIngredientCategoriesSectionProps {
   householdId: string;
@@ -434,19 +433,9 @@ export function CustomIngredientCategoriesSection({
                     align="start"
                     usePortal={false}
                   >
-                    <Picker
-                      data={data}
+                    <EmojiPicker
                       onEmojiSelect={handleEmojiSelect}
-                      theme="auto"
-                      previewPosition="none"
-                      skinTonePosition="search"
-                      categories={[
-                        "foods",
-                        "objects",
-                        "nature",
-                        "places",
-                        "symbols",
-                      ]}
+                      categories={["foods", "objects", "nature", "symbols"]}
                       perLine={8}
                     />
                   </PopoverContent>

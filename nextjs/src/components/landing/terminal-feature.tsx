@@ -31,18 +31,18 @@ export function TerminalFeature() {
         }}
       />
 
-      {/* Corner decorations - pink accent */}
-      <div className="absolute top-8 right-8 text-[#ff66c4]/20">
+      {/* Corner decorations - hunter green/orange */}
+      <div className="absolute top-8 right-8 text-[#1a4d2e]/20">
         <PixelDecoration variant="corner" />
       </div>
-      <div className="absolute bottom-8 left-8 text-[#ff66c4]/15 rotate-90">
+      <div className="absolute bottom-8 left-8 text-[#F97316]/15 rotate-90">
         <PixelDecoration variant="corner" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section header */}
         <div className="text-center mb-16">
-          <div className="inline-block badge-pixel border-[#ff66c4] text-[#ff66c4] mb-4">
+          <div className="inline-block badge-pixel border-[#F97316] text-[#F97316] mb-4">
             Smart Import
           </div>
           <h2 className="font-mono text-3xl md:text-4xl font-bold text-[#FDFBF7] mb-4">

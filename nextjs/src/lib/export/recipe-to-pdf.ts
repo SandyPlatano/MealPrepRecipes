@@ -1,14 +1,18 @@
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
-
 /**
  * Export a rendered HTML element to PDF
  * Uses html2canvas for rendering, then adds to jsPDF
+ * Libraries are dynamically imported to reduce initial bundle size (~200KB saved)
  */
 export async function exportRecipeToPdf(
   element: HTMLElement,
   filename: string
 ): Promise<void> {
+  // Dynamic imports - only load when function is called
+  const [{ jsPDF }, html2canvasModule] = await Promise.all([
+    import("jspdf"),
+    import("html2canvas"),
+  ]);
+  const html2canvas = html2canvasModule.default;
   // Clone the element to avoid modifying the original
   const clone = element.cloneNode(true) as HTMLElement;
 

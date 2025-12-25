@@ -19,6 +19,7 @@ export async function GET() {
     const { data: recipes, error } = await supabase
       .from("recipes")
       .select("*")
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
     if (error) {

@@ -38,6 +38,8 @@ interface RecipesPageClientProps {
     id?: string;
     system?: string;
   };
+  // Total recipe count for header display
+  totalRecipes: number;
 }
 
 export function RecipesPageClient({
@@ -53,6 +55,7 @@ export function RecipesPageClient({
   userSmartFolders,
   cookingHistoryContext,
   searchParams,
+  totalRecipes,
 }: RecipesPageClientProps) {
   const [discoverOpen, setDiscoverOpen] = useState(false);
 
@@ -161,6 +164,7 @@ export function RecipesPageClient({
         folderRecipeIds={folderRecipeIds}
         folders={folders}
         onAddToFolder={handleAddToFolder}
+        totalRecipes={totalRecipes}
       />
 
       <DiscoverDialog

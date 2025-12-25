@@ -21,11 +21,20 @@ import {
   type AppSidebarProps,
 } from "@/components/sidebar";
 import { MobileBottomNav } from "./mobile-bottom-nav";
-import type {
-  FolderWithChildren,
-  FolderCategoryWithFolders,
-} from "@/types/folder";
+import type { FolderCategoryWithFolders } from "@/types/folder";
 import type { SystemSmartFolder } from "@/types/smart-folder";
+
+// Skip link for keyboard/screen reader users to bypass navigation
+function SkipLink() {
+  return (
+    <a
+      href="#main-content"
+      className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-background focus:text-foreground focus:border focus:rounded-md focus:shadow-lg"
+    >
+      Skip to main content
+    </a>
+  );
+}
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -34,7 +43,6 @@ interface AppShellProps {
   // Optional data for collections
   categories?: FolderCategoryWithFolders[];
   systemSmartFolders?: SystemSmartFolder[];
-  userSmartFolders?: FolderWithChildren[];
   totalRecipeCount?: number;
   // Optional counts
   shoppingListCount?: number;
@@ -90,7 +98,6 @@ function AppShellContent({
   logoutAction,
   categories,
   systemSmartFolders,
-  userSmartFolders,
   totalRecipeCount,
   shoppingListCount,
   favoritesCount,
@@ -112,7 +119,6 @@ function AppShellContent({
   const sidebarProps: Omit<AppSidebarProps, "user" | "logoutAction"> = {
     categories,
     systemSmartFolders,
-    userSmartFolders,
     totalRecipeCount,
     shoppingListCount,
     favoritesCount,
@@ -125,8 +131,9 @@ function AppShellContent({
   if (!mounted) {
     return (
       <div className="flex min-h-screen bg-background">
+        <SkipLink />
         <div className="w-[260px] border-r bg-muted/30 shrink-0" />
-        <main className="flex-1 min-w-0">
+        <main id="main-content" className="flex-1 min-w-0">
           <div className="container mx-auto w-full px-4 py-8">
             {children}
           </div>
@@ -139,6 +146,7 @@ function AppShellContent({
   if (isMobile) {
     return (
       <div className="flex flex-col min-h-screen bg-background">
+        <SkipLink />
         {/* Mobile Header */}
         <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex items-center justify-between h-14 px-4">
@@ -169,7 +177,7 @@ function AppShellContent({
         />
 
         {/* Main Content - padding accounts for bottom nav height + safe area */}
-        <main className="flex-1 pb-[calc(56px+env(safe-area-inset-bottom,0px))]">
+        <main id="main-content" className="flex-1 pb-[calc(56px+env(safe-area-inset-bottom,0px))]">
           <div className="container mx-auto w-full px-4 py-8">
             {children}
           </div>
@@ -185,6 +193,7 @@ function AppShellContent({
   // When collapsed, fully hide sidebar (width 0) and show floating expand button
   return (
     <div className="flex min-h-screen bg-background">
+      <SkipLink />
       {/* Sidebar wrapper with collapse animation */}
       <div
         className={cn(
@@ -205,7 +214,7 @@ function AppShellContent({
       {isCollapsed && <SidebarExpandButton />}
 
       {/* Main Content - takes remaining space */}
-      <main className="flex-1 min-w-0 h-screen overflow-y-auto">
+      <main id="main-content" className="flex-1 min-w-0 h-screen overflow-y-auto">
         <div className="container mx-auto w-full px-4 py-8">
           {children}
         </div>

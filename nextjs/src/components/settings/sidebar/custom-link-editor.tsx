@@ -60,8 +60,7 @@ import {
   isExternalLinkItem,
   isDividerItem,
 } from "@/types/sidebar-customization";
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
+import { EmojiPicker } from "@/components/ui/emoji-picker";
 
 interface CustomLinkEditorProps {
   section: CustomSectionConfig;
@@ -349,13 +348,7 @@ export function CustomLinkEditor({
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0 z-[10000]" align="start" usePortal={false}>
-                        <Picker
-                          data={data}
-                          onEmojiSelect={handleEmojiSelect}
-                          theme="auto"
-                          previewPosition="none"
-                          skinTonePosition="search"
-                        />
+                        <EmojiPicker onEmojiSelect={handleEmojiSelect} />
                       </PopoverContent>
                     </Popover>
 
@@ -455,13 +448,7 @@ export function CustomLinkEditor({
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0 z-[10000]" align="start" usePortal={false}>
-                          <Picker
-                            data={data}
-                            onEmojiSelect={handleEmojiSelect}
-                            theme="auto"
-                            previewPosition="none"
-                            skinTonePosition="search"
-                          />
+                          <EmojiPicker onEmojiSelect={handleEmojiSelect} />
                         </PopoverContent>
                       </Popover>
 
@@ -538,13 +525,7 @@ export function CustomLinkEditor({
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0 z-[10000]" align="start" usePortal={false}>
-                          <Picker
-                            data={data}
-                            onEmojiSelect={handleEmojiSelect}
-                            theme="auto"
-                            previewPosition="none"
-                            skinTonePosition="search"
-                          />
+                          <EmojiPicker onEmojiSelect={handleEmojiSelect} />
                         </PopoverContent>
                       </Popover>
 

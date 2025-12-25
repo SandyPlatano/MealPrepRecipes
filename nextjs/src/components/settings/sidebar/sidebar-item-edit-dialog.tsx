@@ -26,8 +26,7 @@ import {
   getIconComponent,
   DEFAULT_MEAL_PLANNING_ICONS,
 } from "@/lib/sidebar/sidebar-icons";
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
+import { EmojiPicker } from "@/components/ui/emoji-picker";
 
 // Default labels for built-in meal planning items
 const DEFAULT_ITEM_LABELS: Record<string, string> = {
@@ -230,13 +229,7 @@ export function SidebarItemEditDialog({
                       align="start"
                       usePortal={false}
                     >
-                      <Picker
-                        data={data}
-                        onEmojiSelect={handleEmojiSelect}
-                        theme="auto"
-                        previewPosition="none"
-                        skinTonePosition="search"
-                      />
+                      <EmojiPicker onEmojiSelect={handleEmojiSelect} />
                     </PopoverContent>
                   </Popover>
 

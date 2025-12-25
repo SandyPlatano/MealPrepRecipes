@@ -258,44 +258,49 @@ async function removeRecipeFromShoppingList(
 
 // Get or create a meal plan for a specific week
 export async function getOrCreateMealPlan(weekStart: string) {
-  // Check authentication first
-  const { user: authUser, error: authError } = await getCachedUser();
-  
-  if (authError || !authUser) {
-    return { error: "Not authenticated", data: null };
+  try {
+    // Check authentication first
+    const { user: authUser, error: authError } = await getCachedUser();
+
+    if (authError || !authUser) {
+      return { error: "Not authenticated", data: null };
+    }
+
+    // Get household separately (required for meal planning)
+    const { household } = await getCachedUserWithHousehold();
+
+    if (!household) {
+      return { error: "Please create or join a household to use meal planning", data: null };
+    }
+
+    const supabase = await createClient();
+
+    // Use upsert with ON CONFLICT to prevent race conditions
+    // This atomically either inserts or returns existing row
+    const { data: mealPlan, error } = await supabase
+      .from("meal_plans")
+      .upsert(
+        {
+          household_id: household!.household_id,
+          week_start: weekStart,
+        },
+        {
+          onConflict: "household_id,week_start",
+          ignoreDuplicates: false,
+        }
+      )
+      .select()
+      .single();
+
+    if (error) {
+      return { error: error.message, data: null };
+    }
+
+    return { error: null, data: mealPlan as MealPlan };
+  } catch (error) {
+    console.error("getOrCreateMealPlan error:", error);
+    return { error: "Failed to load meal plan. Please try again.", data: null };
   }
-
-  // Get household separately (required for meal planning)
-  const { household } = await getCachedUserWithHousehold();
-  
-  if (!household) {
-    return { error: "Please create or join a household to use meal planning", data: null };
-  }
-
-  const supabase = await createClient();
-
-  // Use upsert with ON CONFLICT to prevent race conditions
-  // This atomically either inserts or returns existing row
-  const { data: mealPlan, error } = await supabase
-    .from("meal_plans")
-    .upsert(
-      {
-        household_id: household!.household_id,
-        week_start: weekStart,
-      },
-      {
-        onConflict: "household_id,week_start",
-        ignoreDuplicates: false,
-      }
-    )
-    .select()
-    .single();
-
-  if (error) {
-    return { error: error.message, data: null };
-  }
-
-  return { error: null, data: mealPlan as MealPlan };
 }
 
 // Get week plan data with all assignments
@@ -378,128 +383,138 @@ export async function addMealAssignment(
   mealType?: MealType | null,
   servingSize?: number | null
 ) {
-  // Check authentication first
-  const { user: authUser, error: authError } = await getCachedUser();
+  try {
+    // Check authentication first
+    const { user: authUser, error: authError } = await getCachedUser();
 
-  if (authError || !authUser) {
-    return { error: "Not authenticated" };
+    if (authError || !authUser) {
+      return { error: "Not authenticated" };
+    }
+
+    // Get household separately (required for meal planning)
+    const { household } = await getCachedUserWithHousehold();
+
+    if (!household) {
+      return { error: "Please create or join a household to use meal planning" };
+    }
+
+    const supabase = await createClient();
+
+    // Get or create meal plan
+    const planResult = await getOrCreateMealPlan(weekStart);
+    if (planResult.error || !planResult.data) {
+      return { error: planResult.error || "Failed to get meal plan" };
+    }
+
+    // Add assignment with serving_size
+    const { error } = await supabase.from("meal_assignments").insert({
+      meal_plan_id: planResult.data.id,
+      recipe_id: recipeId,
+      day_of_week: dayOfWeek,
+      cook: cook || null,
+      meal_type: mealType ?? null,
+      serving_size: servingSize ?? null,
+    });
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    // Auto-add recipe ingredients to shopping list (with scaling)
+    const { data: recipe } = await supabase
+      .from("recipes")
+      .select("title, ingredients, base_servings")
+      .eq("id", recipeId)
+      .single();
+
+    if (recipe && recipe.ingredients && recipe.ingredients.length > 0) {
+      await addRecipeToShoppingList(
+        supabase,
+        household!.household_id,
+        planResult.data.id,
+        recipeId,
+        recipe.title,
+        recipe.ingredients,
+        servingSize,
+        recipe.base_servings
+      );
+    }
+
+    revalidateTag(`meal-plan-${household!.household_id}`, "default");
+    revalidatePath("/app");
+    revalidatePath("/app/plan");
+    revalidatePath("/app/shop");
+    return { error: null };
+  } catch (error) {
+    console.error("addMealAssignment error:", error);
+    return { error: "Failed to add meal. Please try again." };
   }
-
-  // Get household separately (required for meal planning)
-  const { household } = await getCachedUserWithHousehold();
-
-  if (!household) {
-    return { error: "Please create or join a household to use meal planning" };
-  }
-
-  const supabase = await createClient();
-
-  // Get or create meal plan
-  const planResult = await getOrCreateMealPlan(weekStart);
-  if (planResult.error || !planResult.data) {
-    return { error: planResult.error || "Failed to get meal plan" };
-  }
-
-  // Add assignment with serving_size
-  const { error } = await supabase.from("meal_assignments").insert({
-    meal_plan_id: planResult.data.id,
-    recipe_id: recipeId,
-    day_of_week: dayOfWeek,
-    cook: cook || null,
-    meal_type: mealType ?? null,
-    serving_size: servingSize ?? null,
-  });
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  // Auto-add recipe ingredients to shopping list (with scaling)
-  const { data: recipe } = await supabase
-    .from("recipes")
-    .select("title, ingredients, base_servings")
-    .eq("id", recipeId)
-    .single();
-
-  if (recipe && recipe.ingredients && recipe.ingredients.length > 0) {
-    await addRecipeToShoppingList(
-      supabase,
-      household!.household_id,
-      planResult.data.id,
-      recipeId,
-      recipe.title,
-      recipe.ingredients,
-      servingSize,
-      recipe.base_servings
-    );
-  }
-
-  revalidateTag(`meal-plan-${household!.household_id}`, "default");
-  revalidatePath("/app");
-  revalidatePath("/app/plan");
-  revalidatePath("/app/shop");
-  return { error: null };
 }
 
 // Remove an assignment
 export async function removeMealAssignment(assignmentId: string) {
-  // Check authentication first
-  const { user: authUser, error: authError } = await getCachedUser();
-  
-  if (authError || !authUser) {
-    return { error: "Not authenticated" };
-  }
+  try {
+    // Check authentication first
+    const { user: authUser, error: authError } = await getCachedUser();
 
-  // Get household separately (required for meal planning)
-  const { household } = await getCachedUserWithHousehold();
-  
-  if (!household) {
-    return { error: "Please create or join a household to use meal planning" };
-  }
-
-  const supabase = await createClient();
-
-  // First get the assignment details before deleting (might already be deleted)
-  const { data: assignment } = await supabase
-    .from("meal_assignments")
-    .select("meal_plan_id, recipe_id")
-    .eq("id", assignmentId)
-    .maybeSingle();
-
-  // Delete the assignment
-  const { error } = await supabase
-    .from("meal_assignments")
-    .delete()
-    .eq("id", assignmentId);
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  // Remove recipe ingredients from shopping list
-  if (assignment) {
-    // Check if this recipe is still assigned elsewhere in this meal plan
-    const { data: otherAssignments } = await supabase
-      .from("meal_assignments")
-      .select("id")
-      .eq("meal_plan_id", assignment.meal_plan_id)
-      .eq("recipe_id", assignment.recipe_id);
-
-    // Only remove from shopping list if no other assignments for this recipe
-    if (!otherAssignments || otherAssignments.length === 0) {
-      await removeRecipeFromShoppingList(
-        supabase,
-        assignment.meal_plan_id,
-        assignment.recipe_id
-      );
+    if (authError || !authUser) {
+      return { error: "Not authenticated" };
     }
-  }
 
-  revalidateTag(`meal-plan-${household!.household_id}`, "default");
-  revalidatePath("/app");
-  revalidatePath("/app/plan");
-  revalidatePath("/app/shop");
-  return { error: null };
+    // Get household separately (required for meal planning)
+    const { household } = await getCachedUserWithHousehold();
+
+    if (!household) {
+      return { error: "Please create or join a household to use meal planning" };
+    }
+
+    const supabase = await createClient();
+
+    // First get the assignment details before deleting (might already be deleted)
+    const { data: assignment } = await supabase
+      .from("meal_assignments")
+      .select("meal_plan_id, recipe_id")
+      .eq("id", assignmentId)
+      .maybeSingle();
+
+    // Delete the assignment
+    const { error } = await supabase
+      .from("meal_assignments")
+      .delete()
+      .eq("id", assignmentId);
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    // Remove recipe ingredients from shopping list
+    if (assignment) {
+      // Check if this recipe is still assigned elsewhere in this meal plan
+      const { data: otherAssignments } = await supabase
+        .from("meal_assignments")
+        .select("id")
+        .eq("meal_plan_id", assignment.meal_plan_id)
+        .eq("recipe_id", assignment.recipe_id);
+
+      // Only remove from shopping list if no other assignments for this recipe
+      if (!otherAssignments || otherAssignments.length === 0) {
+        await removeRecipeFromShoppingList(
+          supabase,
+          assignment.meal_plan_id,
+          assignment.recipe_id
+        );
+      }
+    }
+
+    revalidateTag(`meal-plan-${household!.household_id}`, "default");
+    revalidatePath("/app");
+    revalidatePath("/app/plan");
+    revalidatePath("/app/shop");
+    return { error: null };
+  } catch (error) {
+    console.error("removeMealAssignment error:", error);
+    return { error: "Failed to remove meal. Please try again." };
+  }
 }
 
 // Update assignment (change day, cook, meal type, or serving size)
@@ -507,33 +522,38 @@ export async function updateMealAssignment(
   assignmentId: string,
   updates: { day_of_week?: DayOfWeek; cook?: string | null; meal_type?: MealType | null; serving_size?: number | null }
 ) {
-  // Check authentication first
-  const { user: authUser, error: authError } = await getCachedUser();
+  try {
+    // Check authentication first
+    const { user: authUser, error: authError } = await getCachedUser();
 
-  if (authError || !authUser) {
-    return { error: "Not authenticated" };
+    if (authError || !authUser) {
+      return { error: "Not authenticated" };
+    }
+
+    const supabase = await createClient();
+
+    const { error } = await supabase
+      .from("meal_assignments")
+      .update(updates)
+      .eq("id", assignmentId);
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    // Get household for cache tag
+    const { household } = await getCachedUserWithHousehold();
+    if (household) {
+      revalidateTag(`meal-plan-${household.household_id}`, "default");
+    }
+    revalidatePath("/app");
+    revalidatePath("/app/plan");
+    revalidatePath("/app/shop");
+    return { error: null };
+  } catch (error) {
+    console.error("updateMealAssignment error:", error);
+    return { error: "Failed to update meal. Please try again." };
   }
-
-  const supabase = await createClient();
-
-  const { error } = await supabase
-    .from("meal_assignments")
-    .update(updates)
-    .eq("id", assignmentId);
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  // Get household for cache tag
-  const { household } = await getCachedUserWithHousehold();
-  if (household) {
-    revalidateTag(`meal-plan-${household.household_id}`, "default");
-  }
-  revalidatePath("/app");
-  revalidatePath("/app/plan");
-  revalidatePath("/app/shop");
-  return { error: null };
 }
 
 // Move assignment to a different day (for drag and drop)

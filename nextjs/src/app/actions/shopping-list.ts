@@ -17,80 +17,85 @@ import { getWeekStart } from "@/types/meal-plan";
 // Get or create the current shopping list for the household
 // Automatically links to the current week's meal plan
 export async function getOrCreateShoppingList() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (!user) {
-    return { error: "Not authenticated", data: null };
-  }
+    if (!user) {
+      return { error: "Not authenticated", data: null };
+    }
 
-  // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .maybeSingle();
+    // Get user's household
+    const { data: membership } = await supabase
+      .from("household_members")
+      .select("household_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-  if (!membership) {
-    return { error: "No household found", data: null };
-  }
+    if (!membership) {
+      return { error: "No household found", data: null };
+    }
 
-  // Get the current week start
-  const weekStart = getWeekStart(new Date());
-  const weekStartStr = weekStart.toISOString().split("T")[0];
+    // Get the current week start
+    const weekStart = getWeekStart(new Date());
+    const weekStartStr = weekStart.toISOString().split("T")[0];
 
-  // Find or create the current week's meal plan
-  let { data: mealPlan } = await supabase
-    .from("meal_plans")
-    .select("*")
-    .eq("household_id", membership.household_id)
-    .eq("week_start", weekStartStr)
-    .maybeSingle();
-
-  if (!mealPlan) {
-    // Create meal plan for this week
-    const { data: newPlan, error: planError } = await supabase
+    // Find or create the current week's meal plan
+    let { data: mealPlan } = await supabase
       .from("meal_plans")
-      .insert({
-        household_id: membership.household_id,
-        week_start: weekStartStr,
-      })
-      .select()
-      .single();
+      .select("*")
+      .eq("household_id", membership.household_id)
+      .eq("week_start", weekStartStr)
+      .maybeSingle();
 
-    if (planError) {
-      return { error: planError.message, data: null };
+    if (!mealPlan) {
+      // Create meal plan for this week
+      const { data: newPlan, error: planError } = await supabase
+        .from("meal_plans")
+        .insert({
+          household_id: membership.household_id,
+          week_start: weekStartStr,
+        })
+        .select()
+        .single();
+
+      if (planError) {
+        return { error: planError.message, data: null };
+      }
+      mealPlan = newPlan;
     }
-    mealPlan = newPlan;
-  }
 
-  // Try to get existing shopping list linked to this meal plan
-  let { data: shoppingList } = await supabase
-    .from("shopping_lists")
-    .select("*")
-    .eq("meal_plan_id", mealPlan.id)
-    .maybeSingle();
-
-  // Create if doesn't exist
-  if (!shoppingList) {
-    const { data: newList, error } = await supabase
+    // Try to get existing shopping list linked to this meal plan
+    let { data: shoppingList } = await supabase
       .from("shopping_lists")
-      .insert({
-        household_id: membership.household_id,
-        meal_plan_id: mealPlan.id,
-      })
-      .select()
-      .single();
+      .select("*")
+      .eq("meal_plan_id", mealPlan.id)
+      .maybeSingle();
 
-    if (error) {
-      return { error: error.message, data: null };
+    // Create if doesn't exist
+    if (!shoppingList) {
+      const { data: newList, error } = await supabase
+        .from("shopping_lists")
+        .insert({
+          household_id: membership.household_id,
+          meal_plan_id: mealPlan.id,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        return { error: error.message, data: null };
+      }
+      shoppingList = newList;
     }
-    shoppingList = newList;
-  }
 
-  return { error: null, data: shoppingList as ShoppingList };
+    return { error: null, data: shoppingList as ShoppingList };
+  } catch (error) {
+    console.error("getOrCreateShoppingList error:", error);
+    return { error: "Failed to load shopping list. Please try again.", data: null };
+  }
 }
 
 // Get shopping list with all items

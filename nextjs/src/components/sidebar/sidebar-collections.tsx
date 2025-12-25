@@ -10,6 +10,7 @@ import {
   Sparkles,
   ChevronRight,
   FolderOpen,
+  FolderPlus,
   Plus,
   Pencil,
   Trash2,
@@ -67,10 +68,11 @@ import { SidebarSection } from "./sidebar-section";
 import { useSidebar } from "./sidebar-context";
 import { SmartFolderDialog } from "@/components/folders/smart-folder-dialog";
 import { CreateFolderDialog } from "@/components/folders/create-folder-dialog";
-import { deleteSmartFolder } from "@/app/actions/smart-folders";
+import { deleteSmartFolder, getSystemSmartFolders } from "@/app/actions/smart-folders";
 import {
   deleteFolder,
   getFolderCategories,
+  createFolderCategory,
   deleteFolderCategory,
   updateFolderCategory,
 } from "@/app/actions/folders";
@@ -86,7 +88,6 @@ import type { SidebarIconName } from "@/types/sidebar-customization";
 interface SidebarCollectionsProps {
   categories?: FolderCategoryWithFolders[];
   systemSmartFolders?: SystemSmartFolder[];
-  userSmartFolders?: FolderWithChildren[];
   totalRecipeCount?: number;
   customLabel?: string | null;
   customIcon?: SidebarIconName | null;
@@ -96,7 +97,6 @@ interface SidebarCollectionsProps {
 export function SidebarCollections({
   categories = [],
   systemSmartFolders = [],
-  userSmartFolders = [],
   totalRecipeCount,
   customLabel,
   customIcon,
@@ -122,26 +122,41 @@ export function SidebarCollections({
   const [editCategoryName, setEditCategoryName] = useState("");
   const [editCategoryEmoji, setEditCategoryEmoji] = useState("");
   const [deletingCategory, setDeletingCategory] = useState<FolderCategoryWithFolders | null>(null);
+  const [createCategoryOpen, setCreateCategoryOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryEmoji, setNewCategoryEmoji] = useState("");
 
-  // Client-side fetched categories (since props may be empty)
+  // Quick Access collapse state
+  const [quickAccessOpen, setQuickAccessOpen] = useState(true);
+
+  // Client-side fetched data (since props may be empty)
   const [fetchedCategories, setFetchedCategories] = useState<FolderCategoryWithFolders[]>([]);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [fetchedSystemSmartFolders, setFetchedSystemSmartFolders] = useState<SystemSmartFolder[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
-  // Fetch categories on mount and when router refreshes
-  const loadCategories = useCallback(async () => {
-    const result = await getFolderCategories();
-    if (!result.error && result.data) {
-      setFetchedCategories(result.data);
+  // Fetch categories and system smart folders on mount
+  const loadSidebarData = useCallback(async () => {
+    const [categoriesResult, systemFoldersResult] = await Promise.all([
+      getFolderCategories(),
+      getSystemSmartFolders(),
+    ]);
+
+    if (!categoriesResult.error && categoriesResult.data) {
+      setFetchedCategories(categoriesResult.data);
     }
-    setIsLoadingCategories(false);
+    if (!systemFoldersResult.error && systemFoldersResult.data) {
+      setFetchedSystemSmartFolders(systemFoldersResult.data);
+    }
+    setIsLoadingData(false);
   }, []);
 
   useEffect(() => {
-    loadCategories();
-  }, [loadCategories]);
+    loadSidebarData();
+  }, [loadSidebarData]);
 
-  // Use fetched categories if props are empty
+  // Use fetched data if props are empty
   const effectiveCategories = categories.length > 0 ? categories : fetchedCategories;
+  const effectiveSystemSmartFolders = systemSmartFolders.length > 0 ? systemSmartFolders : fetchedSystemSmartFolders;
 
   // Check if we're on the recipes page
   const isOnRecipesPage = pathname === "/app/recipes" || pathname.startsWith("/app/recipes/");
@@ -191,7 +206,7 @@ export function SidebarCollections({
       } else {
         toast.success("Smart folder deleted");
         router.refresh();
-        loadCategories(); // Refetch sidebar data
+        loadSidebarData(); // Refetch sidebar data
       }
       setDeletingSmartFolder(null);
     });
@@ -208,7 +223,7 @@ export function SidebarCollections({
       } else {
         toast.success("Folder deleted");
         router.refresh();
-        loadCategories(); // Refetch sidebar data
+        loadSidebarData(); // Refetch sidebar data
       }
       setDeletingFolder(null);
     });
@@ -235,7 +250,7 @@ export function SidebarCollections({
       } else {
         toast.success("Category updated");
         router.refresh();
-        loadCategories();
+        loadSidebarData();
       }
       setEditingCategory(null);
     });
@@ -252,9 +267,31 @@ export function SidebarCollections({
       } else {
         toast.success("Category deleted");
         router.refresh();
-        loadCategories();
+        loadSidebarData();
       }
       setDeletingCategory(null);
+    });
+  };
+
+  // Handle create category
+  const handleCreateCategory = () => {
+    if (!newCategoryName.trim()) return;
+
+    startTransition(async () => {
+      const result = await createFolderCategory({
+        name: newCategoryName.trim(),
+        emoji: newCategoryEmoji || null,
+      });
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Category created");
+        router.refresh();
+        loadSidebarData();
+      }
+      setCreateCategoryOpen(false);
+      setNewCategoryName("");
+      setNewCategoryEmoji("");
     });
   };
 
@@ -352,88 +389,75 @@ export function SidebarCollections({
           </Link>
         </Button>
 
-        {/* Smart Folders */}
-        <div className="pt-2">
-          <div className="flex items-center justify-between px-3 py-1">
-            <p className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-              <Sparkles className="h-3 w-3" />
-              Smart Folders
-            </p>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-5 w-5 text-muted-foreground hover:text-foreground"
-              onClick={() => setCreateSmartFolderOpen(true)}
-              title="Create smart folder"
-            >
-              <Plus className="h-3 w-3" />
-            </Button>
-          </div>
-          <div className="flex flex-col gap-0.5">
-            {systemSmartFolders.map((folder) => (
-              <SmartFolderItem
-                key={`system-${folder.id}`}
-                id={folder.id}
-                name={folder.name}
-                emoji={folder.emoji}
-                color={folder.color}
-                isSystem
-                isActive={isFilterActive("smart", folder.id, true)}
-                onClick={handleClick}
-              />
-            ))}
-            {userSmartFolders.map((folder) => (
-              <SmartFolderItem
-                key={`user-${folder.id}`}
-                folder={folder}
-                isActive={isFilterActive("smart", folder.id, false)}
-                onClick={handleClick}
-                onEdit={() => setEditingSmartFolder(folder)}
-                onDelete={() => setDeletingSmartFolder(folder)}
-                onCreateNew={() => setCreateSmartFolderOpen(true)}
-              />
-            ))}
-            {systemSmartFolders.length === 0 && userSmartFolders.length === 0 && (
-              <EmptyState
-                icon={<Sparkles className="h-8 w-8 text-muted-foreground" />}
-                title="No smart folders yet"
-                description="Create smart folders to organize recipes automatically"
-                variant="default"
+        {/* Quick Access - System smart folders only (collapsible) */}
+        {effectiveSystemSmartFolders.length > 0 && (
+          <Collapsible open={quickAccessOpen} onOpenChange={setQuickAccessOpen} className="pt-2">
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
                 size="sm"
-                action={
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCreateSmartFolderOpen(true)}
-                    className="mt-2"
-                  >
-                    <Plus className="h-3 w-3 mr-2" />
-                    Create Smart Folder
-                  </Button>
-                }
-              />
-            )}
-          </div>
-        </div>
+                className="w-full justify-start gap-1 h-7 px-3 text-xs font-medium text-muted-foreground hover:text-foreground"
+              >
+                <ChevronRight
+                  className={cn(
+                    "h-3 w-3 transition-transform duration-200",
+                    quickAccessOpen && "rotate-90"
+                  )}
+                />
+                <Sparkles className="h-3 w-3" />
+                <span className="uppercase tracking-wider">Quick Access</span>
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="flex flex-col gap-0.5 pt-0.5">
+              {effectiveSystemSmartFolders.map((folder) => (
+                <SmartFolderItem
+                  key={`system-${folder.id}`}
+                  id={folder.id}
+                  name={folder.name}
+                  emoji={folder.emoji}
+                  color={folder.color}
+                  isSystem
+                  isActive={isFilterActive("smart", folder.id, true)}
+                  onClick={handleClick}
+                />
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
+        )}
 
-        {/* Folders Header */}
-        <div className="pt-2">
-          <div className="flex items-center justify-between px-3 py-1">
-            <p className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-              <FolderOpen className="h-3 w-3" />
-              Folders
-            </p>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-5 w-5 text-muted-foreground hover:text-foreground"
-              onClick={() => setCreateFolderOpen(true)}
-              title="Create folder"
-            >
-              <Plus className="h-3 w-3" />
-            </Button>
-          </div>
-        </div>
+        {/* Folders Header - Right-click for category/folder creation */}
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <div className="pt-2">
+              <div className="flex items-center justify-between px-3 py-1 cursor-context-menu">
+                <p className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                  <FolderOpen className="h-3 w-3" />
+                  Folders
+                </p>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-5 w-5 text-muted-foreground hover:text-foreground"
+                  onClick={() => setCreateFolderOpen(true)}
+                  title="Create folder"
+                >
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent className="w-48">
+            <ContextMenuItem onClick={() => setCreateCategoryOpen(true)}>
+              <FolderPlus className="h-4 w-4 mr-2" />
+              Create Category
+            </ContextMenuItem>
+            <ContextMenuSeparator />
+            <ContextMenuItem onClick={() => setCreateFolderOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Folder
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
 
         {/* Categories */}
         {effectiveCategories.map((category) => (
@@ -455,7 +479,7 @@ export function SidebarCollections({
         open={createSmartFolderOpen}
         onOpenChange={(open) => {
           setCreateSmartFolderOpen(open);
-          if (!open) loadCategories(); // Refetch when dialog closes
+          if (!open) loadSidebarData(); // Refetch when dialog closes
         }}
         categories={allCategories}
       />
@@ -466,7 +490,7 @@ export function SidebarCollections({
         onOpenChange={(open) => {
           if (!open) {
             setEditingSmartFolder(null);
-            loadCategories(); // Refetch when dialog closes
+            loadSidebarData(); // Refetch when dialog closes
           }
         }}
         folder={editingSmartFolder}
@@ -504,7 +528,7 @@ export function SidebarCollections({
         open={createFolderOpen}
         onOpenChange={(open) => {
           setCreateFolderOpen(open);
-          if (!open) loadCategories(); // Refetch when dialog closes
+          if (!open) loadSidebarData(); // Refetch when dialog closes
         }}
         folders={allFolders}
       />
@@ -595,7 +619,7 @@ export function SidebarCollections({
             <AlertDialogTitle>Delete this category?</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete the &quot;{deletingCategory?.name}&quot; category.
-              All folders in this category will be moved to &quot;Uncategorized&quot;.
+              All folders in this category will be reassigned to another category.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -610,6 +634,63 @@ export function SidebarCollections({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Create Category Dialog */}
+      <Dialog
+        open={createCategoryOpen}
+        onOpenChange={(open) => {
+          setCreateCategoryOpen(open);
+          if (!open) {
+            setNewCategoryName("");
+            setNewCategoryEmoji("");
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Create Category</DialogTitle>
+            <DialogDescription>
+              Create a new category to organize your folders.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="new-category-name">Name</Label>
+              <Input
+                id="new-category-name"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="Category name"
+                autoFocus
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="new-category-emoji">Emoji (optional)</Label>
+              <Input
+                id="new-category-emoji"
+                value={newCategoryEmoji}
+                onChange={(e) => setNewCategoryEmoji(e.target.value)}
+                placeholder="📁"
+                className="w-20"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setCreateCategoryOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateCategory}
+              disabled={isPending || !newCategoryName.trim()}
+            >
+              {isPending ? "Creating..." : "Create"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </SidebarSection>
   );
 }
@@ -807,8 +888,7 @@ function CategoryItem({
   onDeleteCategory,
 }: CategoryItemProps) {
   const [isOpen, setIsOpen] = React.useState(true);
-
-  if (category.folders.length === 0) return null;
+  const hasFolders = category.folders.length > 0;
 
   // Check if this is a special category that can't be edited/deleted
   const isUncategorized = category.id === "uncategorized";
@@ -828,7 +908,8 @@ function CategoryItem({
               <ChevronRight
                 className={cn(
                   "h-3 w-3 transition-transform duration-200",
-                  isOpen && "rotate-90"
+                  isOpen && hasFolders && "rotate-90",
+                  !hasFolders && "opacity-0"
                 )}
               />
               {category.emoji && <span>{category.emoji}</span>}
@@ -861,19 +942,21 @@ function CategoryItem({
           )}
         </ContextMenuContent>
       </ContextMenu>
-      <CollapsibleContent className="flex flex-col gap-0.5 pt-0.5">
-        {category.folders.map((folder) => (
-          <FolderItem
-            key={folder.id}
-            folder={folder}
-            isActive={isFilterActive("folder", folder.id)}
-            onClick={onItemClick}
-            onDelete={onDeleteFolder}
-            onCreateNew={onCreateFolder}
-            isFilterActive={isFilterActive}
-          />
-        ))}
-      </CollapsibleContent>
+      {hasFolders && (
+        <CollapsibleContent className="flex flex-col gap-0.5 pt-0.5">
+          {category.folders.map((folder) => (
+            <FolderItem
+              key={folder.id}
+              folder={folder}
+              isActive={isFilterActive("folder", folder.id)}
+              onClick={onItemClick}
+              onDelete={onDeleteFolder}
+              onCreateNew={onCreateFolder}
+              isFilterActive={isFilterActive}
+            />
+          ))}
+        </CollapsibleContent>
+      )}
     </Collapsible>
   );
 }
@@ -938,7 +1021,12 @@ function FolderItem({
             ) : (
               <FolderOpen className="h-3.5 w-3.5 shrink-0" />
             )}
-            <span className="flex-1 truncate text-sm">{folder.name}</span>
+            <span className="flex-1 truncate text-sm flex items-center gap-1.5">
+              {folder.name}
+              {folder.is_smart && (
+                <Sparkles className="h-3 w-3 text-amber-500" />
+              )}
+            </span>
             {folder.recipe_count > 0 && (
               <span className="text-xs text-muted-foreground">
                 {folder.recipe_count}

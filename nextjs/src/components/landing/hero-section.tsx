@@ -3,32 +3,37 @@
 import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
 import { ChefPixel, PixelDecoration } from './pixel-art';
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HERO SECTION
 // Pixel art chef character with clean, approachable messaging
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Typewriter effect for dynamic headline
-function TypewriterText() {
+// Constants for typewriter animation timing
+const TYPING_SPEED = 100;
+const DELETING_SPEED = 50;
+const PAUSE_TIME = 2500;
+const TYPEWRITER_PHRASES = ['for Dinner?', 'to Prep?', 'to Buy?'] as const;
+
+// Typewriter effect for dynamic headline (memoized to prevent parent rerenders)
+const TypewriterText = memo(function TypewriterText() {
   const [textIndex, setTextIndex] = useState(0);
   const [displayText, setDisplayText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
-  const phrases = ['for Dinner?', 'to Prep?', 'to Buy?'];
-  const typingSpeed = 100;
-  const deletingSpeed = 50;
-  const pauseTime = 2500;
+
+  const currentPhrase = useMemo(
+    () => TYPEWRITER_PHRASES[textIndex % TYPEWRITER_PHRASES.length],
+    [textIndex]
+  );
 
   useEffect(() => {
-    const currentPhrase = phrases[textIndex % phrases.length];
-
     const handleTyping = () => {
       if (!isDeleting) {
         if (displayText !== currentPhrase) {
           setDisplayText(currentPhrase.slice(0, displayText.length + 1));
         } else {
-          setTimeout(() => setIsDeleting(true), pauseTime);
+          setTimeout(() => setIsDeleting(true), PAUSE_TIME);
         }
       } else {
         if (displayText !== '') {
@@ -40,20 +45,20 @@ function TypewriterText() {
       }
     };
 
-    const timer = setTimeout(handleTyping, isDeleting ? deletingSpeed : typingSpeed);
+    const timer = setTimeout(handleTyping, isDeleting ? DELETING_SPEED : TYPING_SPEED);
     return () => clearTimeout(timer);
-  }, [displayText, isDeleting, textIndex, phrases]);
+  }, [displayText, isDeleting, currentPhrase]);
 
   return (
     <span className="text-[#F97316] inline-block min-w-[180px]">
       {displayText}
-      <span className="animate-cursor-blink text-[#ff66c4]">|</span>
+      <span className="animate-cursor-blink text-[#F97316]">|</span>
     </span>
   );
-}
+});
 
-// Feature check item
-function FeatureCheck({ children }: { children: React.ReactNode }) {
+// Feature check item (memoized for stability)
+const FeatureCheck = memo(function FeatureCheck({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-2 text-sm">
       <span className="w-4 h-4 bg-[#F97316] flex items-center justify-center flex-shrink-0">
@@ -62,7 +67,7 @@ function FeatureCheck({ children }: { children: React.ReactNode }) {
       <span className="text-[#FDFBF7]/80">{children}</span>
     </div>
   );
-}
+});
 
 export function HeroSection() {
   return (
@@ -79,20 +84,20 @@ export function HeroSection() {
         }}
       />
 
-      {/* Subtle gradient overlay with pink accent */}
+      {/* Subtle gradient overlay */}
       <div className="absolute inset-0 hero-gradient-dark pointer-events-none" />
       <div
         className="absolute inset-0 pointer-events-none opacity-30"
         style={{
-          background: 'radial-gradient(ellipse at 80% 20%, rgba(255, 102, 196, 0.08) 0%, transparent 50%)',
+          background: 'radial-gradient(ellipse at 80% 20%, rgba(249, 115, 22, 0.08) 0%, transparent 50%)',
         }}
       />
 
-      {/* Corner decorations - alternating orange/pink */}
+      {/* Corner decorations - orange/hunter green */}
       <div className="absolute top-8 left-8 text-[#F97316]/20">
         <PixelDecoration variant="corner" />
       </div>
-      <div className="absolute bottom-8 right-8 text-[#ff66c4]/25 rotate-180">
+      <div className="absolute bottom-8 right-8 text-[#1a4d2e]/25 rotate-180">
         <PixelDecoration variant="corner" />
       </div>
 
@@ -145,10 +150,10 @@ export function HeroSection() {
           </div>
         </div>
 
-        {/* Scroll indicator - hidden on mobile, pink accent */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 text-[#ff66c4]/60">
+        {/* Scroll indicator - hidden on mobile */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 text-[#F97316]/60">
           <span className="text-xs font-mono uppercase tracking-wider">Scroll</span>
-          <div className="w-px h-8 bg-gradient-to-b from-[#ff66c4]/50 to-transparent" />
+          <div className="w-px h-8 bg-gradient-to-b from-[#F97316]/50 to-transparent" />
         </div>
       </div>
     </section>

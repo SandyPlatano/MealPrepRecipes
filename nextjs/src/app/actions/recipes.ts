@@ -7,136 +7,159 @@ import type { Recipe, RecipeFormData } from "@/types/recipe";
 import type { QuickCookSuggestion } from "@/types/quick-cook";
 import { randomUUID } from "crypto";
 import { isNutritionTrackingEnabled, extractNutritionForRecipeInternal } from "./nutrition";
+import { recipeFormSchema, recipeUpdateSchema, validateSchema } from "@/lib/validations/schemas";
 
 // Get all recipes for the current user (own + shared household recipes)
 export async function getRecipes() {
-  // Check authentication first - household is optional
-  const { user: authUser, error: authError } = await getCachedUser();
-  
-  if (authError || !authUser) {
-    return { error: "Not authenticated", data: null };
+  try {
+    // Check authentication first - household is optional
+    const { user: authUser, error: authError } = await getCachedUser();
+
+    if (authError || !authUser) {
+      return { error: "Not authenticated", data: null };
+    }
+
+    // Get household separately (optional - user can have recipes without household)
+    const { household } = await getCachedUserWithHousehold();
+
+    const supabase = await createClient();
+
+    // Build query: user's own recipes OR shared household recipes
+    // If user has no household, only get their own recipes
+    let query = supabase
+      .from("recipes")
+      .select("*");
+
+    if (household?.household_id) {
+      // User has household - get own recipes + shared household recipes
+      query = query.or(
+        `user_id.eq.${authUser.id},and(household_id.eq.${household.household_id},is_shared_with_household.eq.true)`
+      );
+    } else {
+      // User has no household - only get their own recipes
+      query = query.eq("user_id", authUser.id);
+    }
+
+    const { data, error } = await query.order("created_at", { ascending: false });
+
+    if (error) {
+      return { error: error.message, data: null };
+    }
+
+    return { error: null, data: data as Recipe[] };
+  } catch (error) {
+    console.error("getRecipes error:", error);
+    return { error: "Failed to load recipes. Please try again.", data: null };
   }
-
-  // Get household separately (optional - user can have recipes without household)
-  const { household } = await getCachedUserWithHousehold();
-
-  const supabase = await createClient();
-
-  // Build query: user's own recipes OR shared household recipes
-  // If user has no household, only get their own recipes
-  let query = supabase
-    .from("recipes")
-    .select("*");
-
-  if (household?.household_id) {
-    // User has household - get own recipes + shared household recipes
-    query = query.or(
-      `user_id.eq.${authUser.id},and(household_id.eq.${household.household_id},is_shared_with_household.eq.true)`
-    );
-  } else {
-    // User has no household - only get their own recipes
-    query = query.eq("user_id", authUser.id);
-  }
-
-  const { data, error } = await query.order("created_at", { ascending: false });
-
-  if (error) {
-    return { error: error.message, data: null };
-  }
-
-  return { error: null, data: data as Recipe[] };
 }
 
 // Get a single recipe by ID
 export async function getRecipe(id: string) {
-  // Check authentication first - household is optional
-  const { user: authUser, error: authError } = await getCachedUser();
-  
-  if (authError || !authUser) {
-    return { error: "Not authenticated", data: null };
+  try {
+    // Check authentication first - household is optional
+    const { user: authUser, error: authError } = await getCachedUser();
+
+    if (authError || !authUser) {
+      return { error: "Not authenticated", data: null };
+    }
+
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("recipes")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error) {
+      return { error: error.message, data: null };
+    }
+
+    if (!data) {
+      return { error: "Recipe not found", data: null };
+    }
+
+    return { error: null, data: data as Recipe };
+  } catch (error) {
+    console.error("getRecipe error:", error);
+    return { error: "Failed to load recipe. Please try again.", data: null };
   }
-
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("recipes")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
-
-  if (error) {
-    return { error: error.message, data: null };
-  }
-
-  if (!data) {
-    return { error: "Recipe not found", data: null };
-  }
-
-  return { error: null, data: data as Recipe };
 }
 
 // Create a new recipe
 export async function createRecipe(formData: RecipeFormData) {
-  // Check authentication first - household is optional
-  const { user: authUser, error: authError } = await getCachedUser();
-  
-  if (authError || !authUser) {
-    return { error: "Not authenticated", data: null };
+  try {
+    // Validate input
+    const validation = validateSchema(recipeFormSchema, formData);
+    if (!validation.success) {
+      return { error: validation.error, data: null };
+    }
+    const validData = validation.data;
+
+    // Check authentication first - household is optional
+    const { user: authUser, error: authError } = await getCachedUser();
+
+    if (authError || !authUser) {
+      return { error: "Not authenticated", data: null };
+    }
+
+    // Get household separately (optional - user can create recipes without household)
+    const { household } = await getCachedUserWithHousehold();
+
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("recipes")
+      .insert({
+        title: validData.title,
+        recipe_type: validData.recipe_type,
+        category: validData.category || null,
+        protein_type: validData.protein_type || null,
+        prep_time: validData.prep_time || null,
+        cook_time: validData.cook_time || null,
+        servings: validData.servings || null,
+        base_servings: validData.base_servings || null,
+        ingredients: validData.ingredients,
+        instructions: validData.instructions,
+        tags: validData.tags,
+        notes: validData.notes || null,
+        source_url: validData.source_url || null,
+        image_url: validData.image_url || null,
+        allergen_tags: validData.allergen_tags,
+        user_id: authUser.id,
+        household_id: household?.household_id || null,
+        is_shared_with_household: validData.is_shared_with_household,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return { error: error.message, data: null };
+    }
+
+    // Background task: Auto-extract nutrition if tracking is enabled
+    // This runs asynchronously and doesn't block the response
+    const nutritionCheck = await isNutritionTrackingEnabled();
+    if (nutritionCheck.enabled && data) {
+      // Fire and forget - don't await to avoid blocking recipe creation
+      extractNutritionForRecipeInternal(data.id, {
+        title: data.title,
+        ingredients: data.ingredients,
+        servings: data.base_servings || 4,
+        instructions: data.instructions,
+      }).catch((err: Error) => {
+        // Log error but don't fail recipe creation
+        console.error("Background nutrition extraction failed:", err);
+      });
+    }
+
+    revalidatePath("/app/recipes");
+    revalidateTag(`recipes-${authUser.id}`, "default");
+    return { error: null, data: data as Recipe };
+  } catch (error) {
+    console.error("createRecipe error:", error);
+    return { error: "Failed to create recipe. Please try again.", data: null };
   }
-
-  // Get household separately (optional - user can create recipes without household)
-  const { household } = await getCachedUserWithHousehold();
-
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("recipes")
-    .insert({
-      title: formData.title,
-      recipe_type: formData.recipe_type,
-      category: formData.category || null,
-      protein_type: formData.protein_type || null,
-      prep_time: formData.prep_time || null,
-      cook_time: formData.cook_time || null,
-      servings: formData.servings || null,
-      base_servings: formData.base_servings || null,
-      ingredients: formData.ingredients,
-      instructions: formData.instructions,
-      tags: formData.tags,
-      notes: formData.notes || null,
-      source_url: formData.source_url || null,
-      image_url: formData.image_url || null,
-      allergen_tags: formData.allergen_tags || [],
-      user_id: authUser.id,
-      household_id: household?.household_id || null,
-      is_shared_with_household: formData.is_shared_with_household ?? true,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    return { error: error.message, data: null };
-  }
-
-  // Background task: Auto-extract nutrition if tracking is enabled
-  // This runs asynchronously and doesn't block the response
-  const nutritionCheck = await isNutritionTrackingEnabled();
-  if (nutritionCheck.enabled && data) {
-    // Fire and forget - don't await to avoid blocking recipe creation
-    extractNutritionForRecipeInternal(data.id, {
-      title: data.title,
-      ingredients: data.ingredients,
-      servings: data.base_servings || 4,
-      instructions: data.instructions,
-    }).catch((err: Error) => {
-      // Log error but don't fail recipe creation
-      console.error("Background nutrition extraction failed:", err);
-    });
-  }
-
-  revalidatePath("/app/recipes");
-  revalidateTag(`recipes-${authUser.id}`, "default");
-  return { error: null, data: data as Recipe };
 }
 
 // Save a Quick Cook AI suggestion as a recipe
@@ -167,97 +190,114 @@ export async function saveQuickCookRecipe(suggestion: QuickCookSuggestion) {
 
 // Update an existing recipe
 export async function updateRecipe(id: string, formData: Partial<RecipeFormData>) {
-  // Check authentication first - household is optional
-  const { user: authUser, error: authError } = await getCachedUser();
-  
-  if (authError || !authUser) {
-    return { error: "Not authenticated", data: null };
-  }
-
-  const supabase = await createClient();
-
-  // Build update object, only including fields that are provided
-  const updateData: Record<string, unknown> = {};
-
-  if (formData.title !== undefined) updateData.title = formData.title;
-  if (formData.recipe_type !== undefined) updateData.recipe_type = formData.recipe_type;
-  if (formData.category !== undefined) updateData.category = formData.category || null;
-  if (formData.protein_type !== undefined) updateData.protein_type = formData.protein_type || null;
-  if (formData.prep_time !== undefined) updateData.prep_time = formData.prep_time || null;
-  if (formData.cook_time !== undefined) updateData.cook_time = formData.cook_time || null;
-  if (formData.servings !== undefined) updateData.servings = formData.servings || null;
-  if (formData.base_servings !== undefined) updateData.base_servings = formData.base_servings || null;
-  if (formData.ingredients !== undefined) updateData.ingredients = formData.ingredients;
-  if (formData.instructions !== undefined) updateData.instructions = formData.instructions;
-  if (formData.tags !== undefined) updateData.tags = formData.tags;
-  if (formData.notes !== undefined) updateData.notes = formData.notes || null;
-  if (formData.source_url !== undefined) updateData.source_url = formData.source_url || null;
-  if (formData.image_url !== undefined) updateData.image_url = formData.image_url || null;
-  if (formData.allergen_tags !== undefined) updateData.allergen_tags = formData.allergen_tags || [];
-  if (formData.is_shared_with_household !== undefined) {
-    updateData.is_shared_with_household = formData.is_shared_with_household;
-  }
-
-  const { data, error } = await supabase
-    .from("recipes")
-    .update(updateData)
-    .eq("id", id)
-    .eq("user_id", authUser.id) // Only owner can update
-    .select()
-    .single();
-
-  if (error) {
-    return { error: error.message, data: null };
-  }
-
-  // Background task: Re-extract nutrition if ingredients were updated and tracking is enabled
-  const ingredientsUpdated = formData.ingredients !== undefined;
-  if (ingredientsUpdated && data) {
-    const nutritionCheck = await isNutritionTrackingEnabled();
-    if (nutritionCheck.enabled) {
-      // Fire and forget - don't await to avoid blocking recipe update
-      extractNutritionForRecipeInternal(data.id, {
-        title: data.title,
-        ingredients: data.ingredients,
-        servings: data.base_servings || 4,
-        instructions: data.instructions,
-      }).catch((err: Error) => {
-        // Log error but don't fail recipe update
-        console.error("Background nutrition re-extraction failed:", err);
-      });
+  try {
+    // Validate input
+    const validation = validateSchema(recipeUpdateSchema, formData);
+    if (!validation.success) {
+      return { error: validation.error, data: null };
     }
-  }
+    const validData = validation.data;
 
-  revalidatePath("/app/recipes");
-  revalidatePath(`/app/recipes/${id}`);
-  revalidateTag(`recipes-${authUser.id}`, "default");
-  return { error: null, data: data as Recipe };
+    // Check authentication first - household is optional
+    const { user: authUser, error: authError } = await getCachedUser();
+
+    if (authError || !authUser) {
+      return { error: "Not authenticated", data: null };
+    }
+
+    const supabase = await createClient();
+
+    // Build update object, only including fields that are provided
+    const updateData: Record<string, unknown> = {};
+
+    if (validData.title !== undefined) updateData.title = validData.title;
+    if (validData.recipe_type !== undefined) updateData.recipe_type = validData.recipe_type;
+    if (validData.category !== undefined) updateData.category = validData.category || null;
+    if (validData.protein_type !== undefined) updateData.protein_type = validData.protein_type || null;
+    if (validData.prep_time !== undefined) updateData.prep_time = validData.prep_time || null;
+    if (validData.cook_time !== undefined) updateData.cook_time = validData.cook_time || null;
+    if (validData.servings !== undefined) updateData.servings = validData.servings || null;
+    if (validData.base_servings !== undefined) updateData.base_servings = validData.base_servings || null;
+    if (validData.ingredients !== undefined) updateData.ingredients = validData.ingredients;
+    if (validData.instructions !== undefined) updateData.instructions = validData.instructions;
+    if (validData.tags !== undefined) updateData.tags = validData.tags;
+    if (validData.notes !== undefined) updateData.notes = validData.notes || null;
+    if (validData.source_url !== undefined) updateData.source_url = validData.source_url || null;
+    if (validData.image_url !== undefined) updateData.image_url = validData.image_url || null;
+    if (validData.allergen_tags !== undefined) updateData.allergen_tags = validData.allergen_tags;
+    if (validData.is_shared_with_household !== undefined) {
+      updateData.is_shared_with_household = validData.is_shared_with_household;
+    }
+
+    const { data, error } = await supabase
+      .from("recipes")
+      .update(updateData)
+      .eq("id", id)
+      .eq("user_id", authUser.id) // Only owner can update
+      .select()
+      .single();
+
+    if (error) {
+      return { error: error.message, data: null };
+    }
+
+    // Background task: Re-extract nutrition if ingredients were updated and tracking is enabled
+    const ingredientsUpdated = validData.ingredients !== undefined;
+    if (ingredientsUpdated && data) {
+      const nutritionCheck = await isNutritionTrackingEnabled();
+      if (nutritionCheck.enabled) {
+        // Fire and forget - don't await to avoid blocking recipe update
+        extractNutritionForRecipeInternal(data.id, {
+          title: data.title,
+          ingredients: data.ingredients,
+          servings: data.base_servings || 4,
+          instructions: data.instructions,
+        }).catch((err: Error) => {
+          // Log error but don't fail recipe update
+          console.error("Background nutrition re-extraction failed:", err);
+        });
+      }
+    }
+
+    revalidatePath("/app/recipes");
+    revalidatePath(`/app/recipes/${id}`);
+    revalidateTag(`recipes-${authUser.id}`, "default");
+    return { error: null, data: data as Recipe };
+  } catch (error) {
+    console.error("updateRecipe error:", error);
+    return { error: "Failed to update recipe. Please try again.", data: null };
+  }
 }
 
 // Delete a recipe
 export async function deleteRecipe(id: string) {
-  // Check authentication first - household is optional
-  const { user: authUser, error: authError } = await getCachedUser();
-  
-  if (authError || !authUser) {
-    return { error: "Not authenticated" };
+  try {
+    // Check authentication first - household is optional
+    const { user: authUser, error: authError } = await getCachedUser();
+
+    if (authError || !authUser) {
+      return { error: "Not authenticated" };
+    }
+
+    const supabase = await createClient();
+
+    const { error } = await supabase
+      .from("recipes")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", authUser.id); // Only owner can delete
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    revalidatePath("/app/recipes");
+    revalidateTag(`recipes-${authUser.id}`, "default");
+    return { error: null };
+  } catch (error) {
+    console.error("deleteRecipe error:", error);
+    return { error: "Failed to delete recipe. Please try again." };
   }
-
-  const supabase = await createClient();
-
-  const { error } = await supabase
-    .from("recipes")
-    .delete()
-    .eq("id", id)
-    .eq("user_id", authUser.id); // Only owner can delete
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  revalidatePath("/app/recipes");
-  revalidateTag(`recipes-${authUser.id}`, "default");
-  return { error: null };
 }
 
 // Update recipe rating
@@ -289,51 +329,56 @@ export async function updateRecipeRating(id: string, rating: number) {
 
 // Toggle favorite status
 export async function toggleFavorite(recipeId: string) {
-  const { user, error: authError } = await getCachedUser();
+  try {
+    const { user, error: authError } = await getCachedUser();
 
-  if (authError || !user) {
-    return { error: "Not authenticated", isFavorite: false };
-  }
+    if (authError || !user) {
+      return { error: "Not authenticated", isFavorite: false };
+    }
 
-  const supabase = await createClient();
+    const supabase = await createClient();
 
-  // Check if already favorited (use maybeSingle since it might not exist)
-  const { data: existing } = await supabase
-    .from("favorites")
-    .select("id")
-    .eq("user_id", user.id)
-    .eq("recipe_id", recipeId)
-    .maybeSingle();
-
-  if (existing) {
-    // Remove favorite
-    const { error } = await supabase
+    // Check if already favorited (use maybeSingle since it might not exist)
+    const { data: existing } = await supabase
       .from("favorites")
-      .delete()
+      .select("id")
       .eq("user_id", user.id)
-      .eq("recipe_id", recipeId);
+      .eq("recipe_id", recipeId)
+      .maybeSingle();
 
-    if (error) {
-      return { error: error.message, isFavorite: true };
+    if (existing) {
+      // Remove favorite
+      const { error } = await supabase
+        .from("favorites")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("recipe_id", recipeId);
+
+      if (error) {
+        return { error: error.message, isFavorite: true };
+      }
+
+      revalidatePath("/app/recipes");
+      revalidatePath("/app/history");
+      return { error: null, isFavorite: false };
+    } else {
+      // Add favorite
+      const { error } = await supabase.from("favorites").insert({
+        user_id: user.id,
+        recipe_id: recipeId,
+      });
+
+      if (error) {
+        return { error: error.message, isFavorite: false };
+      }
+
+      revalidatePath("/app/recipes");
+      revalidatePath("/app/history");
+      return { error: null, isFavorite: true };
     }
-
-    revalidatePath("/app/recipes");
-    revalidatePath("/app/history");
-    return { error: null, isFavorite: false };
-  } else {
-    // Add favorite
-    const { error } = await supabase.from("favorites").insert({
-      user_id: user.id,
-      recipe_id: recipeId,
-    });
-
-    if (error) {
-      return { error: error.message, isFavorite: false };
-    }
-
-    revalidatePath("/app/recipes");
-    revalidatePath("/app/history");
-    return { error: null, isFavorite: true };
+  } catch (error) {
+    console.error("toggleFavorite error:", error);
+    return { error: "Failed to update favorite. Please try again.", isFavorite: false };
   }
 }
 
@@ -468,19 +513,19 @@ export async function getRecipeCookCounts() {
 
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("cooking_history")
-    .select("recipe_id")
-    .eq("household_id", household?.household_id);
+  // Use database function for efficient aggregation
+  const { data, error } = await supabase.rpc("get_recipe_cook_counts", {
+    p_household_id: household?.household_id,
+  });
 
   if (error) {
     return { error: error.message, data: {} };
   }
 
-  // Count occurrences of each recipe_id
+  // Transform array to record for backwards compatibility
   const counts: Record<string, number> = {};
-  data.forEach((entry) => {
-    counts[entry.recipe_id] = (counts[entry.recipe_id] || 0) + 1;
+  (data as Array<{ recipe_id: string; count: number }>)?.forEach((entry) => {
+    counts[entry.recipe_id] = entry.count;
   });
 
   return { error: null, data: counts };

@@ -21,11 +21,11 @@ export function CTASection() {
         }}
       />
 
-      {/* Corner decorations - pink accents */}
-      <div className="absolute top-4 left-4 text-[#ff66c4]/30">
+      {/* Corner decorations - hunter green accents */}
+      <div className="absolute top-4 left-4 text-[#1a4d2e]/30">
         <PixelDecoration variant="corner" />
       </div>
-      <div className="absolute bottom-4 right-4 text-[#ff66c4]/30 rotate-180">
+      <div className="absolute bottom-4 right-4 text-[#1a4d2e]/30 rotate-180">
         <PixelDecoration variant="corner" />
       </div>
       <div className="absolute top-4 right-4 text-[#F97316]/20 rotate-90">
@@ -66,8 +66,8 @@ export function CTASection() {
             No credit card required. Free forever plan available.
           </p>
 
-          {/* Pixel divider with pink accent */}
-          <div className="divider-brutal-pink max-w-xs mx-auto mt-12" />
+          {/* Pixel divider */}
+          <div className="divider-brutal max-w-xs mx-auto mt-12" />
         </div>
       </div>
     </section>
