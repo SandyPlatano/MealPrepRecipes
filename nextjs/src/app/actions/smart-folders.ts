@@ -6,6 +6,7 @@ import {
   getCachedUserWithHousehold,
 } from "@/lib/supabase/cached-queries";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { getCached, CACHE_TTL } from "@/lib/cache/redis";
 import type {
   SystemSmartFolder,
   SmartFilterCriteria,
@@ -41,27 +42,34 @@ export async function getSystemSmartFolders(): Promise<{
     return { error: "Not authenticated", data: null };
   }
 
-  const supabase = await createClient();
+  // System smart folders are read-only, cache for 1 hour
+  return getCached(
+    "system-smart-folders",
+    async () => {
+      const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("system_smart_folders")
-    .select("id, name, description, emoji, color, smart_filters, sort_order, created_at")
-    .order("sort_order", { ascending: true });
+      const { data, error } = await supabase
+        .from("system_smart_folders")
+        .select("id, name, description, emoji, color, smart_filters, sort_order, created_at")
+        .order("sort_order", { ascending: true });
 
-  if (error) {
-    return { error: error.message, data: null };
-  }
+      if (error) {
+        return { error: error.message, data: null };
+      }
 
-  // Parse JSONB smart_filters into typed objects
-  const parsed: SystemSmartFolder[] = data.map((folder) => ({
-    ...folder,
-    smart_filters:
-      typeof folder.smart_filters === "string"
-        ? JSON.parse(folder.smart_filters)
-        : folder.smart_filters,
-  }));
+      // Parse JSONB smart_filters into typed objects
+      const parsed: SystemSmartFolder[] = data.map((folder) => ({
+        ...folder,
+        smart_filters:
+          typeof folder.smart_filters === "string"
+            ? JSON.parse(folder.smart_filters)
+            : folder.smart_filters,
+      }));
 
-  return { error: null, data: parsed };
+      return { error: null, data: parsed };
+    },
+    3600 // 1 hour TTL for read-only system data
+  );
 }
 
 // =====================================================

@@ -6,6 +6,7 @@ import {
   getCachedUserWithHousehold,
 } from "@/lib/supabase/cached-queries";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { getCached, invalidateCache, foldersKey, CACHE_TTL } from "@/lib/cache/redis";
 import type {
   RecipeFolder,
   FolderWithChildren,
@@ -35,83 +36,90 @@ export async function getFolders(): Promise<{
 
     const supabase = await createClient();
 
-    // Get all folders for household with cover recipe image
-    const { data: folders, error } = await supabase
-      .from("recipe_folders")
-      .select(
-        `
-        *,
-        cover_recipe:recipes!recipe_folders_cover_recipe_id_fkey(image_url)
-      `
-      )
-      .eq("household_id", household.household_id)
-      .order("sort_order", { ascending: true });
+    // Use Redis cache for folder data
+    return getCached(
+      foldersKey(household.household_id),
+      async () => {
+        // Run folder fetch and member counts in PARALLEL (not sequential)
+        const [foldersResult, memberCountsResult] = await Promise.all([
+          supabase
+            .from("recipe_folders")
+            .select(
+              `
+              *,
+              cover_recipe:recipes!recipe_folders_cover_recipe_id_fkey(image_url)
+            `
+            )
+            .eq("household_id", household.household_id)
+            .order("sort_order", { ascending: true }),
+          supabase
+            .from("recipe_folder_members")
+            .select("folder_id, recipe_folders!inner(household_id)")
+            .eq("recipe_folders.household_id", household.household_id),
+        ]);
 
-    if (error) {
-      return { error: error.message, data: null };
-    }
+        const { data: folders, error } = foldersResult;
+        const { data: memberCounts, error: countError } = memberCountsResult;
 
-    // Get recipe counts per folder
-    const { data: memberCounts, error: countError } = await supabase
-      .from("recipe_folder_members")
-      .select("folder_id")
-      .in(
-        "folder_id",
-        folders.map((f) => f.id)
-      );
-
-    if (countError) {
-      console.error("Failed to get folder member counts:", countError);
-    }
-
-    const countMap = new Map<string, number>();
-    memberCounts?.forEach((m) => {
-      countMap.set(m.folder_id, (countMap.get(m.folder_id) || 0) + 1);
-    });
-
-    // Build tree structure
-    const folderMap = new Map<string, FolderWithChildren>();
-    const rootFolders: FolderWithChildren[] = [];
-
-    // First pass: create folder objects
-    folders.forEach((folder) => {
-      const coverRecipe = folder.cover_recipe as { image_url: string | null } | null;
-      const folderWithChildren: FolderWithChildren = {
-        id: folder.id,
-        household_id: folder.household_id,
-        created_by_user_id: folder.created_by_user_id,
-        name: folder.name,
-        emoji: folder.emoji,
-        color: folder.color,
-        parent_folder_id: folder.parent_folder_id,
-        cover_recipe_id: folder.cover_recipe_id,
-        category_id: folder.category_id,
-        sort_order: folder.sort_order,
-        is_smart: folder.is_smart ?? false,
-        smart_filters: folder.smart_filters ?? null,
-        created_at: folder.created_at,
-        updated_at: folder.updated_at,
-        children: [],
-        recipe_count: countMap.get(folder.id) || 0,
-        cover_image_url: coverRecipe?.image_url || null,
-      };
-      folderMap.set(folder.id, folderWithChildren);
-    });
-
-    // Second pass: build tree
-    folders.forEach((folder) => {
-      const folderWithChildren = folderMap.get(folder.id)!;
-      if (folder.parent_folder_id) {
-        const parent = folderMap.get(folder.parent_folder_id);
-        if (parent) {
-          parent.children.push(folderWithChildren);
+        if (error) {
+          return { error: error.message, data: null };
         }
-      } else {
-        rootFolders.push(folderWithChildren);
-      }
-    });
 
-    return { error: null, data: rootFolders };
+        if (countError) {
+          console.error("Failed to get folder member counts:", countError);
+        }
+
+        const countMap = new Map<string, number>();
+        memberCounts?.forEach((m) => {
+          countMap.set(m.folder_id, (countMap.get(m.folder_id) || 0) + 1);
+        });
+
+        // Build tree structure
+        const folderMap = new Map<string, FolderWithChildren>();
+        const rootFolders: FolderWithChildren[] = [];
+
+        // First pass: create folder objects
+        folders.forEach((folder) => {
+          const coverRecipe = folder.cover_recipe as { image_url: string | null } | null;
+          const folderWithChildren: FolderWithChildren = {
+            id: folder.id,
+            household_id: folder.household_id,
+            created_by_user_id: folder.created_by_user_id,
+            name: folder.name,
+            emoji: folder.emoji,
+            color: folder.color,
+            parent_folder_id: folder.parent_folder_id,
+            cover_recipe_id: folder.cover_recipe_id,
+            category_id: folder.category_id,
+            sort_order: folder.sort_order,
+            is_smart: folder.is_smart ?? false,
+            smart_filters: folder.smart_filters ?? null,
+            created_at: folder.created_at,
+            updated_at: folder.updated_at,
+            children: [],
+            recipe_count: countMap.get(folder.id) || 0,
+            cover_image_url: coverRecipe?.image_url || null,
+          };
+          folderMap.set(folder.id, folderWithChildren);
+        });
+
+        // Second pass: build tree
+        folders.forEach((folder) => {
+          const folderWithChildren = folderMap.get(folder.id)!;
+          if (folder.parent_folder_id) {
+            const parent = folderMap.get(folder.parent_folder_id);
+            if (parent) {
+              parent.children.push(folderWithChildren);
+            }
+          } else {
+            rootFolders.push(folderWithChildren);
+          }
+        });
+
+        return { error: null, data: rootFolders };
+      },
+      CACHE_TTL.FOLDERS
+    );
   } catch (error) {
     console.error("getFolders error:", error);
     return { error: "Failed to load folders. Please try again.", data: null };
@@ -294,6 +302,7 @@ export async function createFolder(
 
     revalidatePath("/app/recipes");
     revalidateTag(`folders-${household.household_id}`, "default");
+    await invalidateCache(foldersKey(household.household_id));
     return { error: null, data: data as RecipeFolder };
   } catch (error) {
     console.error("createFolder error:", error);
@@ -342,6 +351,7 @@ export async function updateFolder(
 
     revalidatePath("/app/recipes");
     revalidateTag(`folders-${household.household_id}`, "default");
+    await invalidateCache(foldersKey(household.household_id));
     return { error: null, data: data as RecipeFolder };
   } catch (error) {
     console.error("updateFolder error:", error);
@@ -475,6 +485,7 @@ export async function deleteFolder(
 
     revalidatePath("/app/recipes");
     revalidateTag(`folders-${household.household_id}`, "default");
+    await invalidateCache(foldersKey(household.household_id));
     return { error: null };
   } catch (error) {
     console.error("deleteFolder error:", error);

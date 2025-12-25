@@ -1,96 +1,99 @@
 /**
- * Recent Items Storage
+ * Recent Items LocalStorage Utility
  *
- * Manages recently viewed items in localStorage for the global search feature.
+ * Manages recent search selections in localStorage with FIFO queue (max 8 items).
+ * Browser-only module with graceful error handling.
  */
 
 import type { RecentItem } from "@/types/global-search";
 
-const STORAGE_KEY = "mealprep-recent-items";
+const STORAGE_KEY = "global-search-recent-items";
 const MAX_RECENT_ITEMS = 8;
 
 /**
- * Get all recent items from localStorage
+ * Check if we're running in a browser environment
+ */
+function isBrowser(): boolean {
+  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+}
+
+/**
+ * Get recent items from localStorage
+ * @returns Array of recent items, newest first
  */
 export function getRecentItems(): RecentItem[] {
-  if (typeof window === "undefined") return [];
+  if (!isBrowser()) {
+    return [];
+  }
 
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return [];
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (!stored) {
+      return [];
+    }
 
-    const items: RecentItem[] = JSON.parse(stored);
+    const parsed = JSON.parse(stored);
 
-    // Validate and filter out malformed items
-    return items.filter(
-      (item) =>
-        item &&
-        typeof item.type === "string" &&
-        typeof item.id === "string" &&
-        typeof item.label === "string" &&
-        typeof item.href === "string" &&
-        typeof item.visitedAt === "number"
-    );
-  } catch {
+    // Validate that we got an array
+    if (!Array.isArray(parsed)) {
+      console.warn("[recent-items] Invalid data format in localStorage, clearing");
+      window.localStorage.removeItem(STORAGE_KEY);
+      return [];
+    }
+
+    return parsed;
+  } catch (error) {
+    console.error("[recent-items] Failed to parse localStorage data:", error);
+    // Clear corrupted data
+    try {
+      window.localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Ignore cleanup errors
+    }
     return [];
   }
 }
 
 /**
- * Add a recent item to localStorage
- * - Removes duplicate if exists (same type + id)
- * - Adds new item at the front
- * - Trims to MAX_RECENT_ITEMS
+ * Add an item to recent items list
+ * Maintains FIFO queue with max 8 items, newest first
+ * @param item - Item to add (must include visitedAt timestamp)
  */
-export function addRecentItem(item: Omit<RecentItem, "visitedAt">): void {
-  if (typeof window === "undefined") return;
+export function addRecentItem(item: RecentItem): void {
+  if (!isBrowser()) {
+    return;
+  }
 
   try {
-    const existing = getRecentItems();
+    const current = getRecentItems();
 
-    // Remove duplicate if exists
-    const filtered = existing.filter(
-      (i) => !(i.type === item.type && i.id === item.id)
+    // Remove existing entry for this item (by id + type)
+    const filtered = current.filter(
+      (existing) => !(existing.id === item.id && existing.type === item.type)
     );
 
-    // Add new item at the front with timestamp
-    const newItems: RecentItem[] = [
-      { ...item, visitedAt: Date.now() },
-      ...filtered,
-    ].slice(0, MAX_RECENT_ITEMS);
+    // Add new item at the beginning and limit to MAX_RECENT_ITEMS
+    const updated = [item, ...filtered].slice(0, MAX_RECENT_ITEMS);
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newItems));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   } catch (error) {
-    console.error("[recent-items] Failed to save recent item:", error);
+    console.error("[recent-items] Failed to save to localStorage:", error);
+    // Non-critical failure, don't throw
   }
 }
 
 /**
- * Remove a specific recent item
- */
-export function removeRecentItem(type: string, id: string): void {
-  if (typeof window === "undefined") return;
-
-  try {
-    const existing = getRecentItems();
-    const filtered = existing.filter(
-      (i) => !(i.type === type && i.id === id)
-    );
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-  } catch (error) {
-    console.error("[recent-items] Failed to remove recent item:", error);
-  }
-}
-
-/**
- * Clear all recent items
+ * Clear all recent items from localStorage
  */
 export function clearRecentItems(): void {
-  if (typeof window === "undefined") return;
+  if (!isBrowser()) {
+    return;
+  }
 
   try {
-    localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
-    console.error("[recent-items] Failed to clear recent items:", error);
+    console.error("[recent-items] Failed to clear localStorage:", error);
+    // Non-critical failure, don't throw
   }
 }

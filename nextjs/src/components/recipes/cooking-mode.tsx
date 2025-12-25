@@ -654,6 +654,7 @@ export function CookingMode({
             size="icon"
             onClick={() => router.back()}
             className="h-12 w-12"
+            aria-label="Exit cooking mode"
           >
             <X className="h-6 w-6" />
           </Button>
@@ -668,7 +669,7 @@ export function CookingMode({
           {/* Right: Dropdown Menu for secondary controls */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-12 w-12">
+              <Button variant="ghost" size="icon" className="h-12 w-12" aria-label="Cooking mode options">
                 <MoreVertical className="h-6 w-6" />
               </Button>
             </DropdownMenuTrigger>
@@ -946,6 +947,7 @@ export function CookingMode({
                       size="lg"
                       onClick={toggleTimer}
                       className="h-12 w-12"
+                      aria-label={timerRunning ? "Pause timer" : "Start timer"}
                     >
                       {timerRunning ? (
                         <Pause className="h-5 w-5" />
@@ -958,6 +960,7 @@ export function CookingMode({
                       size="lg"
                       onClick={resetTimer}
                       className="h-12 w-12"
+                      aria-label="Reset timer"
                     >
                       <RotateCcw className="h-5 w-5" />
                     </Button>

@@ -434,6 +434,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                     e.stopPropagation();
                     router.push(`/app/recipes/${recipe.id}/cook`);
                   }}
+                  aria-label={`Cook ${recipe.title}`}
                 >
                   <ChefHat className="size-4 mr-1.5" />
                   Cook
@@ -444,6 +445,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                   className="h-8 px-3 bg-white/90 hover:bg-white text-black shadow-lg"
                   onClick={handleAddToCart}
                   disabled={isAddingToPlan}
+                  aria-label={`Add ${recipe.title} to meal plan`}
                 >
                   <UtensilsCrossed className="size-4 mr-1.5" />
                   Plan
@@ -453,6 +455,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                   size="sm"
                   className="h-8 px-3 bg-white/90 hover:bg-white text-black shadow-lg"
                   onClick={handleShare}
+                  aria-label={`Share ${recipe.title}`}
                 >
                   <Share2 className="size-4 mr-1.5" />
                   Share

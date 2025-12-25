@@ -209,7 +209,12 @@ export function GlobalSearchProvider({ children }: GlobalSearchProviderProps) {
   // ──────────────────────────────────────────────────────────────────────────
 
   const addRecentItem = useCallback((item: Omit<RecentItem, "visitedAt">) => {
-    saveRecentItem(item);
+    // Add timestamp before saving
+    const itemWithTimestamp: RecentItem = {
+      ...item,
+      visitedAt: Date.now(),
+    };
+    saveRecentItem(itemWithTimestamp);
     setRecentItems(getRecentItems());
   }, []);
 
@@ -287,6 +292,23 @@ export function GlobalSearchProvider({ children }: GlobalSearchProviderProps) {
       query,
       setQuery,
       results,
+      groupedResults: results ? { ...results, actions: matchedActions.map(a => ({
+        id: a.id,
+        category: "actions" as const,
+        title: a.label,
+        subtitle: a.description,
+        label: a.label,
+        description: a.description,
+        keywords: a.keywords,
+        action_category: a.category,
+        icon: a.icon,
+        action_type: a.behavior === "navigate" ? "navigation" as const : "command" as const,
+        behavior: a.behavior,
+        destination: a.href,
+        href: a.href,
+        command: a.functionId,
+        functionId: a.functionId,
+      })) } : null,
       matchedActions,
       isLoading,
       error,

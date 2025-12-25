@@ -4,7 +4,7 @@ import { getSettings } from "@/app/actions/settings";
 import { getBulkRecipeNutrition } from "@/app/actions/nutrition";
 import { getActiveCustomBadges } from "@/app/actions/custom-badges";
 import { getFolders, getAllFolderMemberships } from "@/app/actions/folders";
-import { getSystemSmartFolders, getUserSmartFolders, getCookingHistoryContext, getSmartFolderCache, rebuildSmartFolderCache, hasSmartFolderCache } from "@/app/actions/smart-folders";
+import { getSystemSmartFolders, getUserSmartFolders, getCookingHistoryContext, getSmartFolderCache } from "@/app/actions/smart-folders";
 import { getRecentlyCookedRecipeIds } from "@/app/actions/cooking-history";
 import { createClient } from "@/lib/supabase/server";
 import { RecipesPageClient } from "@/components/recipes/recipes-page-client";
@@ -75,14 +75,10 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   const cookingHistoryContext = cookingHistoryResult.data || { cookCounts: {}, lastCookedDates: {} };
   const folderMemberships = folderMembershipsResult.data || {};
   const recentlyCookedIds = recentlyCookedResult.data || [];
-  let smartFolderCache = smartFolderCacheResult.data || {};
+  const smartFolderCache = smartFolderCacheResult.data || {};
 
-  // Rebuild smart folder cache if empty (lazy initialization)
-  if (Object.keys(smartFolderCache).length === 0 && (systemSmartFolders.length > 0 || userSmartFolders.length > 0) && recipes.length > 0) {
-    await rebuildSmartFolderCache();
-    const refreshedCache = await getSmartFolderCache();
-    smartFolderCache = refreshedCache.data || {};
-  }
+  // NOTE: Removed blocking lazy rebuild - cache is populated by database triggers
+  // Client-side filtering serves as fallback if cache is empty
 
   // Fetch nutrition data (single sequential call - depends on recipe IDs)
   const recipeIds = recipes.map((r) => r.id);
