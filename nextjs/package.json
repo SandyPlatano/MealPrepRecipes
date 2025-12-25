@@ -16,6 +16,9 @@
     "start": "next start -p 3001",
     "lint": "next lint",
     "kill:port": "lsof -ti :3001 | xargs kill -9 2>/dev/null || echo 'Port 3001 is free'",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed"
@@ -95,12 +98,14 @@
     "@types/pako": "^2.0.4",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react-swc": "^4.2.2",
     "dotenv": "^17.2.3",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.1.0",
     "eslint-plugin-react-hooks": "^7.0.1",
     "postcss": "^8",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.16"
   }
 }
