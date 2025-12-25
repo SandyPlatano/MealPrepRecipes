@@ -29,18 +29,18 @@ export default async function PublicDiscoverPage() {
   ]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#111111]">
       {/* Header */}
-      <header className="border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
+      <header className="border-b border-[#222222] sticky top-0 bg-[#111111]/95 backdrop-blur supports-[backdrop-filter]:bg-[#111111]/60 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="hover:opacity-80 transition-opacity">
-            <PixelBrandLogoCompact variant="inline" colorMode="light" />
+            <PixelBrandLogoCompact variant="inline" colorMode="dark" />
           </Link>
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild>
               <Link href="/login">Sign In</Link>
             </Button>
-            <Button asChild>
+            <Button className="bg-[#F97316] hover:bg-[#F97316]/90 text-white" asChild>
               <Link href="/signup">Get Started</Link>
             </Button>
           </div>
@@ -51,28 +51,28 @@ export default async function PublicDiscoverPage() {
         <div className="flex flex-col gap-8">
           {/* Hero Section */}
           <div className="text-center py-8">
-            <h1 className="text-4xl font-bold flex items-center justify-center gap-3">
-              <Sparkles className="h-10 w-10 text-primary" />
+            <h1 className="text-4xl font-bold flex items-center justify-center gap-3 text-[#FDFBF7]">
+              <Sparkles className="h-10 w-10 text-[#F97316]" />
               Discover Community Recipes
             </h1>
-            <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
+            <p className="text-[#888888] mt-2 max-w-2xl mx-auto">
               Explore delicious recipes shared by home cooks around the world.
               Sign up to save your favorites and share your own creations.
             </p>
           </div>
 
           {/* CTA Banner */}
-          <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="bg-[#1a1a1a] border border-[#F97316]/20 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <ChefHat className="h-8 w-8 text-primary" />
+              <ChefHat className="h-8 w-8 text-[#F97316]" />
               <div>
-                <h2 className="font-semibold">Ready to start cooking?</h2>
-                <p className="text-sm text-muted-foreground">
+                <h2 className="font-semibold text-[#FDFBF7]">Ready to start cooking?</h2>
+                <p className="text-sm text-[#888888]">
                   Join for free to save recipes and plan your meals.
                 </p>
               </div>
             </div>
-            <Button asChild>
+            <Button className="bg-[#F97316] hover:bg-[#F97316]/90 text-white" asChild>
               <Link href="/signup" className="gap-2">
                 Create Free Account
                 <ArrowRight className="h-4 w-4" />
@@ -83,8 +83,8 @@ export default async function PublicDiscoverPage() {
           {/* Trending Section */}
           {trendingResult.data && trendingResult.data.length > 0 && (
             <section>
-              <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
-                <TrendingUp className="h-5 w-5 text-orange-500" />
+              <h2 className="text-xl font-semibold flex items-center gap-2 mb-4 text-[#FDFBF7]">
+                <TrendingUp className="h-5 w-5 text-[#F97316]" />
                 Trending Now
               </h2>
               <Suspense fallback={<TrendingCarouselSkeleton />}>
@@ -98,7 +98,7 @@ export default async function PublicDiscoverPage() {
 
           {/* All Recipes Grid */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">Browse All Recipes</h2>
+            <h2 className="text-xl font-semibold mb-4 text-[#FDFBF7]">Browse All Recipes</h2>
             <Suspense fallback={<GridSkeleton />}>
               <CommunityRecipeGrid
                 initialRecipes={recipesResult.data || []}
@@ -110,8 +110,8 @@ export default async function PublicDiscoverPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t mt-16 py-8">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+      <footer className="border-t border-[#222222] mt-16 py-8">
+        <div className="container mx-auto px-4 text-center text-sm text-[#888888]">
           <p>
             &copy; {new Date().getFullYear()} MealPrepRecipes. All rights
             reserved.

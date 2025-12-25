@@ -132,17 +132,31 @@ export function PlannerDayColumn({
           />
         ))}
 
-        {/* Empty State / Add Button */}
-        {assignments.length === 0 && !pickerOpen && (
+        {/* Empty State */}
+        {assignments.length === 0 && !pickerOpen && isPast && (
           <div className="flex-1 flex items-center justify-center py-8">
-            <p className="text-sm text-muted-foreground">
-              {isPast ? "No meals" : "Empty"}
-            </p>
+            <p className="text-sm text-muted-foreground">No meals</p>
           </div>
         )}
 
-        {/* Inline Add Button */}
-        {!isPast && (
+        {/* Empty State - Clickable for future days */}
+        {assignments.length === 0 && !pickerOpen && !isPast && (
+          <button
+            type="button"
+            onClick={() => setPickerOpen(true)}
+            className="flex-1 flex flex-col items-center justify-center gap-2 py-6 rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group"
+          >
+            <div className="size-8 rounded-full bg-muted/50 group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+              <Plus className="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+            <span className="text-sm text-muted-foreground group-hover:text-primary transition-colors">
+              Add a meal
+            </span>
+          </button>
+        )}
+
+        {/* Inline Add Button - shown when there are already meals */}
+        {!isPast && assignments.length > 0 && (
           <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
             <PopoverTrigger asChild>
               <Button

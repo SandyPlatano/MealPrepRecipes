@@ -222,12 +222,34 @@ export const PlannerDayRow = memo(function PlannerDayRow({
           )}
         >
           {assignments.length === 0 ? (
-            <div className={cn(
-              "text-sm text-muted-foreground text-center",
-              viewSettings?.density === "compact" ? "py-4 md:py-6" : "py-6 md:py-8"
-            )}>
-              {isPast ? "No meals planned" : "No meals yet"}
-            </div>
+            isPast ? (
+              <div className={cn(
+                "text-sm text-muted-foreground text-center",
+                viewSettings?.density === "compact" ? "py-4 md:py-6" : "py-6 md:py-8"
+              )}>
+                No meals planned
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setModalOpen(true)}
+                disabled={isPending}
+                className={cn(
+                  "w-full flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group/empty",
+                  viewSettings?.density === "compact" ? "py-4 md:py-6" : "py-6 md:py-8",
+                  isPending && "opacity-50 cursor-not-allowed"
+                )}
+              >
+                <div className="size-10 rounded-full bg-muted/50 group-hover/empty:bg-primary/10 flex items-center justify-center transition-colors">
+                  <svg className="size-5 text-muted-foreground group-hover/empty:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                <span className="text-sm text-muted-foreground group-hover/empty:text-primary transition-colors">
+                  Add a meal
+                </span>
+              </button>
+            )
           ) : (
             // Render grouped assignments by meal type
             MEAL_TYPE_ORDER.map((mealType) => {

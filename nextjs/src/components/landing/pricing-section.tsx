@@ -76,14 +76,14 @@ function PricingCard({ tier }: { tier: PricingTier }) {
       className={cn(
         'relative p-6 transition-all duration-200 rounded-lg border-3 hover:-translate-y-1',
         tier.highlighted
-          ? 'bg-[#1a1a1a] border-[#FF4400] shadow-[8px_8px_0_#FF4400] md:scale-105 z-10'
+          ? 'bg-[#1a1a1a] border-[#F97316] shadow-[8px_8px_0_#F97316] md:scale-105 z-10'
           : 'bg-[#1a1a1a] border-[#333] shadow-[8px_8px_0_#000]'
       )}
     >
       {/* Badge */}
       {tier.badge && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <span className="bg-[#FF4400] text-white font-mono font-bold px-3 py-1 text-xs whitespace-nowrap border-2 border-[#111]">
+          <span className="bg-[#F97316] text-white font-mono font-bold px-3 py-1 text-xs whitespace-nowrap border-2 border-[#111]">
             {tier.badge}
           </span>
         </div>
@@ -113,7 +113,7 @@ function PricingCard({ tier }: { tier: PricingTier }) {
             <span
               className={cn(
                 'mt-0.5 w-4 h-4 flex items-center justify-center flex-shrink-0',
-                tier.highlighted ? 'bg-[#FF4400]' : 'bg-[#444]'
+                tier.highlighted ? 'bg-[#F97316]' : 'bg-[#444]'
               )}
             >
               <Check className="w-3 h-3 text-white" strokeWidth={3} />
@@ -129,7 +129,7 @@ function PricingCard({ tier }: { tier: PricingTier }) {
         className={cn(
           'w-full font-mono font-bold py-3 px-4 border-3 transition-all',
           tier.highlighted
-            ? 'bg-[#FF4400] text-white border-[#111] shadow-[4px_4px_0_#111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_#111]'
+            ? 'bg-[#F97316] text-white border-[#111] shadow-[4px_4px_0_#111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_#111]'
             : 'bg-[#222] text-white border-[#444] shadow-[4px_4px_0_#000] hover:bg-[#333] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_#000]'
         )}
       >
@@ -176,11 +176,11 @@ export function PricingSection() {
         <div className="text-center mt-16">
           <p className="text-[#888888] text-sm">
             Questions?{' '}
-            <a href="#faq" className="text-[#ff66c4] hover:underline hover:text-[#FF4400] transition-colors">
+            <a href="#faq" className="text-[#ff66c4] hover:underline hover:text-[#F97316] transition-colors">
               Check our FAQ
             </a>{' '}
             or{' '}
-            <a href="mailto:hello@mealprep.app" className="text-[#ff66c4] hover:underline hover:text-[#FF4400] transition-colors">
+            <a href="mailto:hello@mealprep.app" className="text-[#ff66c4] hover:underline hover:text-[#F97316] transition-colors">
               contact us
             </a>
           </p>

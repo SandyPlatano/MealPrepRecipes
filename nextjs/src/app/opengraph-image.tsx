@@ -20,9 +20,9 @@ export default async function Image() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#FFF8F5",
+          backgroundColor: "#111111",
           backgroundImage:
-            "radial-gradient(circle at 10% 20%, rgba(249, 115, 22, 0.05) 0%, transparent 50%), radial-gradient(circle at 90% 80%, rgba(249, 115, 22, 0.05) 0%, transparent 50%)",
+            "radial-gradient(circle at 10% 20%, rgba(255, 68, 0, 0.1) 0%, transparent 50%), radial-gradient(circle at 90% 80%, rgba(255, 68, 0, 0.1) 0%, transparent 50%)",
         }}
       >
         {/* Top accent bar */}
@@ -33,7 +33,7 @@ export default async function Image() {
             left: 0,
             right: 0,
             height: 8,
-            background: "linear-gradient(90deg, #f97316, #ea580c)",
+            background: "linear-gradient(90deg, #F97316, #cc3600)",
           }}
         />
 
@@ -46,7 +46,7 @@ export default async function Image() {
             width: 120,
             height: 120,
             borderRadius: 24,
-            backgroundColor: "#f97316",
+            backgroundColor: "#F97316",
             marginBottom: 32,
             fontSize: 64,
           }}
@@ -59,7 +59,7 @@ export default async function Image() {
           style={{
             fontSize: 72,
             fontStyle: "italic",
-            color: "#f97316",
+            color: "#F97316",
             marginBottom: -8,
           }}
         >
@@ -71,7 +71,7 @@ export default async function Image() {
           style={{
             fontSize: 48,
             fontWeight: 700,
-            color: "#0a0a0a",
+            color: "#FDFBF7",
             fontFamily: "monospace",
             marginBottom: 24,
           }}
@@ -83,7 +83,7 @@ export default async function Image() {
         <div
           style={{
             fontSize: 28,
-            color: "#737373",
+            color: "#a3a3a3",
           }}
         >
           Finally, an answer. Meal planning made simple.
@@ -96,7 +96,7 @@ export default async function Image() {
             bottom: 40,
             fontSize: 20,
             fontWeight: 600,
-            color: "#f97316",
+            color: "#F97316",
             fontFamily: "monospace",
           }}
         >
@@ -111,7 +111,7 @@ export default async function Image() {
             left: 0,
             right: 0,
             height: 8,
-            background: "linear-gradient(90deg, #f97316, #ea580c)",
+            background: "linear-gradient(90deg, #F97316, #cc3600)",
           }}
         />
       </div>

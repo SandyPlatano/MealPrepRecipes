@@ -1,23 +1,30 @@
 /**
  * Brand Color Constants - Single Source of Truth
  *
- * This file defines all brand colors for "Babe, What's for Dinner?"
+ * MIDNIGHT EMBER Brand Identity for "Babe, What's for Dinner?"
+ *
+ * Palette:
+ * - Midnight (#111111) - Primary dark background
+ * - Ember (#F97316) - Primary accent/CTA
+ * - Hunter (#1a4d2e) - Secondary accent
+ * - Cream (#FDFBF7) - Primary text on dark
+ *
  * Use these constants in:
  * - Email templates (hex values)
  * - Dynamic OG images (hex/rgb values)
  * - TypeScript validation
  * - Documentation generation
  *
- * CSS variables in globals.css and Tailwind config should stay in sync.
+ * CSS variables in globals.css should stay in sync.
  */
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// CORE BRAND COLORS
+// CORE BRAND COLORS - MIDNIGHT EMBER
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const BRAND_COLORS = {
   /**
-   * Primary Brand Color - Warm Coral/Orange
+   * Primary Brand Color - Coral Orange
    * Used for: CTAs, links, primary accents, brand emphasis
    * Psychology: Energy, appetite, warmth, enthusiasm
    */
@@ -30,54 +37,78 @@ export const BRAND_COLORS = {
   },
 
   /**
-   * Secondary Brand Color - Sage Green
-   * Used for: Success states, secondary accents, natural/fresh feel
-   * Psychology: Freshness, health, calm, nature
+   * Secondary Brand Color - Hunter Green
+   * Used for: Secondary accents, success states, natural/fresh feel
+   * Psychology: Depth, sophistication, nature, calm
    */
   secondary: {
-    name: "Sage",
-    hex: "#6AA84F",
-    hsl: "142 40% 45%",
-    rgb: "106, 168, 79",
-    rgbArray: [106, 168, 79] as const,
+    name: "Hunter",
+    hex: "#1a4d2e",
+    hsl: "150 48% 20%",
+    rgb: "26, 77, 46",
+    rgbArray: [26, 77, 46] as const,
   },
 
   /**
    * Tertiary - Cream/Off-white
-   * Used for: Backgrounds, subtle highlights, warmth
+   * Used for: Text on dark backgrounds, subtle highlights
    */
   cream: {
     name: "Cream",
-    hex: "#EEEFE9",
-    hsl: "40 30% 96%",
-    rgb: "238, 239, 233",
-    rgbArray: [238, 239, 233] as const,
+    hex: "#FDFBF7",
+    hsl: "40 60% 98%",
+    rgb: "253, 251, 247",
+    rgbArray: [253, 251, 247] as const,
   },
 
   /**
-   * Neutral - Warm Gray
+   * Background - Midnight
+   * Used for: Primary backgrounds, dark theme base
+   */
+  midnight: {
+    name: "Midnight",
+    hex: "#111111",
+    hsl: "0 0% 7%",
+    rgb: "17, 17, 17",
+    rgbArray: [17, 17, 17] as const,
+  },
+
+  /**
+   * Surface - Slightly lighter dark
+   * Used for: Card backgrounds, elevated surfaces
+   */
+  surface: {
+    name: "Surface",
+    hex: "#222222",
+    hsl: "0 0% 13%",
+    rgb: "34, 34, 34",
+    rgbArray: [34, 34, 34] as const,
+  },
+
+  /**
+   * Neutral - Muted Gray
    * Used for: Muted text, borders, subtle elements
    */
-  warmGray: {
-    name: "Warm Gray",
-    hex: "#737373",
-    hsl: "25 10% 45%",
-    rgb: "115, 115, 115",
-    rgbArray: [115, 115, 115] as const,
+  muted: {
+    name: "Muted",
+    hex: "#888888",
+    hsl: "0 0% 53%",
+    rgb: "136, 136, 136",
+    rgbArray: [136, 136, 136] as const,
   },
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// CORAL PALETTE (Primary Scale)
+// EMBER PALETTE (Primary Scale - Orange/Red)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export const CORAL_PALETTE = {
+export const EMBER_PALETTE = {
   50: { hex: "#FFF7ED", hsl: "25 100% 97%" },
   100: { hex: "#FFEDD5", hsl: "25 100% 93%" },
   200: { hex: "#FED7AA", hsl: "25 100% 85%" },
   300: { hex: "#FDBA74", hsl: "25 100% 75%" },
   400: { hex: "#FB923C", hsl: "25 95% 63%" },
-  500: { hex: "#F97316", hsl: "25 95% 53%" }, // PRIMARY
+  500: { hex: "#F97316", hsl: "25 95% 53%" }, // PRIMARY CORAL
   600: { hex: "#EA580C", hsl: "25 90% 45%" },
   700: { hex: "#C2410C", hsl: "25 85% 38%" },
   800: { hex: "#9A3412", hsl: "25 80% 30%" },
@@ -85,23 +116,29 @@ export const CORAL_PALETTE = {
   950: { hex: "#431407", hsl: "25 70% 12%" },
 } as const;
 
+// Alias for backwards compatibility
+export const CORAL_PALETTE = EMBER_PALETTE;
+
 // ═══════════════════════════════════════════════════════════════════════════════
-// SAGE PALETTE (Secondary Scale)
+// HUNTER PALETTE (Secondary Scale - Dark Green)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export const SAGE_PALETTE = {
-  50: { hex: "#F0FDF4", hsl: "142 50% 97%" },
-  100: { hex: "#DCFCE7", hsl: "142 45% 92%" },
-  200: { hex: "#BBF7D0", hsl: "142 40% 82%" },
-  300: { hex: "#86EFAC", hsl: "142 38% 68%" },
-  400: { hex: "#4ADE80", hsl: "142 36% 55%" },
-  500: { hex: "#6AA84F", hsl: "142 40% 45%" }, // SECONDARY
-  600: { hex: "#16A34A", hsl: "142 42% 36%" },
-  700: { hex: "#15803D", hsl: "142 40% 28%" },
-  800: { hex: "#166534", hsl: "142 38% 22%" },
-  900: { hex: "#14532D", hsl: "142 35% 16%" },
-  950: { hex: "#052E16", hsl: "142 30% 10%" },
+export const HUNTER_PALETTE = {
+  50: { hex: "#E8F5EC", hsl: "150 40% 94%" },
+  100: { hex: "#D0EBD9", hsl: "150 40% 87%" },
+  200: { hex: "#A1D6B3", hsl: "150 40% 74%" },
+  300: { hex: "#72C28D", hsl: "150 40% 60%" },
+  400: { hex: "#4A9F66", hsl: "150 40% 46%" },
+  500: { hex: "#2d5a4a", hsl: "150 35% 27%" }, // Lighter hunter
+  600: { hex: "#1e5631", hsl: "150 48% 23%" },
+  700: { hex: "#1a4d2e", hsl: "150 48% 20%" }, // PRIMARY HUNTER
+  800: { hex: "#14432a", hsl: "150 50% 17%" },
+  900: { hex: "#0f3520", hsl: "150 55% 14%" },
+  950: { hex: "#082010", hsl: "150 60% 8%" },
 } as const;
+
+// Alias for backwards compatibility
+export const SAGE_PALETTE = HUNTER_PALETTE;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SEMANTIC COLORS
@@ -109,40 +146,40 @@ export const SAGE_PALETTE = {
 
 export const SEMANTIC_COLORS = {
   success: {
-    hex: "#6AA84F",
-    hsl: "142 40% 45%",
+    hex: "#1a4d2e",
+    hsl: "150 48% 20%",
     description: "Success states, confirmations, completed actions",
   },
   warning: {
-    hex: "#F7A501",
-    hsl: "40 95% 49%",
+    hex: "#FF8C00",
+    hsl: "33 100% 50%",
     description: "Warnings, cautions, attention-required states",
   },
   error: {
-    hex: "#EF4444",
-    hsl: "0 84% 60%",
+    hex: "#DC2626",
+    hsl: "0 84% 50%",
     description: "Errors, destructive actions, critical alerts",
   },
   info: {
-    hex: "#3B82F6",
-    hsl: "217 91% 60%",
+    hex: "#0EA5E9",
+    hsl: "199 89% 48%",
     description: "Informational messages, tips, guidance",
   },
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// BOLD ACCENT COLORS (PostHog-inspired)
+// BOLD ACCENT COLORS
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const BOLD_COLORS = {
-  red: { hex: "#F54E00", hsl: "18 100% 48%" },
-  orange: { hex: "#EB9D2A", hsl: "39 83% 54%" },
-  yellow: { hex: "#F7A501", hsl: "40 95% 49%" },
-  green: { hex: "#6AA84F", hsl: "142 40% 45%" },
-  teal: { hex: "#29DBBC", hsl: "168 71% 51%" },
-  blue: { hex: "#2F80FA", hsl: "217 95% 58%" },
-  purple: { hex: "#A621C8", hsl: "289 75% 46%" },
-  pink: { hex: "#E34C6F", hsl: "349 73% 60%" },
+  red: { hex: "#DC2626", hsl: "0 84% 50%" },
+  orange: { hex: "#F97316", hsl: "25 95% 53%" },
+  yellow: { hex: "#F59E0B", hsl: "38 92% 50%" },
+  green: { hex: "#1a4d2e", hsl: "150 48% 20%" },
+  teal: { hex: "#0D9488", hsl: "175 84% 32%" },
+  blue: { hex: "#0EA5E9", hsl: "199 89% 48%" },
+  purple: { hex: "#7C3AED", hsl: "262 83% 58%" },
+  pink: { hex: "#EC4899", hsl: "330 81% 60%" },
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -150,27 +187,35 @@ export const BOLD_COLORS = {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const FOOD_COLORS = {
-  tomato: { hex: "#F54E00", dark: "#D94400" },
-  avocado: { hex: "#6AA84F", light: "#7FBF5F" },
-  butter: { hex: "#F7A501", dark: "#D99000" },
-  eggplant: { hex: "#A621C8", light: "#B94AD6" },
-  carrot: { hex: "#EB9D2A", dark: "#D08A20" },
+  tomato: { hex: "#F97316", dark: "#EA580C" },
+  avocado: { hex: "#1a4d2e", light: "#2d5a4a" },
+  butter: { hex: "#F59E0B", dark: "#D97706" },
+  eggplant: { hex: "#7C3AED", light: "#8B5CF6" },
+  carrot: { hex: "#FB923C", dark: "#F97316" },
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// DARK/LIGHT MODE BACKGROUNDS
+// DARK-ONLY BACKGROUNDS (Midnight Ember is dark-only)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const BACKGROUNDS = {
+  // Dark-only theme - no light mode
+  default: {
+    background: { hex: "#111111", hsl: "0 0% 7%" },
+    card: { hex: "#1a1a1a", hsl: "0 0% 10%" },
+    muted: { hex: "#222222", hsl: "0 0% 13%" },
+    surface: { hex: "#2a2a2a", hsl: "0 0% 16%" },
+  },
+  // Legacy aliases
   light: {
-    background: { hex: "#FEFDFB", hsl: "30 25% 99%" },
-    card: { hex: "#FEFDFB", hsl: "30 20% 99%" },
-    muted: { hex: "#F5F5F4", hsl: "30 10% 95%" },
+    background: { hex: "#111111", hsl: "0 0% 7%" },
+    card: { hex: "#1a1a1a", hsl: "0 0% 10%" },
+    muted: { hex: "#222222", hsl: "0 0% 13%" },
   },
   dark: {
-    background: { hex: "#121212", hsl: "0 0% 7%" },
-    card: { hex: "#171717", hsl: "0 0% 9%" },
-    muted: { hex: "#262626", hsl: "0 0% 15%" },
+    background: { hex: "#111111", hsl: "0 0% 7%" },
+    card: { hex: "#1a1a1a", hsl: "0 0% 10%" },
+    muted: { hex: "#222222", hsl: "0 0% 13%" },
   },
 } as const;
 
@@ -179,11 +224,11 @@ export const BACKGROUNDS = {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const CHART_COLORS = [
-  BRAND_COLORS.primary.hex, // Coral
-  BRAND_COLORS.secondary.hex, // Sage
+  BRAND_COLORS.primary.hex, // Ember
+  BRAND_COLORS.secondary.hex, // Hunter
   BOLD_COLORS.yellow.hex,
   BOLD_COLORS.teal.hex,
-  BOLD_COLORS.purple.hex,
+  BOLD_COLORS.blue.hex,
 ] as const;
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -274,8 +319,12 @@ export function getWcagLevel(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export type BrandColorKey = keyof typeof BRAND_COLORS;
-export type CoralShade = keyof typeof CORAL_PALETTE;
-export type SageShade = keyof typeof SAGE_PALETTE;
+export type EmberShade = keyof typeof EMBER_PALETTE;
+export type HunterShade = keyof typeof HUNTER_PALETTE;
 export type SemanticColorKey = keyof typeof SEMANTIC_COLORS;
 export type BoldColorKey = keyof typeof BOLD_COLORS;
 export type FoodColorKey = keyof typeof FOOD_COLORS;
+
+// Legacy type aliases
+export type CoralShade = EmberShade;
+export type SageShade = HunterShade;

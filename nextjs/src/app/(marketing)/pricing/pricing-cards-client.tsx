@@ -70,15 +70,15 @@ export function PricingCardsClient() {
   return (
     <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
       {/* Free Plan */}
-      <Card className="border-2 relative">
+      <Card className="border-3 border-[#333] bg-[#1a1a1a] relative">
         <CardHeader className="pb-8">
-          <CardTitle className="text-2xl">{SUBSCRIPTION_TIERS.free.name}</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl text-[#FDFBF7]">{SUBSCRIPTION_TIERS.free.name}</CardTitle>
+          <CardDescription className="text-[#888888]">
             Everything you need to start meal planning
           </CardDescription>
           <div className="pt-6">
-            <span className="text-5xl font-mono font-bold">${SUBSCRIPTION_TIERS.free.price}</span>
-            <span className="text-muted-foreground ml-2">forever</span>
+            <span className="text-5xl font-mono font-bold text-[#FDFBF7]">${SUBSCRIPTION_TIERS.free.price}</span>
+            <span className="text-[#888888] ml-2">forever</span>
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
@@ -89,14 +89,14 @@ export function PricingCardsClient() {
             </Button>
           </Link>
           <div className="flex flex-col gap-4">
-            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            <p className="text-sm font-medium text-[#888888] uppercase tracking-wide">
               Includes:
             </p>
             <ul className="flex flex-col gap-3">
               {SUBSCRIPTION_TIERS.free.features.map((feature, idx) => (
                 <li key={idx} className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">{feature}</span>
+                  <Check className="h-5 w-5 text-[#1a4d2e] mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-[#FDFBF7]">{feature}</span>
                 </li>
               ))}
             </ul>
@@ -105,19 +105,19 @@ export function PricingCardsClient() {
       </Card>
 
       {/* Pro Plan */}
-      <Card className="border-2 border-primary relative overflow-hidden">
-        <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-bl-lg flex items-center gap-1">
+      <Card className="border-3 border-[#F97316] bg-[#1a1a1a] relative overflow-hidden">
+        <div className="absolute top-0 right-0 bg-[#F97316] text-white text-xs font-medium px-3 py-1 rounded-bl-lg flex items-center gap-1">
           <Sparkles className="h-3 w-3" />
           Popular
         </div>
         <CardHeader className="pb-8">
-          <CardTitle className="text-2xl">{SUBSCRIPTION_TIERS.pro.name}</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl text-[#FDFBF7]">{SUBSCRIPTION_TIERS.pro.name}</CardTitle>
+          <CardDescription className="text-[#888888]">
             Perfect for growing families
           </CardDescription>
           <div className="pt-6">
-            <span className="text-5xl font-mono font-bold">${SUBSCRIPTION_TIERS.pro.price}</span>
-            <span className="text-muted-foreground ml-2">per month</span>
+            <span className="text-5xl font-mono font-bold text-[#FDFBF7]">${SUBSCRIPTION_TIERS.pro.price}</span>
+            <span className="text-[#888888] ml-2">per month</span>
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
@@ -140,14 +140,14 @@ export function PricingCardsClient() {
             )}
           </Button>
           <div className="flex flex-col gap-4">
-            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            <p className="text-sm font-medium text-[#888888] uppercase tracking-wide">
               Everything in Free, plus:
             </p>
             <ul className="flex flex-col gap-3">
               {SUBSCRIPTION_TIERS.pro.features.map((feature, idx) => (
                 <li key={idx} className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">{feature}</span>
+                  <Check className="h-5 w-5 text-[#1a4d2e] mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-[#FDFBF7]">{feature}</span>
                 </li>
               ))}
             </ul>
@@ -156,15 +156,15 @@ export function PricingCardsClient() {
       </Card>
 
       {/* Premium Plan */}
-      <Card className="border-2 relative">
+      <Card className="border-3 border-[#333] bg-[#1a1a1a] relative">
         <CardHeader className="pb-8">
-          <CardTitle className="text-2xl">{SUBSCRIPTION_TIERS.premium.name}</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl text-[#FDFBF7]">{SUBSCRIPTION_TIERS.premium.name}</CardTitle>
+          <CardDescription className="text-[#888888]">
             For serious meal planners
           </CardDescription>
           <div className="pt-6">
-            <span className="text-5xl font-mono font-bold">${SUBSCRIPTION_TIERS.premium.price}</span>
-            <span className="text-muted-foreground ml-2">per month</span>
+            <span className="text-5xl font-mono font-bold text-[#FDFBF7]">${SUBSCRIPTION_TIERS.premium.price}</span>
+            <span className="text-[#888888] ml-2">per month</span>
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
@@ -188,14 +188,14 @@ export function PricingCardsClient() {
             )}
           </Button>
           <div className="flex flex-col gap-4">
-            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            <p className="text-sm font-medium text-[#888888] uppercase tracking-wide">
               Everything in Pro, plus:
             </p>
             <ul className="flex flex-col gap-3">
               {SUBSCRIPTION_TIERS.premium.features.map((feature, idx) => (
                 <li key={idx} className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">{feature}</span>
+                  <Check className="h-5 w-5 text-[#1a4d2e] mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-[#FDFBF7]">{feature}</span>
                 </li>
               ))}
             </ul>

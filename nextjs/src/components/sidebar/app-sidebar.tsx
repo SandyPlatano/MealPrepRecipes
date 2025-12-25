@@ -2,9 +2,16 @@
 
 import * as React from "react";
 import type { User } from "@supabase/supabase-js";
+import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 import { useSidebar, SIDEBAR_DIMENSIONS } from "./sidebar-context";
 import { SidebarUserArea } from "./sidebar-user-area";
 import { SidebarQuickNav } from "./sidebar-quick-nav";
@@ -77,7 +84,6 @@ export function AppSidebar({
         return (
           <SidebarQuickNav
             key={key}
-            onSearchClick={onSearchClick}
             onNewRecipeClick={onNewRecipeClick}
           />
         );
@@ -126,6 +132,46 @@ export function AppSidebar({
           user={user}
           logoutAction={logoutAction}
         />
+
+        {/* Search - Prominent standalone button below user area */}
+        {onSearchClick && (
+          <div className="px-2 py-2 border-b">
+            {isIconOnly ? (
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onSearchClick}
+                    className="w-full h-10 text-muted-foreground hover:text-foreground hover:bg-accent"
+                  >
+                    <Search className="size-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="flex items-center gap-2">
+                  <span>Search</span>
+                  <kbd className="text-[10px] font-medium bg-muted px-1.5 py-0.5 rounded">/</kbd>
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <Button
+                variant="outline"
+                onClick={onSearchClick}
+                className={cn(
+                  "w-full justify-start gap-3 h-10",
+                  "text-muted-foreground hover:text-foreground",
+                  "bg-muted/50 hover:bg-muted border-border/50"
+                )}
+              >
+                <Search className="size-4 shrink-0" />
+                <span className="flex-1 text-left text-sm">Search...</span>
+                <kbd className="ml-auto text-[10px] font-medium text-muted-foreground bg-background px-1.5 py-0.5 rounded border border-border/50">
+                  /
+                </kbd>
+              </Button>
+            )}
+          </div>
+        )}
 
         {/* Scrollable Content */}
         <ScrollArea className="flex-1">

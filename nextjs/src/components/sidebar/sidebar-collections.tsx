@@ -52,13 +52,28 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { SidebarSection } from "./sidebar-section";
 import { useSidebar } from "./sidebar-context";
 import { SmartFolderDialog } from "@/components/folders/smart-folder-dialog";
 import { CreateFolderDialog } from "@/components/folders/create-folder-dialog";
 import { deleteSmartFolder } from "@/app/actions/smart-folders";
-import { deleteFolder, getFolderCategories } from "@/app/actions/folders";
+import {
+  deleteFolder,
+  getFolderCategories,
+  deleteFolderCategory,
+  updateFolderCategory,
+} from "@/app/actions/folders";
 import { getIconComponent } from "@/lib/sidebar/sidebar-icons";
 import type {
   FolderWithChildren,
@@ -101,6 +116,12 @@ export function SidebarCollections({
   // Regular folder management state
   const [createFolderOpen, setCreateFolderOpen] = useState(false);
   const [deletingFolder, setDeletingFolder] = useState<FolderWithChildren | null>(null);
+
+  // Category management state
+  const [editingCategory, setEditingCategory] = useState<FolderCategoryWithFolders | null>(null);
+  const [editCategoryName, setEditCategoryName] = useState("");
+  const [editCategoryEmoji, setEditCategoryEmoji] = useState("");
+  const [deletingCategory, setDeletingCategory] = useState<FolderCategoryWithFolders | null>(null);
 
   // Client-side fetched categories (since props may be empty)
   const [fetchedCategories, setFetchedCategories] = useState<FolderCategoryWithFolders[]>([]);
@@ -190,6 +211,50 @@ export function SidebarCollections({
         loadCategories(); // Refetch sidebar data
       }
       setDeletingFolder(null);
+    });
+  };
+
+  // Handle edit category
+  const handleEditCategory = (category: FolderCategoryWithFolders) => {
+    setEditCategoryName(category.name);
+    setEditCategoryEmoji(category.emoji || "");
+    setEditingCategory(category);
+  };
+
+  // Handle save category edit
+  const handleSaveCategoryEdit = () => {
+    if (!editingCategory) return;
+
+    startTransition(async () => {
+      const result = await updateFolderCategory(editingCategory.id, {
+        name: editCategoryName,
+        emoji: editCategoryEmoji || null,
+      });
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Category updated");
+        router.refresh();
+        loadCategories();
+      }
+      setEditingCategory(null);
+    });
+  };
+
+  // Handle delete category
+  const handleDeleteCategory = () => {
+    if (!deletingCategory) return;
+
+    startTransition(async () => {
+      const result = await deleteFolderCategory(deletingCategory.id);
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Category deleted");
+        router.refresh();
+        loadCategories();
+      }
+      setDeletingCategory(null);
     });
   };
 
@@ -379,6 +444,8 @@ export function SidebarCollections({
             onItemClick={handleClick}
             onDeleteFolder={(folder) => setDeletingFolder(folder)}
             onCreateFolder={() => setCreateFolderOpen(true)}
+            onEditCategory={() => handleEditCategory(category)}
+            onDeleteCategory={() => setDeletingCategory(category)}
           />
         ))}
       </div>
@@ -459,6 +526,82 @@ export function SidebarCollections({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteFolder}
+              disabled={isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Edit Category Dialog */}
+      <Dialog
+        open={editingCategory !== null}
+        onOpenChange={(open) => !open && setEditingCategory(null)}
+      >
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Edit Category</DialogTitle>
+            <DialogDescription>
+              Update the name and emoji for this category.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="category-name">Name</Label>
+              <Input
+                id="category-name"
+                value={editCategoryName}
+                onChange={(e) => setEditCategoryName(e.target.value)}
+                placeholder="Category name"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="category-emoji">Emoji (optional)</Label>
+              <Input
+                id="category-emoji"
+                value={editCategoryEmoji}
+                onChange={(e) => setEditCategoryEmoji(e.target.value)}
+                placeholder="📁"
+                className="w-20"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditingCategory(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveCategoryEdit}
+              disabled={isPending || !editCategoryName.trim()}
+            >
+              {isPending ? "Saving..." : "Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Category Confirmation Dialog */}
+      <AlertDialog
+        open={deletingCategory !== null}
+        onOpenChange={(open) => !open && setDeletingCategory(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this category?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the &quot;{deletingCategory?.name}&quot; category.
+              All folders in this category will be moved to &quot;Uncategorized&quot;.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteCategory}
               disabled={isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
@@ -650,6 +793,8 @@ interface CategoryItemProps {
   onItemClick: () => void;
   onDeleteFolder: (folder: FolderWithChildren) => void;
   onCreateFolder: () => void;
+  onEditCategory: () => void;
+  onDeleteCategory: () => void;
 }
 
 function CategoryItem({
@@ -658,29 +803,64 @@ function CategoryItem({
   onItemClick,
   onDeleteFolder,
   onCreateFolder,
+  onEditCategory,
+  onDeleteCategory,
 }: CategoryItemProps) {
   const [isOpen, setIsOpen] = React.useState(true);
 
   if (category.folders.length === 0) return null;
 
+  // Check if this is a special category that can't be edited/deleted
+  const isUncategorized = category.id === "uncategorized";
+  const canEdit = !isUncategorized;
+  const canDelete = !isUncategorized && !category.is_system;
+
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="pt-2">
-      <CollapsibleTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start gap-1 h-7 px-3 text-xs font-medium text-muted-foreground hover:text-foreground"
-        >
-          <ChevronRight
-            className={cn(
-              "h-3 w-3 transition-transform duration-200",
-              isOpen && "rotate-90"
-            )}
-          />
-          {category.emoji && <span>{category.emoji}</span>}
-          <span className="uppercase tracking-wider">{category.name}</span>
-        </Button>
-      </CollapsibleTrigger>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start gap-1 h-7 px-3 text-xs font-medium text-muted-foreground hover:text-foreground"
+            >
+              <ChevronRight
+                className={cn(
+                  "h-3 w-3 transition-transform duration-200",
+                  isOpen && "rotate-90"
+                )}
+              />
+              {category.emoji && <span>{category.emoji}</span>}
+              <span className="uppercase tracking-wider">{category.name}</span>
+            </Button>
+          </CollapsibleTrigger>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          {canEdit && (
+            <ContextMenuItem onClick={onEditCategory}>
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit Category
+            </ContextMenuItem>
+          )}
+          <ContextMenuItem onClick={onCreateFolder}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Folder
+          </ContextMenuItem>
+          {canDelete && (
+            <>
+              <ContextMenuSeparator />
+              <ContextMenuItem
+                className="text-destructive"
+                onClick={onDeleteCategory}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Category
+              </ContextMenuItem>
+            </>
+          )}
+        </ContextMenuContent>
+      </ContextMenu>
       <CollapsibleContent className="flex flex-col gap-0.5 pt-0.5">
         {category.folders.map((folder) => (
           <FolderItem

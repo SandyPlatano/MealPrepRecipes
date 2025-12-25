@@ -9,17 +9,17 @@ export const metadata: Metadata = {
 
 export default function WaitlistPage() {
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
+    <div className="flex min-h-[60vh] flex-col items-center justify-center text-center bg-[#111111] px-4">
       {/* Logo/Icon placeholder */}
       <div className="mb-6 text-5xl">🍽️</div>
 
       {/* Headline */}
-      <h1 className="mb-3 text-3xl font-bold tracking-tight sm:text-4xl">
+      <h1 className="mb-3 text-3xl font-bold tracking-tight sm:text-4xl text-[#FDFBF7]">
         No more &quot;what&apos;s for dinner?&quot; arguments
       </h1>
 
       {/* Subheadline */}
-      <p className="mb-8 max-w-md text-lg text-muted-foreground">
+      <p className="mb-8 max-w-md text-lg text-[#888888]">
         The meal planning app that knows whose turn it is to cook tonight.
         Built for couples and families.
       </p>
@@ -28,7 +28,7 @@ export default function WaitlistPage() {
       <WaitlistForm source="website" className="w-full max-w-md" />
 
       {/* Trust text */}
-      <p className="mt-6 text-sm text-muted-foreground">
+      <p className="mt-6 text-sm text-[#888888]">
         We&apos;ll only email you when we launch. No spam, ever.
       </p>
     </div>

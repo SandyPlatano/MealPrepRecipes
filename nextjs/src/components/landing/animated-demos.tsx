@@ -61,10 +61,10 @@ export function RecipeCardDemo() {
         <div className={`
           bg-[#1a1a1a] rounded-lg border-2 border-[#333] p-4
           transition-all duration-300
-          ${phase >= 1 ? "border-[#FF4400]/50" : ""}
+          ${phase >= 1 ? "border-[#F97316]/50" : ""}
         `}>
           {/* Image placeholder */}
-          <div className="h-32 bg-gradient-to-br from-[#FF4400]/20 to-[#FF4400]/5 rounded-lg mb-3 flex items-center justify-center">
+          <div className="h-32 bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 rounded-lg mb-3 flex items-center justify-center">
             <span className="text-4xl">🍕</span>
           </div>
 
@@ -96,7 +96,7 @@ export function RecipeCardDemo() {
               flex-1 relative h-10 rounded-lg
               font-mono text-sm font-bold transition-all duration-500 ease-out
               ${phase >= 2
-                ? "bg-[#FF4400] text-white border-2 border-[#FF4400]"
+                ? "bg-[#F97316] text-white border-2 border-[#F97316]"
                 : "bg-[#222] text-[#888] border-2 border-[#333]"
               }
             `}>
@@ -209,7 +209,7 @@ export function MealPlanDemo() {
                 h-16 rounded-lg border-2 flex flex-col items-center justify-center
                 transition-all duration-300
                 ${i < filledDays
-                  ? "bg-[#FF4400]/10 border-[#FF4400]/50"
+                  ? "bg-[#F97316]/10 border-[#F97316]/50"
                   : "bg-[#111] border-[#333] border-dashed"
                 }
               `}>
@@ -283,7 +283,7 @@ export function ShoppingListDemo() {
       <div className="w-full max-w-[280px] mx-auto">
         {/* Header */}
         <div className="flex items-center gap-2 mb-4">
-          <ShoppingCart className="w-4 h-4 text-[#FF4400]" />
+          <ShoppingCart className="w-4 h-4 text-[#F97316]" />
           <h4 className="font-mono font-bold text-white text-sm">Shopping List</h4>
           <span className="ml-auto text-xs text-[#666] font-mono">
             {checked.length}/{SHOPPING_ITEMS.length}
@@ -327,7 +327,7 @@ export function ShoppingListDemo() {
         {/* Progress Bar */}
         <div className="h-2 bg-[#222] rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-[#FF4400] to-[#FF6B35] transition-all duration-500"
+            className="h-full bg-gradient-to-r from-[#F97316] to-[#FF6B35] transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -402,9 +402,9 @@ export function CookModeDemo() {
       <div className="w-full max-w-[280px] mx-auto">
         {/* Header */}
         <div className="flex items-center gap-2 mb-4">
-          <ChefHat className="w-4 h-4 text-[#FF4400]" />
+          <ChefHat className="w-4 h-4 text-[#F97316]" />
           <h4 className="font-mono font-bold text-white text-sm">Cook Mode</h4>
-          <span className={`ml-auto text-sm font-mono text-[#FF4400] transition-opacity duration-300 ${timerActive ? "opacity-100 animate-pulse" : "opacity-0"}`}>
+          <span className={`ml-auto text-sm font-mono text-[#F97316] transition-opacity duration-300 ${timerActive ? "opacity-100 animate-pulse" : "opacity-0"}`}>
             ⏱ {timer}
           </span>
         </div>
@@ -417,7 +417,7 @@ export function CookModeDemo() {
               className={`
                 flex items-center gap-3 p-3 rounded-lg border-2 transition-all duration-300
                 ${i === currentStep
-                  ? "bg-[#FF4400]/10 border-[#FF4400]"
+                  ? "bg-[#F97316]/10 border-[#F97316]"
                   : i < currentStep
                     ? "bg-green-500/10 border-green-500/30"
                     : "bg-[#111] border-[#222]"
@@ -428,7 +428,7 @@ export function CookModeDemo() {
                 relative w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold
                 transition-all duration-300
                 ${i === currentStep
-                  ? "bg-[#FF4400] text-white"
+                  ? "bg-[#F97316] text-white"
                   : i < currentStep
                     ? "bg-green-500 text-white"
                     : "bg-[#222] text-[#666]"

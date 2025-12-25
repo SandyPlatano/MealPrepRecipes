@@ -22,11 +22,11 @@ export default function PixelDemoPage() {
 
         {/* Header */}
         <div className="text-center mb-16">
-          <Link href="/" className="text-[#FDFBF7]/50 hover:text-[#FF4400] font-mono text-sm mb-4 inline-block">
+          <Link href="/" className="text-[#FDFBF7]/50 hover:text-[#F97316] font-mono text-sm mb-4 inline-block">
             ← Back to Home
           </Link>
           <h1 className="font-mono text-4xl font-bold text-[#FDFBF7] mb-4">
-            Brand Logo <span className="text-[#FF4400]">System</span>
+            Brand Logo <span className="text-[#F97316]">System</span>
           </h1>
           <p className="text-[#FDFBF7]/60 font-mono">
             Official logo components for different contexts
@@ -36,8 +36,8 @@ export default function PixelDemoPage() {
         {/* ════════════════════════════════════════════════════════════════════ */}
         {/* ⭐ THE CHOSEN ONE - #8 Speech Bubble Style                          */}
         {/* ════════════════════════════════════════════════════════════════════ */}
-        <section className="mb-20 p-8 bg-gradient-to-b from-[#FF4400]/20 to-transparent rounded-2xl border-2 border-[#FF4400]/50">
-          <h2 className="font-mono text-2xl font-bold text-[#FF4400] mb-2 text-center">
+        <section className="mb-20 p-8 bg-gradient-to-b from-[#F97316]/20 to-transparent rounded-2xl border-2 border-[#F97316]/50">
+          <h2 className="font-mono text-2xl font-bold text-[#F97316] mb-2 text-center">
             Official Brand Logo
           </h2>
           <p className="text-[#FDFBF7]/50 font-mono text-sm mb-8 text-center">
@@ -45,7 +45,7 @@ export default function PixelDemoPage() {
           </p>
 
           {/* Hero Size */}
-          <div className="bg-[#1a1a1a] p-12 rounded-lg border-2 border-[#FF4400]/30 mb-8">
+          <div className="bg-[#1a1a1a] p-12 rounded-lg border-2 border-[#F97316]/30 mb-8">
             <div className="flex justify-center mb-4">
               <PixelBrandLogoHero showTagline />
             </div>
@@ -209,12 +209,12 @@ export default function PixelDemoPage() {
             Usage Guide
           </h2>
           <div className="space-y-4 font-mono text-sm text-[#FDFBF7]/70">
-            <p><span className="text-[#FF4400]">PixelBrandIcon</span> - Favicons, loading states, tight spaces</p>
-            <p><span className="text-[#FF4400]">PixelBrandLogoMini</span> - Mobile navigation bars</p>
-            <p><span className="text-[#FF4400]">PixelBrandLogoCompact</span> - Desktop navigation headers</p>
-            <p><span className="text-[#FF4400]">PixelBrandLogo</span> - General branding, auth pages</p>
-            <p><span className="text-[#FF4400]">PixelBrandLogoHero</span> - Landing pages, marketing</p>
-            <p><span className="text-[#FF4400]">PixelBrandLogoStacked</span> - Square spaces, app store</p>
+            <p><span className="text-[#F97316]">PixelBrandIcon</span> - Favicons, loading states, tight spaces</p>
+            <p><span className="text-[#F97316]">PixelBrandLogoMini</span> - Mobile navigation bars</p>
+            <p><span className="text-[#F97316]">PixelBrandLogoCompact</span> - Desktop navigation headers</p>
+            <p><span className="text-[#F97316]">PixelBrandLogo</span> - General branding, auth pages</p>
+            <p><span className="text-[#F97316]">PixelBrandLogoHero</span> - Landing pages, marketing</p>
+            <p><span className="text-[#F97316]">PixelBrandLogoStacked</span> - Square spaces, app store</p>
           </div>
         </section>
 

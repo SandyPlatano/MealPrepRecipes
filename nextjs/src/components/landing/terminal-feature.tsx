@@ -82,7 +82,7 @@ export function TerminalFeature() {
                   key={index}
                   className="flex items-start gap-4 group cursor-default"
                 >
-                  <span className="mt-1.5 w-4 h-4 bg-[#FF4400] flex-shrink-0 group-hover:scale-110 transition-transform" />
+                  <span className="mt-1.5 w-4 h-4 bg-[#F97316] flex-shrink-0 group-hover:scale-110 transition-transform" />
                   <p className="text-[#FDFBF7]/80 text-lg group-hover:text-[#FDFBF7] transition-colors">
                     {feature.text}
                   </p>
@@ -93,15 +93,15 @@ export function TerminalFeature() {
             {/* Stats */}
             <div className="flex gap-6 pt-4 border-t border-[#FDFBF7]/10">
               <div>
-                <div className="font-mono text-2xl font-bold text-[#FF4400]">10K+</div>
+                <div className="font-mono text-2xl font-bold text-[#F97316]">10K+</div>
                 <div className="text-sm text-[#FDFBF7]/50">Recipes Imported</div>
               </div>
               <div>
-                <div className="font-mono text-2xl font-bold text-[#FF4400]">2 sec</div>
+                <div className="font-mono text-2xl font-bold text-[#F97316]">2 sec</div>
                 <div className="text-sm text-[#FDFBF7]/50">Avg Import Time</div>
               </div>
               <div>
-                <div className="font-mono text-2xl font-bold text-[#FF4400]">99%</div>
+                <div className="font-mono text-2xl font-bold text-[#F97316]">99%</div>
                 <div className="text-sm text-[#FDFBF7]/50">Success Rate</div>
               </div>
             </div>

@@ -651,13 +651,14 @@ export async function clearDayAssignments(weekStart: string, dayOfWeek: DayOfWee
   return { error: null };
 }
 
-// Mark a meal plan as sent (finalized)
-export async function markMealPlanAsSent(weekStart: string) {
+// Mark a meal plan as sent (finalized) - internal version without revalidation
+// Use this when calling during render (e.g., confirmation page)
+async function markMealPlanAsSentInternal(weekStart: string) {
   const { user, household, error: authError } = await getCachedUserWithHousehold();
 
   if (authError || !user || !household) {
     console.error("[markMealPlanAsSent] Auth error:", authError?.message || "No household found");
-    return { error: authError?.message || "No household found" };
+    return { error: authError?.message || "No household found", householdId: null };
   }
 
   const supabase = await createClient();
@@ -671,12 +672,12 @@ export async function markMealPlanAsSent(weekStart: string) {
 
   if (fetchError) {
     console.error("[markMealPlanAsSent] Fetch error:", fetchError.message);
-    return { error: fetchError.message };
+    return { error: fetchError.message, householdId: household.household_id };
   }
 
   if (!existingPlans || existingPlans.length === 0) {
     console.error("[markMealPlanAsSent] No meal plan found for week:", weekStart, "household:", household.household_id);
-    return { error: "No meal plan found for this week" };
+    return { error: "No meal plan found for this week", householdId: household.household_id };
   }
 
   const existingPlan = existingPlans[0];
@@ -691,19 +692,35 @@ export async function markMealPlanAsSent(weekStart: string) {
 
   if (error) {
     console.error("[markMealPlanAsSent] Update error:", error.message);
-    return { error: error.message };
+    return { error: error.message, householdId: household.household_id };
   }
 
   if (!updatedPlans || updatedPlans.length === 0) {
     console.error("[markMealPlanAsSent] Update returned no data");
-    return { error: "Failed to update meal plan" };
+    return { error: "Failed to update meal plan", householdId: household.household_id };
   }
 
   console.log("[markMealPlanAsSent] Successfully updated meal plan:", updatedPlans[0].id, "sent_at:", updatedPlans[0].sent_at);
 
-  revalidateTag(`meal-plan-${household.household_id}`, "default");
-  revalidatePath("/app/history");
-  return { error: null, data: updatedPlans[0] };
+  return { error: null, data: updatedPlans[0], householdId: household.household_id };
+}
+
+// Mark a meal plan as sent (finalized) - for use during render (no revalidation)
+export async function markMealPlanAsSentDuringRender(weekStart: string) {
+  return markMealPlanAsSentInternal(weekStart);
+}
+
+// Mark a meal plan as sent (finalized) - server action version with revalidation
+export async function markMealPlanAsSent(weekStart: string) {
+  const result = await markMealPlanAsSentInternal(weekStart);
+
+  // Only revalidate if we have a household ID (successful auth)
+  if (result.householdId) {
+    revalidateTag(`meal-plan-${result.householdId}`, "default");
+    revalidatePath("/app/history");
+  }
+
+  return { error: result.error, data: result.data };
 }
 
 // Get all past meal plans that were sent

@@ -434,7 +434,7 @@ export function RecipeDetail({
   // ============================================================================
 
   const renderIngredientsSection = () => (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-4">
       {/* Title Row */}
       <div className="flex items-baseline gap-2">
         <h3 className="text-lg font-semibold">Ingredients</h3>
@@ -453,7 +453,7 @@ export function RecipeDetail({
 
       {/* Serving Controls Row */}
       {canScale && (
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-3">
           {/* Quick presets */}
           <div className="flex gap-2 flex-wrap items-center">
             <Button
@@ -517,7 +517,7 @@ export function RecipeDetail({
         </p>
       )}
 
-      <ul className="flex flex-col">
+      <ul className="flex flex-col gap-2.5">
         {displayIngredients.map((ingredient, index) => {
           const ingredientSubs = substitutions.get(recipe.ingredients[index] || ingredient);
           return (
@@ -538,9 +538,9 @@ export function RecipeDetail({
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-80" align="start">
-                      <div className="flex flex-col">
+                      <div className="flex flex-col gap-2">
                         <p className="text-sm font-medium">Substitutions for {recipe.ingredients[index]}:</p>
-                        <ul className="flex flex-col">
+                        <ul className="flex flex-col gap-1.5">
                           {ingredientSubs.map((sub, subIndex) => (
                             <li key={subIndex} className="text-sm">
                               <div className="font-medium">{sub.substitute_ingredient}</div>
@@ -564,15 +564,15 @@ export function RecipeDetail({
 
   const renderInstructionsSection = () => (
     <div className="flex flex-col">
-      <div>
+      <div className="mb-2">
         <h3 className="text-lg font-semibold">Instructions</h3>
         <p className="text-sm text-muted-foreground">
           {recipe.instructions.length} steps
         </p>
       </div>
-      <ol className="flex flex-col">
+      <ol className="flex flex-col gap-5">
         {recipe.instructions.map((instruction, index) => (
-          <li key={index} className="flex gap-3">
+          <li key={index} className="flex gap-4 pb-5 border-b border-border/50 last:border-0 last:pb-0">
             <span className="flex-shrink-0 size-6 rounded-full bg-primary text-primary-foreground text-sm flex items-center justify-center font-medium">
               {index + 1}
             </span>
@@ -659,7 +659,7 @@ export function RecipeDetail({
             {localHistory.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <ul className="flex flex-col">
+        <ul className="flex flex-col gap-2">
           {localHistory.slice(0, 5).map((entry) => (
             <li
               key={entry.id}
@@ -929,7 +929,7 @@ export function RecipeDetail({
             </TooltipProvider>
           </div>
         </CardHeader>
-        <CardContent className="flex flex-col">
+        <CardContent className="flex flex-col gap-4">
           {/* Meta Info */}
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
             {recipe.prep_time && (

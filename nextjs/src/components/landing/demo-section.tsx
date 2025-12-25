@@ -73,7 +73,7 @@ export function DemoSection() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <span className="inline-block font-mono text-xs font-bold text-[#FF4400] bg-[#FF4400]/10 border border-[#FF4400]/30 px-3 py-1 rounded-full mb-4">
+          <span className="inline-block font-mono text-xs font-bold text-[#F97316] bg-[#F97316]/10 border border-[#F97316]/30 px-3 py-1 rounded-full mb-4">
             See It In Action
           </span>
           <h2 className="font-mono text-3xl md:text-4xl font-bold text-white mb-4">
@@ -98,7 +98,7 @@ export function DemoSection() {
                     flex items-center gap-2 px-4 py-2.5 rounded-lg font-mono text-sm font-bold
                     transition-all duration-200
                     ${isActive
-                      ? "bg-[#FF4400] text-white shadow-[4px_4px_0_#111]"
+                      ? "bg-[#F97316] text-white shadow-[4px_4px_0_#111]"
                       : "text-[#888] hover:text-white hover:bg-[#222]"
                     }
                   `}
@@ -134,7 +134,7 @@ export function DemoSection() {
             <ul className="space-y-3 mb-8">
               {currentTab.features.map((feature) => (
                 <li key={feature} className="flex items-center gap-3">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#FF4400]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#F97316]" />
                   <span className="text-[#ccc] text-sm font-mono">{feature}</span>
                 </li>
               ))}
@@ -143,7 +143,7 @@ export function DemoSection() {
             {/* CTA */}
             <Link
               href="/signup"
-              className="inline-flex items-center gap-2 bg-[#FF4400] text-white font-mono font-bold px-6 py-3 rounded-lg border-2 border-[#111] shadow-[4px_4px_0_#111] hover:shadow-[2px_2px_0_#111] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+              className="inline-flex items-center gap-2 bg-[#F97316] text-white font-mono font-bold px-6 py-3 rounded-lg border-2 border-[#111] shadow-[4px_4px_0_#111] hover:shadow-[2px_2px_0_#111] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
             >
               Try It Free <ArrowRight className="w-4 h-4" />
             </Link>

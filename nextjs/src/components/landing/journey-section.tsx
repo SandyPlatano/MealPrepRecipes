@@ -116,12 +116,12 @@ function JourneyStepComponent({ step, isReversed, isVisible }: {
           transition-all duration-500 delay-100
           ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"}
         `}>
-          <div className="flex items-center gap-2 bg-[#FF4400]/10 border border-[#FF4400]/30 px-3 py-1 rounded-full">
-            <span className="w-6 h-6 flex items-center justify-center rounded-full bg-[#FF4400] text-white text-xs font-mono font-bold">
+          <div className="flex items-center gap-2 bg-[#F97316]/10 border border-[#F97316]/30 px-3 py-1 rounded-full">
+            <span className="w-6 h-6 flex items-center justify-center rounded-full bg-[#F97316] text-white text-xs font-mono font-bold">
               {step.number}
             </span>
-            <Icon className="w-4 h-4 text-[#FF4400]" />
-            <span className="text-xs font-mono font-bold text-[#FF4400] uppercase tracking-wide">
+            <Icon className="w-4 h-4 text-[#F97316]" />
+            <span className="text-xs font-mono font-bold text-[#F97316] uppercase tracking-wide">
               {step.title}
             </span>
           </div>
@@ -157,7 +157,7 @@ function JourneyStepComponent({ step, isReversed, isVisible }: {
               `}
               style={{ transitionDelay: `${400 + i * 100}ms` }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FF4400]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#F97316]" />
               <span className="text-[#ccc] text-sm font-mono">{detail}</span>
             </li>
           ))}
@@ -174,7 +174,7 @@ function JourneyStepComponent({ step, isReversed, isVisible }: {
 function JourneyConnector({ isVisible, index }: { isVisible: boolean; index: number }) {
   // Alternate between orange and pink for visual variety
   const isPink = index % 2 === 1;
-  const accentColor = isPink ? "#ff66c4" : "#FF4400";
+  const accentColor = isPink ? "#ff66c4" : "#F97316";
 
   return (
     <div className="flex justify-center py-12 relative">
@@ -233,7 +233,7 @@ function JourneyCompletion({ isVisible }: { isVisible: boolean }) {
       {/* Celebration icon - pink glow accent */}
       <div className={`
         inline-flex items-center justify-center w-20 h-20 rounded-full
-        bg-gradient-to-br from-[#FF4400] to-[#ff66c4]
+        bg-gradient-to-br from-[#F97316] to-[#ff66c4]
         mb-6 shadow-[0_0_30px_rgba(255,102,196,0.3)]
         transition-all duration-700 delay-200
         ${isVisible ? "rotate-0" : "rotate-12"}

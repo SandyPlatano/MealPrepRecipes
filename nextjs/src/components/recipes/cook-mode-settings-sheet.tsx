@@ -271,9 +271,9 @@ export function CookModeSettingsSheet({
             </div>
 
             {/* Right Column: All Settings */}
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-4">
               {/* Presets Section */}
-              <div className="flex flex-col pb-4 border-b">
+              <div className="flex flex-col gap-3 pb-4 border-b">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-medium">Quick Presets</Label>
                   <Button
@@ -305,7 +305,7 @@ export function CookModeSettingsSheet({
 
                 {/* Custom Presets */}
                 {customPresets.length > 0 && (
-                  <div className="flex flex-col">
+                  <div className="flex flex-col gap-2">
                     <Label className="text-xs text-muted-foreground">Your Presets</Label>
                     <div className="grid grid-cols-2 gap-2">
                       {customPresets.map((preset) => (
@@ -330,7 +330,7 @@ export function CookModeSettingsSheet({
               {/* Display Row - Font + Theme */}
               <div className="grid grid-cols-2 gap-3">
                 {/* Font Size */}
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-1.5">
                   <Label className="text-xs text-muted-foreground flex items-center gap-1">
                     <Type className="h-3 w-3" />
                     Font Size
@@ -357,7 +357,7 @@ export function CookModeSettingsSheet({
                 </div>
 
                 {/* Theme Override */}
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-1.5">
                   <Label className="text-xs text-muted-foreground">Theme</Label>
                   <div className="flex gap-1">
                     {(
@@ -388,7 +388,7 @@ export function CookModeSettingsSheet({
               </div>
 
               {/* Navigation Mode */}
-              <div className="flex flex-col">
+              <div className="flex flex-col gap-1.5">
                 <Label className="text-xs text-muted-foreground flex items-center gap-1">
                   <Navigation className="h-3 w-3" />
                   Navigation
@@ -420,7 +420,7 @@ export function CookModeSettingsSheet({
               {/* Toggles Grid - More Compact */}
               <div className="grid grid-cols-2 gap-x-4 gap-y-2 pt-2 border-t">
                 {/* Visibility Toggles */}
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-2">
                   <Label className="text-xs text-muted-foreground flex items-center gap-1">
                     <Eye className="h-3 w-3" />
                     Show/Hide
@@ -449,7 +449,7 @@ export function CookModeSettingsSheet({
                 </div>
 
                 {/* Behavior Toggles */}
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-2">
                   <Label className="text-xs text-muted-foreground flex items-center gap-1">
                     <Zap className="h-3 w-3" />
                     Behavior

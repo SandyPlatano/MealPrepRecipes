@@ -28,7 +28,7 @@ export function CTASection() {
       <div className="absolute bottom-4 right-4 text-[#ff66c4]/30 rotate-180">
         <PixelDecoration variant="corner" />
       </div>
-      <div className="absolute top-4 right-4 text-[#FF4400]/20 rotate-90">
+      <div className="absolute top-4 right-4 text-[#F97316]/20 rotate-90">
         <PixelDecoration variant="corner" />
       </div>
 
@@ -43,7 +43,7 @@ export function CTASection() {
           <h2 className="font-mono text-3xl md:text-4xl lg:text-5xl font-bold text-[#FDFBF7] mb-6">
             Ready to answer
             <br />
-            <span className="text-[#FF4400]">&ldquo;What&apos;s for dinner?&rdquo;</span>
+            <span className="text-[#F97316]">&ldquo;What&apos;s for dinner?&rdquo;</span>
           </h2>
 
           {/* Subheadline */}

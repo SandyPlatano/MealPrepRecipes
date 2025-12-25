@@ -53,11 +53,15 @@
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
 
-  /* Brand Colors */
-  --color-brand-coral: hsl(var(--brand-coral));
-  --color-brand-sage: hsl(var(--brand-sage));
+  /* Brand Colors - Midnight Ember */
+  --color-brand-ember: hsl(var(--brand-ember));
+  --color-brand-hunter: hsl(var(--brand-hunter));
   --color-brand-cream: hsl(var(--brand-cream));
-  --color-brand-warm-gray: hsl(var(--brand-warm-gray));
+  --color-brand-midnight: hsl(var(--brand-midnight));
+  /* Legacy aliases */
+  --color-brand-coral: hsl(var(--brand-ember));
+  --color-brand-sage: hsl(var(--brand-hunter));
+  --color-brand-warm-gray: hsl(var(--brand-muted));
 
   /* ─────────────────────────────────────────────────────────────────────────
      Coral Palette
@@ -291,97 +295,97 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 @layer base {
+  /* ═══════════════════════════════════════════════════════════════════════════
+     MIDNIGHT EMBER - Dark-Only Theme
+     No light mode - entire app uses dark background
+     ═══════════════════════════════════════════════════════════════════════════ */
   :root {
-    /* Background & Foreground - Warm whites */
-    --background: 30 25% 99%;
-    --foreground: 25 15% 10%;
+    /* Background & Foreground - Midnight dark */
+    --background: 0 0% 7%;           /* #111111 */
+    --foreground: 40 60% 98%;        /* #FDFBF7 cream */
 
-    /* Card - Slightly warm white */
-    --card: 30 20% 99%;
-    --card-foreground: 25 15% 10%;
+    /* Card - Slightly elevated dark */
+    --card: 0 0% 10%;                /* #1a1a1a */
+    --card-foreground: 40 60% 98%;   /* #FDFBF7 cream */
 
     /* Popover */
-    --popover: 30 25% 99%;
-    --popover-foreground: 25 15% 10%;
+    --popover: 0 0% 10%;             /* #1a1a1a */
+    --popover-foreground: 40 60% 98%;
 
-    /* Primary - Warm Coral/Orange (#F97316) */
-    --primary: 25 95% 53%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary - Coral Orange (#F97316) */
+    --primary: 25 95% 53%;           /* #F97316 */
+    --primary-foreground: 0 0% 100%; /* white */
 
-    /* Secondary - Soft warm gray */
-    --secondary: 30 10% 95%;
-    --secondary-foreground: 25 15% 15%;
+    /* Secondary - Hunter Green (#1a4d2e) */
+    --secondary: 150 48% 20%;        /* #1a4d2e */
+    --secondary-foreground: 40 60% 98%;
 
-    /* Muted - Warm light gray */
-    --muted: 30 10% 95%;
-    --muted-foreground: 25 10% 45%;
+    /* Muted - Dark gray surface */
+    --muted: 0 0% 13%;               /* #222222 */
+    --muted-foreground: 0 0% 53%;    /* #888888 */
 
-    /* Accent - Sage Green for freshness */
-    --accent: 142 30% 93%;
-    --accent-foreground: 142 40% 25%;
+    /* Accent - Hunter Green for secondary highlights */
+    --accent: 150 48% 20%;           /* #1a4d2e */
+    --accent-foreground: 40 60% 98%;
 
     /* Destructive */
-    --destructive: 0 84% 60%;
+    --destructive: 0 84% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Border & Input - Warm grays */
-    --border: 30 15% 88%;
-    --input: 30 15% 88%;
-    --ring: 25 95% 53%;
+    /* Border & Input - Dark borders */
+    --border: 0 0% 18%;              /* subtle dark border */
+    --input: 0 0% 18%;
+    --ring: 25 95% 53%;              /* Coral for focus rings */
 
-    /* Charts - Warm palette */
-    --chart-1: 25 95% 53%;
-    --chart-2: 142 40% 45%;
-    --chart-3: 35 85% 55%;
-    --chart-4: 15 80% 60%;
-    --chart-5: 45 90% 55%;
+    /* Charts - Midnight Coral palette */
+    --chart-1: 25 95% 53%;           /* Coral */
+    --chart-2: 150 48% 20%;          /* Hunter */
+    --chart-3: 38 92% 50%;           /* Yellow */
+    --chart-4: 175 84% 32%;          /* Teal */
+    --chart-5: 199 89% 48%;          /* Blue */
 
     --radius: 0.5rem;
 
-    /* Brand colors */
+    /* Brand colors - Midnight Coral */
+    --brand-ember: 25 95% 53%;       /* #F97316 */
+    --brand-hunter: 150 48% 20%;     /* #1a4d2e */
+    --brand-cream: 40 60% 98%;       /* #FDFBF7 */
+    --brand-midnight: 0 0% 7%;       /* #111111 */
+    --brand-muted: 0 0% 53%;         /* #888888 */
+
+    /* Legacy aliases for backwards compatibility */
     --brand-coral: 25 95% 53%;
-    --brand-sage: 142 40% 45%;
-    --brand-cream: 40 30% 96%;
-    --brand-warm-gray: 25 10% 45%;
+    --brand-sage: 150 48% 20%;
+    --brand-warm-gray: 0 0% 53%;
   }
 
+  /* Dark class is now a no-op since we're dark-only, but keep for compatibility */
   .dark {
-    /* Dark mode - True dark, neutral tones */
+    /* Same as :root - dark-only theme */
     --background: 0 0% 7%;
-    --foreground: 0 0% 95%;
-
-    --card: 0 0% 9%;
-    --card-foreground: 0 0% 95%;
-
-    --popover: 0 0% 9%;
-    --popover-foreground: 0 0% 95%;
-
-    /* Primary stays vibrant in dark mode */
-    --primary: 25 95% 55%;
+    --foreground: 40 60% 98%;
+    --card: 0 0% 10%;
+    --card-foreground: 40 60% 98%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 40 60% 98%;
+    --primary: 25 95% 53%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 95%;
-
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
-
-    /* Accent - Sage Green (visible in dark mode) */
-    --accent: 142 30% 20%;
-    --accent-foreground: 142 40% 85%;
-
-    --destructive: 0 70% 50%;
+    --secondary: 150 48% 20%;
+    --secondary-foreground: 40 60% 98%;
+    --muted: 0 0% 13%;
+    --muted-foreground: 0 0% 53%;
+    --accent: 150 48% 20%;
+    --accent-foreground: 40 60% 98%;
+    --destructive: 0 84% 50%;
     --destructive-foreground: 0 0% 100%;
-
     --border: 0 0% 18%;
     --input: 0 0% 18%;
-    --ring: 25 95% 55%;
-
-    --chart-1: 25 95% 55%;
-    --chart-2: 142 50% 50%;
-    --chart-3: 35 80% 50%;
-    --chart-4: 15 75% 55%;
-    --chart-5: 45 85% 50%;
+    --ring: 25 95% 53%;
+    --chart-1: 25 95% 53%;
+    --chart-2: 150 48% 20%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 175 84% 32%;
+    --chart-5: 199 89% 48%;
   }
 }
 

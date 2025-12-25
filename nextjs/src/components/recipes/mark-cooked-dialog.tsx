@@ -162,8 +162,8 @@ export function MarkCookedDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col py-4">
-          <div className="flex flex-col">
+        <div className="flex flex-col gap-6 py-4">
+          <div className="flex flex-col gap-2">
             <Label>Rate this cook (optional)</Label>
             <div className="flex justify-center py-2">
               <StarRating rating={rating} onChange={setRating} size="lg" />
@@ -171,7 +171,7 @@ export function MarkCookedDialog({
           </div>
 
           {/* Photo Upload */}
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-2">
             <Label>Add a photo (optional)</Label>
             {photoPreview ? (
               <div className="relative rounded-lg overflow-hidden border bg-muted">
@@ -227,7 +227,7 @@ export function MarkCookedDialog({
             )}
           </div>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="modifications">What did you change? (optional)</Label>
             <Textarea
               id="modifications"
@@ -239,7 +239,7 @@ export function MarkCookedDialog({
             />
           </div>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="notes">Notes (optional)</Label>
             <Textarea
               id="notes"

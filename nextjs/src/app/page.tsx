@@ -130,7 +130,7 @@ function Navigation() {
                   <Link href="#features">
                     <Button
                       variant="ghost"
-                      className="w-full justify-start text-base font-mono text-[#111111]/70 hover:text-[#FF4400] hover:bg-[#111111]/5"
+                      className="w-full justify-start text-base font-mono text-[#111111]/70 hover:text-[#F97316] hover:bg-[#111111]/5"
                     >
                       Features
                     </Button>
@@ -140,7 +140,7 @@ function Navigation() {
                   <Link href="#pricing">
                     <Button
                       variant="ghost"
-                      className="w-full justify-start text-base font-mono text-[#111111]/70 hover:text-[#FF4400] hover:bg-[#111111]/5"
+                      className="w-full justify-start text-base font-mono text-[#111111]/70 hover:text-[#F97316] hover:bg-[#111111]/5"
                     >
                       Pricing
                     </Button>
@@ -150,7 +150,7 @@ function Navigation() {
                   <Link href="#faq">
                     <Button
                       variant="ghost"
-                      className="w-full justify-start text-base font-mono text-[#111111]/70 hover:text-[#FF4400] hover:bg-[#111111]/5"
+                      className="w-full justify-start text-base font-mono text-[#111111]/70 hover:text-[#F97316] hover:bg-[#111111]/5"
                     >
                       FAQ
                     </Button>
@@ -160,7 +160,7 @@ function Navigation() {
                   <Link href="/about">
                     <Button
                       variant="ghost"
-                      className="w-full justify-start text-base font-mono text-[#111111]/70 hover:text-[#FF4400] hover:bg-[#111111]/5"
+                      className="w-full justify-start text-base font-mono text-[#111111]/70 hover:text-[#F97316] hover:bg-[#111111]/5"
                     >
                       About
                     </Button>
@@ -179,7 +179,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   return (
     <Link
       href={href}
-      className="text-sm font-mono font-medium text-[#111111]/70 hover:text-[#FF4400] focus-visible:text-[#FF4400] focus-visible:outline-none focus-visible:underline underline-offset-4 transition-colors"
+      className="text-sm font-mono font-medium text-[#111111]/70 hover:text-[#F97316] focus-visible:text-[#F97316] focus-visible:outline-none focus-visible:underline underline-offset-4 transition-colors"
     >
       {children}
     </Link>
@@ -200,19 +200,19 @@ function Footer() {
           </Link>
 
           <div className="flex items-center gap-6 text-sm font-mono text-[#FDFBF7]/60">
-            <Link href="#features" className="hover:text-[#FF4400] focus-visible:text-[#FF4400] focus-visible:outline-none transition-colors">
+            <Link href="#features" className="hover:text-[#F97316] focus-visible:text-[#F97316] focus-visible:outline-none transition-colors">
               Features
             </Link>
-            <Link href="#pricing" className="hover:text-[#FF4400] focus-visible:text-[#FF4400] focus-visible:outline-none transition-colors">
+            <Link href="#pricing" className="hover:text-[#F97316] focus-visible:text-[#F97316] focus-visible:outline-none transition-colors">
               Pricing
             </Link>
-            <Link href="/about" className="hover:text-[#FF4400] focus-visible:text-[#FF4400] focus-visible:outline-none transition-colors">
+            <Link href="/about" className="hover:text-[#F97316] focus-visible:text-[#F97316] focus-visible:outline-none transition-colors">
               About
             </Link>
-            <Link href="/privacy" className="hover:text-[#FF4400] focus-visible:text-[#FF4400] focus-visible:outline-none transition-colors">
+            <Link href="/privacy" className="hover:text-[#F97316] focus-visible:text-[#F97316] focus-visible:outline-none transition-colors">
               Privacy
             </Link>
-            <Link href="/terms" className="hover:text-[#FF4400] focus-visible:text-[#FF4400] focus-visible:outline-none transition-colors">
+            <Link href="/terms" className="hover:text-[#F97316] focus-visible:text-[#F97316] focus-visible:outline-none transition-colors">
               Terms
             </Link>
           </div>

@@ -365,7 +365,7 @@ export function ShareExportSheet({
 
             {/* Public Toggle */}
             <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30 mb-3">
-              <div className="flex flex-col">
+              <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
                   {isPublic ? (
                     <Globe className="size-4 text-green-600" />
@@ -391,14 +391,14 @@ export function ShareExportSheet({
             </div>
 
             {/* Share Link */}
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-2">
               <Label className="flex items-center gap-2 text-sm">
                 <Link2 className="size-4" />
                 Private Share Link
               </Label>
 
               {shareUrl ? (
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-2">
                   <div className="flex gap-2">
                     <Input
                       value={shareUrl}

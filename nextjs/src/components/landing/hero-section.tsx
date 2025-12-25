@@ -45,7 +45,7 @@ function TypewriterText() {
   }, [displayText, isDeleting, textIndex, phrases]);
 
   return (
-    <span className="text-[#FF4400] inline-block min-w-[180px]">
+    <span className="text-[#F97316] inline-block min-w-[180px]">
       {displayText}
       <span className="animate-cursor-blink text-[#ff66c4]">|</span>
     </span>
@@ -56,7 +56,7 @@ function TypewriterText() {
 function FeatureCheck({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-2 text-sm">
-      <span className="w-4 h-4 bg-[#FF4400] flex items-center justify-center flex-shrink-0">
+      <span className="w-4 h-4 bg-[#F97316] flex items-center justify-center flex-shrink-0">
         <Check className="w-3 h-3 text-white" strokeWidth={3} />
       </span>
       <span className="text-[#FDFBF7]/80">{children}</span>
@@ -89,7 +89,7 @@ export function HeroSection() {
       />
 
       {/* Corner decorations - alternating orange/pink */}
-      <div className="absolute top-8 left-8 text-[#FF4400]/20">
+      <div className="absolute top-8 left-8 text-[#F97316]/20">
         <PixelDecoration variant="corner" />
       </div>
       <div className="absolute bottom-8 right-8 text-[#ff66c4]/25 rotate-180">

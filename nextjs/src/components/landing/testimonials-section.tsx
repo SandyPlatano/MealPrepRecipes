@@ -55,7 +55,7 @@ function TestimonialCard({
       )}
     >
       {/* Quote icon */}
-      <div className="absolute -top-3 -left-2 text-3xl font-mono text-[#FF4400]">&ldquo;</div>
+      <div className="absolute -top-3 -left-2 text-3xl font-mono text-[#F97316]">&ldquo;</div>
 
       {/* Quote text */}
       <blockquote className="text-[#111111] text-base md:text-lg leading-relaxed mb-6 pt-4">

@@ -209,9 +209,9 @@ export function EditCookingHistoryDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col py-4">
+        <div className="flex flex-col gap-6 py-4">
           {/* Date Picker */}
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-2">
             <Label>Date Cooked</Label>
             <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
@@ -239,7 +239,7 @@ export function EditCookingHistoryDialog({
           </div>
 
           {/* Rating */}
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-2">
             <Label>Rating</Label>
             <div className="flex justify-center py-2">
               <StarRating rating={rating} onChange={setRating} size="lg" />
@@ -257,7 +257,7 @@ export function EditCookingHistoryDialog({
           </div>
 
           {/* Photo Upload */}
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-2">
             <Label>Photo (optional)</Label>
             {displayPhoto ? (
               <div className="relative rounded-lg overflow-hidden border bg-muted">
@@ -314,7 +314,7 @@ export function EditCookingHistoryDialog({
           </div>
 
           {/* Modifications */}
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="modifications">
               What did you change? (optional)
             </Label>
@@ -329,7 +329,7 @@ export function EditCookingHistoryDialog({
           </div>
 
           {/* Notes */}
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="notes">Notes (optional)</Label>
             <Textarea
               id="notes"

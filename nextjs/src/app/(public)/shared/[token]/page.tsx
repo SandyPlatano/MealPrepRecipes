@@ -99,12 +99,12 @@ export default async function SharedRecipePage({
   await trackRecipeView(recipe.id, ip, referrer, userAgent);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#111111]">
       {/* Simple Header */}
-      <header className="border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
+      <header className="border-b border-[#222222] sticky top-0 bg-[#111111]/95 backdrop-blur supports-[backdrop-filter]:bg-[#111111]/60 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="hover:opacity-80 transition-opacity">
-            <PixelBrandLogoCompact variant="inline" colorMode="light" />
+            <PixelBrandLogoCompact variant="inline" colorMode="dark" />
           </Link>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" asChild>
@@ -113,7 +113,7 @@ export default async function SharedRecipePage({
                 Sign In
               </Link>
             </Button>
-            <Button size="sm" asChild>
+            <Button className="bg-[#F97316] hover:bg-[#F97316]/90 text-white" size="sm" asChild>
               <Link href="/signup">Get Started</Link>
             </Button>
           </div>
@@ -205,15 +205,15 @@ export default async function SharedRecipePage({
             )}
 
             {/* CTA for guests */}
-            <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+            <div className="p-4 rounded-lg bg-[#1a1a1a] border border-[#F97316]/20">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="text-center sm:text-left">
-                  <p className="font-medium">Want to save this recipe?</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="font-medium text-[#FDFBF7]">Want to save this recipe?</p>
+                  <p className="text-sm text-[#888888]">
                     Sign up free to save recipes to your collection
                   </p>
                 </div>
-                <Button asChild>
+                <Button className="bg-[#F97316] hover:bg-[#F97316]/90 text-white" asChild>
                   <Link href={`/signup?redirect=/shared/${token}`}>
                     <BookmarkPlus className="h-4 w-4 mr-2" />
                     Save Recipe
@@ -307,14 +307,14 @@ export default async function SharedRecipePage({
 
         {/* Bottom CTA */}
         <div className="mt-8 text-center flex flex-col gap-4">
-          <p className="text-muted-foreground">
+          <p className="text-[#888888]">
             Discover more recipes and plan your meals with MealPrepRecipes
           </p>
           <div className="flex items-center justify-center gap-4">
             <Button variant="outline" asChild>
               <Link href="/login">Sign In</Link>
             </Button>
-            <Button asChild>
+            <Button className="bg-[#F97316] hover:bg-[#F97316]/90 text-white" asChild>
               <Link href="/signup">Create Free Account</Link>
             </Button>
           </div>
@@ -322,8 +322,8 @@ export default async function SharedRecipePage({
       </main>
 
       {/* Simple Footer */}
-      <footer className="border-t mt-16 py-8">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+      <footer className="border-t border-[#222222] mt-16 py-8">
+        <div className="container mx-auto px-4 text-center text-sm text-[#888888]">
           <p>
             &copy; {new Date().getFullYear()} MealPrepRecipes. All rights
             reserved.

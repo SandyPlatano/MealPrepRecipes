@@ -7,21 +7,21 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#111111]">
       <div className="w-full max-w-md flex flex-col gap-8">
         {/* Logo/Brand */}
         <div className="text-center flex flex-col gap-2">
           <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
-            <PixelBrandLogo size="lg" />
+            <PixelBrandLogo size="lg" colorMode="dark" />
           </Link>
-          <p className="text-sm text-muted-foreground">Finally, an answer.</p>
+          <p className="text-sm text-[#888888]">Finally, an answer.</p>
         </div>
 
         {/* Auth Form */}
         {children}
 
         {/* Footer */}
-        <p className="text-center text-xs text-muted-foreground">
+        <p className="text-center text-xs text-[#888888]">
           Made with love (and mild guilt)
         </p>
       </div>

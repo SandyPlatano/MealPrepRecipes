@@ -26,11 +26,11 @@ export default function AboutPage() {
         {/* Hero */}
         <section className="pt-24 pb-16 px-4">
           <div className="max-w-2xl mx-auto text-center">
-            <span className="inline-block bg-[#FF4400] text-white font-mono font-bold px-4 py-2 text-sm mb-8">
+            <span className="inline-block bg-[#F97316] text-white font-mono font-bold px-4 py-2 text-sm mb-8">
               Our Story
             </span>
             <h1 className="font-mono text-4xl md:text-5xl font-bold text-[#FDFBF7] mb-6 leading-tight">
-              About <span className="text-[#FF4400]">Babe, What&apos;s for Dinner?</span>
+              About <span className="text-[#F97316]">Babe, What&apos;s for Dinner?</span>
             </h1>
             <p className="text-xl text-[#FDFBF7]/60 leading-relaxed">
               A love story about meal prep, scattered recipes, and building
@@ -43,7 +43,7 @@ export default function AboutPage() {
         <section className="pb-20 px-4">
           <div className="max-w-md mx-auto">
             <div className="relative aspect-square">
-              <div className="absolute inset-0 bg-[#FF4400] translate-x-2 translate-y-2 sm:translate-x-3 sm:translate-y-3" />
+              <div className="absolute inset-0 bg-[#F97316] translate-x-2 translate-y-2 sm:translate-x-3 sm:translate-y-3" />
               <div className="relative w-full h-full border-3 border-[#FDFBF7] overflow-hidden">
                 <Image
                   src="/images/BabeWFDAboutPic.jpg"
@@ -142,7 +142,7 @@ export default function AboutPage() {
               <p className="text-[#FDFBF7]/50 italic mb-2">
                 With love (and plenty of meal prep),
               </p>
-              <p className="font-mono text-xl font-bold text-[#FF4400]">
+              <p className="font-mono text-xl font-bold text-[#F97316]">
                 The team behind Babe, What&apos;s for Dinner?
               </p>
             </div>
@@ -152,7 +152,7 @@ export default function AboutPage() {
               <Link href="/signup">
                 <button
                   type="button"
-                  className="bg-[#FF4400] text-white font-mono font-bold px-8 py-4 text-lg border-3 border-[#111] shadow-[6px_6px_0_#000] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[3px_3px_0_#000] active:translate-x-[6px] active:translate-y-[6px] active:shadow-none transition-all inline-flex items-center gap-3"
+                  className="bg-[#F97316] text-white font-mono font-bold px-8 py-4 text-lg border-3 border-[#111] shadow-[6px_6px_0_#000] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[3px_3px_0_#000] active:translate-x-[6px] active:translate-y-[6px] active:shadow-none transition-all inline-flex items-center gap-3"
                 >
                   Start Planning Meals
                   <ArrowRight className="w-5 h-5" />
@@ -185,11 +185,11 @@ export default function AboutPage() {
           margin-bottom: 1.25rem;
         }
         .prose-custom em {
-          color: #FF4400;
+          color: #F97316;
           font-style: italic;
         }
         .prose-custom strong {
-          color: #FF4400;
+          color: #F97316;
           font-weight: 700;
         }
       `}</style>

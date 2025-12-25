@@ -33,9 +33,16 @@ export function StepDisplay({
     instruction
   );
 
+  // Escape special regex characters in a string
+  const escapeRegex = (str: string) =>
+    str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
   // Extract ingredient names from full ingredient strings (e.g., "2 cups flour" -> "flour")
+  // Also strip out parenthetical notes like "(divided)" or "(optional)"
   const ingredientKeywords = ingredients.map((ing) => {
-    const words = ing.toLowerCase().split(" ");
+    // Remove parenthetical content first
+    const cleaned = ing.replace(/\s*\([^)]*\)/g, "").trim();
+    const words = cleaned.toLowerCase().split(" ");
     // Get the last 1-2 words as the ingredient name
     return words.slice(-2).join(" ");
   });
@@ -48,7 +55,8 @@ export function StepDisplay({
 
     // Find all ingredient mentions
     ingredientKeywords.forEach((keyword) => {
-      const regex = new RegExp(`\\b${keyword}\\b`, "gi");
+      if (!keyword) return; // Skip empty keywords
+      const regex = new RegExp(`\\b${escapeRegex(keyword)}\\b`, "gi");
       let match;
       const matches: Array<{ index: number; length: number }> = [];
 

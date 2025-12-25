@@ -1,6 +1,6 @@
 import {
   getWeekPlanWithFullRecipes,
-  markMealPlanAsSent,
+  markMealPlanAsSentDuringRender,
 } from "@/app/actions/meal-plans";
 import { getSettings } from "@/app/actions/settings";
 import { getPantryItems } from "@/app/actions/pantry";
@@ -31,8 +31,9 @@ export default async function ConfirmationPage({
   const weekStartDate = new Date(weekStartStr + "T12:00:00Z");
 
   // Mark the meal plan as sent (saves to history) - do this first
+  // Use render-safe version (no revalidateTag during render)
   console.log("[Confirmation] Attempting to mark plan as sent for week:", weekStartStr);
-  const markResult = await markMealPlanAsSent(weekStartStr);
+  const markResult = await markMealPlanAsSentDuringRender(weekStartStr);
   const saveSuccessful = !markResult.error;
 
   if (markResult.error) {

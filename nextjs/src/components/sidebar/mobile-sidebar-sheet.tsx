@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import type { User } from "@supabase/supabase-js";
-import { Menu, Heart } from "lucide-react";
+import { Menu, Heart, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -72,13 +72,29 @@ export function MobileSidebarSheet({
             logoutAction={logoutAction}
           />
 
+          {/* Search - Prominent standalone button below user area */}
+          {onSearchClick && (
+            <div className="px-3 py-2 border-b">
+              <Button
+                variant="outline"
+                onClick={onSearchClick}
+                className="w-full justify-start gap-3 h-11 text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted border-border/50"
+              >
+                <Search className="size-4 shrink-0" />
+                <span className="flex-1 text-left text-sm">Search...</span>
+                <kbd className="ml-auto text-[10px] font-medium text-muted-foreground bg-background px-1.5 py-0.5 rounded border border-border/50">
+                  /
+                </kbd>
+              </Button>
+            </div>
+          )}
+
           {/* Scrollable Content - Secondary navigation only */}
           {/* Primary nav (Plan, Recipes, Shop, Stats) is now in bottom tabs */}
           <ScrollArea className="flex-1">
             <div className="py-2 flex flex-col gap-1">
-              {/* Quick Nav - Home, Search, New Recipe */}
+              {/* Quick Nav - Home, New Recipe */}
               <SidebarQuickNav
-                onSearchClick={onSearchClick}
                 onNewRecipeClick={onNewRecipeClick}
               />
 

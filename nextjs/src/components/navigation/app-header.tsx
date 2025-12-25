@@ -24,7 +24,7 @@ export function AppHeader({ navItems, settingsItem, logoutAction }: AppHeaderPro
     <ScrollHeader>
       <div className="container mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
         <Link href="/app" className="hover:opacity-80 transition-opacity flex-shrink-0">
-          <PixelBrandLogoCompact variant="inline" colorMode="light" />
+          <PixelBrandLogoCompact variant="inline" colorMode="dark" />
         </Link>
 
         <div className="flex items-center gap-3">

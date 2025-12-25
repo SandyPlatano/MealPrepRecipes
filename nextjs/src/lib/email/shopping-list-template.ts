@@ -89,10 +89,10 @@ export function generateShoppingListHTML(data: ShoppingListEmailData): string {
   const scheduleRows = recipesList
     .map(
       (recipe, index) => `
-    <tr style="background-color: ${index % 2 === 0 ? "#ffffff" : "#FFF8F5"};">
-      <td style="border-bottom: 1px solid #fed7aa; padding: 14px 16px; font-size: 13px; font-weight: 600; color: #F97316;">${recipe.day || "-"}</td>
-      <td style="border-bottom: 1px solid #fed7aa; padding: 14px 16px; font-size: 14px; font-weight: 600; color: #0a0a0a;">${recipe.title}</td>
-      <td style="border-bottom: 1px solid #fed7aa; padding: 14px 16px; font-size: 13px; color: #737373;">${recipe.cook || "-"}</td>
+    <tr style="background-color: ${index % 2 === 0 ? "#262626" : "#333333"};">
+      <td style="border-bottom: 1px solid #404040; padding: 14px 16px; font-size: 13px; font-weight: 600; color: #F97316;">${recipe.day || "-"}</td>
+      <td style="border-bottom: 1px solid #404040; padding: 14px 16px; font-size: 14px; font-weight: 600; color: #FDFBF7;">${recipe.title}</td>
+      <td style="border-bottom: 1px solid #404040; padding: 14px 16px; font-size: 13px; color: #a3a3a3;">${recipe.cook || "-"}</td>
     </tr>
   `
     )
@@ -105,8 +105,8 @@ export function generateShoppingListHTML(data: ShoppingListEmailData): string {
       const itemsHTML = items
         .map(
           (item, index) => `
-        <tr style="background-color: ${index % 2 === 0 ? "#ffffff" : "#FFF8F5"};">
-          <td style="border-bottom: 1px solid #fed7aa; padding: 12px 16px; font-size: 14px; color: #0a0a0a; display: flex; align-items: center;">
+        <tr style="background-color: ${index % 2 === 0 ? "#262626" : "#333333"};">
+          <td style="border-bottom: 1px solid #404040; padding: 12px 16px; font-size: 14px; color: #FDFBF7; display: flex; align-items: center;">
             <span style="display: inline-block; width: 18px; height: 18px; border: 2px solid #F97316; border-radius: 4px; margin-right: 12px; flex-shrink: 0;"></span>
             ${item}
           </td>
@@ -117,10 +117,10 @@ export function generateShoppingListHTML(data: ShoppingListEmailData): string {
 
       return `
       <div style="margin-bottom: 24px;">
-        <div style="font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; font-weight: 700; color: #F97316; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; padding: 6px 12px; background: #FFF8F5; border-left: 3px solid #F97316; display: inline-block;">
+        <div style="font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; font-weight: 700; color: #F97316; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; padding: 6px 12px; background: #262626; border-left: 3px solid #F97316; display: inline-block;">
           ${category}
         </div>
-        <table style="border-collapse: collapse; width: 100%; background: white; border: 1px solid #fed7aa; border-radius: 8px; overflow: hidden;">
+        <table style="border-collapse: collapse; width: 100%; background: #1a1a1a; border: 1px solid #404040; border-radius: 8px; overflow: hidden;">
           ${itemsHTML}
         </table>
       </div>
@@ -156,16 +156,16 @@ export function generateShoppingListHTML(data: ShoppingListEmailData): string {
   </noscript>
   <![endif]-->
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background-color: #FFF8F5; color: #0a0a0a; line-height: 1.6; -webkit-font-smoothing: antialiased;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(249, 115, 22, 0.08);">
-    
+<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background-color: #111111; color: #FDFBF7; line-height: 1.6; -webkit-font-smoothing: antialiased;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #1a1a1a; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(255, 68, 0, 0.15);">
+
     <!-- Header -->
-    <div style="background: linear-gradient(135deg, #FFF8F5 0%, #ffffff 100%); border-bottom: 2px solid #F97316; padding: 40px 24px 32px 24px; text-align: center;">
+    <div style="background: linear-gradient(135deg, #111111 0%, #1a1a1a 100%); border-bottom: 2px solid #F97316; padding: 40px 24px 32px 24px; text-align: center;">
       <h1 style="margin: 0 0 8px 0; line-height: 1.2;">
         <span style="font-family: 'Caveat', cursive, system-ui; font-size: 36px; font-weight: 600; color: #F97316;">Babe,</span>
-        <span style="font-family: 'JetBrains Mono', Consolas, Monaco, monospace; font-size: 22px; font-weight: 700; color: #0a0a0a; letter-spacing: -0.02em;"> What's for Dinner?</span>
+        <span style="font-family: 'JetBrains Mono', Consolas, Monaco, monospace; font-size: 22px; font-weight: 700; color: #FDFBF7; letter-spacing: -0.02em;"> What's for Dinner?</span>
       </h1>
-      <p style="font-size: 14px; color: #737373; margin: 0; font-style: italic;">Finally, an answer.</p>
+      <p style="font-size: 14px; color: #a3a3a3; margin: 0; font-style: italic;">Finally, an answer.</p>
     </div>
     
     <!-- Content -->
@@ -173,24 +173,24 @@ export function generateShoppingListHTML(data: ShoppingListEmailData): string {
       
       <!-- Week Range Badge -->
       <div style="margin-bottom: 28px;">
-        <div style="display: inline-block; background-color: #F97316; color: white; padding: 10px 20px; border-radius: 8px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 14px; font-weight: 600; letter-spacing: -0.01em; box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25);">
+        <div style="display: inline-block; background-color: #F97316; color: #FDFBF7; padding: 10px 20px; border-radius: 8px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 14px; font-weight: 600; letter-spacing: -0.01em; box-shadow: 0 2px 8px rgba(255, 68, 0, 0.25);">
           📅 Week of ${data.weekRange}
         </div>
       </div>
-      
+
       <!-- Schedule Section -->
       <div style="margin-bottom: 36px;">
-        <h2 style="font-family: 'JetBrains Mono', Consolas, Monaco, monospace; font-size: 18px; font-weight: 700; color: #0a0a0a; letter-spacing: -0.02em; margin: 0 0 4px 0; display: flex; align-items: center;">
+        <h2 style="font-family: 'JetBrains Mono', Consolas, Monaco, monospace; font-size: 18px; font-weight: 700; color: #FDFBF7; letter-spacing: -0.02em; margin: 0 0 4px 0; display: flex; align-items: center;">
           <span style="display: inline-block; width: 4px; height: 18px; background: #F97316; margin-right: 10px; border-radius: 2px;"></span>
           This Week's Schedule
         </h2>
-        <p style="font-size: 13px; color: #737373; margin: 0 0 16px 0; padding-left: 14px;">Your meal lineup for the week</p>
+        <p style="font-size: 13px; color: #a3a3a3; margin: 0 0 16px 0; padding-left: 14px;">Your meal lineup for the week</p>
         <table style="border-collapse: collapse; width: 100%; border: 2px solid #F97316; border-radius: 10px; overflow: hidden;">
           <thead>
             <tr style="background-color: #F97316;">
-              <th style="padding: 14px 16px; text-align: left; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; font-weight: 700; color: white; letter-spacing: 0.02em; text-transform: uppercase;">Day</th>
-              <th style="padding: 14px 16px; text-align: left; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; font-weight: 700; color: white; letter-spacing: 0.02em; text-transform: uppercase;">Recipe</th>
-              <th style="padding: 14px 16px; text-align: left; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; font-weight: 700; color: white; letter-spacing: 0.02em; text-transform: uppercase;">Cook</th>
+              <th style="padding: 14px 16px; text-align: left; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; font-weight: 700; color: #FDFBF7; letter-spacing: 0.02em; text-transform: uppercase;">Day</th>
+              <th style="padding: 14px 16px; text-align: left; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; font-weight: 700; color: #FDFBF7; letter-spacing: 0.02em; text-transform: uppercase;">Recipe</th>
+              <th style="padding: 14px 16px; text-align: left; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; font-weight: 700; color: #FDFBF7; letter-spacing: 0.02em; text-transform: uppercase;">Cook</th>
             </tr>
           </thead>
           <tbody>
@@ -201,11 +201,11 @@ export function generateShoppingListHTML(data: ShoppingListEmailData): string {
       
       <!-- Shopping List Section -->
       <div style="margin-bottom: 36px;">
-        <h2 style="font-family: 'JetBrains Mono', Consolas, Monaco, monospace; font-size: 18px; font-weight: 700; color: #0a0a0a; letter-spacing: -0.02em; margin: 0 0 4px 0; display: flex; align-items: center;">
+        <h2 style="font-family: 'JetBrains Mono', Consolas, Monaco, monospace; font-size: 18px; font-weight: 700; color: #FDFBF7; letter-spacing: -0.02em; margin: 0 0 4px 0; display: flex; align-items: center;">
           <span style="display: inline-block; width: 4px; height: 18px; background: #F97316; margin-right: 10px; border-radius: 2px;"></span>
           Shopping List
         </h2>
-        <p style="font-size: 13px; color: #737373; margin: 0 0 16px 0; padding-left: 14px;">
+        <p style="font-size: 13px; color: #a3a3a3; margin: 0 0 16px 0; padding-left: 14px;">
           <span style="color: #F97316; font-weight: 600;">${allIngredients.length} items</span> from ${recipesList.length} recipes • Organized by aisle
         </p>
         <div style="margin-top: 16px;">
@@ -214,39 +214,39 @@ export function generateShoppingListHTML(data: ShoppingListEmailData): string {
       </div>
       
       <!-- Interactive Shopping List Section -->
-      <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #fed7aa;">
-        <h2 style="font-family: 'JetBrains Mono', Consolas, Monaco, monospace; font-size: 16px; font-weight: 600; color: #0a0a0a; letter-spacing: -0.02em; margin: 0 0 16px 0; padding-bottom: 8px; border-bottom: 2px solid #F97316;">
+      <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #404040;">
+        <h2 style="font-family: 'JetBrains Mono', Consolas, Monaco, monospace; font-size: 16px; font-weight: 600; color: #FDFBF7; letter-spacing: -0.02em; margin: 0 0 16px 0; padding-bottom: 8px; border-bottom: 2px solid #F97316;">
           Interactive Shopping List
         </h2>
-        <p style="color: #737373; font-size: 14px; margin: 0 0 16px 0; line-height: 1.6;">
+        <p style="color: #a3a3a3; font-size: 14px; margin: 0 0 16px 0; line-height: 1.6;">
           Open your interactive shopping list to check off items while shopping. Tap items to cross them off, watch your progress bar fill up, and switch between light/dark mode. Works offline!
         </p>
         <div style="text-align: center; margin: 24px 0;">
-          <a href="${interactiveListURL}" target="_blank" style="display: inline-block; background-color: #F97316; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 10px; font-weight: 700; font-family: 'Inter', sans-serif; font-size: 16px; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35); transition: all 0.2s;">
+          <a href="${interactiveListURL}" target="_blank" style="display: inline-block; background-color: #F97316; color: #FDFBF7; padding: 16px 32px; text-decoration: none; border-radius: 10px; font-weight: 700; font-family: 'Inter', sans-serif; font-size: 16px; box-shadow: 0 4px 12px rgba(255, 68, 0, 0.35); transition: all 0.2s;">
             🛒 Open Interactive Shopping List
           </a>
         </div>
-        <p style="color: #737373; font-size: 12px; margin: 12px 0 20px 0; text-align: center; font-style: italic;">
+        <p style="color: #a3a3a3; font-size: 12px; margin: 12px 0 20px 0; text-align: center; font-style: italic;">
           Click the button above to open your checklist. Works on mobile and desktop!
         </p>
-        
+
         <!-- Copy/Paste Text Box -->
-        <div style="background-color: #FFF8F5; padding: 16px; border-radius: 8px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; white-space: pre-wrap; overflow-x: auto; border: 1px solid #fed7aa; color: #404040; line-height: 1.8;">
+        <div style="background-color: #262626; padding: 16px; border-radius: 8px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; white-space: pre-wrap; overflow-x: auto; border: 1px solid #404040; color: #FDFBF7; line-height: 1.8;">
 ${copyPasteText}
         </div>
-        <p style="color: #737373; font-size: 12px; margin-top: 12px; font-style: italic;">
+        <p style="color: #a3a3a3; font-size: 12px; margin-top: 12px; font-style: italic;">
           Or copy the text above and paste into Apple Notes or Google Keep for interactive checkboxes.
         </p>
       </div>
     </div>
     
     <!-- Footer -->
-    <div style="background: linear-gradient(135deg, #F97316 0%, #ea580c 100%); padding: 32px 24px; text-align: center;">
+    <div style="background: linear-gradient(135deg, #F97316 0%, #cc3600 100%); padding: 32px 24px; text-align: center;">
       <p style="margin: 0 0 8px 0; line-height: 1.2;">
-        <span style="font-family: 'Caveat', cursive, system-ui; font-size: 28px; font-weight: 600; color: #ffffff;">Babe,</span>
-        <span style="font-family: 'JetBrains Mono', Consolas, Monaco, monospace; font-size: 16px; font-weight: 700; color: #ffffff;"> What's for Dinner?</span>
+        <span style="font-family: 'Caveat', cursive, system-ui; font-size: 28px; font-weight: 600; color: #FDFBF7;">Babe,</span>
+        <span style="font-family: 'JetBrains Mono', Consolas, Monaco, monospace; font-size: 16px; font-weight: 700; color: #FDFBF7;"> What's for Dinner?</span>
       </p>
-      <p style="font-size: 13px; color: rgba(255,255,255,0.85); margin: 8px 0; font-style: italic;">
+      <p style="font-size: 13px; color: rgba(253, 251, 247, 0.85); margin: 8px 0; font-style: italic;">
         Made with love (and mild guilt) 💕
       </p>
     </div>

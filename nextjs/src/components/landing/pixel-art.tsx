@@ -12,7 +12,7 @@ const PIXEL_SIZE = 4;
 const COLORS = {
   dark: '#111111',
   cream: '#FDFBF7',
-  orange: '#FF4400',
+  orange: '#F97316',
   white: '#FFFFFF',
   gray: '#666666',
   lightGray: '#CCCCCC',
@@ -4009,7 +4009,7 @@ export function PixelStep({
     <div className={cn('group text-center', className)}>
       <div className="relative inline-block mb-4">
         {/* Step number badge */}
-        <div className="absolute -top-2 -left-2 w-8 h-8 bg-[#FF4400] border-2 border-[#111111] flex items-center justify-center font-mono font-bold text-sm text-white z-10 shadow-brutal-sm">
+        <div className="absolute -top-2 -left-2 w-8 h-8 bg-[#F97316] border-2 border-[#111111] flex items-center justify-center font-mono font-bold text-sm text-white z-10 shadow-brutal-sm">
           {number.toString().padStart(2, '0')}
         </div>
         {/* Icon container */}
@@ -4041,7 +4041,7 @@ export function PixelDataFlow({ className }: { className?: string }) {
           style={{ animationDelay: `${i * 0.6}s` }}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" className="pixel-art">
-            <rect x="4" y="4" width="16" height="16" fill="#FF4400" />
+            <rect x="4" y="4" width="16" height="16" fill="#F97316" />
             <rect x="8" y="8" width="8" height="8" fill="#FDFBF7" />
           </svg>
         </div>
@@ -9338,7 +9338,7 @@ export function PixelLogoChef9({
   className?: string;
   size?: number;
 }) {
-  const TRIM = '#FF4400'; // Orange accent trim
+  const TRIM = '#F97316'; // Orange accent trim
   const pixels: { x: number; y: number; color: string }[] = [
     // CHEF HAT - Triple Crown
     { x: 3, y: 0, color: COLORS.hatWhite },
@@ -9736,92 +9736,98 @@ export function PixelDecoration({
 // =============================================================================
 
 // Reusable icon component for lockups (Connected7 pattern)
-function LockupIcon({ size = 48 }: { size?: number }) {
+function LockupIcon({ size = 48, colorMode = "dark" }: { size?: number; colorMode?: "dark" | "light" }) {
+  // On light backgrounds, use dark colors for the hat so it's visible
+  const hatMain = colorMode === "light" ? COLORS.dark : COLORS.hatWhite;
+  const hatPleat = colorMode === "light" ? "#666666" : COLORS.hatShadow;
+  const bubbleBg = colorMode === "light" ? COLORS.dark : COLORS.cream;
+  const outline = colorMode === "light" ? COLORS.cream : COLORS.dark;
+
   const pixels: { x: number; y: number; color: string }[] = [
     // HAT
-    { x: 6, y: 0, color: COLORS.hatWhite },
-    { x: 7, y: 0, color: COLORS.hatWhite },
-    { x: 8, y: 0, color: COLORS.hatWhite },
-    { x: 5, y: 1, color: COLORS.hatWhite },
-    { x: 6, y: 1, color: COLORS.hatWhite },
-    { x: 7, y: 1, color: COLORS.hatWhite },
-    { x: 8, y: 1, color: COLORS.hatWhite },
-    { x: 9, y: 1, color: COLORS.hatWhite },
-    { x: 3, y: 2, color: COLORS.hatWhite },
-    { x: 4, y: 2, color: COLORS.hatWhite },
-    { x: 5, y: 2, color: COLORS.hatWhite },
-    { x: 6, y: 2, color: COLORS.hatWhite },
-    { x: 7, y: 2, color: COLORS.hatWhite },
-    { x: 8, y: 2, color: COLORS.hatWhite },
-    { x: 9, y: 2, color: COLORS.hatWhite },
-    { x: 10, y: 2, color: COLORS.hatWhite },
-    { x: 11, y: 2, color: COLORS.hatWhite },
-    { x: 4, y: 3, color: COLORS.hatWhite },
-    { x: 5, y: 3, color: COLORS.hatShadow },
-    { x: 6, y: 3, color: COLORS.hatWhite },
-    { x: 7, y: 3, color: COLORS.hatShadow },
-    { x: 8, y: 3, color: COLORS.hatWhite },
-    { x: 9, y: 3, color: COLORS.hatShadow },
-    { x: 10, y: 3, color: COLORS.hatWhite },
-    { x: 4, y: 4, color: COLORS.hatWhite },
-    { x: 5, y: 4, color: COLORS.hatShadow },
-    { x: 6, y: 4, color: COLORS.hatWhite },
-    { x: 7, y: 4, color: COLORS.hatShadow },
-    { x: 8, y: 4, color: COLORS.hatWhite },
-    { x: 9, y: 4, color: COLORS.hatShadow },
-    { x: 10, y: 4, color: COLORS.hatWhite },
-    // Dark band
-    { x: 4, y: 5, color: COLORS.dark },
-    { x: 5, y: 5, color: COLORS.dark },
-    { x: 6, y: 5, color: COLORS.dark },
-    { x: 7, y: 5, color: COLORS.dark },
-    { x: 8, y: 5, color: COLORS.dark },
-    { x: 9, y: 5, color: COLORS.dark },
-    { x: 10, y: 5, color: COLORS.dark },
+    { x: 6, y: 0, color: hatMain },
+    { x: 7, y: 0, color: hatMain },
+    { x: 8, y: 0, color: hatMain },
+    { x: 5, y: 1, color: hatMain },
+    { x: 6, y: 1, color: hatMain },
+    { x: 7, y: 1, color: hatMain },
+    { x: 8, y: 1, color: hatMain },
+    { x: 9, y: 1, color: hatMain },
+    { x: 3, y: 2, color: hatMain },
+    { x: 4, y: 2, color: hatMain },
+    { x: 5, y: 2, color: hatMain },
+    { x: 6, y: 2, color: hatMain },
+    { x: 7, y: 2, color: hatMain },
+    { x: 8, y: 2, color: hatMain },
+    { x: 9, y: 2, color: hatMain },
+    { x: 10, y: 2, color: hatMain },
+    { x: 11, y: 2, color: hatMain },
+    { x: 4, y: 3, color: hatMain },
+    { x: 5, y: 3, color: hatPleat },
+    { x: 6, y: 3, color: hatMain },
+    { x: 7, y: 3, color: hatPleat },
+    { x: 8, y: 3, color: hatMain },
+    { x: 9, y: 3, color: hatPleat },
+    { x: 10, y: 3, color: hatMain },
+    { x: 4, y: 4, color: hatMain },
+    { x: 5, y: 4, color: hatPleat },
+    { x: 6, y: 4, color: hatMain },
+    { x: 7, y: 4, color: hatPleat },
+    { x: 8, y: 4, color: hatMain },
+    { x: 9, y: 4, color: hatPleat },
+    { x: 10, y: 4, color: hatMain },
+    // Dark band (always contrasting)
+    { x: 4, y: 5, color: outline },
+    { x: 5, y: 5, color: outline },
+    { x: 6, y: 5, color: outline },
+    { x: 7, y: 5, color: outline },
+    { x: 8, y: 5, color: outline },
+    { x: 9, y: 5, color: outline },
+    { x: 10, y: 5, color: outline },
     // Hat pleats EXTEND into bubble (overlap)
-    { x: 3, y: 6, color: COLORS.dark },
-    { x: 4, y: 6, color: COLORS.cream },
-    { x: 5, y: 6, color: COLORS.hatShadow },
-    { x: 6, y: 6, color: COLORS.cream },
-    { x: 7, y: 6, color: COLORS.hatShadow },
-    { x: 8, y: 6, color: COLORS.cream },
-    { x: 9, y: 6, color: COLORS.hatShadow },
-    { x: 10, y: 6, color: COLORS.cream },
-    { x: 11, y: 6, color: COLORS.dark },
+    { x: 3, y: 6, color: outline },
+    { x: 4, y: 6, color: bubbleBg },
+    { x: 5, y: 6, color: hatPleat },
+    { x: 6, y: 6, color: bubbleBg },
+    { x: 7, y: 6, color: hatPleat },
+    { x: 8, y: 6, color: bubbleBg },
+    { x: 9, y: 6, color: hatPleat },
+    { x: 10, y: 6, color: bubbleBg },
+    { x: 11, y: 6, color: outline },
     // BUBBLE body
-    { x: 3, y: 7, color: COLORS.dark },
-    { x: 4, y: 7, color: COLORS.cream },
+    { x: 3, y: 7, color: outline },
+    { x: 4, y: 7, color: bubbleBg },
     { x: 5, y: 7, color: COLORS.orange },
-    { x: 6, y: 7, color: COLORS.cream },
+    { x: 6, y: 7, color: bubbleBg },
     { x: 7, y: 7, color: COLORS.orange },
-    { x: 8, y: 7, color: COLORS.cream },
+    { x: 8, y: 7, color: bubbleBg },
     { x: 9, y: 7, color: COLORS.orange },
-    { x: 10, y: 7, color: COLORS.cream },
-    { x: 11, y: 7, color: COLORS.dark },
-    { x: 3, y: 8, color: COLORS.dark },
-    { x: 4, y: 8, color: COLORS.cream },
-    { x: 5, y: 8, color: COLORS.cream },
-    { x: 6, y: 8, color: COLORS.cream },
-    { x: 7, y: 8, color: COLORS.cream },
-    { x: 8, y: 8, color: COLORS.cream },
-    { x: 9, y: 8, color: COLORS.cream },
-    { x: 10, y: 8, color: COLORS.cream },
-    { x: 11, y: 8, color: COLORS.dark },
-    { x: 4, y: 9, color: COLORS.dark },
-    { x: 5, y: 9, color: COLORS.dark },
-    { x: 6, y: 9, color: COLORS.dark },
-    { x: 7, y: 9, color: COLORS.dark },
-    { x: 8, y: 9, color: COLORS.dark },
-    { x: 9, y: 9, color: COLORS.dark },
-    { x: 10, y: 9, color: COLORS.dark },
+    { x: 10, y: 7, color: bubbleBg },
+    { x: 11, y: 7, color: outline },
+    { x: 3, y: 8, color: outline },
+    { x: 4, y: 8, color: bubbleBg },
+    { x: 5, y: 8, color: bubbleBg },
+    { x: 6, y: 8, color: bubbleBg },
+    { x: 7, y: 8, color: bubbleBg },
+    { x: 8, y: 8, color: bubbleBg },
+    { x: 9, y: 8, color: bubbleBg },
+    { x: 10, y: 8, color: bubbleBg },
+    { x: 11, y: 8, color: outline },
+    { x: 4, y: 9, color: outline },
+    { x: 5, y: 9, color: outline },
+    { x: 6, y: 9, color: outline },
+    { x: 7, y: 9, color: outline },
+    { x: 8, y: 9, color: outline },
+    { x: 9, y: 9, color: outline },
+    { x: 10, y: 9, color: outline },
     // Pointer
-    { x: 2, y: 8, color: COLORS.dark },
-    { x: 1, y: 9, color: COLORS.dark },
-    { x: 2, y: 9, color: COLORS.cream },
-    { x: 3, y: 9, color: COLORS.dark },
-    { x: 0, y: 10, color: COLORS.dark },
-    { x: 1, y: 10, color: COLORS.cream },
-    { x: 2, y: 10, color: COLORS.dark },
+    { x: 2, y: 8, color: outline },
+    { x: 1, y: 9, color: outline },
+    { x: 2, y: 9, color: bubbleBg },
+    { x: 3, y: 9, color: outline },
+    { x: 0, y: 10, color: outline },
+    { x: 1, y: 10, color: bubbleBg },
+    { x: 2, y: 10, color: outline },
   ];
 
   return (
@@ -9838,17 +9844,20 @@ function LockupIcon({ size = 48 }: { size?: number }) {
 /**
  * PixelBrandIcon - Just the pixel icon (no text)
  * Use for: favicons, mobile nav, loading states, tight spaces
+ * @param colorMode - "dark" (for dark backgrounds) | "light" (for light backgrounds)
  */
 export function PixelBrandIcon({
   className,
   size = 32,
+  colorMode = "dark",
 }: {
   className?: string;
   size?: number;
+  colorMode?: "dark" | "light";
 }) {
   return (
     <div className={cn('relative inline-block', className)}>
-      <LockupIcon size={size} />
+      <LockupIcon size={size} colorMode={colorMode} />
     </div>
   );
 }
@@ -9856,15 +9865,18 @@ export function PixelBrandIcon({
 /**
  * PixelBrandLogoMini - Tiny logo for mobile nav
  * Use for: mobile header, collapsed sidebar
+ * @param colorMode - "dark" (for dark backgrounds) | "light" (for light backgrounds)
  */
 export function PixelBrandLogoMini({
   className,
+  colorMode = "dark",
 }: {
   className?: string;
+  colorMode?: "dark" | "light";
 }) {
   return (
     <div className={cn('flex items-center gap-1.5', className)}>
-      <LockupIcon size={28} />
+      <LockupIcon size={28} colorMode={colorMode} />
       <span className="font-mono text-sm font-bold" style={{ color: COLORS.orange }}>
         BWFD
       </span>
@@ -9892,13 +9904,13 @@ export function PixelBrandLogoCompact({
   const bubbleText = colorMode === "light" ? COLORS.cream : COLORS.dark;
 
   if (variant === "icon-only") {
-    return <PixelBrandIcon className={className} size={36} />;
+    return <PixelBrandIcon className={className} size={36} colorMode={colorMode} />;
   }
 
   if (variant === "inline") {
     return (
       <div className={cn('flex items-center gap-2', className)}>
-        <LockupIcon size={36} />
+        <LockupIcon size={36} colorMode={colorMode} />
         <span className="font-mono text-sm tracking-tight">
           <span style={{ color: COLORS.orange }} className="font-bold">Babe,</span>
           <span style={{ color: textColor }}> What&apos;s for Dinner?</span>
@@ -9910,7 +9922,7 @@ export function PixelBrandLogoCompact({
   // Default: speech bubble style
   return (
     <div className={cn('flex items-end gap-1.5', className)}>
-      <LockupIcon size={40} />
+      <LockupIcon size={40} colorMode={colorMode} />
       <div
         className="px-2 py-1 rounded-md rounded-bl-none mb-1"
         style={{ backgroundColor: bubbleBg }}
@@ -9926,13 +9938,16 @@ export function PixelBrandLogoCompact({
 /**
  * PixelBrandLogo - Standard logo (default size)
  * Use for: headers, about pages, general branding
+ * @param colorMode - "dark" (for dark backgrounds, cream bubble) | "light" (for light backgrounds, dark bubble)
  */
 export function PixelBrandLogo({
   className,
   size = "md",
+  colorMode = "dark",
 }: {
   className?: string;
   size?: "sm" | "md" | "lg" | "xl";
+  colorMode?: "dark" | "light";
 }) {
   const sizes = {
     sm: { icon: 40, text: "text-sm", padding: "px-2 py-1", rounded: "rounded-md" },
@@ -9942,15 +9957,17 @@ export function PixelBrandLogo({
   };
 
   const s = sizes[size];
+  const bubbleBg = colorMode === "light" ? COLORS.dark : COLORS.cream;
+  const bubbleText = colorMode === "light" ? COLORS.cream : COLORS.dark;
 
   return (
     <div className={cn('flex items-end gap-2', className)}>
-      <LockupIcon size={s.icon} />
+      <LockupIcon size={s.icon} colorMode={colorMode} />
       <div
         className={cn(s.padding, s.rounded, "rounded-bl-none mb-2")}
-        style={{ backgroundColor: COLORS.cream }}
+        style={{ backgroundColor: bubbleBg }}
       >
-        <span className={cn("font-mono font-bold", s.text)} style={{ color: COLORS.dark }}>
+        <span className={cn("font-mono font-bold", s.text)} style={{ color: bubbleText }}>
           <span style={{ color: COLORS.orange }}>Babe,</span> What&apos;s for Dinner?
         </span>
       </div>
@@ -9961,23 +9978,30 @@ export function PixelBrandLogo({
 /**
  * PixelBrandLogoHero - Large hero/marketing logo
  * Use for: landing pages, hero sections, marketing
+ * @param colorMode - "dark" (for dark backgrounds) | "light" (for light backgrounds)
  */
 export function PixelBrandLogoHero({
   className,
   showTagline = false,
+  colorMode = "dark",
 }: {
   className?: string;
   showTagline?: boolean;
+  colorMode?: "dark" | "light";
 }) {
+  const bubbleBg = colorMode === "light" ? COLORS.dark : COLORS.cream;
+  const bubbleText = colorMode === "light" ? COLORS.cream : COLORS.dark;
+  const taglineColor = colorMode === "light" ? COLORS.dark : COLORS.hatShadow;
+
   return (
     <div className={cn('flex flex-col items-center gap-4', className)}>
       <div className="flex items-end gap-3">
-        <LockupIcon size={96} />
+        <LockupIcon size={96} colorMode={colorMode} />
         <div
           className="px-5 py-3 rounded-xl rounded-bl-none mb-4"
-          style={{ backgroundColor: COLORS.cream }}
+          style={{ backgroundColor: bubbleBg }}
         >
-          <span className="font-mono text-2xl font-bold" style={{ color: COLORS.dark }}>
+          <span className="font-mono text-2xl font-bold" style={{ color: bubbleText }}>
             <span style={{ color: COLORS.orange }}>Babe,</span> What&apos;s for Dinner?
           </span>
         </div>
@@ -9985,7 +10009,7 @@ export function PixelBrandLogoHero({
       {showTagline && (
         <span
           className="font-mono text-sm tracking-widest uppercase"
-          style={{ color: COLORS.hatShadow }}
+          style={{ color: taglineColor }}
         >
           Your Meal Prep OS
         </span>
@@ -9997,13 +10021,16 @@ export function PixelBrandLogoHero({
 /**
  * PixelBrandLogoStacked - Vertically stacked for square spaces
  * Use for: app icons, square containers, social media avatars
+ * @param colorMode - "dark" (for dark backgrounds, cream text) | "light" (for light backgrounds, dark text)
  */
 export function PixelBrandLogoStacked({
   className,
   size = "md",
+  colorMode = "dark",
 }: {
   className?: string;
   size?: "sm" | "md" | "lg";
+  colorMode?: "dark" | "light";
 }) {
   const sizes = {
     sm: { icon: 48, text: "text-xs" },
@@ -10012,15 +10039,16 @@ export function PixelBrandLogoStacked({
   };
 
   const s = sizes[size];
+  const textColor = colorMode === "light" ? COLORS.dark : COLORS.cream;
 
   return (
     <div className={cn('flex flex-col items-center gap-2', className)}>
-      <LockupIcon size={s.icon} />
+      <LockupIcon size={s.icon} colorMode={colorMode} />
       <div className="text-center">
         <span className={cn("font-mono font-bold block", s.text)} style={{ color: COLORS.orange }}>
           Babe,
         </span>
-        <span className={cn("font-mono", s.text)} style={{ color: COLORS.cream }}>
+        <span className={cn("font-mono", s.text)} style={{ color: textColor }}>
           What&apos;s for Dinner?
         </span>
       </div>
