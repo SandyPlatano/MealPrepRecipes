@@ -510,14 +510,8 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col gap-3">
-        {/* Row 1: Title + Search + Add Recipe */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 shrink-0">
-            <h1 className="text-lg font-semibold">Recipes</h1>
-            {totalRecipes !== undefined && (
-              <span className="text-muted-foreground">· {totalRecipes} recipes</span>
-            )}
-          </div>
+        {/* Row 1: Search + Add Recipe */}
+        <div className="flex items-center gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
             <Input

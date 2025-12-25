@@ -16,6 +16,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { PersonalizedGreeting } from "@/components/ui/personalized-greeting";
 
 interface RecipesPageProps {
   searchParams: Promise<{
@@ -32,6 +33,7 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
 
   // Fetch all data in parallel
   const [
+    profileResult,
     recipesResult,
     favoritesResult,
     settingsResult,
@@ -42,6 +44,7 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
     userSmartFoldersResult,
     cookingHistoryResult,
   ] = await Promise.all([
+    user ? supabase.from("profiles").select("first_name").eq("id", user.id).single() : Promise.resolve({ data: null }),
     getRecipes(),
     getFavorites(),
     getSettings(),
@@ -52,6 +55,8 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
     getUserSmartFolders(),
     getCookingHistoryContext(),
   ]);
+
+  const profile = profileResult.data;
 
   const recipes = recipesResult.data || [];
   const favoriteIds = new Set(favoritesResult.data || []);
@@ -121,7 +126,12 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
+      <PersonalizedGreeting
+        userName={profile?.first_name}
+        fallbackMessage="Ready to cook something great?"
+      />
+
       <ContextualHint
         hintId={HINT_IDS.RECIPES_INTRO}
         title={HINT_CONTENT[HINT_IDS.RECIPES_INTRO].title}
