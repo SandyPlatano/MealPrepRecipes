@@ -94,7 +94,7 @@ export default async function ConfirmationPage({
         weekPlan={
           weekPlan as unknown as Parameters<typeof ConfirmationView>[0]["weekPlan"]
         }
-        cookColors={settings?.cook_colors || {}}
+        cookColors={(settings?.cook_colors || {}) as Record<string, string>}
         pantryItems={pantryItems}
         nutritionDashboard={nutritionDashboard}
         saveSuccessful={saveSuccessful}

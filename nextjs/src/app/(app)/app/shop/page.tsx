@@ -46,8 +46,8 @@ export default async function ShopPage() {
   const pantryItems = pantryResult.data || [];
   const categoryOrder = settingsResult.data?.category_order || null;
   const weekPlan = weekPlanResult.data || null;
-  const cookNames = settingsResult.data?.cook_names || [];
-  const cookColors = settingsResult.data?.cook_colors || {};
+  const cookNames = (settingsResult.data?.cook_names || []) as string[];
+  const cookColors = (settingsResult.data?.cook_colors || {}) as Record<string, string>;
   const subscriptionTier = aiQuota.data?.tier || 'free';
   const weekOptions = getWeekOptions(currentWeekStart, weeksMealCountsResult.data || []);
   const userUnitSystem = (settingsResult.data?.unit_system as "imperial" | "metric") || "imperial";

@@ -46,6 +46,12 @@ export interface UserSettings {
   // Export preferences
   recipe_export_preferences?: RecipeExportPreferences;
 
+  // Google Calendar integration
+  google_connected_account?: string | null;
+
+  // Generic preferences JSONB column
+  preferences?: Record<string, unknown>;
+
   created_at: string;
   updated_at: string;
 }

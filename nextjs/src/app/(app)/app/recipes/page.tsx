@@ -65,8 +65,8 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   const profile = profileResult.data;
   const recipes = recipesResult.data || [];
   const favoriteIds = new Set(favoritesResult.data || []);
-  const userAllergenAlerts = settingsResult.data?.allergen_alerts || [];
-  const customDietaryRestrictions = settingsResult.data?.custom_dietary_restrictions || [];
+  const userAllergenAlerts = (settingsResult.data?.allergen_alerts || []) as string[];
+  const customDietaryRestrictions = (settingsResult.data?.custom_dietary_restrictions || []) as string[];
   const recipeCookCounts = cookCountsResult.data || {};
   const customBadges = customBadgesResult.data || [];
   const folders = foldersResult.data || [];

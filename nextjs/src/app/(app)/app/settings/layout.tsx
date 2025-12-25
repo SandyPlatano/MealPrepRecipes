@@ -10,6 +10,7 @@ import { SettingsProvider, type SettingsState } from "@/contexts/settings-contex
 import { SettingsSidebar } from "@/components/settings/layout/settings-sidebar";
 import { SettingsMobileNav } from "@/components/settings/layout/settings-mobile-nav";
 import { DEFAULT_USER_PREFERENCES_V2 } from "@/types/user-preferences-v2";
+import type { UserSettings } from "@/types/settings";
 
 export default async function SettingsLayout({
   children,
@@ -59,7 +60,7 @@ export default async function SettingsLayout({
     updated_at: new Date().toISOString(),
   };
 
-  const settings = settingsResult.data || {
+  const settings: UserSettings = settingsResult.data || {
     id: "",
     user_id: "",
     dark_mode: false,
@@ -76,7 +77,7 @@ export default async function SettingsLayout({
     macro_goals: undefined,
     macro_tracking_enabled: false,
     macro_goal_preset: null,
-    unit_system: "imperial" as const,
+    unit_system: "imperial",
     recipe_export_preferences: undefined,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),

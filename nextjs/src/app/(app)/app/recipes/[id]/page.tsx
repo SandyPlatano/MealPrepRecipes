@@ -45,8 +45,8 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
   const favoriteIds = new Set(favoritesResult.data || []);
   const isFavorite = favoriteIds.has(recipe.id);
   const history = historyResult.data || [];
-  const userAllergenAlerts = settingsResult.data?.allergen_alerts || [];
-  const customDietaryRestrictions = settingsResult.data?.custom_dietary_restrictions || [];
+  const userAllergenAlerts = (settingsResult.data?.allergen_alerts || []) as string[];
+  const customDietaryRestrictions = (settingsResult.data?.custom_dietary_restrictions || []) as string[];
   const userUnitSystem = (settingsResult.data?.unit_system as "imperial" | "metric") || "imperial";
   const layoutPrefs = prefsResult.data?.recipeLayout ?? DEFAULT_RECIPE_LAYOUT_PREFERENCES;
 

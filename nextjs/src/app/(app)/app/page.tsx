@@ -107,10 +107,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   };
 
   const recipes = recipesResult.data || [];
-  const cookNames = settingsResult.data?.cook_names || [];
-  const cookColors = settingsResult.data?.cook_colors || {};
-  const userAllergenAlerts = settingsResult.data?.allergen_alerts || [];
-  const calendarExcludedDays = settingsResult.data?.calendar_excluded_days || [];
+  const cookNames = (settingsResult.data?.cook_names || []) as string[];
+  const cookColors = (settingsResult.data?.cook_colors || {}) as Record<string, string>;
+  const userAllergenAlerts = (settingsResult.data?.allergen_alerts || []) as string[];
+  const calendarExcludedDays = (settingsResult.data?.calendar_excluded_days || []) as string[];
   const googleConnected = !!settingsResult.data?.google_connected_account;
   const favorites = favoritesResult.data || [];
   const recentRecipeIds = (recentlyCooked.data || []).map((r) => r.id);
@@ -172,8 +172,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <OnboardingWrapper
         shouldShow={needsOnboarding}
         currentName={[profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || ""}
-        currentCookNames={settingsResult.data?.cook_names || []}
-        currentCookColors={settingsResult.data?.cook_colors || {}}
+        currentCookNames={cookNames}
+        currentCookColors={cookColors}
       />
 
       <div className="flex flex-col gap-6">
