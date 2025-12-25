@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, memo, useTransition } from "react";
+import { useState, memo, useTransition, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
@@ -49,7 +49,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
+import { toggleFavorite, deleteRecipe, getRecipe } from "@/app/actions/recipes";
+import { useQueryClient } from "@tanstack/react-query";
+import { recipeKeys } from "@/hooks/queries/use-recipes-query";
 import { RatingBadge } from "@/components/ui/rating-badge";
 import { getMostRecentCookingEntry } from "@/app/actions/cooking-history";
 
@@ -181,6 +183,24 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
   const [isAddingToPlan, setIsAddingToPlan] = useState(false);
   const [showAddToPlanSheet, setShowAddToPlanSheet] = useState(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  // Prefetch recipe data and route on hover for instant navigation
+  const handlePrefetch = useCallback(() => {
+    // Prefetch the route
+    router.prefetch(`/app/recipes/${recipe.id}`);
+
+    // Prefetch the recipe data into React Query cache
+    queryClient.prefetchQuery({
+      queryKey: recipeKeys.detail(recipe.id),
+      queryFn: async () => {
+        const result = await getRecipe(recipe.id);
+        if (result.error) throw new Error(result.error);
+        return result.data;
+      },
+      staleTime: 60 * 1000, // Don't refetch if less than 1 min old
+    });
+  }, [router, queryClient, recipe.id]);
 
   // Detect allergens
   const detectedAllergens = detectAllergens(recipe.ingredients);
@@ -355,7 +375,11 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
 
   return (
     <>
-      <Link href={`/app/recipes/${recipe.id}`}>
+      <Link
+        href={`/app/recipes/${recipe.id}`}
+        onMouseEnter={handlePrefetch}
+        onFocus={handlePrefetch}
+      >
         <Card
           className="group h-full hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 hover:border-primary/50 transition-all duration-300 ease-out flex flex-col cursor-pointer overflow-hidden hover:ring-2 hover:ring-primary/20 animate-slide-up-fade relative"
           style={animationIndex !== undefined ? { animationDelay: `${animationIndex * 50}ms`, animationFillMode: 'backwards' } : undefined}

@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
@@ -32,6 +33,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <RecipePickerProvider>
             <GlobalSearchProvider>
               {children}
+              <ProgressBar
+                height="3px"
+                color="#F97316"
+                options={{ showSpinner: false }}
+                shallowRouting
+              />
               <ServiceWorkerRegistration />
               <KeyboardShortcutsProvider />
               <GlobalSearchModal />
