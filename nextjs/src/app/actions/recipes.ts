@@ -8,6 +8,17 @@ import type { QuickCookSuggestion } from "@/types/quick-cook";
 import { randomUUID } from "crypto";
 import { isNutritionTrackingEnabled, extractNutritionForRecipeInternal } from "./nutrition";
 import { recipeFormSchema, recipeUpdateSchema, validateSchema } from "@/lib/validations/schemas";
+import {
+  getCached,
+  invalidateCachePattern,
+  invalidateCache,
+  recipesListKey,
+  CACHE_TTL,
+} from "@/lib/cache/redis";
+
+// Cache key generators for this module
+const favoritesKey = (userId: string) => `favorites:${userId}`;
+const cookCountsKey = (householdId: string) => `cookcounts:${householdId}`;
 
 // Get all recipes for the current user (own + shared household recipes)
 export async function getRecipes() {
@@ -22,33 +33,44 @@ export async function getRecipes() {
     // Get household separately (optional - user can have recipes without household)
     const { household } = await getCachedUserWithHousehold();
 
-    const supabase = await createClient();
+    // Use Redis cache with household-scoped key
+    const cacheKey = recipesListKey(household?.household_id || authUser.id);
 
-    // Build query: user's own recipes OR shared household recipes
-    // If user has no household, only get their own recipes
-    let query = supabase
-      .from("recipes")
-      .select("id, title, recipe_type, category, protein_type, prep_time, cook_time, servings, base_servings, ingredients, instructions, tags, notes, source_url, image_url, rating, allergen_tags, user_id, household_id, is_shared_with_household, is_public, share_token, view_count, original_recipe_id, original_author_id, avg_rating, review_count, created_at, updated_at");
+    const recipes = await getCached<Recipe[]>(
+      cacheKey,
+      async () => {
+        const supabase = await createClient();
 
-    if (household?.household_id) {
-      // User has household - get own recipes + shared household recipes
-      query = query.or(
-        `user_id.eq.${authUser.id},and(household_id.eq.${household.household_id},is_shared_with_household.eq.true)`
-      );
-    } else {
-      // User has no household - only get their own recipes
-      query = query.eq("user_id", authUser.id);
-    }
+        // Build query: user's own recipes OR shared household recipes
+        // If user has no household, only get their own recipes
+        let query = supabase
+          .from("recipes")
+          .select("id, title, recipe_type, category, protein_type, prep_time, cook_time, servings, base_servings, ingredients, instructions, tags, notes, source_url, image_url, rating, allergen_tags, user_id, household_id, is_shared_with_household, is_public, share_token, view_count, original_recipe_id, original_author_id, avg_rating, review_count, created_at, updated_at");
 
-    const { data, error } = await query
-      .order("created_at", { ascending: false })
-      .limit(200); // Limit to prevent unbounded queries; implement infinite scroll for more
+        if (household?.household_id) {
+          // User has household - get own recipes + shared household recipes
+          query = query.or(
+            `user_id.eq.${authUser.id},and(household_id.eq.${household.household_id},is_shared_with_household.eq.true)`
+          );
+        } else {
+          // User has no household - only get their own recipes
+          query = query.eq("user_id", authUser.id);
+        }
 
-    if (error) {
-      return { error: error.message, data: null };
-    }
+        const { data, error } = await query
+          .order("created_at", { ascending: false })
+          .limit(200); // Limit to prevent unbounded queries; implement infinite scroll for more
 
-    return { error: null, data: data as Recipe[] };
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        return data as Recipe[];
+      },
+      CACHE_TTL.RECIPES_LIST
+    );
+
+    return { error: null, data: recipes };
   } catch (error) {
     console.error("getRecipes error:", error);
     return { error: "Failed to load recipes. Please try again.", data: null };
@@ -154,6 +176,9 @@ export async function createRecipe(formData: RecipeFormData) {
         console.error("Background nutrition extraction failed:", err);
       });
     }
+
+    // Invalidate Redis cache for recipes
+    await invalidateCachePattern(`recipes:*`);
 
     revalidatePath("/app/recipes");
     revalidateTag(`recipes-${authUser.id}`, "default");
@@ -261,6 +286,9 @@ export async function updateRecipe(id: string, formData: Partial<RecipeFormData>
       }
     }
 
+    // Invalidate Redis cache for recipes
+    await invalidateCachePattern(`recipes:*`);
+
     revalidatePath("/app/recipes");
     revalidatePath(`/app/recipes/${id}`);
     revalidateTag(`recipes-${authUser.id}`, "default");
@@ -292,6 +320,9 @@ export async function deleteRecipe(id: string) {
     if (error) {
       return { error: error.message };
     }
+
+    // Invalidate Redis cache for recipes
+    await invalidateCachePattern(`recipes:*`);
 
     revalidatePath("/app/recipes");
     revalidateTag(`recipes-${authUser.id}`, "default");
@@ -360,6 +391,9 @@ export async function toggleFavorite(recipeId: string) {
         return { error: error.message, isFavorite: true };
       }
 
+      // Invalidate favorites cache
+      await invalidateCache(favoritesKey(user.id));
+
       revalidatePath("/app/recipes");
       revalidatePath("/app/history");
       return { error: null, isFavorite: false };
@@ -373,6 +407,9 @@ export async function toggleFavorite(recipeId: string) {
       if (error) {
         return { error: error.message, isFavorite: false };
       }
+
+      // Invalidate favorites cache
+      await invalidateCache(favoritesKey(user.id));
 
       revalidatePath("/app/recipes");
       revalidatePath("/app/history");
@@ -392,18 +429,33 @@ export async function getFavorites() {
     return { error: "Not authenticated", data: [] };
   }
 
-  const supabase = await createClient();
+  try {
+    const cacheKey = favoritesKey(user.id);
 
-  const { data, error } = await supabase
-    .from("favorites")
-    .select("recipe_id")
-    .eq("user_id", user.id);
+    const favoriteIds = await getCached<string[]>(
+      cacheKey,
+      async () => {
+        const supabase = await createClient();
 
-  if (error) {
-    return { error: error.message, data: [] };
+        const { data, error } = await supabase
+          .from("favorites")
+          .select("recipe_id")
+          .eq("user_id", user.id);
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        return data.map((f) => f.recipe_id);
+      },
+      CACHE_TTL.FAVORITES
+    );
+
+    return { error: null, data: favoriteIds };
+  } catch (error) {
+    console.error("getFavorites error:", error);
+    return { error: "Failed to load favorites", data: [] };
   }
-
-  return { error: null, data: data.map((f) => f.recipe_id) };
 }
 
 // Get user's favorite recipes with full recipe details
@@ -473,6 +525,9 @@ export async function markAsCooked(
     return { error: error.message };
   }
 
+  // Invalidate cook counts cache
+  await invalidateCache(cookCountsKey(household?.household_id || user.id));
+
   revalidatePath("/app/recipes");
   revalidatePath(`/app/recipes/${recipeId}`);
   return { error: null };
@@ -513,24 +568,39 @@ export async function getRecipeCookCounts() {
     return { error: "Not authenticated", data: {} };
   }
 
-  const supabase = await createClient();
+  try {
+    const cacheKey = cookCountsKey(household?.household_id || user.id);
 
-  // Use database function for efficient aggregation
-  const { data, error } = await supabase.rpc("get_recipe_cook_counts", {
-    p_household_id: household?.household_id,
-  });
+    const counts = await getCached<Record<string, number>>(
+      cacheKey,
+      async () => {
+        const supabase = await createClient();
 
-  if (error) {
-    return { error: error.message, data: {} };
+        // Use database function for efficient aggregation
+        const { data, error } = await supabase.rpc("get_recipe_cook_counts", {
+          p_household_id: household?.household_id,
+        });
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        // Transform array to record for backwards compatibility
+        const result: Record<string, number> = {};
+        (data as Array<{ recipe_id: string; count: number }>)?.forEach((entry) => {
+          result[entry.recipe_id] = entry.count;
+        });
+
+        return result;
+      },
+      CACHE_TTL.COOK_COUNTS
+    );
+
+    return { error: null, data: counts };
+  } catch (error) {
+    console.error("getRecipeCookCounts error:", error);
+    return { error: "Failed to load cook counts", data: {} };
   }
-
-  // Transform array to record for backwards compatibility
-  const counts: Record<string, number> = {};
-  (data as Array<{ recipe_id: string; count: number }>)?.forEach((entry) => {
-    counts[entry.recipe_id] = entry.count;
-  });
-
-  return { error: null, data: counts };
 }
 
 // Upload recipe image to Supabase Storage

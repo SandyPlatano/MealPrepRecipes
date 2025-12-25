@@ -3,6 +3,12 @@
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
 import { revalidatePath } from "next/cache";
+import {
+  getCached,
+  invalidateCache,
+  settingsKey,
+  CACHE_TTL,
+} from "@/lib/cache/redis";
 
 // Get user profile
 export async function getProfile() {
@@ -358,6 +364,9 @@ export async function updateSettings(settings: {
     console.error('Error saving settings:', error);
     return { error: error.message };
   }
+
+  // Invalidate Redis cache for settings
+  await invalidateCache(settingsKey(user.id));
 
   revalidatePath("/app/settings");
   revalidatePath("/app");

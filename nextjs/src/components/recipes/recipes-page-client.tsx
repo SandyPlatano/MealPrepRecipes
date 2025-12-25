@@ -32,6 +32,7 @@ interface RecipesPageClientProps {
   systemSmartFolders: SystemSmartFolder[];
   userSmartFolders: FolderWithChildren[];
   cookingHistoryContext: EvaluationContext;
+  smartFolderCache?: Record<string, string[]>; // Precomputed smart folder memberships
   // URL search params for folder filtering
   searchParams?: {
     filter?: string;
@@ -54,6 +55,7 @@ export function RecipesPageClient({
   systemSmartFolders,
   userSmartFolders,
   cookingHistoryContext,
+  smartFolderCache = {},
   searchParams,
   totalRecipes,
 }: RecipesPageClientProps) {
@@ -103,14 +105,21 @@ export function RecipesPageClient({
   }), [cookingHistoryContext]);
 
   // Get recipe IDs for active folder filter
+  // Uses precomputed cache when available, falls back to client-side filtering
   const folderRecipeIds = useMemo(() => {
     if (activeFilter.type === "all") {
       return null; // No filtering
     }
 
     if (activeFilter.type === "smart") {
+      // Try to use precomputed cache first (instant lookup)
+      const cachedIds = smartFolderCache[activeFilter.id];
+      if (cachedIds && cachedIds.length > 0) {
+        return cachedIds;
+      }
+
+      // Fallback to client-side filtering if cache miss
       if (activeFilter.isSystem) {
-        // System smart folder
         const systemFolder = systemSmartFolders.find(
           (f) => f.id === activeFilter.id
         );
@@ -119,7 +128,6 @@ export function RecipesPageClient({
           return filterRecipesBySmartFolder(recipes, criteria, safeCookingHistoryContext);
         }
       } else {
-        // User smart folder
         const userFolder = userSmartFolders.find(
           (f) => f.id === activeFilter.id
         );
@@ -136,7 +144,7 @@ export function RecipesPageClient({
     }
 
     return null;
-  }, [activeFilter, recipes, folderMemberships, systemSmartFolders, userSmartFolders, safeCookingHistoryContext]);
+  }, [activeFilter, recipes, folderMemberships, systemSmartFolders, userSmartFolders, safeCookingHistoryContext, smartFolderCache]);
 
   // Handle opening the add to folder sheet
   const handleAddToFolder = useCallback(

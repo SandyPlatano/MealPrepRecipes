@@ -23,17 +23,15 @@ export default async function ShopPage() {
   // Get upcoming weeks for the multi-week selector
   const upcomingWeeks = getUpcomingWeeks(4);
 
-  // Check subscription status for multi-week feature
-  const canSelectMultipleWeeks = user ? await hasActiveSubscription(user.id, 'pro') : false;
-
-  // Use lightweight query for shopping list (fetches only id, title, cook - not full recipe)
-  const [listResult, pantryResult, settingsResult, weekPlanResult, aiQuota, weeksMealCountsResult] = await Promise.all([
+  // Fetch all data in parallel (including subscription check)
+  const [listResult, pantryResult, settingsResult, weekPlanResult, aiQuota, weeksMealCountsResult, canSelectMultipleWeeks] = await Promise.all([
     getShoppingListWithItems(),
     getPantryItems(),
     getSettings(),
     getWeekPlanForShoppingList(currentWeekStart),
     checkAIQuota(),
     getWeeksMealCounts(upcomingWeeks),
+    user ? hasActiveSubscription(user.id, 'pro') : Promise.resolve(false),
   ]);
 
   const shoppingList = listResult.data || {

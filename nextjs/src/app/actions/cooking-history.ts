@@ -495,6 +495,52 @@ export async function getUserCookingHistory(userId: string, limit?: number) {
 }
 
 /**
+ * Get recipe IDs that were cooked in the last N days.
+ * Used for parallel fetching in page components.
+ */
+export async function getRecentlyCookedRecipeIds(days: number = 30): Promise<{
+  error: string | null;
+  data: string[];
+}> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "Not authenticated", data: [] };
+  }
+
+  // Get user's household
+  const { data: membership } = await supabase
+    .from("household_members")
+    .select("household_id")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!membership) {
+    return { error: "No household found", data: [] };
+  }
+
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
+
+  const { data, error } = await supabase
+    .from("cooking_history")
+    .select("recipe_id")
+    .eq("household_id", membership.household_id)
+    .gte("cooked_at", cutoffDate.toISOString());
+
+  if (error) {
+    return { error: error.message, data: [] };
+  }
+
+  // Return unique recipe IDs
+  const uniqueIds = Array.from(new Set(data.map((h) => h.recipe_id)));
+  return { error: null, data: uniqueIds };
+}
+
+/**
  * Get most recent cooking history entry for a recipe.
  * Used to determine if user has cooked before (for rating click behavior).
  */

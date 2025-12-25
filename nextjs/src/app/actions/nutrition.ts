@@ -8,6 +8,12 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
+import {
+  getCached,
+  invalidateCachePattern,
+  nutritionKey,
+  CACHE_TTL,
+} from "@/lib/cache/redis";
 import type {
   RecipeNutrition,
   NutritionData,
@@ -136,6 +142,9 @@ export async function updateRecipeNutrition(
       return { data: null, error: error.message };
     }
 
+    // Invalidate Redis cache for nutrition
+    await invalidateCachePattern(`nutrition:*`);
+
     // Revalidate relevant paths
     revalidatePath(`/app/recipes/${recipeId}`);
     revalidatePath("/app/recipes");
@@ -196,6 +205,9 @@ export async function deleteRecipeNutrition(recipeId: string): Promise<{
       return { success: false, error: error.message };
     }
 
+    // Invalidate Redis cache for nutrition
+    await invalidateCachePattern(`nutrition:*`);
+
     // Revalidate relevant paths
     revalidatePath(`/app/recipes/${recipeId}`);
     revalidatePath("/app/recipes");
@@ -221,30 +233,45 @@ export async function getBulkRecipeNutrition(recipeIds: string[]): Promise<{
   error: string | null;
 }> {
   try {
-    const { user } = await getCachedUserWithHousehold();
+    const { user, household } = await getCachedUserWithHousehold();
     // Only check for actual auth errors, not household/subscription errors
     if (!user) {
       return { data: {}, error: "Not authenticated" };
     }
     // authError might be from household/subscription lookup, which is OK for nutrition tracking
 
-    const supabase = await createClient();
-
-    const { data, error } = await supabase
-      .from("recipe_nutrition")
-      .select("id, recipe_id, calories, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg, source, confidence_score, input_tokens, output_tokens, cost_usd, created_at, updated_at")
-      .in("recipe_id", recipeIds);
-
-    if (error) {
-      console.error("Error fetching bulk recipe nutrition:", error);
-      return { data: {}, error: error.message };
+    // Skip if no recipe IDs
+    if (recipeIds.length === 0) {
+      return { data: {}, error: null };
     }
 
-    // Convert array to record keyed by recipe_id
-    const nutritionMap: Record<string, RecipeNutrition> = {};
-    data.forEach((nutrition) => {
-      nutritionMap[nutrition.recipe_id] = nutrition;
-    });
+    // Use Redis cache with household-scoped key
+    const cacheKey = nutritionKey(household?.household_id || user.id);
+
+    const nutritionMap = await getCached<Record<string, RecipeNutrition>>(
+      cacheKey,
+      async () => {
+        const supabase = await createClient();
+
+        const { data, error } = await supabase
+          .from("recipe_nutrition")
+          .select("id, recipe_id, calories, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg, source, confidence_score, input_tokens, output_tokens, cost_usd, created_at, updated_at")
+          .in("recipe_id", recipeIds);
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        // Convert array to record keyed by recipe_id
+        const result: Record<string, RecipeNutrition> = {};
+        data.forEach((nutrition) => {
+          result[nutrition.recipe_id] = nutrition;
+        });
+
+        return result;
+      },
+      CACHE_TTL.NUTRITION
+    );
 
     return { data: nutritionMap, error: null };
   } catch (error) {

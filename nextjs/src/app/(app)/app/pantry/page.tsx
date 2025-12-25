@@ -8,22 +8,16 @@ import { HINT_IDS, HINT_CONTENT } from "@/lib/hints";
 
 export default async function PantryPage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  // Get pantry items and settings in parallel
-  const [pantryResult, settingsResult] = await Promise.all([
+  // Get all data in parallel (including subscription tier)
+  const [pantryResult, settingsResult, subscriptionTier] = await Promise.all([
     getPantryItems(),
     getSettings(),
+    user ? getUserTier(user.id) : Promise.resolve('free' as const),
   ]);
 
   const pantryItems = pantryResult.data || [];
-
-  // Get user's subscription tier (respects localhost for development)
-  let subscriptionTier: 'free' | 'pro' | 'premium' = 'free';
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (user) {
-    subscriptionTier = await getUserTier(user.id);
-  }
 
   return (
     <div className="flex flex-col gap-6">

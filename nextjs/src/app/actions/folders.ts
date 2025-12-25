@@ -173,6 +173,42 @@ export async function getFolderRecipeIds(
 }
 
 /**
+ * Get all folder memberships for the household (folderId -> recipeIds[])
+ * Used for parallel fetching in page components
+ */
+export async function getAllFolderMemberships(): Promise<{
+  error: string | null;
+  data: Record<string, string[]>;
+}> {
+  const { user, household, error: authError } = await getCachedUserWithHousehold();
+
+  if (authError || !user || !household?.household_id) {
+    return { error: "Not authenticated", data: {} };
+  }
+
+  const supabase = await createClient();
+
+  const { data: memberships, error } = await supabase
+    .from("recipe_folder_members")
+    .select("folder_id, recipe_id, recipe_folders!inner(household_id)")
+    .eq("recipe_folders.household_id", household.household_id);
+
+  if (error) {
+    return { error: error.message, data: {} };
+  }
+
+  const membershipMap: Record<string, string[]> = {};
+  for (const m of memberships || []) {
+    if (!membershipMap[m.folder_id]) {
+      membershipMap[m.folder_id] = [];
+    }
+    membershipMap[m.folder_id].push(m.recipe_id);
+  }
+
+  return { error: null, data: membershipMap };
+}
+
+/**
  * Get all folder IDs that contain a recipe
  */
 export async function getRecipeFolderIds(

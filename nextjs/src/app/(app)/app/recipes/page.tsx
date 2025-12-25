@@ -3,15 +3,15 @@ import { getRecipes, getFavorites, getRecipeCookCounts } from "@/app/actions/rec
 import { getSettings } from "@/app/actions/settings";
 import { getBulkRecipeNutrition } from "@/app/actions/nutrition";
 import { getActiveCustomBadges } from "@/app/actions/custom-badges";
-import { getFolders } from "@/app/actions/folders";
-import { getSystemSmartFolders, getUserSmartFolders, getCookingHistoryContext } from "@/app/actions/smart-folders";
+import { getFolders, getAllFolderMemberships } from "@/app/actions/folders";
+import { getSystemSmartFolders, getUserSmartFolders, getCookingHistoryContext, getSmartFolderCache, rebuildSmartFolderCache, hasSmartFolderCache } from "@/app/actions/smart-folders";
+import { getRecentlyCookedRecipeIds } from "@/app/actions/cooking-history";
 import { createClient } from "@/lib/supabase/server";
 import { RecipesPageClient } from "@/components/recipes/recipes-page-client";
 import { RecipeGridSkeleton } from "@/components/recipes/recipe-card-skeleton";
 import { ContextualHint } from "@/components/hints/contextual-hint";
 import { FirstRecipeHint } from "@/components/hints/first-recipe-hint";
 import { HINT_IDS, HINT_CONTENT } from "@/lib/hints";
-import type { FolderWithChildren } from "@/types/folder";
 import { EmptyState } from "@/components/ui/empty-state";
 import { UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Fetch all data in parallel
+  // Fetch all data in parallel (optimized - no sequential queries)
   const [
     profileResult,
     recipesResult,
@@ -43,6 +43,9 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
     systemSmartFoldersResult,
     userSmartFoldersResult,
     cookingHistoryResult,
+    folderMembershipsResult,
+    recentlyCookedResult,
+    smartFolderCacheResult,
   ] = await Promise.all([
     user ? supabase.from("profiles").select("first_name").eq("id", user.id).single() : Promise.resolve({ data: null }),
     getRecipes(),
@@ -54,10 +57,12 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
     getSystemSmartFolders(),
     getUserSmartFolders(),
     getCookingHistoryContext(),
+    getAllFolderMemberships(),
+    getRecentlyCookedRecipeIds(30),
+    getSmartFolderCache(),
   ]);
 
   const profile = profileResult.data;
-
   const recipes = recipesResult.data || [];
   const favoriteIds = new Set(favoritesResult.data || []);
   const userAllergenAlerts = settingsResult.data?.allergen_alerts || [];
@@ -68,39 +73,18 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   const systemSmartFolders = systemSmartFoldersResult.data || [];
   const userSmartFolders = userSmartFoldersResult.data || [];
   const cookingHistoryContext = cookingHistoryResult.data || { cookCounts: {}, lastCookedDates: {} };
+  const folderMemberships = folderMembershipsResult.data || {};
+  const recentlyCookedIds = recentlyCookedResult.data || [];
+  let smartFolderCache = smartFolderCacheResult.data || {};
 
-  // Build folder membership map (folderId -> recipeIds[])
-  const folderMemberships: Record<string, string[]> = {};
-  const buildMembershipMap = (folderList: FolderWithChildren[]) => {
-    for (const folder of folderList) {
-      // We'll populate this with actual data from the database
-      folderMemberships[folder.id] = [];
-      if (folder.children.length > 0) {
-        buildMembershipMap(folder.children);
-      }
-    }
-  };
-  buildMembershipMap(folders);
-
-  // Fetch all folder memberships
-  if (folders.length > 0) {
-    const allFolderIds = Object.keys(folderMemberships);
-    const { data: memberships } = await supabase
-      .from("recipe_folder_members")
-      .select("folder_id, recipe_id")
-      .in("folder_id", allFolderIds);
-
-    if (memberships) {
-      for (const m of memberships) {
-        if (!folderMemberships[m.folder_id]) {
-          folderMemberships[m.folder_id] = [];
-        }
-        folderMemberships[m.folder_id].push(m.recipe_id);
-      }
-    }
+  // Rebuild smart folder cache if empty (lazy initialization)
+  if (Object.keys(smartFolderCache).length === 0 && (systemSmartFolders.length > 0 || userSmartFolders.length > 0) && recipes.length > 0) {
+    await rebuildSmartFolderCache();
+    const refreshedCache = await getSmartFolderCache();
+    smartFolderCache = refreshedCache.data || {};
   }
 
-  // Fetch nutrition data for all recipes
+  // Fetch nutrition data (single sequential call - depends on recipe IDs)
   const recipeIds = recipes.map((r) => r.id);
   const nutritionResult = await getBulkRecipeNutrition(recipeIds);
   const nutritionMap = nutritionResult.data || {};
@@ -111,19 +95,6 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
     is_favorite: favoriteIds.has(recipe.id),
     nutrition: nutritionMap[recipe.id] || null,
   }));
-
-  // Get recently cooked recipes (last 30 days)
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-  const { data: recentHistory } = await supabase
-    .from("cooking_history")
-    .select("recipe_id")
-    .gte("cooked_at", thirtyDaysAgo.toISOString());
-
-  const recentlyCookedIds = Array.from(
-    new Set(recentHistory?.map((h) => h.recipe_id) || [])
-  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -165,6 +136,7 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
             systemSmartFolders={systemSmartFolders}
             userSmartFolders={userSmartFolders}
             cookingHistoryContext={cookingHistoryContext}
+            smartFolderCache={smartFolderCache}
             searchParams={params}
             totalRecipes={recipes.length}
           />

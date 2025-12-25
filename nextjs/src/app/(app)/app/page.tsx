@@ -35,13 +35,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Get user's profile for onboarding check
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, first_name, last_name, email, avatar_url, cover_image_url, username, bio, cooking_philosophy, profile_emoji, currently_craving, cook_with_me_status, favorite_cuisine, cooking_skill, location, website_url, public_profile, show_cooking_stats, show_badges, show_cook_photos, show_reviews, show_saved_recipes, profile_accent_color, created_at, updated_at")
-    .eq("id", user?.id)
-    .single();
-
   // Get current week for comparison
   const currentWeekStart = getWeekStart(new Date()).toISOString().split("T")[0];
 
@@ -52,21 +45,15 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   const weekStartStr = weekStartDate.toISOString().split("T")[0];
 
-  // Check if user can navigate to other weeks (Pro+ feature)
-  const canNavigateWeeks = user ? await hasActiveSubscription(user.id, 'pro') : false;
-
-  // Redirect free users who try to navigate to non-current weeks via URL
-  if (!canNavigateWeeks && weekStartStr !== currentWeekStart) {
-    redirect(`/app?week=${currentWeekStart}`);
-  }
-
   // Calculate previous week for copy feature
   const previousWeekStart = new Date(weekStartDate);
   previousWeekStart.setDate(previousWeekStart.getDate() - 7);
   const previousWeekStr = previousWeekStart.toISOString().split("T")[0];
 
-  // Fetch all data in parallel
+  // Fetch all data in parallel (including profile and subscription check)
   const [
+    profileResult,
+    canNavigateWeeksResult,
     planResult,
     recipesResult,
     settingsResult,
@@ -81,6 +68,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     defaultCooksByDayResult,
     userPreferencesV2Result,
   ] = await Promise.all([
+    user ? supabase.from("profiles").select("id, first_name, last_name, email, avatar_url, cover_image_url, username, bio, cooking_philosophy, profile_emoji, currently_craving, cook_with_me_status, favorite_cuisine, cooking_skill, location, website_url, public_profile, show_cooking_stats, show_badges, show_cook_photos, show_reviews, show_saved_recipes, profile_accent_color, created_at, updated_at").eq("id", user.id).single() : Promise.resolve({ data: null }),
+    user ? hasActiveSubscription(user.id, 'pro') : Promise.resolve(false),
     getWeekPlan(weekStartStr),
     getRecipesForPlanning(),
     getSettings(),
@@ -95,6 +84,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     getDefaultCooksByDay(),
     user ? getUserPreferencesV2(user.id) : Promise.resolve({ error: null, data: null }),
   ]);
+
+  const profile = profileResult.data;
+  const canNavigateWeeks = canNavigateWeeksResult;
+
+  // Redirect free users who try to navigate to non-current weeks via URL
+  if (!canNavigateWeeks && weekStartStr !== currentWeekStart) {
+    redirect(`/app?week=${currentWeekStart}`);
+  }
 
   const weekPlan = planResult.data || {
     meal_plan: null,
