@@ -110,14 +110,14 @@ function JourneyStepComponent({ step, isReversed, isVisible }: {
 
       {/* Content Side */}
       <div className={`${isReversed ? "lg:order-1" : "lg:order-2"}`}>
-        {/* Step Badge */}
+        {/* Step Badge with glow */}
         <div className={`
           inline-flex items-center gap-2 mb-4
           transition-all duration-500 delay-100
           ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"}
         `}>
-          <div className="flex items-center gap-2 bg-[#F97316]/10 border border-[#F97316]/30 px-3 py-1 rounded-full">
-            <span className="w-6 h-6 flex items-center justify-center rounded-full bg-[#F97316] text-white text-xs font-mono font-bold">
+          <div className="flex items-center gap-2 bg-[#F97316]/10 border border-[#F97316]/30 px-3 py-1.5 rounded-full shadow-[0_0_20px_rgba(249,115,22,0.15)] backdrop-blur-sm">
+            <span className="w-7 h-7 flex items-center justify-center rounded-full bg-[#F97316] text-white text-xs font-mono font-bold shadow-[0_0_15px_rgba(249,115,22,0.4)]">
               {step.number}
             </span>
             <Icon className="w-4 h-4 text-[#F97316]" />
@@ -280,6 +280,22 @@ function JourneyCompletion({ isVisible }: { isVisible: boolean }) {
 // Main Journey Section
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Gradient mesh blobs for journey section background
+function JourneyBackgroundBlobs() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div
+        className="absolute top-1/4 -left-32 w-[400px] h-[400px] rounded-full opacity-10 blur-[120px] animate-blob"
+        style={{ background: 'radial-gradient(circle, #8B5CF6 0%, transparent 70%)' }}
+      />
+      <div
+        className="absolute top-2/3 -right-32 w-[350px] h-[350px] rounded-full opacity-10 blur-[100px] animate-blob animation-delay-3000"
+        style={{ background: 'radial-gradient(circle, #F97316 0%, transparent 70%)' }}
+      />
+    </div>
+  );
+}
+
 export function JourneySection() {
   const [visibleSteps, setVisibleSteps] = useState<Set<number>>(new Set());
   const [visibleConnectors, setVisibleConnectors] = useState<Set<number>>(new Set());
@@ -357,8 +373,20 @@ export function JourneySection() {
   }, []);
 
   return (
-    <section className="py-24 bg-[#111]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-24 bg-[#111] relative overflow-hidden">
+      {/* Ambient background blobs */}
+      <JourneyBackgroundBlobs />
+
+      {/* Subtle grid pattern */}
+      <div
+        className="absolute inset-0 opacity-20 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
+        }}
+      />
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-20">
           <span className="inline-block font-mono text-xs font-bold text-[#F97316] bg-[#F97316]/10 border border-[#F97316]/30 px-3 py-1 rounded-full mb-4">

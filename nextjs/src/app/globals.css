@@ -296,94 +296,94 @@
 
 @layer base {
   /* ═══════════════════════════════════════════════════════════════════════════
-     MIDNIGHT EMBER - Dark-Only Theme
-     No light mode - entire app uses dark background
+     GOLDEN ROSE - Dark-Only Theme
+     Primary: Yellow/Gold, Secondary: Pink
      ═══════════════════════════════════════════════════════════════════════════ */
   :root {
-    /* Background & Foreground - Midnight dark */
-    --background: 0 0% 7%;           /* #111111 */
-    --foreground: 40 60% 98%;        /* #FDFBF7 cream */
+    /* Background & Foreground */
+    --background: 0 0% 10%;          /* #1A1A1A */
+    --foreground: 0 0% 96%;          /* #F5F5F5 */
 
     /* Card - Slightly elevated dark */
-    --card: 0 0% 10%;                /* #1a1a1a */
-    --card-foreground: 40 60% 98%;   /* #FDFBF7 cream */
+    --card: 0 0% 16%;                /* #2A2A2A */
+    --card-foreground: 0 0% 96%;     /* #F5F5F5 */
 
     /* Popover */
-    --popover: 0 0% 10%;             /* #1a1a1a */
-    --popover-foreground: 40 60% 98%;
+    --popover: 0 0% 16%;             /* #2A2A2A */
+    --popover-foreground: 0 0% 96%;
 
-    /* Primary - Coral Orange (#F97316) */
-    --primary: 25 95% 53%;           /* #F97316 */
-    --primary-foreground: 0 0% 100%; /* white */
+    /* Primary - Yellow/Gold (#E6A800) */
+    --primary: 44 100% 45%;          /* #E6A800 */
+    --primary-foreground: 0 0% 10%;  /* dark text on yellow */
 
-    /* Secondary - Hunter Green (#1a4d2e) */
-    --secondary: 150 48% 20%;        /* #1a4d2e */
-    --secondary-foreground: 40 60% 98%;
+    /* Secondary - Pink (#D94BA3) */
+    --secondary: 322 64% 57%;        /* #D94BA3 */
+    --secondary-foreground: 0 0% 100%;
 
     /* Muted - Dark gray surface */
-    --muted: 0 0% 13%;               /* #222222 */
-    --muted-foreground: 0 0% 53%;    /* #888888 */
+    --muted: 0 0% 20%;               /* #333333 */
+    --muted-foreground: 0 0% 60%;    /* #999999 */
 
-    /* Accent - Hunter Green for secondary highlights */
-    --accent: 150 48% 20%;           /* #1a4d2e */
-    --accent-foreground: 40 60% 98%;
+    /* Accent - Pink for secondary highlights */
+    --accent: 322 64% 57%;           /* #D94BA3 */
+    --accent-foreground: 0 0% 100%;
 
     /* Destructive */
     --destructive: 0 84% 50%;
     --destructive-foreground: 0 0% 100%;
 
     /* Border & Input - Dark borders */
-    --border: 0 0% 18%;              /* subtle dark border */
-    --input: 0 0% 18%;
-    --ring: 25 95% 53%;              /* Coral for focus rings */
+    --border: 0 0% 22%;              /* subtle dark border */
+    --input: 0 0% 22%;
+    --ring: 44 100% 45%;             /* Yellow for focus rings */
 
-    /* Charts - Midnight Coral palette */
-    --chart-1: 25 95% 53%;           /* Coral */
-    --chart-2: 150 48% 20%;          /* Hunter */
-    --chart-3: 38 92% 50%;           /* Yellow */
+    /* Charts - Golden Rose palette */
+    --chart-1: 44 100% 45%;          /* Yellow/Gold */
+    --chart-2: 322 64% 57%;          /* Pink */
+    --chart-3: 280 60% 50%;          /* Purple */
     --chart-4: 175 84% 32%;          /* Teal */
     --chart-5: 199 89% 48%;          /* Blue */
 
     --radius: 0.5rem;
 
-    /* Brand colors - Midnight Coral */
-    --brand-ember: 25 95% 53%;       /* #F97316 */
-    --brand-hunter: 150 48% 20%;     /* #1a4d2e */
-    --brand-cream: 40 60% 98%;       /* #FDFBF7 */
-    --brand-midnight: 0 0% 7%;       /* #111111 */
-    --brand-muted: 0 0% 53%;         /* #888888 */
+    /* Brand colors - Golden Rose */
+    --brand-ember: 44 100% 45%;      /* #E6A800 */
+    --brand-hunter: 322 64% 57%;     /* #D94BA3 */
+    --brand-cream: 0 0% 96%;         /* #F5F5F5 */
+    --brand-midnight: 0 0% 10%;      /* #1A1A1A */
+    --brand-muted: 0 0% 60%;         /* #999999 */
 
     /* Legacy aliases for backwards compatibility */
-    --brand-coral: 25 95% 53%;
-    --brand-sage: 150 48% 20%;
-    --brand-warm-gray: 0 0% 53%;
+    --brand-coral: 44 100% 45%;
+    --brand-sage: 322 64% 57%;
+    --brand-warm-gray: 0 0% 60%;
   }
 
   /* Dark class is now a no-op since we're dark-only, but keep for compatibility */
   .dark {
     /* Same as :root - dark-only theme */
-    --background: 0 0% 7%;
-    --foreground: 40 60% 98%;
-    --card: 0 0% 10%;
-    --card-foreground: 40 60% 98%;
-    --popover: 0 0% 10%;
-    --popover-foreground: 40 60% 98%;
-    --primary: 25 95% 53%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 150 48% 20%;
-    --secondary-foreground: 40 60% 98%;
-    --muted: 0 0% 13%;
-    --muted-foreground: 0 0% 53%;
-    --accent: 150 48% 20%;
-    --accent-foreground: 40 60% 98%;
+    --background: 0 0% 10%;
+    --foreground: 0 0% 96%;
+    --card: 0 0% 16%;
+    --card-foreground: 0 0% 96%;
+    --popover: 0 0% 16%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 44 100% 45%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 322 64% 57%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 322 64% 57%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
-    --ring: 25 95% 53%;
-    --chart-1: 25 95% 53%;
-    --chart-2: 150 48% 20%;
-    --chart-3: 38 92% 50%;
+    --border: 0 0% 22%;
+    --input: 0 0% 22%;
+    --ring: 44 100% 45%;
+    --chart-1: 44 100% 45%;
+    --chart-2: 322 64% 57%;
+    --chart-3: 280 60% 50%;
     --chart-4: 175 84% 32%;
     --chart-5: 199 89% 48%;
   }
@@ -1986,4 +1986,59 @@ button:not(:disabled):hover {
    ═══════════════════════════════════════════════════════════════════════════ */
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LANDING PAGE POLISH - Premium Animations & Effects
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Animated gradient blob effect */
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(20px, -30px) scale(1.05);
+  }
+  50% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+  75% {
+    transform: translate(30px, 10px) scale(1.02);
+  }
+}
+
+.animate-blob {
+  animation: blob 12s ease-in-out infinite;
+}
+
+/* Slow pulse for ambient elements */
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
+}
+
+/* Animation delays for staggered effects */
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+.animation-delay-1000 {
+  animation-delay: 1s;
+}
+
+.animation-delay-3000 {
+  animation-delay: 3s;
 }
