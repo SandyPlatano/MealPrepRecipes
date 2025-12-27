@@ -12,7 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Trash2, Eye, Pencil, ChefHat, CalendarOff, ChevronRight, Check } from "lucide-react";
+import { Trash2, Eye, Pencil, ChefHat, CalendarOff, ChevronRight, Check, Plus, Zap, ChevronDown, Clock } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
 import {
   Collapsible,
   CollapsibleContent,
@@ -139,15 +147,25 @@ export const PlannerDayRow = memo(function PlannerDayRow({
   const keyboardNumber = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].indexOf(day) + 1;
 
   return (
-    <div className={`group flex items-start gap-3 md:gap-4 transition-opacity ${isPending ? "opacity-60" : ""}`}>
-      {/* Day Badge - Floats on the left */}
+    <Card
+      className={cn(
+        "group relative transition-all min-h-[140px] h-full",
+        isToday && "ring-2 ring-primary",
+        isPast && "opacity-70",
+        isFocused && !isToday && "ring-2 ring-primary/50 shadow-md",
+        isSelectionMode && isSelected && "ring-2 ring-primary bg-primary/5",
+        isPending && "opacity-60"
+      )}
+      onClick={isSelectionMode ? onToggleSelection : undefined}
+    >
+      {/* Internal Date Badge - top left corner */}
       <div
         className={cn(
-          "flex flex-col items-center justify-center min-w-[56px] md:min-w-[72px] lg:min-w-[80px] pt-3 md:pt-4",
+          "absolute top-3 left-3 flex flex-col items-center z-10",
           isToday && "text-primary",
           isSelectionMode && "cursor-pointer"
         )}
-        onClick={isSelectionMode ? onToggleSelection : undefined}
+        onClick={isSelectionMode ? (e) => { e.stopPropagation(); onToggleSelection?.(); } : undefined}
       >
         {/* Selection Checkbox (shown in selection mode) */}
         {isSelectionMode && (
@@ -158,36 +176,36 @@ export const PlannerDayRow = memo(function PlannerDayRow({
               onToggleSelection?.();
             }}
             className={cn(
-              "size-8 md:size-7 rounded-md border-2 flex items-center justify-center transition-all mb-2",
+              "size-6 rounded-md border-2 flex items-center justify-center transition-all mb-1",
               isSelected
                 ? "bg-primary border-primary text-primary-foreground"
                 : "border-muted-foreground/30 hover:border-primary/50"
             )}
             aria-label={isSelected ? "Deselect day" : "Select day"}
           >
-            {isSelected && <Check className="size-5 md:size-4" />}
+            {isSelected && <Check className="size-4" />}
           </button>
         )}
 
-        <div className="text-2xl md:text-3xl lg:text-4xl font-bold font-mono leading-none">
+        <div className="text-xl md:text-2xl font-bold font-mono leading-none">
           {dayNumber}
         </div>
-        <div className="text-[10px] md:text-xs font-semibold mt-1">{dayAbbrev}</div>
-        <div className="text-[9px] md:text-[10px] text-muted-foreground">{monthAbbrev}</div>
+        <div className="text-[9px] md:text-[10px] font-semibold uppercase tracking-wide">{dayAbbrev}</div>
+        <div className="text-[8px] md:text-[9px] text-muted-foreground">{monthAbbrev}</div>
         {isToday && (
-          <Badge variant="default" className="text-[8px] md:text-[10px] px-1.5 py-0 mt-1.5">
+          <Badge variant="default" className="text-[7px] md:text-[8px] px-1 py-0 mt-1">
             Today
           </Badge>
         )}
         {googleConnected && isCalendarExcluded && (
-          <div className="mt-1.5 flex items-center justify-center" title="Calendar sync disabled">
-            <CalendarOff className="size-3 md:size-3.5 text-muted-foreground" />
+          <div className="mt-1 flex items-center justify-center" title="Calendar sync disabled">
+            <CalendarOff className="size-2.5 md:size-3 text-muted-foreground" />
           </div>
         )}
         {/* Keyboard shortcut hint - hidden on mobile */}
         <div
           className={cn(
-            "hidden md:flex items-center justify-center mt-1.5 text-[10px] font-mono px-1.5 py-0.5 rounded transition-all",
+            "hidden md:flex items-center justify-center mt-1 text-[9px] font-mono px-1 py-0.5 rounded transition-all",
             isFocused
               ? "bg-primary text-primary-foreground"
               : "bg-muted text-muted-foreground opacity-0 group-hover:opacity-100"
@@ -198,29 +216,21 @@ export const PlannerDayRow = memo(function PlannerDayRow({
         </div>
       </div>
 
-      {/* Card with Recipes */}
-      <Card
+      {/* Card Content - shifted right to accommodate date badge */}
+      <CardContent
         className={cn(
-          "flex-1 transition-all min-h-[120px]",
-          isToday && "ring-2 ring-primary",
-          isPast && "opacity-70",
-          isFocused && !isToday && "ring-2 ring-primary/50 shadow-md",
-          isSelectionMode && isSelected && "ring-2 ring-primary bg-primary/5"
+          // Base spacing - flex column with gap
+          "flex flex-col gap-2 md:gap-3 h-full",
+          // Left padding for date badge + drag handle space
+          "pl-16 md:pl-20",
+          // Density-based padding
+          viewSettings?.density === "compact" && "p-2 pl-14 md:pl-18 gap-1.5",
+          viewSettings?.density === "comfortable" && "p-3 md:p-4 pl-16 md:pl-20",
+          viewSettings?.density === "spacious" && "p-4 md:p-5 pl-18 md:pl-22 gap-3 md:gap-4",
+          // Default if no viewSettings
+          !viewSettings?.density && "p-3 md:p-4 pl-16 md:pl-20"
         )}
-        onClick={isSelectionMode ? onToggleSelection : undefined}
       >
-        <CardContent
-          className={cn(
-            // Base spacing - flex column with gap
-            "flex flex-col gap-3 md:gap-4",
-            // Density-based padding (extra left for drag handle)
-            viewSettings?.density === "compact" && "p-2 pl-6 md:pl-8 gap-2",
-            viewSettings?.density === "comfortable" && "p-3 md:p-4 pl-6 md:pl-8",
-            viewSettings?.density === "spacious" && "p-4 md:p-6 pl-6 md:pl-8 gap-4 md:gap-6",
-            // Default if no viewSettings (extra left for drag handle)
-            !viewSettings?.density && "p-3 md:p-4 pl-6 md:pl-8"
-          )}
-        >
           {assignments.length === 0 ? (
             isPast ? (
               <div className={cn(
@@ -230,84 +240,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                 No meals planned
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => setModalOpen(true)}
-                disabled={isPending}
-                className={cn(
-                  "w-full flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group/empty",
-                  viewSettings?.density === "compact" ? "py-4 md:py-6" : "py-6 md:py-8",
-                  isPending && "opacity-50 cursor-not-allowed"
-                )}
-              >
-                <div className="size-10 rounded-full bg-muted/50 group-hover/empty:bg-primary/10 flex items-center justify-center transition-colors">
-                  <svg className="size-5 text-muted-foreground group-hover/empty:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                  </svg>
-                </div>
-                <span className="text-sm text-muted-foreground group-hover/empty:text-primary transition-colors">
-                  Add a meal
-                </span>
-              </button>
-            )
-          ) : (
-            // Render grouped assignments by meal type
-            MEAL_TYPE_ORDER.map((mealType) => {
-              const typeMeals = groupedAssignments.get(mealType) || [];
-              if (typeMeals.length === 0) return null;
-
-              return (
-                <div
-                  key={mealType ?? "other"}
-                  className={cn(
-                    "flex flex-col",
-                    viewSettings?.density === "compact" ? "gap-1.5" : "gap-2 md:gap-3"
-                  )}
-                >
-                  {/* Conditionally render meal type header based on settings */}
-                  {viewSettings?.showMealTypeHeaders !== false && (
-                    <MealSlotHeader
-                      mealType={mealType}
-                      mealCount={typeMeals.length}
-                      customEmoji={mealTypeSettings?.[(mealType ?? "other") as MealTypeKey]?.emoji}
-                      customColor={mealTypeSettings?.[(mealType ?? "other") as MealTypeKey]?.color}
-                    />
-                  )}
-                  {typeMeals.map((assignment) => (
-                    <DraggableMeal
-                      key={assignment.id}
-                      id={assignment.id}
-                      disabled={isPast}
-                    >
-                      <RecipeRow
-                        assignment={assignment}
-                        cookNames={cookNames}
-                        cookColors={cookColors}
-                        onUpdateCook={onUpdateCook}
-                        onUpdateMealType={onUpdateMealType}
-                        onRemove={onRemoveMeal}
-                        onSwap={() => {
-                          // First remove the current recipe, then open modal to add new one
-                          onRemoveMeal(assignment.id);
-                          setModalOpen(true);
-                        }}
-                        nutrition={nutritionData?.get(assignment.recipe_id) || null}
-                        mealTypeSettings={mealTypeSettings}
-                        showNutrition={viewSettings?.showNutritionBadges !== false}
-                        showPrepTime={viewSettings?.showPrepTime !== false}
-                        compact={viewSettings?.density === "compact"}
-                      />
-                    </DraggableMeal>
-                  ))}
-                </div>
-              );
-            })
-          )}
-
-          {/* Add Meal Button with Quick-Add */}
-          {!isPast && (
-            <>
-              <QuickAddDropdown
+              <EmptyDayAddMeal
                 recipes={recipes}
                 recentRecipeIds={recentRecipeIds}
                 onQuickAdd={async (recipeId) => {
@@ -315,10 +248,82 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                 }}
                 onOpenFullPicker={() => setModalOpen(true)}
                 disabled={isPending}
-                compact={viewSettings?.density === "compact"}
+                density={viewSettings?.density}
               />
+            )
+          ) : (
+            <>
+              {/* Render grouped assignments by meal type */}
+              {MEAL_TYPE_ORDER.map((mealType) => {
+                const typeMeals = groupedAssignments.get(mealType) || [];
+                if (typeMeals.length === 0) return null;
 
-              <RecipePickerModal
+                return (
+                  <div
+                    key={mealType ?? "other"}
+                    className={cn(
+                      "flex flex-col",
+                      viewSettings?.density === "compact" ? "gap-1.5" : "gap-2 md:gap-3"
+                    )}
+                  >
+                    {/* Conditionally render meal type header based on settings */}
+                    {viewSettings?.showMealTypeHeaders !== false && (
+                      <MealSlotHeader
+                        mealType={mealType}
+                        mealCount={typeMeals.length}
+                        customEmoji={mealTypeSettings?.[(mealType ?? "other") as MealTypeKey]?.emoji}
+                        customColor={mealTypeSettings?.[(mealType ?? "other") as MealTypeKey]?.color}
+                      />
+                    )}
+                    {typeMeals.map((assignment) => (
+                      <DraggableMeal
+                        key={assignment.id}
+                        id={assignment.id}
+                        disabled={isPast}
+                      >
+                        <RecipeRow
+                          assignment={assignment}
+                          cookNames={cookNames}
+                          cookColors={cookColors}
+                          onUpdateCook={onUpdateCook}
+                          onUpdateMealType={onUpdateMealType}
+                          onRemove={onRemoveMeal}
+                          onSwap={() => {
+                            // First remove the current recipe, then open modal to add new one
+                            onRemoveMeal(assignment.id);
+                            setModalOpen(true);
+                          }}
+                          nutrition={nutritionData?.get(assignment.recipe_id) || null}
+                          mealTypeSettings={mealTypeSettings}
+                          showNutrition={viewSettings?.showNutritionBadges !== false}
+                          showPrepTime={viewSettings?.showPrepTime !== false}
+                          compact={viewSettings?.density === "compact"}
+                        />
+                      </DraggableMeal>
+                    ))}
+                  </div>
+                );
+              })}
+
+              {/* Add Meal Button - only shown when there are existing meals */}
+              {!isPast && (
+                <QuickAddDropdown
+                  recipes={recipes}
+                  recentRecipeIds={recentRecipeIds}
+                  onQuickAdd={async (recipeId) => {
+                    await onAddMeal(recipeId, day);
+                  }}
+                  onOpenFullPicker={() => setModalOpen(true)}
+                  disabled={isPending}
+                  compact={viewSettings?.density === "compact"}
+                />
+              )}
+            </>
+          )}
+
+          {/* Recipe Picker Modal - used by both empty state and add button */}
+          {!isPast && (
+            <RecipePickerModal
                 open={modalOpen}
                 onOpenChange={handleModalClose}
                 day={day}
@@ -339,11 +344,9 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                   });
                 }}
               />
-            </>
           )}
         </CardContent>
-      </Card>
-    </div>
+    </Card>
   );
 });
 
@@ -630,6 +633,135 @@ function RecipeRow({
         </CollapsibleContent>
       </div>
     </Collapsible>
+  );
+}
+
+// Merged empty state component: combines dashed add zone with quick-add dropdown
+interface EmptyDayAddMealProps {
+  recipes: Recipe[];
+  recentRecipeIds: string[];
+  onQuickAdd: (recipeId: string) => Promise<void>;
+  onOpenFullPicker: () => void;
+  disabled?: boolean;
+  density?: "compact" | "comfortable" | "spacious";
+}
+
+function EmptyDayAddMeal({
+  recipes,
+  recentRecipeIds,
+  onQuickAdd,
+  onOpenFullPicker,
+  disabled = false,
+  density,
+}: EmptyDayAddMealProps) {
+  const [isAdding, setIsAdding] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Get the last 5 recently-cooked recipes
+  const recentRecipes = recentRecipeIds
+    .slice(0, 5)
+    .map((id) => recipes.find((r) => r.id === id))
+    .filter((r): r is Recipe => r !== undefined);
+
+  const handleQuickAdd = async (recipeId: string) => {
+    setIsAdding(recipeId);
+    try {
+      await onQuickAdd(recipeId);
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error quick-adding recipe:", error);
+    } finally {
+      setIsAdding(null);
+    }
+  };
+
+  return (
+    <div
+      className={cn(
+        "relative w-full flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 hover:bg-primary/5 transition-all group/empty",
+        density === "compact" ? "py-4 md:py-6" : "py-6 md:py-8",
+        disabled && "opacity-50 cursor-not-allowed"
+      )}
+    >
+      {/* Main clickable area - opens full picker */}
+      <button
+        type="button"
+        onClick={onOpenFullPicker}
+        disabled={disabled}
+        className="flex flex-col items-center justify-center gap-2 cursor-pointer w-full"
+      >
+        <div className="size-10 rounded-full bg-muted/50 group-hover/empty:bg-primary/10 flex items-center justify-center transition-colors">
+          <Plus className="size-5 text-muted-foreground group-hover/empty:text-primary transition-colors" />
+        </div>
+        <span className="text-sm text-muted-foreground group-hover/empty:text-primary transition-colors">
+          Add a meal
+        </span>
+      </button>
+
+      {/* Quick-add dropdown in corner - only if recent recipes exist */}
+      {recentRecipes.length > 0 && (
+        <div className="absolute bottom-2 right-2">
+          <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={disabled}
+                onClick={(e) => e.stopPropagation()}
+                className={cn(
+                  "h-8 px-2 gap-1 text-xs rounded-md",
+                  "hover:bg-primary/10 hover:text-primary transition-colors",
+                  "opacity-60 group-hover/empty:opacity-100"
+                )}
+              >
+                <Zap className="size-3.5 text-amber-500" />
+                <ChevronDown className="size-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64">
+              <DropdownMenuLabel className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Clock className="size-3" />
+                Quick Add Recent
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {recentRecipes.map((recipe) => (
+                <DropdownMenuItem
+                  key={recipe.id}
+                  onClick={() => handleQuickAdd(recipe.id)}
+                  disabled={isAdding !== null}
+                  className={cn(
+                    "flex flex-col items-start gap-0.5 py-2.5 cursor-pointer",
+                    isAdding === recipe.id && "opacity-50"
+                  )}
+                >
+                  <span className="font-medium truncate w-full">{recipe.title}</span>
+                  <span className="text-xs text-muted-foreground flex items-center gap-2">
+                    {recipe.recipe_type}
+                    {recipe.prep_time && (
+                      <>
+                        <span>•</span>
+                        {recipe.prep_time}
+                      </>
+                    )}
+                  </span>
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  setIsOpen(false);
+                  onOpenFullPicker();
+                }}
+                className="text-muted-foreground"
+              >
+                <Plus className="size-4 mr-2" />
+                Browse all recipes...
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+    </div>
   );
 }
 

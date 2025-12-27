@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,11 +13,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { PixelBrandLogoCompact } from '@/components/landing/pixel-art';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// NAVIGATION
-// Dark, scroll-aware navigation with transparent → backdrop transition
+// NAVIGATION - Neo-Brutalist/Retro Style
+// Bold navigation with retro borders and shadows on scroll
 // ═══════════════════════════════════════════════════════════════════════════
 
 const SCROLL_THRESHOLD = 50;
@@ -30,9 +29,7 @@ export function Navigation() {
       setHasScrolled(window.scrollY > SCROLL_THRESHOLD);
     };
 
-    // Check initial scroll position
     handleScroll();
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -42,48 +39,47 @@ export function Navigation() {
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         hasScrolled
-          ? 'bg-[#111111]/90 backdrop-blur-sm border-b border-[#FDFBF7]/10'
-          : 'bg-transparent border-b border-transparent'
+          ? 'bg-background/95 backdrop-blur-md border-b-2 border-black'
+          : 'bg-background/80 backdrop-blur-sm'
       )}
     >
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        {/* Logo */}
         <Link href="/" className="hover:opacity-80 transition-opacity">
-          <PixelBrandLogoCompact variant="inline" colorMode="dark" />
+          <span className="font-display text-xl font-bold text-foreground">
+            Babe, WFD?
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-8">
           <NavLink href="#features">Features</NavLink>
           <NavLink href="#pricing">Pricing</NavLink>
           <NavLink href="#faq">FAQ</NavLink>
-          <NavLink href="/about">About</NavLink>
           <Link
             href="/login"
-            className="text-sm font-mono font-medium text-[#FDFBF7]/70 hover:text-[#F97316] transition-colors"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             Log in
           </Link>
           <Link href="/signup">
-            <button type="button" className="btn-pixel btn-pixel-primary text-sm py-2 px-4">
-              Sign up free
+            <button
+              type="button"
+              className="bg-primary text-white font-bold px-5 py-2.5 rounded-lg border-2 border-black shadow-retro hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-retro-active active:translate-x-[4px] active:translate-y-[4px] transition-all text-sm"
+            >
+              Start Free ✨
             </button>
           </Link>
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden flex items-center gap-2">
-          <Link href="/login">
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-[#FDFBF7]/70 hover:text-[#F97316] font-mono"
-            >
-              Log in
-            </Button>
-          </Link>
+        <div className="md:hidden flex items-center gap-3">
           <Link href="/signup">
-            <button type="button" className="btn-pixel btn-pixel-primary text-sm py-2.5 px-4 min-h-[44px]">
-              Sign Up
+            <button
+              type="button"
+              className="bg-primary text-white font-bold px-4 py-2 rounded-lg border-2 border-black shadow-retro hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-retro-active active:translate-x-[4px] active:translate-y-[4px] transition-all text-sm"
+            >
+              Start Free
             </button>
           </Link>
           <Sheet>
@@ -91,25 +87,36 @@ export function Navigation() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-[#FDFBF7]/70 hover:text-[#FDFBF7] hover:bg-[#FDFBF7]/10"
+                className="text-foreground hover:text-foreground hover:bg-muted"
               >
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="w-[280px] bg-[#111111] border-l border-[#FDFBF7]/10"
+              className="w-[280px] bg-background border-l-2 border-black"
             >
               <SheetHeader>
-                <SheetTitle className="font-mono text-left text-[#FDFBF7]">
+                <SheetTitle className="text-left text-foreground font-display">
                   Menu
                 </SheetTitle>
               </SheetHeader>
-              <div className="flex flex-col gap-2 mt-6">
+              <div className="flex flex-col gap-1 mt-6">
                 <MobileNavLink href="#features">Features</MobileNavLink>
                 <MobileNavLink href="#pricing">Pricing</MobileNavLink>
                 <MobileNavLink href="#faq">FAQ</MobileNavLink>
-                <MobileNavLink href="/about">About</MobileNavLink>
+                <div className="h-px bg-border my-3" />
+                <MobileNavLink href="/login">Log in</MobileNavLink>
+                <SheetClose asChild>
+                  <Link href="/signup" className="mt-2">
+                    <button
+                      type="button"
+                      className="bg-primary text-white font-bold w-full px-5 py-3 rounded-lg border-2 border-black shadow-retro hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-retro-active active:translate-x-[4px] active:translate-y-[4px] transition-all text-sm"
+                    >
+                      Start Free ✨
+                    </button>
+                  </Link>
+                </SheetClose>
               </div>
             </SheetContent>
           </Sheet>
@@ -123,7 +130,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   return (
     <Link
       href={href}
-      className="text-sm font-mono font-medium text-[#FDFBF7]/70 hover:text-[#F97316] focus-visible:text-[#F97316] focus-visible:outline-none focus-visible:underline underline-offset-4 transition-colors"
+      className="text-sm font-medium text-muted-foreground hover:text-foreground focus-visible:text-foreground focus-visible:outline-none transition-colors"
     >
       {children}
     </Link>
@@ -136,7 +143,7 @@ function MobileNavLink({ href, children }: { href: string; children: React.React
       <Link href={href}>
         <Button
           variant="ghost"
-          className="w-full justify-start text-base font-mono text-[#FDFBF7]/70 hover:text-[#F97316] hover:bg-[#FDFBF7]/5"
+          className="w-full justify-start text-base text-muted-foreground hover:text-foreground hover:bg-muted"
         >
           {children}
         </Button>

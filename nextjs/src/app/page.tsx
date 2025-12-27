@@ -1,6 +1,5 @@
 import { HeroSection } from '@/components/landing/hero-section';
 import { JourneySection } from '@/components/landing/journey-section';
-import { TerminalFeature } from '@/components/landing/terminal-feature';
 import { PricingSection } from '@/components/landing/pricing-section';
 import { FAQ } from '@/components/landing/faq';
 import { CTASection } from '@/components/landing/cta-section';
@@ -9,16 +8,16 @@ import { Footer } from '@/components/landing/footer';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LANDING PAGE
-// Clean, pixel-art themed landing with alternating dark/cream sections
+// Peek Insights inspired design - light, refined, thin-line SaaS aesthetic
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#111111]">
+    <main className="min-h-screen bg-[#FFFDF7]">
       {/* Navigation */}
       <Navigation />
 
-      {/* Hero - Dark */}
+      {/* Hero - Cream background */}
       <HeroSection />
 
       {/* Journey Section - Progressive user flow: Import → Plan → Shop → Cook */}
@@ -26,20 +25,17 @@ export default function Home() {
         <JourneySection />
       </div>
 
-      {/* Terminal Feature - Dark (additional detail for developers) */}
-      <TerminalFeature />
-
-      {/* Pricing - Dark */}
+      {/* Pricing */}
       <div id="pricing">
         <PricingSection />
       </div>
 
-      {/* FAQ - Cream */}
+      {/* FAQ */}
       <div id="faq">
         <FAQ />
       </div>
 
-      {/* CTA - Dark */}
+      {/* CTA */}
       <CTASection />
 
       {/* Footer */}

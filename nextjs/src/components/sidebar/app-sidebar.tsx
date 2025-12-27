@@ -102,9 +102,6 @@ export function AppSidebar({
             categories={categories}
             systemSmartFolders={systemSmartFolders}
             totalRecipeCount={totalRecipeCount}
-            customLabel={customLabel}
-            customIcon={customIcon}
-            customEmoji={customEmoji}
           />
         );
       default:

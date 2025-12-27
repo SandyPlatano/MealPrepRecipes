@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Download, Calendar, ShoppingCart, ChefHat, ArrowDown, Utensils } from "lucide-react";
+import { Download, Calendar, ShoppingCart, ChefHat, ArrowDown, Utensils, Clock } from "lucide-react";
 import { RecipeCardDemo, MealPlanDemo, ShoppingListDemo, CookModeDemo } from "./animated-demos";
 import Link from "next/link";
 
 // ═══════════════════════════════════════════════════════════════════════════
-// JOURNEY SECTION
-// Progressive, scroll-triggered showcase of the user journey:
-// Import → Plan → Shop → Cook → Dinner is served!
+// JOURNEY SECTION - Neo-Brutalist/Retro Style
+// Bold design with thick borders, hard shadows, and retro colors
+// Red primary, yellow secondary, Space Mono headings
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface JourneyStep {
@@ -82,7 +82,54 @@ const JOURNEY_STEPS: JourneyStep[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Step Component - Animates in when visible
+// Floating Stat - Retro style with hard borders and shadows
+// ─────────────────────────────────────────────────────────────────────────────
+
+function FloatingStat({
+  value,
+  label,
+  icon: Icon,
+  position,
+  delay = 0,
+  rotation = -2,
+}: {
+  value: string;
+  label: string;
+  icon: React.ElementType;
+  position: string;
+  delay?: number;
+  rotation?: number;
+}) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 300 + delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  return (
+    <div
+      className={`
+        absolute ${position}
+        bg-card border-2 border-black px-3 py-2 rounded-lg shadow-retro
+        transition-all duration-700 ease-out
+        ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}
+        hidden xl:block
+        z-20
+      `}
+      style={{ transform: `rotate(${rotation}deg)` }}
+    >
+      <div className="flex items-center gap-1.5">
+        <Icon className="w-3.5 h-3.5 text-primary" />
+        <span className="text-lg font-display font-bold text-foreground">{value}</span>
+      </div>
+      <span className="text-[10px] text-muted-foreground whitespace-nowrap">{label}</span>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Step Component - Retro style with thick borders
 // ─────────────────────────────────────────────────────────────────────────────
 
 function JourneyStepComponent({ step, isReversed, isVisible }: {
@@ -98,9 +145,10 @@ function JourneyStepComponent({ step, isReversed, isVisible }: {
       transition-all duration-700 ease-out
       ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}
     `}>
-      {/* Demo Side */}
+      {/* Demo Side - Retro card */}
       <div className={`${isReversed ? "lg:order-2" : "lg:order-1"}`}>
         <div className={`
+          bg-card border-2 border-black shadow-retro rounded-xl p-6 lg:p-8
           transition-all duration-700 delay-200
           ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"}
         `}>
@@ -110,26 +158,27 @@ function JourneyStepComponent({ step, isReversed, isVisible }: {
 
       {/* Content Side */}
       <div className={`${isReversed ? "lg:order-1" : "lg:order-2"}`}>
-        {/* Step Badge with glow */}
+        {/* Step Badge */}
         <div className={`
-          inline-flex items-center gap-2 mb-4
+          inline-flex items-center gap-3 mb-4
           transition-all duration-500 delay-100
           ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"}
         `}>
-          <div className="flex items-center gap-2 bg-[#F97316]/10 border border-[#F97316]/30 px-3 py-1.5 rounded-full shadow-[0_0_20px_rgba(249,115,22,0.15)] backdrop-blur-sm">
-            <span className="w-7 h-7 flex items-center justify-center rounded-full bg-[#F97316] text-white text-xs font-mono font-bold shadow-[0_0_15px_rgba(249,115,22,0.4)]">
-              {step.number}
-            </span>
-            <Icon className="w-4 h-4 text-[#F97316]" />
-            <span className="text-xs font-mono font-bold text-[#F97316] uppercase tracking-wide">
+          {/* Retro step number */}
+          <span className="w-8 h-8 bg-secondary border-2 border-black rounded-full flex items-center justify-center font-display font-bold">
+            {step.number}
+          </span>
+          <div className="flex items-center gap-2">
+            <Icon className="w-5 h-5 text-primary" />
+            <span className="text-sm font-semibold text-foreground uppercase tracking-wide">
               {step.title}
             </span>
           </div>
         </div>
 
-        {/* Tagline */}
+        {/* Tagline - Display font */}
         <h3 className={`
-          font-mono text-2xl md:text-3xl font-bold text-white mb-4
+          font-display text-2xl md:text-3xl font-semibold text-foreground mb-4
           transition-all duration-500 delay-200
           ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}
         `}>
@@ -138,7 +187,7 @@ function JourneyStepComponent({ step, isReversed, isVisible }: {
 
         {/* Narrative */}
         <p className={`
-          text-[#999] leading-relaxed mb-6
+          text-muted-foreground leading-relaxed mb-6
           transition-all duration-500 delay-300
           ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}
         `}>
@@ -157,8 +206,8 @@ function JourneyStepComponent({ step, isReversed, isVisible }: {
               `}
               style={{ transitionDelay: `${400 + i * 100}ms` }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#F97316]" />
-              <span className="text-[#ccc] text-sm font-mono">{detail}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+              <span className="text-muted-foreground text-sm">{detail}</span>
             </li>
           ))}
         </ul>
@@ -168,40 +217,22 @@ function JourneyStepComponent({ step, isReversed, isVisible }: {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Connector - Animated line between steps
+// Connector - Retro line between steps
 // ─────────────────────────────────────────────────────────────────────────────
 
-function JourneyConnector({ isVisible, index }: { isVisible: boolean; index: number }) {
-  // Always use brand orange for consistency
-  const accentColor = "#F97316";
-
+function JourneyConnector({ isVisible }: { isVisible: boolean }) {
   return (
     <div className="flex justify-center py-12 relative">
       {/* Vertical dotted line */}
-      <div className="relative h-24 w-px">
+      <div className="relative h-16 w-px">
         {/* Background track */}
-        <div className="absolute inset-0 border-l-2 border-dashed border-[#333]" />
+        <div className="absolute inset-0 border-l border-dashed border-border" />
 
         {/* Animated fill */}
         <div
-          className="absolute top-0 left-0 w-full transition-all duration-1000 ease-out"
+          className="absolute top-0 left-0 w-px transition-all duration-1000 ease-out bg-primary"
           style={{
             height: isVisible ? "100%" : "0%",
-            backgroundColor: accentColor,
-          }}
-        />
-
-        {/* Data packet animation */}
-        <div
-          className={`
-            absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full
-            transition-all duration-700
-            ${isVisible ? "opacity-100" : "opacity-0"}
-          `}
-          style={{
-            backgroundColor: accentColor,
-            boxShadow: `0 0 10px ${accentColor}`,
-            animation: isVisible ? "dataPacketDown 2s ease-in-out infinite" : "none",
           }}
         />
       </div>
@@ -212,7 +243,7 @@ function JourneyConnector({ isVisible, index }: { isVisible: boolean; index: num
         transition-all duration-500 delay-500
         ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}
       `}>
-        <ArrowDown className="w-5 h-5" style={{ color: accentColor }} />
+        <ArrowDown className="w-4 h-4 text-primary" />
       </div>
     </div>
   );
@@ -229,27 +260,27 @@ function JourneyCompletion({ isVisible }: { isVisible: boolean }) {
       transition-all duration-700
       ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"}
     `}>
-      {/* Celebration icon - orange glow */}
+      {/* Celebration icon */}
       <div className={`
         inline-flex items-center justify-center w-20 h-20 rounded-full
-        bg-gradient-to-br from-[#F97316] to-[#ea580c]
-        mb-6 shadow-[0_0_30px_rgba(249,115,22,0.3)]
+        bg-secondary border-2 border-black shadow-retro
+        mb-6
         transition-all duration-700 delay-200
         ${isVisible ? "rotate-0" : "rotate-12"}
       `}>
-        <Utensils className="w-10 h-10 text-white" />
+        <Utensils className="w-10 h-10 text-foreground" />
       </div>
 
       {/* Text */}
       <h3 className={`
-        font-mono text-3xl md:text-4xl font-bold text-white mb-4
+        font-display text-3xl md:text-4xl font-semibold text-foreground mb-4
         transition-all duration-500 delay-300
         ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}
       `}>
         Dinner is served!
       </h3>
       <p className={`
-        text-[#888] max-w-md mx-auto mb-8
+        text-muted-foreground max-w-md mx-auto mb-8
         transition-all duration-500 delay-400
         ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}
       `}>
@@ -264,11 +295,11 @@ function JourneyCompletion({ isVisible }: { isVisible: boolean }) {
       `}>
         <Link
           href="/signup"
-          className="inline-flex items-center gap-2 btn-pixel btn-pixel-primary text-lg px-8 py-4"
+          className="bg-primary hover:bg-primary/90 text-white font-display font-bold border-2 border-black shadow-retro hover:shadow-retro-lg transition-all rounded-lg text-lg px-8 py-4 inline-flex items-center gap-2"
         >
           Start Your Journey
         </Link>
-        <p className="text-xs text-[#666] font-mono mt-4">
+        <p className="text-xs text-muted-foreground mt-4">
           Free plan includes 10 recipes. No credit card required.
         </p>
       </div>
@@ -279,22 +310,6 @@ function JourneyCompletion({ isVisible }: { isVisible: boolean }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Main Journey Section
 // ─────────────────────────────────────────────────────────────────────────────
-
-// Gradient mesh blobs for journey section background
-function JourneyBackgroundBlobs() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <div
-        className="absolute top-1/4 -left-32 w-[400px] h-[400px] rounded-full opacity-10 blur-[120px] animate-blob"
-        style={{ background: 'radial-gradient(circle, #8B5CF6 0%, transparent 70%)' }}
-      />
-      <div
-        className="absolute top-2/3 -right-32 w-[350px] h-[350px] rounded-full opacity-10 blur-[100px] animate-blob animation-delay-3000"
-        style={{ background: 'radial-gradient(circle, #F97316 0%, transparent 70%)' }}
-      />
-    </div>
-  );
-}
 
 export function JourneySection() {
   const [visibleSteps, setVisibleSteps] = useState<Set<number>>(new Set());
@@ -373,30 +388,28 @@ export function JourneySection() {
   }, []);
 
   return (
-    <section className="py-24 bg-[#111] relative overflow-hidden">
-      {/* Ambient background blobs */}
-      <JourneyBackgroundBlobs />
-
-      {/* Subtle grid pattern */}
-      <div
-        className="absolute inset-0 opacity-20 pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
-        }}
+    <section id="features" className="py-24 bg-background relative overflow-hidden">
+      {/* Floating stats */}
+      <FloatingStat
+        value="4 steps"
+        label="From chaos to calm"
+        icon={Clock}
+        position="top-32 right-16"
+        delay={200}
+        rotation={2}
       />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-20">
-          <span className="inline-block font-mono text-xs font-bold text-[#F97316] bg-[#F97316]/10 border border-[#F97316]/30 px-3 py-1 rounded-full mb-4">
+        <div className="text-center mb-20 relative">
+          <span className="bg-secondary border-2 border-black text-foreground text-xs font-bold px-3 py-1 rounded mb-4 inline-block">
             Your Dinner Journey
           </span>
-          <h2 className="font-mono text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="font-display text-3xl md:text-4xl font-semibold text-foreground mb-4">
             From URL to Table
           </h2>
-          <p className="text-[#888] max-w-xl mx-auto">
-            See exactly what using Meal Prep OS feels like. No signup required to explore.
+          <p className="text-muted-foreground max-w-xl mx-auto">
+            See exactly how easy meal planning becomes. No signup required to explore.
           </p>
         </div>
 
@@ -419,7 +432,7 @@ export function JourneySection() {
               <div
                 ref={(el) => { connectorRefs.current[index] = el; }}
               >
-                <JourneyConnector isVisible={visibleConnectors.has(index)} index={index} />
+                <JourneyConnector isVisible={visibleConnectors.has(index)} />
               </div>
             )}
           </div>

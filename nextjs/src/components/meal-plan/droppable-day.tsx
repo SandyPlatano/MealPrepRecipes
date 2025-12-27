@@ -19,7 +19,7 @@ export function DroppableDay({ day, children, className }: DroppableDayProps) {
     <div
       ref={setNodeRef}
       className={cn(
-        "transition-all duration-200",
+        "transition-all duration-200 h-full",
         isOver && "ring-2 ring-primary ring-offset-2 rounded-xl scale-[1.01]",
         className
       )}

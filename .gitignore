@@ -51,3 +51,9 @@ dist/
 
 # CSV files
 *.csv
+
+# Moat task system
+.moat/
+
+# Claude Code configuration
+.claude/

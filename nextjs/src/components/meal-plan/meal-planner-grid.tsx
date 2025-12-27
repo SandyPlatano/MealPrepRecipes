@@ -404,11 +404,11 @@ export function MealPlannerGrid({
             />
           )}
 
-          {/* Vertical Stacked Cards - swipe enabled for week navigation on mobile */}
+          {/* 2-Column Grid Layout - swipe enabled for week navigation on mobile */}
           <PlannerDndContext assignments={assignmentsWithOptimisticCooks}>
             <div
               ref={swipeRef}
-              className={`flex flex-col gap-4 md:gap-4 transition-opacity ${isPending ? "opacity-60" : ""} ${isSwiping ? "select-none" : ""}`}
+              className={`grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 transition-opacity ${isPending ? "opacity-60" : ""} ${isSwiping ? "select-none" : ""}`}
             >
               {DAYS_OF_WEEK.map((day, index) => {
                 const dayDate = new Date(weekStartDate);
@@ -447,19 +447,20 @@ export function MealPlannerGrid({
                   </DroppableDay>
                 );
               })}
+
+              {/* Summary as 8th grid cell (pairs with Sunday) */}
+              <PlannerSummary
+                assignments={allAssignments}
+                weekStartStr={weekStartStr}
+                cookColors={cookColors}
+                nutritionEnabled={nutritionEnabled}
+                nutritionData={nutritionData}
+                weeklyNutritionDashboard={weeklyNutritionDashboard}
+                macroGoals={macroGoals}
+                isGridCell
+              />
             </div>
           </PlannerDndContext>
-
-          {/* Summary Footer */}
-          <PlannerSummary
-            assignments={allAssignments}
-            weekStartStr={weekStartStr}
-            cookColors={cookColors}
-            nutritionEnabled={nutritionEnabled}
-            nutritionData={nutritionData}
-            weeklyNutritionDashboard={weeklyNutritionDashboard}
-            macroGoals={macroGoals}
-          />
         </div>
 
         {/* Mobile FAB for quick meal adding */}

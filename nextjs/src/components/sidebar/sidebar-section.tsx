@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import type { LucideIcon } from "lucide-react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { useSidebar } from "./sidebar-context";
 
 type SectionAccentColor = "coral" | "green" | "blue" | "purple" | "amber";
@@ -155,5 +162,77 @@ export function SidebarDivider({ label, className }: SidebarDividerProps) {
       </span>
       <div className="h-px flex-1 bg-border" />
     </div>
+  );
+}
+
+// Category divider with left-aligned emoji and label
+interface CategoryDividerProps {
+  label: string;
+  emoji?: string | null;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  canEdit?: boolean;
+  canDelete?: boolean;
+  className?: string;
+}
+
+export function CategoryDivider({
+  label,
+  emoji,
+  onEdit,
+  onDelete,
+  canEdit = true,
+  canDelete = true,
+  className,
+}: CategoryDividerProps) {
+  const { isIconOnly } = useSidebar();
+
+  // In icon-only mode, just show a simple divider
+  if (isIconOnly) {
+    return <div className={cn("h-px bg-border my-2 mx-2", className)} />;
+  }
+
+  const hasContextMenu = (canEdit && onEdit) || (canDelete && onDelete);
+
+  const dividerContent = (
+    <div
+      className={cn(
+        "flex items-center gap-2 px-3 py-1.5 mt-2",
+        hasContextMenu && "cursor-context-menu",
+        className
+      )}
+    >
+      <div className="h-px w-3 bg-border" />
+      {emoji && <span className="text-xs">{emoji}</span>}
+      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+        {label}
+      </span>
+      <div className="h-px flex-1 bg-border" />
+    </div>
+  );
+
+  if (!hasContextMenu) {
+    return dividerContent;
+  }
+
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>{dividerContent}</ContextMenuTrigger>
+      <ContextMenuContent className="w-48">
+        {canEdit && onEdit && (
+          <ContextMenuItem onClick={onEdit}>
+            <Pencil className="h-4 w-4 mr-2" />
+            Edit Category
+          </ContextMenuItem>
+        )}
+        {canEdit && onEdit && canDelete && onDelete && <ContextMenuSeparator />}
+        {canDelete && onDelete && (
+          <ContextMenuItem className="text-destructive" onClick={onDelete}>
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete Category
+          </ContextMenuItem>
+        )}
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }

@@ -6,11 +6,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { PixelDecoration } from './pixel-art';
+import { HelpCircle } from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// FAQ SECTION
-// Accordion-style FAQ with pixel art styling
+// FAQ SECTION - Neo-Brutalist/Retro Style
+// Bold accordion with thick borders, retro shadows, and primary red accents
 // ═══════════════════════════════════════════════════════════════════════════
 
 const faqs = [
@@ -58,42 +58,35 @@ const faqs = [
 
 export function FAQ() {
   return (
-    <section className="py-24 bg-[#FDFBF7] border-t-4 border-b-4 border-[#111111] relative overflow-hidden">
-      {/* Background decorations - hunter green accents */}
-      <div className="absolute bottom-8 right-8 text-[#1a4d2e]/10">
-        <PixelDecoration variant="dots" />
-      </div>
-      <div className="absolute top-12 left-8 text-[#1a4d2e]/15">
-        <PixelDecoration variant="corner" />
-      </div>
-
+    <section id="faq" className="py-24 bg-card relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <div className="inline-block badge-pixel-orange mb-4">
+            <span className="bg-secondary border-2 border-black text-foreground text-xs font-bold px-3 py-1 rounded inline-flex items-center gap-2 mb-4">
+              <HelpCircle className="w-3.5 h-3.5" />
               FAQ
-            </div>
-            <h2 className="font-mono text-3xl md:text-4xl font-bold text-[#111111] mb-4">
+            </span>
+            <h2 className="font-display text-3xl md:text-4xl font-semibold text-foreground mb-4">
               Questions & Answers
             </h2>
-            <p className="text-[#666666]">
+            <p className="text-muted-foreground">
               Everything you need to know about meal planning.
             </p>
           </div>
 
-          {/* Accordion */}
+          {/* Accordion with retro styling */}
           <Accordion type="single" collapsible className="w-full space-y-3">
             {faqs.map((faq, index) => (
               <AccordionItem
                 key={index}
                 value={`item-${index}`}
-                className="border-3 border-[#111111] bg-white px-6 transition-all hover:bg-[#FDFBF7] data-[state=open]:shadow-brutal-sm data-[state=open]:bg-white"
+                className="border-2 border-black bg-card rounded-xl shadow-retro hover:shadow-retro-hover hover:translate-x-[1px] hover:translate-y-[1px] transition-all px-6 data-[state=open]:border-primary data-[state=open]:shadow-retro"
               >
-                <AccordionTrigger className="text-left text-base font-mono font-bold text-[#111111] hover:text-[#F97316] transition-colors py-5 [&[data-state=open]]:text-[#F97316]">
+                <AccordionTrigger className="text-left text-base font-semibold text-foreground hover:text-primary transition-colors py-5 [&[data-state=open]]:text-primary">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-[#666666] pb-5">
+                <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

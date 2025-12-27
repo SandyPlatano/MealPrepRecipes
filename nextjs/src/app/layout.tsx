@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Caveat } from "next/font/google";
+import { Inter, JetBrains_Mono, Caveat, Playfair_Display } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import { CookieConsent } from "@/components/cookie-consent";
@@ -20,6 +20,12 @@ const jetbrainsMono = JetBrains_Mono({
 const caveat = Caveat({
   subsets: ["latin"],
   variable: "--font-handwritten",
+  weight: ["400", "500", "600", "700"],
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-serif",
   weight: ["400", "500", "600", "700"],
 });
 
@@ -124,7 +130,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} ${caveat.variable} font-sans antialiased`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${caveat.variable} ${playfair.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
         <Providers>

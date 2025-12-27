@@ -4,19 +4,19 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded border-2 border-black dark:border-white px-2 py-0.5 text-xs font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80",
+          "bg-primary text-primary-foreground",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
-        outline: "text-foreground",
+          "bg-destructive text-destructive-foreground",
+        outline: "bg-transparent text-foreground",
         warning:
-          "bg-red-100 text-red-800 border-red-300 shadow-none dark:bg-red-900 dark:text-red-200 dark:border-red-700",
+          "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
       },
     },
     defaultVariants: {
@@ -36,7 +36,7 @@ function Badge({ className, variant, ...props }: BadgeProps) {
   const hasImportantModifiers = classNameStr.includes("!bg-") || classNameStr.includes("!text-");
   
   // Base classes without variant styles - ensure border is included
-  const baseClasses = "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2";
+  const baseClasses = "inline-flex items-center rounded border-2 border-black dark:border-white px-2 py-0.5 text-xs font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2";
   
   // If we have important modifiers and no explicit variant, only apply base classes
   // Apply className last to ensure important modifiers take precedence
