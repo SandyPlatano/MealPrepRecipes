@@ -4,6 +4,7 @@ import { logout } from "@/app/actions/auth";
 import { QuickCookProvider } from "@/components/quick-cook/quick-cook-provider";
 import { DifficultyThresholdsProvider } from "@/contexts/difficulty-thresholds-context";
 import { AppShell } from "@/components/layout/app-shell";
+import { PepperProvider } from "@/components/pepper";
 
 export default async function AppLayout({
   children,
@@ -29,11 +30,13 @@ export default async function AppLayout({
   return (
     <QuickCookProvider>
       <DifficultyThresholdsProvider>
-        <AppShell user={user} logoutAction={logout}>
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-            {children}
-          </div>
-        </AppShell>
+        <PepperProvider>
+          <AppShell user={user} logoutAction={logout}>
+            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+              {children}
+            </div>
+          </AppShell>
+        </PepperProvider>
       </DifficultyThresholdsProvider>
     </QuickCookProvider>
   );

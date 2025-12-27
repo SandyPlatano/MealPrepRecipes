@@ -1,0 +1,314 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ================================
+   RETRO DESIGN SYSTEM v2 - BASE STYLES
+   ================================ */
+
+@layer base {
+  body {
+    @apply font-body bg-background-light text-text-main;
+    @apply dark:bg-background-dark dark:text-white;
+    @apply transition-colors duration-300;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold;
+  }
+}
+
+/* ================================
+   CUSTOM SCROLLBAR
+   ================================ */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fef6e4;
+  border-left: 2px solid #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #f56565;
+  border: 2px solid #000;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e53e3e;
+}
+
+/* Dark mode scrollbar */
+.dark::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.dark::-webkit-scrollbar-thumb {
+  background: #f56565;
+  border-color: #fff;
+}
+
+@layer components {
+  /* ================================
+     RETRO BORDER - Core design element
+     ================================ */
+  .retro-border {
+    @apply border-2 border-black dark:border-white;
+  }
+  
+  /* ================================
+     BUTTONS
+     ================================ */
+  .btn-retro {
+    @apply font-bold py-3 px-6 rounded-lg;
+    @apply retro-border shadow-retro;
+    @apply hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px];
+    @apply active:shadow-retro-active active:translate-x-[4px] active:translate-y-[4px];
+    @apply transition-all duration-150;
+  }
+  
+  .btn-primary {
+    @apply btn-retro bg-primary text-white;
+    @apply hover:brightness-110;
+    @apply active:brightness-90;
+  }
+  
+  .btn-secondary {
+    @apply btn-retro bg-secondary text-black;
+    @apply hover:bg-yellow-300;
+    @apply active:bg-yellow-500;
+  }
+  
+  .btn-tertiary {
+    @apply btn-retro bg-tertiary text-white;
+    @apply hover:brightness-110;
+    @apply active:brightness-90;
+  }
+  
+  .btn-ghost {
+    @apply btn-retro bg-transparent;
+    @apply hover:bg-gray-100 dark:hover:bg-gray-800;
+    @apply active:bg-gray-200 dark:active:bg-gray-700;
+  }
+  
+  .btn-icon {
+    @apply p-3 rounded-full;
+    @apply retro-border shadow-retro;
+    @apply hover:shadow-retro-hover hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-gray-50;
+    @apply active:shadow-retro-active active:translate-x-[2px] active:translate-y-[2px];
+    @apply transition-all duration-150;
+    @apply bg-white dark:bg-gray-700;
+  }
+  
+  /* ================================
+     CARDS
+     ================================ */
+  .card-retro {
+    @apply bg-surface-light dark:bg-surface-dark;
+    @apply retro-border rounded-xl p-6;
+    @apply shadow-retro;
+  }
+  
+  .card-accent {
+    @apply bg-secondary retro-border rounded-xl p-6 shadow-retro;
+  }
+  
+  /* ================================
+     INPUTS - with yellow focus states
+     ================================ */
+  .input-retro {
+    @apply w-full bg-white dark:bg-gray-800;
+    @apply retro-border rounded-lg py-3 px-4;
+    @apply shadow-retro-input;
+    @apply focus:shadow-retro focus:bg-yellow-50 dark:focus:bg-gray-900;
+    @apply focus:border-primary focus:outline-none;
+    @apply transition-all duration-150;
+    @apply placeholder-gray-400;
+  }
+  
+  .select-retro {
+    @apply input-retro appearance-none cursor-pointer;
+  }
+  
+  .label-retro {
+    @apply font-bold text-sm uppercase tracking-wide;
+  }
+  
+  /* Search input (left side of combo) */
+  .input-search-left {
+    @apply w-full bg-white dark:bg-gray-800;
+    @apply retro-border border-r-0 rounded-l-lg py-3 px-4;
+    @apply focus:bg-yellow-50 dark:focus:bg-gray-900;
+    @apply focus:shadow-[inset_2px_2px_0px_rgba(0,0,0,0.05)] focus:outline-none;
+    @apply transition-colors;
+  }
+  
+  /* Search button (right side of combo) */
+  .btn-search-right {
+    @apply bg-secondary text-black font-bold px-6;
+    @apply rounded-r-lg retro-border border-l-2;
+    @apply hover:bg-yellow-300 hover:shadow-inner;
+    @apply active:bg-yellow-500;
+    @apply transition-all;
+  }
+  
+  /* ================================
+     ICONS
+     ================================ */
+  .icon-retro {
+    @apply w-12 h-12 flex items-center justify-center;
+    @apply bg-white dark:bg-gray-700 retro-border rounded-lg;
+    @apply shadow-retro-sm;
+    @apply group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-retro-sm-hover;
+    @apply group-active:translate-x-[3px] group-active:translate-y-[3px] group-active:shadow-none;
+    @apply transition-all;
+  }
+  
+  /* ================================
+     BADGES & TAGS
+     ================================ */
+  .badge-retro {
+    @apply inline-block px-2 py-1;
+    @apply text-xs font-bold;
+    @apply retro-border rounded;
+  }
+  
+  .badge-new {
+    @apply badge-retro bg-secondary text-black;
+  }
+  
+  .badge-success {
+    @apply badge-retro bg-green-200 text-green-800;
+    @apply dark:bg-green-900 dark:text-green-100;
+  }
+  
+  .badge-info {
+    @apply badge-retro bg-blue-200 text-blue-800;
+    @apply dark:bg-blue-900 dark:text-blue-100;
+  }
+  
+  .badge-warning {
+    @apply badge-retro bg-yellow-200 text-yellow-800;
+    @apply dark:bg-yellow-900 dark:text-yellow-100;
+  }
+  
+  .badge-error {
+    @apply badge-retro bg-red-200 text-red-800;
+    @apply dark:bg-red-900 dark:text-red-100;
+  }
+  
+  /* ================================
+     ALERTS
+     ================================ */
+  .alert-retro {
+    @apply p-4 rounded-lg retro-border flex items-start gap-3;
+  }
+  
+  .alert-success {
+    @apply alert-retro bg-green-100 text-green-900 shadow-retro-success;
+    @apply dark:bg-green-900 dark:text-green-100;
+  }
+  
+  .alert-warning {
+    @apply alert-retro bg-yellow-100 text-yellow-900 shadow-retro-warning;
+    @apply dark:bg-yellow-900 dark:text-yellow-100;
+  }
+  
+  .alert-error {
+    @apply alert-retro bg-red-100 text-red-900 shadow-retro-error;
+    @apply dark:bg-red-900 dark:text-red-100;
+  }
+  
+  /* ================================
+     NAVIGATION
+     ================================ */
+  .pill-retro {
+    @apply px-4 py-2 rounded-lg retro-border text-sm font-bold;
+    @apply bg-white dark:bg-gray-800;
+    @apply hover:bg-gray-100 dark:hover:bg-gray-700;
+    @apply hover:-translate-y-0.5;
+    @apply transition-all;
+  }
+  
+  .pill-active {
+    @apply px-4 py-2 rounded-lg retro-border text-sm font-bold;
+    @apply bg-primary text-white shadow-retro-hover;
+    @apply hover:brightness-110;
+    @apply active:shadow-retro-active active:translate-y-[2px];
+    @apply transition-all;
+  }
+  
+  .breadcrumb-retro {
+    @apply flex items-center text-sm font-mono;
+    @apply bg-white dark:bg-gray-800 retro-border;
+    @apply inline-flex px-4 py-2 rounded-full;
+    @apply shadow-[2px_2px_0px_0px_#000];
+  }
+  
+  .breadcrumb-link {
+    @apply hover:underline hover:text-primary transition-colors;
+  }
+  
+  .breadcrumb-current {
+    @apply font-bold text-primary;
+  }
+  
+  /* ================================
+     PROGRESS BAR
+     ================================ */
+  .progress-retro {
+    @apply w-full h-6 bg-gray-200 dark:bg-gray-700;
+    @apply retro-border rounded-full overflow-hidden relative;
+  }
+  
+  .progress-retro-bar {
+    @apply h-full bg-secondary absolute top-0 left-0;
+    @apply border-r-2 border-black;
+  }
+  
+  /* ================================
+     DATA VIZ - BAR CHART
+     ================================ */
+  .bar-retro {
+    @apply retro-border border-b-0 rounded-t-sm;
+    @apply transition-all cursor-pointer;
+  }
+  
+  .bar-primary {
+    @apply bar-retro bg-primary hover:bg-red-400;
+  }
+  
+  .bar-secondary {
+    @apply bar-retro bg-secondary hover:bg-yellow-300;
+  }
+  
+  .bar-tertiary {
+    @apply bar-retro bg-tertiary hover:bg-blue-300;
+  }
+}
+
+@layer utilities {
+  /* Retro striped pattern overlay */
+  .retro-stripes {
+    background-image: repeating-linear-gradient(
+      45deg,
+      #000 0,
+      #000 1px,
+      transparent 0,
+      transparent 50%
+    );
+    background-size: 10px 10px;
+    opacity: 0.1;
+  }
+  
+  /* Grid lines for charts */
+  .chart-grid {
+    background-image: linear-gradient(#00000010 1px, transparent 1px);
+    background-size: 100% 20%;
+  }
+}

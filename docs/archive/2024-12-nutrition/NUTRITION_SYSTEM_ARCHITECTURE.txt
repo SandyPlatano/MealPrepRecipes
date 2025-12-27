@@ -1,0 +1,429 @@
+================================================================================
+        MEALPREP NUTRITION SYSTEM - ARCHITECTURE & DATA FLOW ANALYSIS
+================================================================================
+
+================================================================================
+SYSTEM ARCHITECTURE OVERVIEW
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         NUTRITION DATA FLOW                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  User Input (Recipe)                                                        │
+│       ↓                                                                      │
+│  ┌─────────────────────────────────────────┐                               │
+│  │  POST /api/ai/extract-nutrition         │                               │
+│  │  - recipe_id, ingredients, servings     │                               │
+│  └─────────────────────────────────────────┘                               │
+│       ↓                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────┐        │
+│  │  Validation & Rate Limiting                                     │        │
+│  │  - Authentication check                                         │        │
+│  │  - Rate limit (30 req/hr per user)                             │        │
+│  │  - Recipe ownership verification                               │        │
+│  │  - Check for existing nutrition data                           │        │
+│  └─────────────────────────────────────────────────────────────────┘        │
+│       ↓                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────┐        │
+│  │  buildNutritionExtractionPrompt()                               │        │
+│  │  (nutrition-extraction-prompt.ts:32-93)                        │        │
+│  │  - Ingredients list                                             │        │
+│  │  - Servings information                                         │        │
+│  │  - Cooking instructions (optional)                             │        │
+│  │  - Recipe title (optional)                                     │        │
+│  │  - Confidence scoring guidelines (INSTRUCTIONS ONLY)           │        │
+│  └─────────────────────────────────────────────────────────────────┘        │
+│       ↓                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────┐        │
+│  │  Claude Sonnet 4.5 API Call                                     │        │
+│  │  - Prompt sent to Claude                                        │        │
+│  │  - Returns JSON: nutrition + confidence_score                  │        │
+│  │  - Max tokens: 1000                                             │        │
+│  └─────────────────────────────────────────────────────────────────┘        │
+│       ↓                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────┐        │
+│  │  parseNutritionResponse()                                       │        │
+│  │  (nutrition-extraction-prompt.ts:180-221)                      │        │
+│  │  - Parse JSON response                                          │        │
+│  │  - Validate calories field                                      │        │
+│  │  - Validate confidence_score field                             │        │
+│  │  - Clamp confidence to 0-1 range                               │        │
+│  │  - Round values to expected decimals                           │        │
+│  └─────────────────────────────────────────────────────────────────┘        │
+│       ↓                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────┐        │
+│  │  validateNutritionRanges()    🐛 BUG: Zero calories validation  │        │
+│  │  (nutrition-extraction-prompt.ts:239-317)                      │        │
+│  │  - Calorie range: 10-2000                                      │        │
+│  │  - Protein range: 0-200g                                       │        │
+│  │  - Carbs range: 0-300g                                         │        │
+│  │  - Fat range: 0-150g                                           │        │
+│  │  - Fiber ≤ Carbs ✓                                             │        │
+│  │  - Sugar ≤ Carbs ✓                                             │        │
+│  │  - Sugar + Fiber ≤ Carbs ✓                                     │        │
+│  │  - Calorie-macro mismatch < 20%                                │        │
+│  │  - Sodium range: 0-5000mg                                      │        │
+│  │  Returns: Array of warnings                                    │        │
+│  └─────────────────────────────────────────────────────────────────┘        │
+│       ↓                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────┐        │
+│  │  [CURRENT SYSTEM] Confidence Determination                      │        │
+│  │  (extract-nutrition/route.ts:274-279)                          │        │
+│  │                                                                  │        │
+│  │  confidence_level = {                                           │        │
+│  │    score >= 0.7  → "high"                                      │        │
+│  │    score >= 0.4  → "medium"                                    │        │
+│  │    else          → "low"                                       │        │
+│  │  }                                                               │        │
+│  │                                                                  │        │
+│  │  ❌ WARNINGS ARE IGNORED FOR CONFIDENCE                        │        │
+│  │  ❌ THRESHOLDS ARE HARDCODED                                   │        │
+│  └─────────────────────────────────────────────────────────────────┘        │
+│       ↓                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────┐        │
+│  │  Save to Database                                               │        │
+│  │  - recipe_nutrition table                                      │        │
+│  │  - Stores: all nutrition fields + confidence_score             │        │
+│  │  - API tracking: input_tokens, output_tokens, cost_usd         │        │
+│  └─────────────────────────────────────────────────────────────────┘        │
+│       ↓                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────┐        │
+│  │  Return Response to Client                                      │        │
+│  │  - success: boolean                                             │        │
+│  │  - nutrition: RecipeNutrition                                  │        │
+│  │  - warnings: string[] (if any)                                 │        │
+│  │  - confidence_level: "high" | "medium" | "low"                │        │
+│  │  - cost: {input_tokens, output_tokens, cost_usd}              │        │
+│  └─────────────────────────────────────────────────────────────────┘        │
+│       ↓                                                                      │
+│  User Interface                                                             │
+│  - Shows nutrition data with warnings                                      │
+│  - Shows confidence level (may not match actual data quality)             │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+NUTRITION CALCULATION SYSTEM
+================================================================================
+
+For Aggregation (multiple recipes/days):
+
+┌────────────────────────────────────────────────────────────────────────┐
+│                  sumNutrition() & averageNutrition()                  │
+│              (calculations.ts:23-174)                                 │
+├────────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  INPUT: Array of NutritionData items                                 │
+│  [                                                                   │
+│    { calories: 100, carbs: 50, protein: 20 },                       │
+│    { calories: null, carbs: null, protein: 30 },                    │
+│    { calories: 0, carbs: 0, protein: 0 }                            │
+│  ]                                                                   │
+│                                                                        │
+│  PROCESSING (Per-Field Counting):                                    │
+│                                                                        │
+│  Calories:    [100, null, 0]      → Count=2  Sum=100  Avg=50   ✓    │
+│  Carbs:       [50, null, 0]       → Count=2  Sum=50   Avg=25   ✓    │
+│  Protein:     [20, 30, 0]         → Count=3  Sum=50   Avg=16.7 ✓    │
+│                                                                        │
+│  KEY: Each field has separate counter!                               │
+│       Null values skipped per-field                                  │
+│       Zero values counted as valid                                   │
+│                                                                        │
+│  OUTPUT:                                                             │
+│                                                                        │
+│  sumNutrition():                                                     │
+│    { calories: 100, carbs: 50, protein: 50 }                        │
+│                                                                        │
+│  averageNutrition():                                                 │
+│    { calories: 50, carbs: 25, protein: 16.7 }                       │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+
+For Scaling (different serving sizes):
+
+┌────────────────────────────────────────────────────────────────────────┐
+│                         scaleNutrition()                              │
+│              (calculations.ts:184-223)                               │
+├────────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  Base Recipe (1 serving):                                            │
+│    calories: 100, protein: 10, carbs: 20, fat: 5                    │
+│                                                                        │
+│  Scale Scenarios:                                                    │
+│                                                                        │
+│  1. Scale to 0 servings                                              │
+│     ✓ Returns all zeros (valid, represents 0 food)                  │
+│     { calories: 0, protein: 0, carbs: 0, fat: 0 }                  │
+│                                                                        │
+│  2. Scale to negative servings                                       │
+│     ✓ Returns original (guard against invalid input)                │
+│     { calories: 100, protein: 10, carbs: 20, fat: 5 }              │
+│                                                                        │
+│  3. Scale to 0.5 servings                                            │
+│     ✓ Scales correctly with precision                               │
+│     { calories: 50, protein: 5, carbs: 10, fat: 2.5 }              │
+│                                                                        │
+│  4. Scale to 100 servings                                            │
+│     ✓ Works for extreme scaling                                     │
+│     { calories: 10000, protein: 1000, carbs: 2000, fat: 500 }      │
+│                                                                        │
+│  Formula:                                                            │
+│    scale_factor = target_servings / base_servings                   │
+│    new_value = old_value * scale_factor                             │
+│    Rounded to 1 decimal for grams, whole for mg                     │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+CONFIDENCE SCORING SYSTEM - CURRENT VS RECOMMENDED
+================================================================================
+
+CURRENT SYSTEM (Has Gaps):
+
+  Claude API Response
+       ↓
+  { confidence_score: 0.85 }
+       ↓
+  validateNutritionRanges()
+       ↓
+  Returns: ["Calorie mismatch: 240%", "Protein very high"]  ← WARNINGS
+       ↓
+  ❌ Confidence determination ignores warnings
+       ↓
+  confidence_level = 0.85 >= 0.7 ? "HIGH" : ...
+       ↓
+  Response with HIGH confidence despite 2 warnings! ❌
+
+
+RECOMMENDED SYSTEM (Fixes Issues):
+
+  Claude API Response
+       ↓
+  { confidence_score: 0.85 }
+       ↓
+  validateNutritionRanges() ✓ (with zero calories fix)
+       ↓
+  Returns: ["Calorie mismatch: 240%", "Protein very high"]
+       ↓
+  calculateConfidencePenalties()
+       ↓
+  warnings: 10% penalty (2 warnings × 5%)
+  mismatch:  10% penalty (>20% mismatch)
+  ────────────────────────
+  Total penalty: 20%
+       ↓
+  adjusted_confidence = 0.85 - 0.20 = 0.65
+       ↓
+  confidence_level = 0.65 >= 0.7 ? "HIGH" : "MEDIUM" → MEDIUM ✓
+       ↓
+  Response with MEDIUM confidence (matches actual quality) ✓
+
+
+PENALTY BREAKDOWN:
+
+  Penalty Sources (max 40% total):
+  ├─ Warnings: 5% per warning (max 20%)
+  ├─ Calorie-macro mismatch: 10% if >20%, 5% if >10%
+  ├─ Zero macros: 15% if 2+ zero values
+  └─ Missing fields: Up to 15% for incomplete data
+
+  Example:
+    Original confidence: 0.85
+    Warnings (1): -5%
+    Mismatch (240%): -10%
+    Zero carbs: -15%
+    Missing fiber: -5%
+    ──────────
+    Total penalty: -35%
+    Adjusted confidence: 0.50 → "MEDIUM" (more honest)
+
+
+================================================================================
+VALIDATION CONSTRAINT MATRIX
+================================================================================
+
+Constraint Type    Current Check      Status    Example Trigger
+──────────────────────────────────────────────────────────────────
+Calories          10 ≤ cal ≤ 2000    ⚠️ 🐛   cal=0, protein=30 (BUG)
+Protein           0 ≤ p ≤ 200        ✓        protein=250
+Carbs             0 ≤ c ≤ 300        ✓        carbs=400
+Fat               0 ≤ f ≤ 150        ✓        fat=200
+Fiber             fiber ≤ carbs      ✓        fiber=60, carbs=50
+Sugar             sugar ≤ carbs      ✓        sugar=60, carbs=50
+Sugar+Fiber       (s+f) ≤ carbs      ✓        s=40, f=20, c=50
+Sodium            0 ≤ na ≤ 5000      ✓        sodium=6000
+Calorie-Macro     |estimated - actual|/actual < 20%  ✓
+
+Validation Examples:
+──────────────────
+
+PASS: carbs=50, fiber=25, sugar=25
+      25+25=50, exactly at limit
+
+PASS: carbs=50, fiber=10, sugar=15
+      10+15=25, under limit
+
+FAIL: carbs=50, fiber=26, sugar=25
+      26+25=51, exceeds limit
+      Warning: "Sugar and fiber combined cannot exceed total carbs"
+
+BUG:  carbs=0, fiber=0, sugar=0
+      Currently valid, but should be valid (all zeros = no data)
+
+BUG:  calories=0, protein=30, carbs=50, fat=20
+      Currently passes, but zero calorie with macros is impossible!
+      Should warn: "Calories cannot be 0 when macros are provided"
+
+
+================================================================================
+EDGE CASE HANDLING MATRIX
+================================================================================
+
+Edge Case                Input                            Current Status
+────────────────────────────────────────────────────────────────────────────
+Zero calories           {cal: 0, protein: 30}            ❌ BUG (skipped)
+Zero values mix         {cal: 0, protein: null}          ✓ Handled correctly
+All null               {cal: null, all others: null}     ✓ Returns null values
+Extreme values         {cal: 10000, protein: 500}        ✓ Multiple warnings
+Calorie mismatch       {cal: 500, p: 100, c: 100}       ✓ Warns at >20% diff
+Fiber > carbs          {fiber: 60, carbs: 50}           ✓ Warns
+Sugar > carbs          {sugar: 60, carbs: 50}           ✓ Warns
+Negative values        {protein: -10}                    ✓ Warns
+Missing fields         {cal: 100, others: null}          Partial (see #6)
+High completeness      {cal: 100, protein: 10}          ⚠️ No bonus (recommend)
+
+
+================================================================================
+FILE DEPENDENCY GRAPH
+================================================================================
+
+extract-nutrition/route.ts  (API endpoint)
+  ├─ Imports: buildNutritionExtractionPrompt()
+  ├─ Imports: parseNutritionResponse()
+  ├─ Imports: validateNutritionRanges()
+  ├─ Uses: Claude API
+  └─ Saves to: recipe_nutrition table
+      ├─ confidence_score (from Claude, NOT adjusted)
+      ├─ warnings (collected but not used for scoring)
+      └─ input/output tokens for cost tracking
+
+nutrition-extraction-prompt.ts  (Prompt builder & validators)
+  ├─ buildNutritionExtractionPrompt() → returns prompt
+  ├─ buildQuickNutritionPrompt() → simplified version
+  ├─ buildNutritionValidationPrompt() → validation prompt
+  ├─ parseNutritionResponse() → parses JSON
+  └─ validateNutritionRanges() → returns warnings
+      ├─ Calorie validation (🐛 zero bug)
+      ├─ Macro validation (✓ correct)
+      ├─ Calorie-macro matching (skipped if cal=0)
+      ├─ Fiber constraints (✓ correct)
+      ├─ Sugar constraints (✓ correct)
+      └─ Sodium validation (✓ correct)
+
+calculations.ts  (Nutrition math functions)
+  ├─ sumNutrition() ✓
+  ├─ averageNutrition() ✓
+  ├─ scaleNutrition() ✓
+  ├─ calculateMacroProgress()
+  ├─ calculateAllMacroProgress()
+  ├─ calculateDailyMacroSummary()
+  ├─ calculateWeeklyMacroDashboard()
+  ├─ calculateDataCompleteness()
+  ├─ isNutritionComplete()
+  └─ isMacroDistributionBalanced()
+
+nutrition.ts (Server actions)
+  ├─ getRecipeNutrition()
+  ├─ updateRecipeNutrition()
+  ├─ deleteRecipeNutrition()
+  ├─ getBulkRecipeNutrition()
+  ├─ getDailyNutritionSummary()
+  ├─ getWeeklyNutritionDashboard()
+  └─ saveDailyNutritionLog()
+
+
+================================================================================
+IMPACT ANALYSIS: PROPOSED FIXES
+================================================================================
+
+FIX #1: Zero Calories Bug (1 hour)
+  Impact:    CRITICAL
+  Risk:      LOW (only affects edge case)
+  Benefits:
+    ✓ Catches invalid data (0 cal + macros)
+    ✓ Enables calorie-macro check for zero values
+    ✓ Improves data quality validation
+
+FIX #2: Confidence Penalty System (2 hours)
+  Impact:    CRITICAL
+  Risk:      MEDIUM (changes confidence scores)
+  Benefits:
+    ✓ Confidence reflects actual data quality
+    ✓ Warnings integrated into scoring
+    ✓ More honest confidence reporting
+    ✓ Easier to identify questionable nutrition data
+  Mitigation:
+    - Confidence scores will be lower for problematic data
+    - This is GOOD, makes system more conservative
+    - UI should handle medium/low confidence gracefully
+
+FIX #3: Configurable Thresholds (30 min)
+  Impact:    MEDIUM
+  Risk:      LOW (backward compatible with defaults)
+  Benefits:
+    ✓ Flexibility for different use cases
+    ✓ Can adjust without code changes
+
+FIX #4: Additional Validations (45 min)
+  Impact:    LOW
+  Risk:      LOW
+  Benefits:
+    ✓ Better guidance for unusual recipes
+    ✓ More detailed warnings
+
+
+TOTAL EFFORT: ~4 hours development + ~2 hours testing = 6 hours
+RISK LEVEL: LOW to MEDIUM (mostly backward compatible)
+TESTING: Verify on 100+ existing recipes
+
+
+================================================================================
+RECOMMENDATIONS PRIORITY
+================================================================================
+
+THIS SPRINT (Critical):
+  1. Fix zero calories validation bug
+  2. Implement confidence penalty system
+  3. Deploy and test on staging
+
+NEXT SPRINT (Important):
+  1. Make thresholds configurable
+  2. Add fiber/sugar balance check
+  3. Improve sodium validation
+
+FUTURE (Nice to have):
+  1. Confidence breakdown reporting in UI
+  2. Analytics on confidence distribution
+  3. User feedback on confidence accuracy
+  4. Machine learning to improve confidence prediction
+
+
+================================================================================
+END ARCHITECTURE DOCUMENT
+================================================================================
+
+This document shows:
+- Current system flow and issues
+- How calculations work correctly
+- Where validation gaps exist
+- Confidence scoring problems
+- Recommended fixes
+
+For code changes, see: NUTRITION_FIXES_RECOMMENDED.md
+For test results, see: NUTRITION_SYSTEM_TEST_REPORT.md
+For summary, see: NUTRITION_FINDINGS_SUMMARY.txt

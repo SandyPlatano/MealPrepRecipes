@@ -24,10 +24,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryProvider>
       <ThemeProvider
         attribute="class"
-        defaultTheme="dark"
-        enableSystem
+        defaultTheme="light"
+        forcedTheme="light"
         disableTransitionOnChange
-        storageKey="theme"
       >
         <TooltipProvider delayDuration={0}>
           <RecipePickerProvider>
@@ -35,7 +34,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
               {children}
               <ProgressBar
                 height="3px"
-                color="#F97316"
+                color="#F56565"
                 options={{ showSpinner: false }}
                 shallowRouting
               />

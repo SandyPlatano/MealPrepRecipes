@@ -57,3 +57,7 @@ dist/
 
 # Claude Code configuration
 .claude/
+
+# Bundle files
+*.zip
+*_bundle.zip

@@ -8,12 +8,12 @@ import { Footer } from '@/components/landing/footer';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LANDING PAGE
-// Peek Insights inspired design - light, refined, thin-line SaaS aesthetic
+// Neo-Brutalist/Retro design - bold borders, hard shadows, warm colors
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#FFFDF7]">
+    <main className="min-h-screen bg-background">
       {/* Navigation */}
       <Navigation />
 

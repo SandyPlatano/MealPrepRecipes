@@ -5,8 +5,8 @@ import { ArrowRight, Check, Sparkles, TrendingUp } from 'lucide-react';
 import { memo, useEffect, useMemo, useState } from 'react';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// HERO SECTION - Peek Insights Style (Enhanced)
-// Clean design with floating stat cards and decorative elements
+// HERO SECTION - Neo-Brutalist/Retro Style
+// Bold design with floating stat cards and decorative elements
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Constants for typewriter animation timing
