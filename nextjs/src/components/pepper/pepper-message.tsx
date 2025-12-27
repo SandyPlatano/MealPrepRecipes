@@ -8,6 +8,40 @@ interface PepperMessageProps {
   message: ChatMessage;
 }
 
+/**
+ * Simple markdown parser for Pepper messages
+ * Handles: **bold**, *italic*, and recipe IDs [ID:xxx]
+ */
+function renderMessageContent(content: string): React.ReactNode {
+  // Split by markdown patterns
+  const parts = content.split(/(\*\*[^*]+\*\*|\*[^*]+\*|\[ID:[a-f0-9-]+\])/g);
+
+  return parts.map((part, index) => {
+    // Bold text: **text**
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={index} className="font-semibold">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    // Italic text: *text*
+    if (part.startsWith("*") && part.endsWith("*") && !part.startsWith("**")) {
+      return (
+        <em key={index} className="italic">
+          {part.slice(1, -1)}
+        </em>
+      );
+    }
+    // Recipe ID: [ID:xxx] - hide from display
+    if (part.match(/^\[ID:[a-f0-9-]+\]$/)) {
+      return null;
+    }
+    // Regular text
+    return part;
+  });
+}
+
 export function PepperMessage({ message }: PepperMessageProps) {
   const isUser = message.role === "user";
 
@@ -27,9 +61,9 @@ export function PepperMessage({ message }: PepperMessageProps) {
             : "bg-card text-card-foreground shadow-retro-sm"
         )}
       >
-        {/* Message content */}
+        {/* Message content with basic markdown */}
         <div className="text-sm whitespace-pre-wrap break-words">
-          {message.content}
+          {renderMessageContent(message.content)}
         </div>
 
         {/* Timestamp */}

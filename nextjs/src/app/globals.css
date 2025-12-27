@@ -4,7 +4,7 @@
 @import "tw-animate-css";
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   RETRO DESIGN SYSTEM v2 - Neo-Brutalist Theme
+   RETRO DESIGN SYSTEM v2 - Neo-Brutalist Theme (Light Mode Only)
    Clean, bold, playful design with hard shadows and warm colors
    ═══════════════════════════════════════════════════════════════════════════════ */
 
@@ -62,10 +62,8 @@
   --color-retro-primary: #F56565;
   --color-retro-secondary: #FBBF24;
   --color-retro-tertiary: #60A5FA;
-  --color-retro-background-light: #FEF6E4;
-  --color-retro-background-dark: #1F2937;
-  --color-retro-surface-light: #FFFFFF;
-  --color-retro-surface-dark: #374151;
+  --color-retro-background: #FEF6E4;
+  --color-retro-surface: #FFFFFF;
   --color-retro-text-main: #111827;
   --color-retro-text-muted: #6B7280;
 
@@ -117,13 +115,13 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   shadcn/ui Semantic Token Values - Light Mode (Retro)
+   shadcn/ui Semantic Token Values - Retro Light Mode
    ═══════════════════════════════════════════════════════════════════════════════ */
 :root {
   --background: 47 77% 95%;          /* #FEF6E4 - warm cream */
   --foreground: 221 39% 11%;         /* #111827 - text-main */
 
-  --card: 0 0% 100%;                 /* #FFFFFF - surface-light */
+  --card: 0 0% 100%;                 /* #FFFFFF - surface */
   --card-foreground: 221 39% 11%;   /* #111827 */
 
   --popover: 0 0% 100%;
@@ -159,45 +157,6 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   Dark Mode - Retro (Warm Dark)
-   ═══════════════════════════════════════════════════════════════════════════════ */
-.dark {
-  --background: 220 26% 14%;         /* #1F2937 - background-dark */
-  --foreground: 0 0% 100%;           /* White */
-
-  --card: 218 17% 28%;               /* #374151 - surface-dark */
-  --card-foreground: 0 0% 100%;
-
-  --popover: 218 17% 28%;
-  --popover-foreground: 0 0% 100%;
-
-  --primary: 0 91% 71%;              /* #F56565 - same primary */
-  --primary-foreground: 0 0% 100%;
-
-  --secondary: 45 97% 56%;           /* #FBBF24 - same secondary */
-  --secondary-foreground: 0 0% 0%;
-
-  --accent: 213 94% 68%;             /* #60A5FA */
-  --accent-foreground: 0 0% 100%;
-
-  --muted: 217 19% 27%;              /* Dark gray */
-  --muted-foreground: 215 14% 67%;  /* Light gray text */
-
-  --destructive: 0 63% 31%;
-  --destructive-foreground: 0 0% 100%;
-
-  --border: 0 0% 100%;               /* WHITE borders in dark mode */
-  --input: 0 0% 100%;
-  --ring: 0 91% 71%;
-
-  --chart-1: 0 91% 71%;
-  --chart-2: 45 97% 56%;
-  --chart-3: 213 94% 68%;
-  --chart-4: 142 76% 36%;
-  --chart-5: 262 83% 58%;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════════
    Base Layer - Typography & Body
    ═══════════════════════════════════════════════════════════════════════════════ */
 @layer base {
@@ -207,7 +166,6 @@
 
   body {
     @apply bg-background text-foreground font-body;
-    @apply transition-colors duration-300;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
@@ -238,31 +196,22 @@
   background: #e53e3e;
 }
 
-.dark::-webkit-scrollbar-track {
-  background: #1f2937;
-}
-
-.dark::-webkit-scrollbar-thumb {
-  background: #f56565;
-  border-color: #fff;
-}
-
 /* ═══════════════════════════════════════════════════════════════════════════════
    Component Layer - Retro UI Components
    ═══════════════════════════════════════════════════════════════════════════════ */
 @layer components {
   /* ─────────────────────────────────────────────────────────────────────────────
-     Retro Border - Core design element (use directly in HTML)
+     Retro Border - Core design element (2px solid black)
      ───────────────────────────────────────────────────────────────────────────── */
   .retro-border {
-    @apply border-2 border-black dark:border-white;
+    @apply border-2 border-black;
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Buttons - Inline all styles (Tailwind v4 @apply limitation)
+     Buttons
      ───────────────────────────────────────────────────────────────────────────── */
   .btn-retro {
-    @apply font-bold py-3 px-6 rounded-lg border-2 border-black dark:border-white;
+    @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
     box-shadow: var(--shadow-retro);
     @apply hover:translate-x-[2px] hover:translate-y-[2px];
     @apply active:translate-x-[4px] active:translate-y-[4px];
@@ -278,7 +227,7 @@
   }
 
   .btn-primary {
-    @apply font-bold py-3 px-6 rounded-lg border-2 border-black dark:border-white;
+    @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
     @apply bg-primary text-white;
     box-shadow: var(--shadow-retro);
     @apply hover:translate-x-[2px] hover:translate-y-[2px] hover:brightness-110;
@@ -295,7 +244,7 @@
   }
 
   .btn-secondary {
-    @apply font-bold py-3 px-6 rounded-lg border-2 border-black dark:border-white;
+    @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
     @apply bg-secondary text-black;
     box-shadow: var(--shadow-retro);
     @apply hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-yellow-300;
@@ -312,7 +261,7 @@
   }
 
   .btn-tertiary {
-    @apply font-bold py-3 px-6 rounded-lg border-2 border-black dark:border-white;
+    @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
     @apply bg-accent text-white;
     box-shadow: var(--shadow-retro);
     @apply hover:translate-x-[2px] hover:translate-y-[2px] hover:brightness-110;
@@ -329,11 +278,11 @@
   }
 
   .btn-ghost {
-    @apply font-bold py-3 px-6 rounded-lg border-2 border-black dark:border-white;
+    @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
     @apply bg-transparent;
     box-shadow: var(--shadow-retro);
-    @apply hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-gray-100 dark:hover:bg-gray-800;
-    @apply active:translate-x-[4px] active:translate-y-[4px] active:bg-gray-200 dark:active:bg-gray-700;
+    @apply hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-gray-100;
+    @apply active:translate-x-[4px] active:translate-y-[4px] active:bg-gray-200;
     @apply transition-all duration-150;
   }
 
@@ -346,8 +295,8 @@
   }
 
   .btn-icon {
-    @apply p-3 rounded-full border-2 border-black dark:border-white;
-    @apply bg-white dark:bg-gray-700;
+    @apply p-3 rounded-full border-2 border-black;
+    @apply bg-white;
     box-shadow: var(--shadow-retro);
     @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-gray-50;
     @apply active:translate-x-[2px] active:translate-y-[2px];
@@ -366,12 +315,12 @@
      Cards
      ───────────────────────────────────────────────────────────────────────────── */
   .card-retro {
-    @apply bg-card rounded-xl p-6 border-2 border-black dark:border-white;
+    @apply bg-card rounded-xl p-6 border-2 border-black;
     box-shadow: var(--shadow-retro);
   }
 
   .card-accent {
-    @apply bg-secondary rounded-xl p-6 border-2 border-black dark:border-white;
+    @apply bg-secondary rounded-xl p-6 border-2 border-black;
     box-shadow: var(--shadow-retro);
   }
 
@@ -379,10 +328,10 @@
      Inputs - with yellow focus states
      ───────────────────────────────────────────────────────────────────────────── */
   .input-retro {
-    @apply w-full bg-white dark:bg-gray-800 rounded-lg py-3 px-4;
-    @apply border-2 border-black dark:border-white;
+    @apply w-full bg-white rounded-lg py-3 px-4;
+    @apply border-2 border-black;
     box-shadow: var(--shadow-retro-input);
-    @apply focus:bg-yellow-50 dark:focus:bg-gray-900;
+    @apply focus:bg-yellow-50;
     @apply focus:border-primary focus:outline-none;
     @apply transition-all duration-150;
     @apply placeholder-gray-400;
@@ -393,11 +342,11 @@
   }
 
   .select-retro {
-    @apply w-full bg-white dark:bg-gray-800 rounded-lg py-3 px-4;
-    @apply border-2 border-black dark:border-white;
+    @apply w-full bg-white rounded-lg py-3 px-4;
+    @apply border-2 border-black;
     @apply appearance-none cursor-pointer;
     box-shadow: var(--shadow-retro-input);
-    @apply focus:bg-yellow-50 dark:focus:bg-gray-900;
+    @apply focus:bg-yellow-50;
     @apply focus:border-primary focus:outline-none;
     @apply transition-all duration-150;
   }
@@ -408,9 +357,9 @@
 
   /* Search input (left side of combo) */
   .input-search-left {
-    @apply w-full bg-white dark:bg-gray-800;
-    @apply border-2 border-black dark:border-white border-r-0 rounded-l-lg py-3 px-4;
-    @apply focus:bg-yellow-50 dark:focus:bg-gray-900;
+    @apply w-full bg-white;
+    @apply border-2 border-black border-r-0 rounded-l-lg py-3 px-4;
+    @apply focus:bg-yellow-50;
     @apply focus:shadow-[inset_2px_2px_0px_rgba(0,0,0,0.05)] focus:outline-none;
     @apply transition-colors;
   }
@@ -418,7 +367,7 @@
   /* Search button (right side of combo) */
   .btn-search-right {
     @apply bg-secondary text-black font-bold px-6;
-    @apply rounded-r-lg border-2 border-black dark:border-white border-l-2;
+    @apply rounded-r-lg border-2 border-black border-l-2;
     @apply hover:bg-yellow-300 hover:shadow-inner;
     @apply active:bg-yellow-500;
     @apply transition-all;
@@ -429,7 +378,7 @@
      ───────────────────────────────────────────────────────────────────────────── */
   .icon-retro {
     @apply w-12 h-12 flex items-center justify-center;
-    @apply bg-white dark:bg-gray-700 border-2 border-black dark:border-white rounded-lg;
+    @apply bg-white border-2 border-black rounded-lg;
     box-shadow: var(--shadow-retro-sm);
     @apply group-hover:translate-x-[1px] group-hover:translate-y-[1px];
     @apply group-active:translate-x-[3px] group-active:translate-y-[3px] group-active:shadow-none;
@@ -446,84 +395,77 @@
   .badge-retro {
     @apply inline-block px-2 py-1;
     @apply text-xs font-bold;
-    @apply border-2 border-black dark:border-white rounded;
+    @apply border-2 border-black rounded;
   }
 
   .badge-new {
     @apply inline-block px-2 py-1 text-xs font-bold;
-    @apply border-2 border-black dark:border-white rounded;
+    @apply border-2 border-black rounded;
     @apply bg-secondary text-black;
   }
 
   .badge-success {
     @apply inline-block px-2 py-1 text-xs font-bold;
-    @apply border-2 border-black dark:border-white rounded;
+    @apply border-2 border-black rounded;
     @apply bg-green-200 text-green-800;
-    @apply dark:bg-green-900 dark:text-green-100;
   }
 
   .badge-info {
     @apply inline-block px-2 py-1 text-xs font-bold;
-    @apply border-2 border-black dark:border-white rounded;
+    @apply border-2 border-black rounded;
     @apply bg-blue-200 text-blue-800;
-    @apply dark:bg-blue-900 dark:text-blue-100;
   }
 
   .badge-warning {
     @apply inline-block px-2 py-1 text-xs font-bold;
-    @apply border-2 border-black dark:border-white rounded;
+    @apply border-2 border-black rounded;
     @apply bg-yellow-200 text-yellow-800;
-    @apply dark:bg-yellow-900 dark:text-yellow-100;
   }
 
   .badge-error {
     @apply inline-block px-2 py-1 text-xs font-bold;
-    @apply border-2 border-black dark:border-white rounded;
+    @apply border-2 border-black rounded;
     @apply bg-red-200 text-red-800;
-    @apply dark:bg-red-900 dark:text-red-100;
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
      Alerts
      ───────────────────────────────────────────────────────────────────────────── */
   .alert-retro {
-    @apply p-4 rounded-lg border-2 border-black dark:border-white flex items-start gap-3;
+    @apply p-4 rounded-lg border-2 border-black flex items-start gap-3;
   }
 
   .alert-success {
-    @apply p-4 rounded-lg border-2 border-black dark:border-white flex items-start gap-3;
+    @apply p-4 rounded-lg border-2 border-black flex items-start gap-3;
     @apply bg-green-100 text-green-900;
     box-shadow: var(--shadow-retro-success);
-    @apply dark:bg-green-900 dark:text-green-100;
   }
 
   .alert-warning {
-    @apply p-4 rounded-lg border-2 border-black dark:border-white flex items-start gap-3;
+    @apply p-4 rounded-lg border-2 border-black flex items-start gap-3;
     @apply bg-yellow-100 text-yellow-900;
     box-shadow: var(--shadow-retro-warning);
-    @apply dark:bg-yellow-900 dark:text-yellow-100;
   }
 
   .alert-error {
-    @apply p-4 rounded-lg border-2 border-black dark:border-white flex items-start gap-3;
+    @apply p-4 rounded-lg border-2 border-black flex items-start gap-3;
     @apply bg-red-100 text-red-900;
     box-shadow: var(--shadow-retro-error);
-    @apply dark:bg-red-900 dark:text-red-100;
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
      Navigation - Pills/Tabs
      ───────────────────────────────────────────────────────────────────────────── */
   .pill-retro {
-    @apply px-4 py-2 rounded-lg border-2 border-black dark:border-white text-sm font-bold;
-    @apply bg-white dark:bg-gray-800;
-    @apply hover:bg-gray-100 dark:hover:bg-gray-700;
+    @apply px-4 py-2 rounded-lg border-2 border-black text-sm font-bold;
+    @apply bg-white;
+    @apply hover:bg-gray-100;
     @apply hover:-translate-y-0.5;
     @apply transition-all;
   }
 
   .pill-active {
-    @apply px-4 py-2 rounded-lg border-2 border-black dark:border-white text-sm font-bold;
+    @apply px-4 py-2 rounded-lg border-2 border-black text-sm font-bold;
     @apply bg-primary text-white;
     box-shadow: var(--shadow-retro-hover);
     @apply hover:brightness-110;
@@ -537,7 +479,7 @@
 
   .breadcrumb-retro {
     @apply flex items-center text-sm font-mono;
-    @apply bg-white dark:bg-gray-800 border-2 border-black dark:border-white;
+    @apply bg-white border-2 border-black;
     @apply inline-flex px-4 py-2 rounded-full;
     box-shadow: 2px 2px 0px 0px #000;
   }
@@ -554,8 +496,8 @@
      Progress Bar
      ───────────────────────────────────────────────────────────────────────────── */
   .progress-retro {
-    @apply w-full h-6 bg-gray-200 dark:bg-gray-700;
-    @apply border-2 border-black dark:border-white rounded-full overflow-hidden relative;
+    @apply w-full h-6 bg-gray-200;
+    @apply border-2 border-black rounded-full overflow-hidden relative;
   }
 
   .progress-retro-bar {
@@ -567,24 +509,24 @@
      Data Viz - Bar Chart
      ───────────────────────────────────────────────────────────────────────────── */
   .bar-retro {
-    @apply border-2 border-black dark:border-white border-b-0 rounded-t-sm;
+    @apply border-2 border-black border-b-0 rounded-t-sm;
     @apply transition-all cursor-pointer;
   }
 
   .bar-primary {
-    @apply border-2 border-black dark:border-white border-b-0 rounded-t-sm;
+    @apply border-2 border-black border-b-0 rounded-t-sm;
     @apply transition-all cursor-pointer;
     @apply bg-primary hover:bg-red-400;
   }
 
   .bar-secondary {
-    @apply border-2 border-black dark:border-white border-b-0 rounded-t-sm;
+    @apply border-2 border-black border-b-0 rounded-t-sm;
     @apply transition-all cursor-pointer;
     @apply bg-secondary hover:bg-yellow-300;
   }
 
   .bar-tertiary {
-    @apply border-2 border-black dark:border-white border-b-0 rounded-t-sm;
+    @apply border-2 border-black border-b-0 rounded-t-sm;
     @apply transition-all cursor-pointer;
     @apply bg-accent hover:bg-blue-300;
   }
@@ -633,8 +575,6 @@
 [data-slot="card"] {
   @apply border-2;
 }
-
-/* Button base - inherits our retro styling automatically via CSS vars */
 
 /* Dialog/Sheet overlay */
 [data-slot="dialog-overlay"],

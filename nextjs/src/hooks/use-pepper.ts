@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type {
   ChatMessage,
   PepperQuickAction,
@@ -14,6 +14,8 @@ const QUICK_ACTION_PROMPTS: Record<PepperQuickAction, string> = {
   shopping_help: "What do I need to buy for this week's meals?",
   cooking_tips: "I have a cooking question",
 };
+
+const PEPPER_SESSION_KEY = "pepper_session_id";
 
 interface UsePepperReturn extends PepperUIState {
   open: () => void;
@@ -29,9 +31,35 @@ export function usePepper(): UsePepperReturn {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(() => {
+    // Restore session ID from localStorage on mount
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(PEPPER_SESSION_KEY);
+    }
+    return null;
+  });
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  // Persist session ID to localStorage
+  useEffect(() => {
+    if (currentSessionId) {
+      localStorage.setItem(PEPPER_SESSION_KEY, currentSessionId);
+    }
+  }, [currentSessionId]);
+
+  // Keyboard shortcut: Escape to close
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        setIsOpen(false);
+        setIsMinimized(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
 
   const open = useCallback(() => {
     setIsOpen(true);
@@ -133,6 +161,7 @@ export function usePepper(): UsePepperReturn {
   const clearMessages = useCallback(() => {
     setMessages([]);
     setCurrentSessionId(null);
+    localStorage.removeItem(PEPPER_SESSION_KEY);
   }, []);
 
   return {

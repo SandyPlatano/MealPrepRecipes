@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Minus, History } from "lucide-react";
+import { X, Minus, History, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { PepperMessage, PepperTyping } from "./pepper-message";
@@ -19,6 +19,7 @@ interface PepperPanelProps {
   onSend: (message: string) => void;
   onQuickAction: (action: PepperQuickAction) => void;
   onViewHistory?: () => void;
+  onNewChat?: () => void;
 }
 
 export function PepperPanel({
@@ -31,6 +32,7 @@ export function PepperPanel({
   onSend,
   onQuickAction,
   onViewHistory,
+  onNewChat,
 }: PepperPanelProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -45,25 +47,28 @@ export function PepperPanel({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          initial={{ x: "100%", opacity: 0 }}
+          initial={{ y: "100%", opacity: 0 }}
           animate={{
-            x: 0,
+            y: 0,
             opacity: 1,
-            height: isMinimized ? "auto" : "min(600px, calc(100vh - 120px))"
+            height: isMinimized ? "auto" : undefined // Full height on mobile, auto on desktop when minimized
           }}
-          exit={{ x: "100%", opacity: 0 }}
+          exit={{ y: "100%", opacity: 0 }}
           transition={{
             type: "spring",
             damping: 25,
             stiffness: 300
           }}
           className={cn(
-            "fixed bottom-6 right-6 z-50",
-            "w-[380px] max-w-[calc(100vw-48px)]",
-            "rounded-xl",
-            "border-2 border-black dark:border-white",
+            "fixed z-50",
+            // Mobile: full screen
+            "inset-0 sm:inset-auto",
+            "sm:bottom-6 sm:right-6",
+            "sm:w-[380px] sm:max-w-[calc(100vw-48px)]",
+            "sm:rounded-xl rounded-none",
+            "border-0 sm:border-2 border-black dark:border-white",
             "bg-background",
-            "shadow-retro",
+            "sm:shadow-retro",
             "flex flex-col",
             "overflow-hidden"
           )}
@@ -83,6 +88,17 @@ export function PepperPanel({
             </div>
 
             <div className="flex items-center gap-1">
+              {onNewChat && messages.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onNewChat}
+                  className="size-8 text-primary-foreground hover:bg-primary-foreground/20"
+                  aria-label="Start new chat"
+                >
+                  <RotateCcw className="size-4" />
+                </Button>
+              )}
               {onViewHistory && (
                 <Button
                   variant="ghost"

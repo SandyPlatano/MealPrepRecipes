@@ -7,14 +7,12 @@ interface PepperBubbleProps {
   isOpen: boolean;
   onClick: () => void;
   unreadCount?: number;
-  hasNewSuggestion?: boolean;
 }
 
 export function PepperBubble({
   isOpen,
   onClick,
   unreadCount = 0,
-  hasNewSuggestion = false,
 }: PepperBubbleProps) {
   return (
     <AnimatePresence>
@@ -62,21 +60,6 @@ export function PepperBubble({
             </motion.span>
           )}
 
-          {/* Pulse animation when Pepper has a suggestion */}
-          {hasNewSuggestion && (
-            <motion.span
-              className="absolute inset-0 rounded-full bg-primary"
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.7, 0, 0.7],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          )}
         </motion.button>
       )}
     </AnimatePresence>

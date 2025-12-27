@@ -45,6 +45,7 @@ export function PepperProvider({ children }: PepperProviderProps) {
         onMinimize={pepper.minimize}
         onSend={pepper.sendMessage}
         onQuickAction={pepper.handleQuickAction}
+        onNewChat={pepper.clearMessages}
       />
     </PepperContext.Provider>
   );
