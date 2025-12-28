@@ -90,7 +90,7 @@ export function TestimonialsSection() {
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="text-center mb-16">
-          <div className="inline-block badge-pixel-orange mb-4">
+          <div className="inline-block badge-new mb-4">
             Testimonials
           </div>
           <h2 className="font-mono text-3xl md:text-4xl font-bold text-[#111111] mb-4">

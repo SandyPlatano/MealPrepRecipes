@@ -87,7 +87,7 @@ import { triggerHaptic } from "@/lib/haptics";
 import { calculateCustomBadges, getBadgeColorClasses, type CustomBadge } from "@/lib/nutrition/badge-calculator";
 import { buildRecipeMetadata } from "@/lib/recipe/metadata-utils";
 import { cn } from "@/lib/utils";
-import { useSidebar } from "@/components/sidebar";
+import { useRetroSidebar } from "@/components/dashboard-new";
 import { useDifficultyThresholds } from "@/contexts/difficulty-thresholds-context";
 import { HighlightText } from "@/components/ui/highlight-text";
 
@@ -154,7 +154,7 @@ interface RecipeCardProps {
 }
 
 export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userAllergenAlerts = [], customDietaryRestrictions = [], customBadges = [], animationIndex, folders: _folders = [], onAddToFolder, searchTerm = "" }: RecipeCardProps) {
-  const { isMobile } = useSidebar();
+  const { isMobile } = useRetroSidebar();
   const { thresholds: difficultyThresholds } = useDifficultyThresholds();
   const [isFavorite, setIsFavorite] = useState(recipe.is_favorite);
   const [currentRating, setCurrentRating] = useState<number | null>(recipe.rating);

@@ -62,7 +62,8 @@ export async function POST(request: NextRequest) {
         const session = event.data.object as Stripe.Checkout.Session;
 
         if (session.mode === 'subscription' && session.subscription) {
-          const userId = session.metadata?.supabase_user_id;
+          // Support both metadata key and client_reference_id for backwards compatibility
+          const userId = session.metadata?.user_id || session.metadata?.supabase_user_id || session.client_reference_id;
           const tier = session.metadata?.tier;
 
           if (userId && tier) {

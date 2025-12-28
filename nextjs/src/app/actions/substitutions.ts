@@ -44,11 +44,8 @@ export async function getDefaultSubstitutions(): Promise<Substitution[]> {
     .eq("is_default", true)
     .order("original_ingredient");
 
-  if (error) {
-    console.error("Error fetching default substitutions:", error);
-  }
-
-  if (data && data.length > 0) {
+  // If data exists from database, use it; otherwise fall back to built-in substitutions
+  if (!error && data && data.length > 0) {
     return data as Substitution[];
   }
 

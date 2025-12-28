@@ -48,7 +48,7 @@ export function HowItWorks() {
       <div className="container mx-auto px-4">
         {/* Section header */}
         <div className="text-center mb-16">
-          <div className="inline-block badge-pixel-orange mb-4">
+          <div className="inline-block badge-new mb-4">
             How It Works
           </div>
           <h2 className="font-mono text-3xl md:text-4xl font-bold text-[#111111] mb-4">
@@ -73,7 +73,7 @@ export function HowItWorks() {
               {/* Arrow connector (hidden on last item and mobile) */}
               {index < steps.length - 1 && (
                 <div className="hidden lg:block absolute top-10 -right-2 text-[#111111]">
-                  <svg width="24" height="24" viewBox="0 0 24 24" className="pixel-art">
+                  <svg width="24" height="24" viewBox="0 0 24 24">
                     <rect x="4" y="11" width="4" height="2" fill="currentColor" />
                     <rect x="10" y="11" width="4" height="2" fill="currentColor" />
                     <rect x="16" y="11" width="4" height="2" fill="currentColor" />
@@ -112,7 +112,7 @@ export function HowItWorks() {
           <p className="text-sm text-[#666666] mb-4">
             No credit card required. Free plan includes 10 recipes.
           </p>
-          <button type="button" className="btn-pixel btn-pixel-primary">
+          <button type="button" className="btn-primary">
             Start Planning Free
           </button>
         </div>

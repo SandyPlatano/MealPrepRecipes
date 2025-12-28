@@ -162,8 +162,8 @@ Before going live:
 
 ### Test Commands:
 ```bash
-# Forward webhooks locally
-stripe listen --forward-to localhost:3000/api/stripe/webhook
+# Forward webhooks locally (dev runs on port 3001)
+stripe listen --forward-to localhost:3001/api/webhooks/stripe
 
 # Trigger test events
 stripe trigger checkout.session.completed

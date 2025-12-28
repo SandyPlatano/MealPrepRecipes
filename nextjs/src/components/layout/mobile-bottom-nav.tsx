@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Calendar, BookOpen, ShoppingCart, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useSidebar } from "@/components/sidebar";
+import { useRetroSidebar } from "@/components/dashboard-new";
 
 interface NavTab {
   href: string;
@@ -71,7 +71,7 @@ function NavTabItem({ tab, isActive }: { tab: NavTab; isActive: boolean }) {
 }
 
 export function MobileBottomNav() {
-  const { isMobile } = useSidebar();
+  const { isMobile } = useRetroSidebar();
   const pathname = usePathname();
 
   if (!isMobile) return null;

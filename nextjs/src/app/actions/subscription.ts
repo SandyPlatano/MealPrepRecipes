@@ -80,21 +80,21 @@ export async function createCustomerPortalSession(): Promise<{
     return { error: "Not authenticated", url: null };
   }
 
-  // Get stripe customer ID from profile
-  const { data: profile } = await supabase
-    .from("profiles")
+  // Get stripe customer ID from subscriptions table
+  const { data: subscription } = await supabase
+    .from("subscriptions")
     .select("stripe_customer_id")
-    .eq("id", user.id)
+    .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!profile?.stripe_customer_id) {
+  if (!subscription?.stripe_customer_id) {
     return { error: "No billing account found", url: null };
   }
 
   try {
     const stripe = getStripe();
     const session = await stripe.billingPortal.sessions.create({
-      customer: profile.stripe_customer_id,
+      customer: subscription.stripe_customer_id,
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/settings/billing`,
     });
 

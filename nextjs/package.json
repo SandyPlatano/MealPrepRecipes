@@ -103,6 +103,7 @@
     "dotenv": "^17.2.3",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.1.0",
+    "eslint-plugin-better-tailwindcss": "^3.8.0",
     "eslint-plugin-react-hooks": "^7.0.1",
     "postcss": "^8",
     "tsx": "^4.21.0",

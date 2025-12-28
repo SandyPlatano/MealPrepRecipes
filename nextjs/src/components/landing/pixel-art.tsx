@@ -216,7 +216,7 @@ export function PixelIcon({
       width={size}
       height={size}
       viewBox="0 0 32 32"
-      className={cn('pixel-art', animated && 'animate-pixel-float', className)}
+      className={cn(animated && 'animate-pixel-float', className)}
       style={{ imageRendering: 'pixelated' }}
     >
       {pixels.map((p, i) => (
@@ -278,7 +278,7 @@ export function PixelDataFlow({ className }: { className?: string }) {
           className="absolute top-1 animate-data-flow"
           style={{ animationDelay: `${i * 0.6}s` }}
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" className="pixel-art">
+          <svg width="24" height="24" viewBox="0 0 24 24">
             <rect x="4" y="4" width="16" height="16" fill="#F97316" />
             <rect x="8" y="8" width="8" height="8" fill="#FDFBF7" />
           </svg>
@@ -301,7 +301,7 @@ export function PixelDecoration({
 }) {
   if (variant === 'dots') {
     return (
-      <svg width="100" height="100" viewBox="0 0 100 100" className={cn('pixel-art opacity-20', className)}>
+      <svg width="100" height="100" viewBox="0 0 100 100" className={cn('opacity-20', className)}>
         {Array.from({ length: 25 }).map((_, i) => (
           <rect
             key={i}
@@ -318,7 +318,7 @@ export function PixelDecoration({
 
   if (variant === 'corner') {
     return (
-      <svg width="40" height="40" viewBox="0 0 40 40" className={cn('pixel-art', className)}>
+      <svg width="40" height="40" viewBox="0 0 40 40" className={className}>
         <rect x="0" y="0" width="8" height="8" fill="currentColor" />
         <rect x="0" y="12" width="4" height="4" fill="currentColor" />
         <rect x="12" y="0" width="4" height="4" fill="currentColor" />
@@ -327,7 +327,7 @@ export function PixelDecoration({
   }
 
   return (
-    <svg width="100" height="8" viewBox="0 0 100 8" className={cn('pixel-art', className)}>
+    <svg width="100" height="8" viewBox="0 0 100 8" className={className}>
       {Array.from({ length: 12 }).map((_, i) => (
         <rect key={i} x={i * 8 + 2} y="2" width="4" height="4" fill="currentColor" />
       ))}
@@ -436,7 +436,7 @@ function LockupIcon({ size = 48, colorMode = "dark" }: { size?: number; colorMod
   ];
 
   return (
-    <svg width={size} height={size * 0.85} viewBox="0 0 56 48" className="pixel-art" style={{ imageRendering: 'pixelated' }}>
+    <svg width={size} height={size * 0.85} viewBox="0 0 56 48" style={{ imageRendering: 'pixelated' }}>
       {pixels.map((p, i) => <Pixel key={i} x={p.x} y={p.y} color={p.color} />)}
     </svg>
   );

@@ -178,10 +178,8 @@ function PricingCard({ tier }: { tier: PricingTier }) {
         <button
           type="button"
           className={cn(
-            'w-full font-bold py-3 px-4 rounded-lg border-2 border-black shadow-retro hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all',
-            tier.highlighted
-              ? 'bg-primary text-white'
-              : 'bg-muted text-foreground'
+            'w-full',
+            tier.highlighted ? 'btn-primary' : 'btn-ghost'
           )}
         >
           {tier.cta}

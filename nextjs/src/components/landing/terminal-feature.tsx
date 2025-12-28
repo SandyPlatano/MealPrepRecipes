@@ -42,7 +42,7 @@ export function TerminalFeature() {
       <div className="container mx-auto px-4 relative z-10">
         {/* Section header */}
         <div className="text-center mb-16">
-          <div className="inline-block badge-pixel border-[#F97316] text-[#F97316] mb-4">
+          <div className="inline-block badge-retro border-[#F97316] text-[#F97316] mb-4">
             Smart Import
           </div>
           <h2 className="font-mono text-3xl md:text-4xl font-bold text-[#FDFBF7] mb-4">

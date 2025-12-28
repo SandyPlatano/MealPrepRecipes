@@ -112,7 +112,7 @@ export function CTASection() {
             <Link href="/signup">
               <button
                 type="button"
-                className="bg-primary text-white font-bold px-10 py-4 rounded-lg border-2 border-black shadow-retro hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-retro-active active:translate-x-[4px] active:translate-y-[4px] transition-all flex items-center gap-2 text-lg group"
+                className="btn-primary flex items-center gap-2 text-lg group"
               >
                 <span>Start Planning Free</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

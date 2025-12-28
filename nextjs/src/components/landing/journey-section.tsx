@@ -295,7 +295,7 @@ function JourneyCompletion({ isVisible }: { isVisible: boolean }) {
       `}>
         <Link
           href="/signup"
-          className="bg-primary hover:bg-primary/90 text-white font-display font-bold border-2 border-black shadow-retro hover:shadow-retro-lg transition-all rounded-lg text-lg px-8 py-4 inline-flex items-center gap-2"
+          className="btn-primary inline-flex items-center gap-2 text-lg"
         >
           Start Your Journey
         </Link>

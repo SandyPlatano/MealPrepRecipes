@@ -63,10 +63,7 @@ export function Navigation() {
             Log in
           </Link>
           <Link href="/signup">
-            <button
-              type="button"
-              className="bg-primary text-white font-bold px-5 py-2.5 rounded-lg border-2 border-black shadow-retro hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-retro-active active:translate-x-[4px] active:translate-y-[4px] transition-all text-sm"
-            >
+            <button type="button" className="btn-primary text-sm">
               Start Free ✨
             </button>
           </Link>
@@ -75,10 +72,7 @@ export function Navigation() {
         {/* Mobile Navigation */}
         <div className="md:hidden flex items-center gap-3">
           <Link href="/signup">
-            <button
-              type="button"
-              className="bg-primary text-white font-bold px-4 py-2 rounded-lg border-2 border-black shadow-retro hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-retro-active active:translate-x-[4px] active:translate-y-[4px] transition-all text-sm"
-            >
+            <button type="button" className="btn-primary text-sm py-2 px-4">
               Start Free
             </button>
           </Link>
@@ -109,10 +103,7 @@ export function Navigation() {
                 <MobileNavLink href="/login">Log in</MobileNavLink>
                 <SheetClose asChild>
                   <Link href="/signup" className="mt-2">
-                    <button
-                      type="button"
-                      className="bg-primary text-white font-bold w-full px-5 py-3 rounded-lg border-2 border-black shadow-retro hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-retro-active active:translate-x-[4px] active:translate-y-[4px] transition-all text-sm"
-                    >
+                    <button type="button" className="btn-primary text-sm w-full">
                       Start Free ✨
                     </button>
                   </Link>

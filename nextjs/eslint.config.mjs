@@ -2,6 +2,7 @@ import nextPlugin from "@next/eslint-plugin-next";
 import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
 import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
+import betterTailwindcss from "eslint-plugin-better-tailwindcss";
 import tseslint from "typescript-eslint";
 
 export default [
@@ -12,6 +13,7 @@ export default [
       "react": reactPlugin,
       "react-hooks": reactHooksPlugin,
       "jsx-a11y": jsxA11yPlugin,
+      "better-tailwindcss": betterTailwindcss,
     },
     rules: {
       ...nextPlugin.configs.recommended.rules,
@@ -25,10 +27,29 @@ export default [
       "jsx-a11y/no-noninteractive-element-to-interactive-role": "warn",
       // Keep existing overrides
       "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+      // Tailwind CSS class validation (catches undefined utility classes)
+      ...betterTailwindcss.configs["recommended-warn"].rules,
+      // Whitelist our custom design system classes defined in globals.css
+      "better-tailwindcss/no-unregistered-classes": ["warn", {
+        ignore: [
+          // Button classes (btn-primary, btn-secondary, btn-ghost, btn-tertiary, btn-cta)
+          "^btn-.*",
+          // Badge classes (badge-retro, badge-new, badge-pixel-*)
+          "^badge-.*",
+          // Retro design system utilities
+          "^shadow-retro.*",
+          // Animation classes
+          "^animate-.*",
+        ],
+      }],
     },
     settings: {
       react: {
         version: "detect",
+      },
+      // Tailwind v4 uses CSS-based config via entryPoint
+      "better-tailwindcss": {
+        entryPoint: "src/app/globals.css",
       },
     },
   },

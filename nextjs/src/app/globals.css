@@ -68,17 +68,17 @@
   --color-retro-text-muted: #6B7280;
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Retro Shadows (Hard offset - no blur)
+     Retro Shadows (Hard offset - no blur) - 2px compact style
      ───────────────────────────────────────────────────────────────────────────── */
-  --shadow-retro: 4px 4px 0px 0px #000000;
-  --shadow-retro-hover: 2px 2px 0px 0px #000000;
+  --shadow-retro: 2px 2px 0px 0px #000000;
+  --shadow-retro-hover: 1px 1px 0px 0px #000000;
   --shadow-retro-active: 0px 0px 0px 0px #000000;
-  --shadow-retro-sm: 3px 3px 0px 0px #000000;
+  --shadow-retro-sm: 2px 2px 0px 0px #000000;
   --shadow-retro-sm-hover: 1px 1px 0px 0px #000000;
-  --shadow-retro-input: 4px 4px 0px 0px rgba(0,0,0,0.1);
-  --shadow-retro-success: 4px 4px 0px 0px #064e3b;
-  --shadow-retro-warning: 4px 4px 0px 0px #78350f;
-  --shadow-retro-error: 4px 4px 0px 0px #7f1d1d;
+  --shadow-retro-input: 2px 2px 0px 0px rgba(0,0,0,0.1);
+  --shadow-retro-success: 2px 2px 0px 0px #064e3b;
+  --shadow-retro-warning: 2px 2px 0px 0px #78350f;
+  --shadow-retro-error: 2px 2px 0px 0px #7f1d1d;
 
   /* ─────────────────────────────────────────────────────────────────────────────
      Animations
@@ -213,8 +213,8 @@
   .btn-retro {
     @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
     box-shadow: var(--shadow-retro);
-    @apply hover:translate-x-[2px] hover:translate-y-[2px];
-    @apply active:translate-x-[4px] active:translate-y-[4px];
+    @apply hover:translate-x-[1px] hover:translate-y-[1px];
+    @apply active:translate-x-[2px] active:translate-y-[2px];
     @apply transition-all duration-150;
   }
 
@@ -230,8 +230,8 @@
     @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
     @apply bg-primary text-white;
     box-shadow: var(--shadow-retro);
-    @apply hover:translate-x-[2px] hover:translate-y-[2px] hover:brightness-110;
-    @apply active:translate-x-[4px] active:translate-y-[4px] active:brightness-90;
+    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:brightness-110;
+    @apply active:translate-x-[2px] active:translate-y-[2px] active:brightness-90;
     @apply transition-all duration-150;
   }
 
@@ -247,8 +247,8 @@
     @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
     @apply bg-secondary text-black;
     box-shadow: var(--shadow-retro);
-    @apply hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-yellow-300;
-    @apply active:translate-x-[4px] active:translate-y-[4px] active:bg-yellow-500;
+    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-yellow-300;
+    @apply active:translate-x-[2px] active:translate-y-[2px] active:bg-yellow-500;
     @apply transition-all duration-150;
   }
 
@@ -264,8 +264,8 @@
     @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
     @apply bg-accent text-white;
     box-shadow: var(--shadow-retro);
-    @apply hover:translate-x-[2px] hover:translate-y-[2px] hover:brightness-110;
-    @apply active:translate-x-[4px] active:translate-y-[4px] active:brightness-90;
+    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:brightness-110;
+    @apply active:translate-x-[2px] active:translate-y-[2px] active:brightness-90;
     @apply transition-all duration-150;
   }
 
@@ -281,8 +281,8 @@
     @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
     @apply bg-transparent;
     box-shadow: var(--shadow-retro);
-    @apply hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-gray-100;
-    @apply active:translate-x-[4px] active:translate-y-[4px] active:bg-gray-200;
+    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-gray-100;
+    @apply active:translate-x-[2px] active:translate-y-[2px] active:bg-gray-200;
     @apply transition-all duration-150;
   }
 
@@ -381,7 +381,7 @@
     @apply bg-white border-2 border-black rounded-lg;
     box-shadow: var(--shadow-retro-sm);
     @apply group-hover:translate-x-[1px] group-hover:translate-y-[1px];
-    @apply group-active:translate-x-[3px] group-active:translate-y-[3px] group-active:shadow-none;
+    @apply group-active:translate-x-[2px] group-active:translate-y-[2px] group-active:shadow-none;
     @apply transition-all;
   }
 
@@ -481,7 +481,7 @@
     @apply flex items-center text-sm font-mono;
     @apply bg-white border-2 border-black;
     @apply inline-flex px-4 py-2 rounded-full;
-    box-shadow: 2px 2px 0px 0px #000;
+    box-shadow: var(--shadow-retro);
   }
 
   .breadcrumb-link {

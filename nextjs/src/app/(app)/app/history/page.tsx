@@ -99,16 +99,20 @@ export default async function HistoryPage() {
                           addSuffix: true,
                         })}
                       </span>
-                      {recipe.prep_time && recipe.cook_time && (
+                      {(recipe.prep_time || recipe.cook_time) && (
                         <>
                           <span>•</span>
-                          <span>{recipe.prep_time + recipe.cook_time} min total</span>
+                          <span>
+                            {recipe.prep_time && `${recipe.prep_time} prep`}
+                            {recipe.prep_time && recipe.cook_time && " • "}
+                            {recipe.cook_time && `${recipe.cook_time} total`}
+                          </span>
                         </>
                       )}
                       {recipe.servings && (
                         <>
                           <span>•</span>
-                          <span>{recipe.servings} servings</span>
+                          <span>{recipe.servings}</span>
                         </>
                       )}
                     </div>
