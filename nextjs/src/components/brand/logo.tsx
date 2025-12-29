@@ -102,15 +102,15 @@ const sizeClasses = {
 
 const colorSchemes = {
   default: {
-    icon: "text-primary",
-    babe: "text-primary",
-    rest: "text-foreground",
+    icon: "text-black",
+    babe: "text-black",
+    rest: "text-black",
     tagline: "text-muted-foreground",
   },
   monochrome: {
-    icon: "text-foreground",
-    babe: "text-foreground",
-    rest: "text-foreground",
+    icon: "text-black",
+    babe: "text-black",
+    rest: "text-black",
     tagline: "text-muted-foreground",
   },
   reversed: {
@@ -120,16 +120,16 @@ const colorSchemes = {
     tagline: "text-white/70",
   },
   dark: {
-    icon: "text-cream",
-    babe: "text-primary",
-    rest: "text-cream",
-    tagline: "text-cream/60",
+    icon: "text-white",
+    babe: "text-white",
+    rest: "text-white",
+    tagline: "text-white/60",
   },
   light: {
-    icon: "text-primary",
-    babe: "text-primary",
-    rest: "text-dark",
-    tagline: "text-dark/60",
+    icon: "text-black",
+    babe: "text-black",
+    rest: "text-black",
+    tagline: "text-black/60",
   },
 };
 
@@ -235,7 +235,7 @@ export function BrandLogo({
         >
           <span
             className={cn(
-              "font-handwritten font-semibold leading-none",
+              "font-script font-semibold leading-none",
               colors.babe,
               sizes.babe
             )}
@@ -244,7 +244,7 @@ export function BrandLogo({
           </span>
           <span
             className={cn(
-              "font-mono font-bold leading-none",
+              "font-primary font-bold leading-none",
               colors.rest,
               sizes.rest
             )}
@@ -256,7 +256,7 @@ export function BrandLogo({
       {showTagline && (
         <span
           className={cn(
-            "font-mono tracking-wider uppercase mt-1",
+            "font-primary tracking-wider uppercase mt-1",
             colors.tagline,
             sizes.tagline,
             !isStacked && showIcon ? "ml-7" : ""
@@ -300,7 +300,7 @@ export function BrandLogoCompact({
       <span className="inline-flex items-baseline">
         <span
           className={cn(
-            "font-handwritten font-semibold text-lg leading-none",
+            "font-script font-semibold text-lg leading-none",
             colors.babe
           )}
         >
@@ -308,7 +308,7 @@ export function BrandLogoCompact({
         </span>
         <span
           className={cn(
-            "font-mono font-bold text-sm leading-none ml-1",
+            "font-primary font-bold text-sm leading-none ml-1",
             colors.rest
           )}
         >
@@ -374,7 +374,7 @@ export function MealPrepOSTagline({
   return (
     <span
       className={cn(
-        "font-mono text-muted-foreground tracking-wider uppercase",
+        "font-primary text-muted-foreground tracking-wider uppercase",
         taglineSizes[size],
         className
       )}
@@ -413,7 +413,7 @@ export function BrandWordmark({
     <span className={cn("inline-flex items-baseline gap-1", className)}>
       <span
         className={cn(
-          "font-handwritten font-semibold leading-none",
+          "font-script font-semibold leading-none",
           colors.babe,
           sizes.babe
         )}
@@ -422,7 +422,7 @@ export function BrandWordmark({
       </span>
       <span
         className={cn(
-          "font-mono font-bold leading-none",
+          "font-primary font-bold leading-none",
           colors.rest,
           sizes.rest
         )}

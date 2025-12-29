@@ -5,29 +5,29 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border-2 border-black dark:border-white",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-retro hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-retro-active active:translate-x-[4px] active:translate-y-[4px]",
+          "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-retro hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-retro-active active:translate-x-[4px] active:translate-y-[4px]",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80",
         "destructive-outline":
-          "bg-background text-destructive shadow-retro hover:bg-destructive/10 hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px]",
+          "border-2 border-destructive text-destructive bg-transparent hover:bg-destructive/10",
         outline:
-          "bg-background shadow-retro hover:bg-accent hover:text-accent-foreground hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px]",
+          "border-2 border-black bg-transparent hover:bg-muted",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-retro hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-retro-active active:translate-x-[4px] active:translate-y-[4px]",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 active:bg-secondary/70",
         ghost:
-          "border-transparent shadow-none hover:bg-accent hover:text-accent-foreground",
-        link: "border-transparent shadow-none text-primary underline-offset-4 hover:underline hover:text-primary/80",
+          "hover:bg-muted hover:text-foreground",
+        link: "text-primary underline-offset-4 hover:underline hover:text-primary/80",
       },
       size: {
-        default: "h-9 px-4 py-2",
+        default: "h-10 px-6 py-2",
         sm: "h-8 rounded-lg px-3 text-xs",
-        lg: "h-10 rounded-lg px-8",
-        icon: "size-9 rounded-lg",
+        lg: "h-12 rounded-lg px-8",
+        icon: "size-10 rounded-lg",
       },
     },
     defaultVariants: {

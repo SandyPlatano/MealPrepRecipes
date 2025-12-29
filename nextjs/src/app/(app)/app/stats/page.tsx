@@ -5,13 +5,32 @@ import { Button } from "@/components/ui/button";
 import { IconBadge } from "@/components/ui/icon-badge";
 import { Apple, ArrowRight, TrendingUp, DollarSign, Flame } from "lucide-react";
 import { STATS_CATEGORIES } from "@/lib/stats/stats-categories";
+import { getWasteDashboard } from "@/app/actions/waste-tracking";
+import { getWeeksMealCounts } from "@/app/actions/meal-plans";
+import { getWeekStart } from "@/types/meal-plan";
 
 export const metadata: Metadata = {
   title: "Stats | Meal Prep OS",
   description: "View your meal planning statistics, nutrition tracking, and sustainability impact",
 };
 
-export default function StatsOverviewPage() {
+export default async function StatsOverviewPage() {
+  // Get current week start for meal count query
+  const currentWeekStart = getWeekStart(new Date()).toISOString().split("T")[0];
+
+  // Fetch real data in parallel
+  const [wasteDashboard, mealCounts] = await Promise.all([
+    getWasteDashboard(),
+    getWeeksMealCounts([currentWeekStart]),
+  ]);
+
+  // Extract stats from fetched data
+  const mealsPlanned = mealCounts.data?.[0]?.mealCount || 0;
+  const utilizationRate = wasteDashboard.data?.aggregate?.average_utilization_rate || 0;
+  const totalSavedCents = wasteDashboard.data?.aggregate?.total_money_saved_cents || 0;
+  const totalSavedDollars = Math.round(totalSavedCents / 100);
+  const currentStreak = wasteDashboard.data?.streak?.current_streak || 0;
+
   // Get non-overview categories for the cards
   const featureCategories = STATS_CATEGORIES.filter((cat) => cat.id !== "overview");
 
@@ -28,26 +47,26 @@ export default function StatsOverviewPage() {
       {/* Quick Stats Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <QuickStatCard
-          label="This Week"
-          value="Active"
+          label="Streak"
+          value={currentStreak > 0 ? `${currentStreak} week${currentStreak !== 1 ? "s" : ""}` : "Start now!"}
           icon={TrendingUp}
           iconColor="text-primary"
         />
         <QuickStatCard
-          label="Meals Planned"
-          value="12"
+          label="This Week"
+          value={mealsPlanned > 0 ? `${mealsPlanned} meals` : "No meals"}
           icon={Flame}
           iconColor="text-primary"
         />
         <QuickStatCard
-          label="On Target"
-          value="85%"
+          label="Utilization"
+          value={utilizationRate > 0 ? `${Math.round(utilizationRate)}%` : "—"}
           icon={Apple}
           iconColor="text-sage-500"
         />
         <QuickStatCard
-          label="Saved"
-          value="$24"
+          label="Total Saved"
+          value={totalSavedDollars > 0 ? `$${totalSavedDollars}` : "$0"}
           icon={DollarSign}
           iconColor="text-primary"
         />

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Calendar, BookOpen, ShoppingCart, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRetroSidebar } from "@/components/dashboard-new";
 
 interface NavTab {
   href: string;
@@ -71,11 +70,9 @@ function NavTabItem({ tab, isActive }: { tab: NavTab; isActive: boolean }) {
 }
 
 export function MobileBottomNav() {
-  const { isMobile } = useRetroSidebar();
   const pathname = usePathname();
 
-  if (!isMobile) return null;
-
+  // Note: AppShell only renders this component when on mobile, so no isMobile check needed
   return (
     <nav
       className={cn(

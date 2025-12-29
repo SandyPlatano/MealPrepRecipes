@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createMealPlanEvents, refreshAccessToken } from "@/lib/google-calendar";
 import { rateLimit } from "@/lib/rate-limit";
 import { DEFAULT_MEAL_TYPE_SETTINGS, type MealTypeCustomization, type MealTypeKey } from "@/types/settings";
+import { safeDecryptToken, safeEncryptToken } from "@/lib/crypto/token-encryption";
 
 export const dynamic = "force-dynamic";
 
@@ -80,7 +81,8 @@ export async function POST(request: Request) {
     // Legacy fallback for global duration (used when meal type doesn't have a specific duration)
     const globalEventDuration = calendarPrefs?.eventDurationMinutes || settings.calendar_event_duration_minutes || 60;
 
-    let accessToken = settings.google_access_token;
+    // SECURITY: Decrypt tokens from database storage
+    let accessToken = safeDecryptToken(settings.google_access_token);
 
     // Check if token is expired and refresh if needed
     if (settings.google_token_expires_at) {
@@ -91,17 +93,19 @@ export async function POST(request: Request) {
 
       if (now >= bufferTime && settings.google_refresh_token) {
         try {
-          const newTokens = await refreshAccessToken(settings.google_refresh_token);
+          // SECURITY: Decrypt refresh token before using with Google API
+          const decryptedRefreshToken = safeDecryptToken(settings.google_refresh_token);
+          const newTokens = await refreshAccessToken(decryptedRefreshToken);
           accessToken = newTokens.access_token;
 
-          // Update tokens in database
+          // Update tokens in database - encrypt before storing
           const newExpiresAt = new Date();
           newExpiresAt.setSeconds(newExpiresAt.getSeconds() + newTokens.expires_in);
 
           await supabase
             .from("user_settings")
             .update({
-              google_access_token: newTokens.access_token,
+              google_access_token: safeEncryptToken(newTokens.access_token),
               google_token_expires_at: newExpiresAt.toISOString(),
               updated_at: new Date().toISOString(),
             })

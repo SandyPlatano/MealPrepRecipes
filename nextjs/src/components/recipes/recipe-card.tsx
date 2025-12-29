@@ -87,7 +87,7 @@ import { triggerHaptic } from "@/lib/haptics";
 import { calculateCustomBadges, getBadgeColorClasses, type CustomBadge } from "@/lib/nutrition/badge-calculator";
 import { buildRecipeMetadata } from "@/lib/recipe/metadata-utils";
 import { cn } from "@/lib/utils";
-import { useRetroSidebar } from "@/components/dashboard-new";
+import { useSidebar } from "@/components/sidebar";
 import { useDifficultyThresholds } from "@/contexts/difficulty-thresholds-context";
 import { HighlightText } from "@/components/ui/highlight-text";
 
@@ -154,7 +154,7 @@ interface RecipeCardProps {
 }
 
 export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userAllergenAlerts = [], customDietaryRestrictions = [], customBadges = [], animationIndex, folders: _folders = [], onAddToFolder, searchTerm = "" }: RecipeCardProps) {
-  const { isMobile } = useRetroSidebar();
+  const { isMobile } = useSidebar();
   const { thresholds: difficultyThresholds } = useDifficultyThresholds();
   const [isFavorite, setIsFavorite] = useState(recipe.is_favorite);
   const [currentRating, setCurrentRating] = useState<number | null>(recipe.rating);
@@ -463,7 +463,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
               </div>
             )}
 
-            {/* More Menu - Top Right (subtle) */}
+            {/* More Menu - Top Right */}
             <div
               className="absolute top-2 right-2 z-10"
               onClick={(e) => e.stopPropagation()}
@@ -480,6 +480,14 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    router.push(`/app/recipes/${recipe.id}/cook`);
+                  }}>
+                    <UtensilsCrossed className="size-4 mr-2" />
+                    Start Cooking
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleShare}>
                     <Share2 className="size-4 mr-2" />
                     Share Recipe

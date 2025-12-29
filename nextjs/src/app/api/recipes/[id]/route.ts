@@ -1,7 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
+import { assertValidOrigin } from "@/lib/security/csrf";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Check if user has read access to a recipe
+ * User can access: own recipes, household-shared recipes, or public recipes
+ */
+function canReadRecipe(
+  recipe: { user_id: string; household_id: string | null; is_shared_with_household: boolean | null; is_public: boolean | null },
+  userId: string,
+  householdId: string | null
+): boolean {
+  // Owner can always read
+  if (recipe.user_id === userId) return true;
+
+  // Public recipes are readable by all
+  if (recipe.is_public) return true;
+
+  // Household-shared recipes are readable by household members
+  if (
+    householdId &&
+    recipe.household_id === householdId &&
+    recipe.is_shared_with_household
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Check if user can modify/delete a recipe
+ * Only the owner can modify or delete
+ */
+function canModifyRecipe(recipe: { user_id: string }, userId: string): boolean {
+  return recipe.user_id === userId;
+}
 
 // GET /api/recipes/[id] - Get a single recipe
 export async function GET(
@@ -11,9 +48,11 @@ export async function GET(
   try {
     const { id } = await params;
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
+    // Get user and household context
+    const { user, householdId, error: authError } = await getCachedUserWithHousehold();
+
+    if (authError || !user) {
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 }
@@ -39,6 +78,14 @@ export async function GET(
       );
     }
 
+    // SECURITY: Verify user has access to this recipe
+    if (!canReadRecipe(recipe, user.id, householdId)) {
+      return NextResponse.json(
+        { error: "Recipe not found" }, // Don't reveal existence
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json(recipe);
   } catch (error) {
     console.error("Error fetching recipe:", error);
@@ -54,23 +101,50 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // SECURITY: Validate request origin to prevent CSRF attacks
+  const csrfError = assertValidOrigin(request);
+  if (csrfError) return csrfError;
+
   try {
     const { id } = await params;
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
+    // Get user context
+    const { user, error: authError } = await getCachedUserWithHousehold();
+
+    if (authError || !user) {
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 }
       );
     }
 
+    // SECURITY: First verify ownership before allowing update
+    const { data: existingRecipe, error: fetchError } = await supabase
+      .from("recipes")
+      .select("id, user_id")
+      .eq("id", id)
+      .single();
+
+    if (fetchError || !existingRecipe) {
+      return NextResponse.json(
+        { error: "Recipe not found" },
+        { status: 404 }
+      );
+    }
+
+    if (!canModifyRecipe(existingRecipe, user.id)) {
+      return NextResponse.json(
+        { error: "Not authorized to modify this recipe" },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
-    
+
     // Map incoming fields to database schema
     const updateData: Record<string, unknown> = {};
-    
+
     if (body.title !== undefined) updateData.title = body.title;
     if (body.description !== undefined) updateData.description = body.description;
     if (body.recipe_type !== undefined || body.recipeType !== undefined) {
@@ -91,7 +165,7 @@ export async function PUT(
       updateData.base_servings = typeof body.servings === "number" ? body.servings : parseInt(body.servings) || 4;
     }
     if (body.ingredients !== undefined) {
-      updateData.ingredients = Array.isArray(body.ingredients) 
+      updateData.ingredients = Array.isArray(body.ingredients)
         ? body.ingredients.map((i: unknown) => typeof i === "string" ? i : `${(i as Record<string, string>).quantity || ""} ${(i as Record<string, string>).unit || ""} ${(i as Record<string, string>).name}`.trim())
         : [];
     }
@@ -107,10 +181,12 @@ export async function PUT(
     if (body.rating !== undefined) updateData.rating = body.rating;
     if (body.rating_count !== undefined) updateData.rating_count = body.rating_count;
 
+    // Update with user_id constraint for additional safety
     const { data: recipe, error } = await supabase
       .from("recipes")
       .update(updateData)
       .eq("id", id)
+      .eq("user_id", user.id) // Double-check ownership in query
       .select()
       .single();
 
@@ -142,22 +218,51 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // SECURITY: Validate request origin to prevent CSRF attacks
+  const csrfError = assertValidOrigin(request);
+  if (csrfError) return csrfError;
+
   try {
     const { id } = await params;
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
+    // Get user context
+    const { user, error: authError } = await getCachedUserWithHousehold();
+
+    if (authError || !user) {
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 }
       );
     }
 
+    // SECURITY: First verify ownership before allowing delete
+    const { data: existingRecipe, error: fetchError } = await supabase
+      .from("recipes")
+      .select("id, user_id")
+      .eq("id", id)
+      .single();
+
+    if (fetchError || !existingRecipe) {
+      return NextResponse.json(
+        { error: "Recipe not found" },
+        { status: 404 }
+      );
+    }
+
+    if (!canModifyRecipe(existingRecipe, user.id)) {
+      return NextResponse.json(
+        { error: "Not authorized to delete this recipe" },
+        { status: 403 }
+      );
+    }
+
+    // Delete with user_id constraint for additional safety
     const { error } = await supabase
       .from("recipes")
       .delete()
-      .eq("id", id);
+      .eq("id", id)
+      .eq("user_id", user.id); // Double-check ownership in query
 
     if (error) {
       return NextResponse.json(

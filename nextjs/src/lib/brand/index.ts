@@ -10,10 +10,10 @@ export * from "./colors";
 // Re-export commonly used items for convenience
 export {
   BRAND_COLORS,
-  CORAL_PALETTE,
-  SAGE_PALETTE,
+  GRAY_PALETTE,
+  COOK_COLORS,
   SEMANTIC_COLORS,
-  BOLD_COLORS,
+  BACKGROUNDS,
   CHART_COLORS,
   getContrastRatio,
   meetsWcagContrast,

@@ -1,0 +1,170 @@
+/**
+ * Babe, What's for Dinner? — Design Tokens
+ * =========================================
+ * 
+ * Complete design system based on brand guidelines.
+ * 
+ * Color Palette:
+ * - Ivory (#FFFCF9) — Backgrounds, cards
+ * - Pale Lilac (#DDC3E0) — Accent, highlights
+ * - Chestnut (#7D4A5A) — Illustrations, decorative
+ * - Black (#000000) — Text, buttons, UI
+ */
+
+:root {
+  /* ============================================
+     BRAND COLORS
+     ============================================ */
+  
+  /* Primary Palette */
+  --color-ivory: #FFFCF9;
+  --color-pale-lilac: #DDC3E0;
+  --color-pale-lilac-light: #EBD9ED;
+  --color-pale-lilac-dark: #C9A8CD;
+  --color-chestnut: #7D4A5A;
+  
+  /* Core */
+  --color-black: #000000;
+  --color-white: #FFFFFF;
+  
+  /* Gray Scale */
+  --color-gray-100: #F7F5F6;
+  --color-gray-200: #E8E4E8;
+  --color-gray-300: #D1CCD1;
+  --color-gray-400: #9E979E;
+  --color-gray-500: #6B636B;
+  
+  /* Text */
+  --color-text: #000000;
+  --color-text-muted: #6B636B;
+  --color-text-inverse: #FFFFFF;
+  
+  /* Functional */
+  --color-success: #2D5A2D;
+  --color-success-light: #E8F0E8;
+  --color-warning: #5A4A2D;
+  --color-warning-light: #FDF5ED;
+  --color-error: #5A2D2D;
+  --color-error-light: #FDEDED;
+  
+  /* Cook Assignment */
+  --color-cook-1: #000000;
+  --color-cook-2: #4A7C59;
+  --color-cook-3: #8B6914;
+  --color-cook-4: #2E5984;
+  --color-cook-5: #6B4A7C;
+  
+  /* ============================================
+     TYPOGRAPHY
+     ============================================ */
+  
+  /* Font Families */
+  --font-primary: 'Manrope', sans-serif;
+  --font-script: 'Caveat', cursive;
+  --font-serif: 'Cormorant Garamond', serif;
+  
+  /* Font Sizes */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 1.875rem;  /* 30px */
+  --text-4xl: 2.25rem;   /* 36px */
+  --text-5xl: 3rem;      /* 48px */
+  --text-6xl: 3.75rem;   /* 60px */
+  --text-7xl: 4.5rem;    /* 72px */
+  
+  /* Font Weights */
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+  
+  /* Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  
+  /* Letter Spacing */
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+  
+  /* ============================================
+     SPACING
+     ============================================ */
+  
+  --space-0: 0;
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+  
+  /* ============================================
+     BORDER RADIUS
+     ============================================ */
+  
+  --radius-none: 0;
+  --radius-sm: 0.25rem;    /* 4px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;
+  
+  /* ============================================
+     SHADOWS
+     ============================================ */
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 
+               0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 
+               0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+               0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  
+  /* ============================================
+     TRANSITIONS
+     ============================================ */
+  
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+  
+  /* ============================================
+     Z-INDEX
+     ============================================ */
+  
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-fixed: 1200;
+  --z-modal-backdrop: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-tooltip: 1600;
+  --z-toast: 1700;
+}
+
+/* ============================================
+   GOOGLE FONTS
+   ============================================ */
+
+/*
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+*/

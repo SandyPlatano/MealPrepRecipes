@@ -1,18 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/meal-plans - List all meal plans
+// GET /api/meal-plans - List all meal plans for user's household
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
+    // Get user and household context
+    const { user, householdId, error: authError } = await getCachedUserWithHousehold();
+
+    if (authError || !user) {
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 }
+      );
+    }
+
+    // SECURITY: Require household membership for meal plans
+    if (!householdId) {
+      return NextResponse.json(
+        { error: "Household membership required for meal plans" },
+        { status: 400 }
       );
     }
 
@@ -20,6 +31,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const weekStart = searchParams.get("week_start");
 
+    // SECURITY: Always filter by household_id to prevent cross-tenant data access
     let query = supabase
       .from("meal_plans")
       .select(`
@@ -29,6 +41,7 @@ export async function GET(request: NextRequest) {
           recipe:recipes(*)
         )
       `)
+      .eq("household_id", householdId) // CRITICAL: Household isolation
       .order("week_start", { ascending: false });
 
     if (weekStart) {

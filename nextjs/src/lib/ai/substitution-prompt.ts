@@ -6,6 +6,9 @@
  * - Pantry inventory (prefer items user already has)
  * - Recipe context (what role the ingredient plays)
  * - Budget preferences
+ *
+ * @security All user inputs are sanitized before prompt inclusion
+ * to prevent prompt injection attacks.
  */
 
 import type {
@@ -13,6 +16,12 @@ import type {
   SubstitutionSuggestion,
   SubstitutionReason,
 } from '@/types/substitution';
+import {
+  sanitizePromptInput,
+  sanitizeArrayInput,
+  escapeForPrompt,
+  SANITIZE_LIMITS,
+} from './sanitize';
 
 /**
  * Reason descriptions for Claude to understand intent
@@ -29,58 +38,57 @@ const REASON_CONTEXT: Record<SubstitutionReason, string> = {
  * Build the system prompt for Claude to generate substitution suggestions
  */
 export function buildSubstitutionPrompt(context: SubstitutionContext): string {
-  const {
-    original_ingredient,
-    quantity,
-    unit,
-    recipe_title,
-    recipe_role,
-    dietary_restrictions,
-    allergens,
-    dislikes,
-    pantry_items,
-    reason,
-  } = context;
+  // SECURITY: Sanitize all user inputs before prompt inclusion
+  const safeIngredient = escapeForPrompt(context.original_ingredient);
+  const safeQuantity = sanitizePromptInput(context.quantity, SANITIZE_LIMITS.short);
+  const safeUnit = sanitizePromptInput(context.unit, SANITIZE_LIMITS.short);
+  const safeRecipeTitle = sanitizePromptInput(context.recipe_title, SANITIZE_LIMITS.medium);
+  const safeRecipeRole = sanitizePromptInput(context.recipe_role, SANITIZE_LIMITS.medium);
+  const safeDietaryRestrictions = sanitizeArrayInput(context.dietary_restrictions, SANITIZE_LIMITS.list_item);
+  const safeAllergens = sanitizeArrayInput(context.allergens, SANITIZE_LIMITS.list_item);
+  const safeDislikes = sanitizeArrayInput(context.dislikes, SANITIZE_LIMITS.list_item);
+  const safePantryItems = sanitizeArrayInput(context.pantry_items, SANITIZE_LIMITS.list_item, 100);
+  const reason = context.reason;
 
   const systemPrompt = `You are an expert culinary advisor helping a home cook find ingredient substitutions.
 
 ## CONTEXT
 
-**Original Ingredient:** ${original_ingredient}${quantity ? ` (${quantity}${unit ? ' ' + unit : ''})` : ''}
-${recipe_title ? `**Recipe:** ${recipe_title}` : ''}
-${recipe_role ? `**Role in Recipe:** ${recipe_role}` : ''}
+**Original Ingredient:** ${safeIngredient}${safeQuantity ? ` (${safeQuantity}${safeUnit ? ' ' + safeUnit : ''})` : ''}
+${safeRecipeTitle ? `**Recipe:** ${safeRecipeTitle}` : ''}
+${safeRecipeRole ? `**Role in Recipe:** ${safeRecipeRole}` : ''}
 
 **Why Substituting:** ${REASON_CONTEXT[reason]}
 
 ## DIETARY CONSTRAINTS (CRITICAL - NEVER VIOLATE)
 
-${allergens.length > 0
+${safeAllergens.length > 0
   ? `**ALLERGENS TO AVOID (CRITICAL):**
-${allergens.map(a => `- ❌ ${a} - NEVER suggest anything containing this`).join('\n')}`
+${safeAllergens.map(a => `- ❌ ${a} - NEVER suggest anything containing this`).join('\n')}`
   : '**Allergens:** None specified'}
 
-${dietary_restrictions.length > 0
+${safeDietaryRestrictions.length > 0
   ? `**Dietary Restrictions:**
-${dietary_restrictions.map(r => `- ${r}`).join('\n')}`
+${safeDietaryRestrictions.map(r => `- ${r}`).join('\n')}`
   : '**Dietary Restrictions:** None specified'}
 
-${dislikes.length > 0
+${safeDislikes.length > 0
   ? `**User Dislikes (avoid if possible):**
-${dislikes.map(d => `- ${d}`).join('\n')}`
+${safeDislikes.map(d => `- ${d}`).join('\n')}`
   : ''}
 
 ## USER'S PANTRY (PREFER THESE)
 
-${pantry_items.length > 0
+${safePantryItems.length > 0
   ? `The user already has these items in their pantry:
-${pantry_items.map(p => `- ✓ ${p}`).join('\n')}
+${safePantryItems.map(p => `- ✓ ${p}`).join('\n')}
 
 **PRIORITIZE suggestions from this list when possible!**`
   : 'Pantry inventory not available.'}
 
 ## YOUR TASK
 
-Suggest 3-5 substitutes for "${original_ingredient}" ranked by how well they would work.
+Suggest 3-5 substitutes for "${safeIngredient}" ranked by how well they would work.
 
 ## SUBSTITUTION GUIDELINES
 
@@ -104,7 +112,7 @@ Suggest 3-5 substitutes for "${original_ingredient}" ranked by how well they wou
     : '- Indicate if substitute is cheaper, same price, or pricier'}
 
 5. **Pantry Priority:**
-   ${reason === 'pantry_first' || pantry_items.length > 0
+   ${reason === 'pantry_first' || safePantryItems.length > 0
     ? '- STRONGLY prefer items from user\'s pantry\n   - Set in_pantry: true for pantry items'
     : '- Note if substitute is commonly found in pantries'}
 
@@ -152,12 +160,12 @@ Return a JSON array of substitutions, ranked from best to worst.
 - nutritional_note: Brief comparison or null
 
 **CRITICAL:**
-- NEVER suggest anything containing allergens: ${allergens.length > 0 ? allergens.join(', ') : 'N/A'}
+- NEVER suggest anything containing allergens: ${safeAllergens.length > 0 ? safeAllergens.join(', ') : 'N/A'}
 - Return 3-5 suggestions, no more, no less
 - Highest match_score items first
 - Be practical - suggest commonly available ingredients
 
-Now suggest substitutes for ${original_ingredient}!`;
+Now suggest substitutes for "${safeIngredient}"!`;
 
   return systemPrompt;
 }
@@ -170,9 +178,14 @@ export function buildMinimalSubstitutionPrompt(
   allergens: string[],
   pantryItems: string[]
 ): string {
-  return `Suggest 3 substitutes for "${ingredient}".
-${allergens.length > 0 ? `AVOID allergens: ${allergens.join(', ')}` : ''}
-${pantryItems.length > 0 ? `Prefer pantry items: ${pantryItems.slice(0, 10).join(', ')}` : ''}
+  // SECURITY: Sanitize inputs even in minimal prompt
+  const safeIngredient = escapeForPrompt(ingredient);
+  const safeAllergens = sanitizeArrayInput(allergens, SANITIZE_LIMITS.short, 10);
+  const safePantryItems = sanitizeArrayInput(pantryItems, SANITIZE_LIMITS.short, 10);
+
+  return `Suggest 3 substitutes for "${safeIngredient}".
+${safeAllergens.length > 0 ? `AVOID allergens: ${safeAllergens.join(', ')}` : ''}
+${safePantryItems.length > 0 ? `Prefer pantry items: ${safePantryItems.join(', ')}` : ''}
 Return JSON: [{"substitute":"","quantity":"","match_score":0,"reason":"","in_pantry":false,"budget_tier":"same","dietary_flags":[]}]`;
 }
 

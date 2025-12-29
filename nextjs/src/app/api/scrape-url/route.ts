@@ -4,44 +4,78 @@ import { rateLimit } from "@/lib/rate-limit-redis";
 
 export const dynamic = "force-dynamic";
 
+// Fetch timeout in milliseconds
+const FETCH_TIMEOUT_MS = 10000;
+
+/**
+ * SSRF Protection: Comprehensive IP blocking
+ * Checks if a hostname/IP is private, local, or reserved
+ */
+function isBlockedIP(hostname: string): boolean {
+  const normalizedHost = hostname.toLowerCase().replace(/^::ffff:/, "");
+
+  // Block localhost and loopback - ALL variants
+  const localhostPatterns = [
+    "localhost",
+    "127.0.0.1",
+    "0.0.0.0",
+    "::1",
+    "[::1]",
+    "0000:0000:0000:0000:0000:0000:0000:0001",
+  ];
+
+  if (localhostPatterns.includes(normalizedHost)) {
+    return true;
+  }
+
+  // Check if starts with 127. (IPv4 loopback range)
+  if (/^127\./.test(normalizedHost)) {
+    return true;
+  }
+
+  // Block private/reserved IP ranges
+  const blockedRanges = [
+    // IPv4 Private ranges
+    /^10\./,
+    /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
+    /^192\.168\./,
+    /^169\.254\./,
+    /^100\.(6[4-9]|[7-9][0-9]|1[0-2][0-7])\./,
+    // IPv6 Private/Reserved ranges
+    /^fc[0-9a-f]{2}:/i,
+    /^fd[0-9a-f]{2}:/i,
+    /^fe80:/i,
+    /^fe[89ab][0-9a-f]:/i,
+    /^ff[0-9a-f]{2}:/i,
+    /^::ffff:/i,
+    /^::$/,
+  ];
+
+  for (const range of blockedRanges) {
+    if (range.test(normalizedHost)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 // Block internal/private IP ranges and localhost to prevent SSRF attacks
 function isBlockedUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
     const hostname = parsed.hostname.toLowerCase();
-    
-    // Block localhost and loopback
-    if (
-      hostname === "localhost" ||
-      hostname === "127.0.0.1" ||
-      hostname.startsWith("127.") ||
-      hostname === "::1" ||
-      hostname === "0.0.0.0"
-    ) {
-      return true;
-    }
-    
-    // Block private IP ranges
-    const privateRanges = [
-      /^10\./,                    // 10.0.0.0/8
-      /^172\.(1[6-9]|2[0-9]|3[0-1])\./, // 172.16.0.0/12
-      /^192\.168\./,              // 192.168.0.0/16
-      /^169\.254\./,              // 169.254.0.0/16 (link-local)
-      /^fc00:/,                   // IPv6 private
-      /^fe80:/,                   // IPv6 link-local
-    ];
-    
-    for (const range of privateRanges) {
-      if (range.test(hostname)) {
-        return true;
-      }
-    }
-    
-    // Block non-HTTP(S) protocols
+
+    // Block non-HTTP(S) protocols first
     if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
       return true;
     }
-    
+
+    // Check if hostname is a blocked IP/localhost
+    if (isBlockedIP(hostname)) {
+      return true;
+    }
+
     return false;
   } catch {
     return true;
@@ -109,15 +143,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch the URL
-    const response = await fetch(url, {
-      headers: {
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "User-Agent":
-          "Mozilla/5.0 (compatible; MealPrepRecipeBot/1.0; +https://github.com/meal-prep)",
-      },
-    });
+    // SECURITY: Fetch with timeout to prevent DoS via slow endpoints
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        headers: {
+          Accept:
+            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "User-Agent":
+            "Mozilla/5.0 (compatible; MealPrepRecipeBot/1.0; +https://github.com/meal-prep)",
+        },
+        signal: controller.signal,
+      });
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === "AbortError") {
+        return NextResponse.json(
+          { error: "Request timed out. The URL took too long to respond." },
+          { status: 408 }
+        );
+      }
+      throw fetchError;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       return NextResponse.json(

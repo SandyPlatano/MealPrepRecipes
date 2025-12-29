@@ -14,6 +14,54 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 // Allowed MIME types
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
+/**
+ * Magic bytes (file signatures) for allowed image types
+ * SECURITY: Validates actual file content, not just declared MIME type
+ */
+const MAGIC_BYTES: Record<string, { bytes: number[]; offset?: number }[]> = {
+  'image/jpeg': [
+    { bytes: [0xff, 0xd8, 0xff] }, // JPEG signature (first 3 bytes)
+  ],
+  'image/png': [
+    { bytes: [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a] }, // PNG signature
+  ],
+  'image/webp': [
+    { bytes: [0x52, 0x49, 0x46, 0x46], offset: 0 }, // "RIFF" at start
+    // Note: WebP also has "WEBP" at offset 8, but checking RIFF is sufficient
+  ],
+};
+
+/**
+ * Validates that file content matches declared MIME type using magic bytes
+ * SECURITY: Prevents MIME type spoofing attacks
+ */
+function validateMagicBytes(buffer: ArrayBuffer, declaredMimeType: string): boolean {
+  const signatures = MAGIC_BYTES[declaredMimeType];
+  if (!signatures) {
+    return false; // Unknown MIME type
+  }
+
+  const uint8Array = new Uint8Array(buffer);
+
+  for (const sig of signatures) {
+    const offset = sig.offset ?? 0;
+    let matches = true;
+
+    for (let i = 0; i < sig.bytes.length; i++) {
+      if (uint8Array[offset + i] !== sig.bytes[i]) {
+        matches = false;
+        break;
+      }
+    }
+
+    if (matches) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 interface DetectedItem {
   ingredient: string;
   quantity?: string;
@@ -110,7 +158,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No image provided' }, { status: 400 });
     }
 
-    // Validate file type
+    // Validate file type (MIME type check)
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
       return NextResponse.json({
         error: 'Invalid file type. Please upload a JPEG, PNG, or WebP image.'
@@ -121,6 +169,15 @@ export async function POST(request: NextRequest) {
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json({
         error: 'File too large. Maximum size is 5MB.'
+      }, { status: 400 });
+    }
+
+    // SECURITY: Validate magic bytes to prevent MIME type spoofing
+    // This ensures the actual file content matches the declared type
+    const arrayBuffer = await file.arrayBuffer();
+    if (!validateMagicBytes(arrayBuffer, file.type)) {
+      return NextResponse.json({
+        error: 'File content does not match declared type. Please upload a valid image.'
       }, { status: 400 });
     }
 
@@ -222,7 +279,7 @@ export async function POST(request: NextRequest) {
       .eq('id', scan.id);
 
     // Convert file to base64 for Claude Vision API
-    const arrayBuffer = await file.arrayBuffer();
+    // Note: arrayBuffer was already read during magic bytes validation above
     const base64 = Buffer.from(arrayBuffer).toString('base64');
 
     // Analyze image with Claude Vision

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { exchangeCodeForTokens, getUserInfo } from "@/lib/google-calendar";
+import { safeEncryptToken } from "@/lib/crypto/token-encryption";
 
 export const dynamic = "force-dynamic";
 
@@ -66,14 +67,20 @@ export async function POST(request: Request) {
     const expiresAt = new Date();
     expiresAt.setSeconds(expiresAt.getSeconds() + tokens.expires_in);
 
-    // Update user settings with tokens
+    // SECURITY: Encrypt tokens before storing in database
+    const encryptedAccessToken = safeEncryptToken(tokens.access_token);
+    const encryptedRefreshToken = tokens.refresh_token
+      ? safeEncryptToken(tokens.refresh_token)
+      : null;
+
+    // Update user settings with encrypted tokens
     const { error: updateError } = await supabase
       .from("user_settings")
       .upsert(
         {
           user_id: user.id,
-          google_access_token: tokens.access_token,
-          google_refresh_token: tokens.refresh_token || null,
+          google_access_token: encryptedAccessToken,
+          google_refresh_token: encryptedRefreshToken,
           google_connected_account: googleEmail,
           google_token_expires_at: expiresAt.toISOString(),
           updated_at: new Date().toISOString(),

@@ -4,6 +4,15 @@ import { PEPPER_SYSTEM_PROMPT, buildPepperContextMessage } from "@/lib/ai/pepper
 import { searchRecipes, addToMealPlan, addToShoppingList, getRecipeDetails } from "@/app/actions/pepper";
 import type { PepperContext, PepperRecipeSummary, PepperPantryItem, PepperMealHistory, PepperAction } from "@/types/pepper";
 
+// Type for meal assignment from Supabase query with nested recipe relation
+// Note: Supabase returns nested relations as arrays even for single items
+interface MealAssignmentDB {
+  day: string;
+  meal_type: string | null;
+  recipe_id: string;
+  recipes: { title: string }[] | { title: string } | null;
+}
+
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 
@@ -320,6 +329,13 @@ async function gatherPepperContext(
       .eq("household_id", householdId),
   ]);
 
+  // Build cook count map from history
+  const cookCountMap = new Map<string, number>();
+  for (const entry of historyResult.data || []) {
+    const count = cookCountMap.get(entry.recipe_id) || 0;
+    cookCountMap.set(entry.recipe_id, count + 1);
+  }
+
   // Transform recipes
   const recipes: PepperRecipeSummary[] = (recipesResult.data || []).map((r) => ({
     id: r.id,
@@ -332,7 +348,7 @@ async function gatherPepperContext(
     cook_time: r.cook_time || 0,
     servings: r.servings || 4,
     rating: r.rating,
-    times_cooked: 0, // TODO: calculate from history
+    times_cooked: cookCountMap.get(r.id) || 0,
   }));
 
   // Transform pantry
@@ -356,15 +372,19 @@ async function gatherPepperContext(
   // Build meal plan summary
   let currentMealPlan = null;
   if (mealPlanResult.data) {
+    const assignments = mealPlanResult.data.meal_assignments as MealAssignmentDB[] | undefined;
     currentMealPlan = {
       week_start: mealPlanResult.data.week_start,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      assignments: (mealPlanResult.data.meal_assignments || []).map((a: any) => ({
-        day: a.day,
-        meal_type: a.meal_type,
-        recipe_id: a.recipe_id,
-        recipe_title: a.recipes?.title || "Unknown",
-      })),
+      assignments: (assignments || []).map((a) => {
+        // Handle Supabase nested relation (can be array or object)
+        const recipeData = Array.isArray(a.recipes) ? a.recipes[0] : a.recipes;
+        return {
+          day: a.day,
+          meal_type: a.meal_type || "dinner",
+          recipe_id: a.recipe_id,
+          recipe_title: recipeData?.title || "Unknown",
+        };
+      }),
     };
   }
 

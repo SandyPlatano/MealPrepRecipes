@@ -28,9 +28,9 @@ export default async function HistoryPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-3xl font-mono font-bold">Favorites</h1>
+        <h1 className="text-3xl font-mono font-bold">History</h1>
         <p className="text-muted-foreground mt-1">
-          Your favorite recipes and cooking history
+          Your favorites, cooking log, and past meal plans
         </p>
       </div>
 
