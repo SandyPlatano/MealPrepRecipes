@@ -7,7 +7,6 @@ import { Loader2 } from "lucide-react";
 import { useSwipeGesture } from "@/hooks/use-swipe-gesture";
 import { usePlannerKeyboard } from "@/hooks/use-planner-keyboard";
 import { PlannerHeader } from "./planner-header";
-import { PlannerSummary } from "./planner-summary";
 import { PlannerDayRow } from "./planner-day-row";
 import { PlannerDndContext } from "./planner-dnd-context";
 import { DroppableDay } from "./droppable-day";
@@ -368,9 +367,9 @@ export function MealPlannerGrid({
           </div>
         )}
 
-        <div className="flex flex-col gap-4 md:gap-6">
+        <div className="flex flex-col gap-3 md:gap-4 flex-1 min-h-0">
           {/* Header */}
-          <div className={isPending ? "opacity-75 pointer-events-none" : ""}>
+          <div className={`flex-shrink-0 ${isPending ? "opacity-75 pointer-events-none" : ""}`}>
             <PlannerHeader
               weekStartStr={weekStartStr}
               onCopyLastWeek={handleCopyLastWeek}
@@ -404,11 +403,11 @@ export function MealPlannerGrid({
             />
           )}
 
-          {/* 2-Column Grid Layout - swipe enabled for week navigation on mobile */}
+          {/* 7 Stacked Rows Layout - swipe enabled for week navigation on mobile */}
           <PlannerDndContext assignments={assignmentsWithOptimisticCooks}>
             <div
               ref={swipeRef}
-              className={`grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 transition-opacity ${isPending ? "opacity-60" : ""} ${isSwiping ? "select-none" : ""}`}
+              className={`grid grid-rows-7 gap-1 md:gap-1.5 flex-1 min-h-0 transition-opacity ${isPending ? "opacity-60" : ""} ${isSwiping ? "select-none" : ""}`}
             >
               {DAYS_OF_WEEK.map((day, index) => {
                 const dayDate = new Date(weekStartDate);
@@ -443,22 +442,11 @@ export function MealPlannerGrid({
                       isSelectionMode={isSelectionMode}
                       isSelected={selectedDays.has(day)}
                       onToggleSelection={() => toggleDaySelection(day)}
+                      isHorizontalLayout
                     />
                   </DroppableDay>
                 );
               })}
-
-              {/* Summary as 8th grid cell (pairs with Sunday) */}
-              <PlannerSummary
-                assignments={allAssignments}
-                weekStartStr={weekStartStr}
-                cookColors={cookColors}
-                nutritionEnabled={nutritionEnabled}
-                nutritionData={nutritionData}
-                weeklyNutritionDashboard={weeklyNutritionDashboard}
-                macroGoals={macroGoals}
-                isGridCell
-              />
             </div>
           </PlannerDndContext>
         </div>

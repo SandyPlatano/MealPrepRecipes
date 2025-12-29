@@ -84,11 +84,8 @@ export async function POST(req: Request) {
         submit: {
           message: `Welcome to ${tierName}! 🍳 Start planning amazing meals right away.`,
         },
-        shipping_address: {
-          message: 'Your subscription will be activated immediately after payment.',
-        },
-        terms_of_service_acceptance: {
-          message: 'By subscribing, you agree to our terms of service. Cancel anytime from your account settings.',
+        after_submit: {
+          message: 'Your subscription will be activated immediately. Cancel anytime from your account settings.',
         },
       },
       allow_promotion_codes: true,

@@ -34,7 +34,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
               {children}
               <ProgressBar
                 height="3px"
-                color="#F56565"
+                color="#1E3A5F"
                 options={{ showSpinner: false }}
                 shallowRouting
               />

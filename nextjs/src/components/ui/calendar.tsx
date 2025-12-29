@@ -106,7 +106,7 @@ function Calendar({
           "size-11 p-0 font-normal rounded-xl",
           "transition-all duration-200 ease-out",
           "hover:bg-coral-100 dark:hover:bg-coral-900/30 hover:text-coral-700 dark:hover:text-coral-300",
-          "focus-visible:ring-2 focus-visible:ring-coral-500 focus-visible:ring-offset-2",
+          "focus-visible:ring-2 focus-visible:ring-coral-500 focus-visible:ring-offset-0",
           "aria-selected:opacity-100"
         ),
 
@@ -125,7 +125,7 @@ function Calendar({
         // Today indicator - subtle sage accent ring
         today: cn(
           "[&>button]:ring-2 [&>button]:ring-sage-400 dark:[&>button]:ring-sage-500",
-          "[&>button]:ring-offset-2 [&>button]:ring-offset-background",
+          "[&>button]:ring-offset-0",
           "[&>button]:font-semibold [&>button]:text-sage-700 dark:[&>button]:text-sage-300"
         ),
 

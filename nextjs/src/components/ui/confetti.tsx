@@ -16,7 +16,7 @@ const COLORS = [
   "#fb923c", // orange
   "#facc15", // yellow
   "#4ade80", // green
-  "#60a5fa", // blue
+  "#1E3A5F", // navy (primary)
   "#a78bfa", // purple
   "#f472b6", // pink
 ];

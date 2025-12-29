@@ -87,7 +87,7 @@ export default async function AppLayout({
             favoritesCount={favoritesCount}
             totalRecipeCount={totalRecipeCount}
           >
-            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 h-full flex flex-col">
               {children}
             </div>
           </RetroAppShell>

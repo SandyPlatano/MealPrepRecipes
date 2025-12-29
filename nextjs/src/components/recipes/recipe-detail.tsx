@@ -1067,13 +1067,13 @@ export function RecipeDetail({
                 I Made This!
               </Button>
             )}
-            <Button variant="outline" asChild>
+            <Button variant="default" asChild>
               <Link href={`/app/recipes/${recipe.id}/cook`}>
                 <Play className="mr-2 size-4" />
                 Start Cooking Mode
               </Link>
             </Button>
-            <Button variant="outline" onClick={() => setShowShareDialog(true)}>
+            <Button variant="default" onClick={() => setShowShareDialog(true)}>
               <Share2 className="mr-2 size-4" />
               Share
             </Button>

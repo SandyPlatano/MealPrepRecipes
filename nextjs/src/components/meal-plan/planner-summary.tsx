@@ -636,8 +636,8 @@ export function PlannerSummary({
   // Compact grid cell version - pairs with Sunday in 2-column layout
   if (isGridCell) {
     return (
-      <Card className="overflow-hidden transition-shadow hover:shadow-md h-full min-h-[140px]">
-        <CardContent className="p-4 flex flex-col gap-4 h-full">
+      <Card className="overflow-hidden transition-shadow hover:shadow-md h-full min-h-0">
+        <CardContent className="p-3 flex flex-col gap-2 h-full overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

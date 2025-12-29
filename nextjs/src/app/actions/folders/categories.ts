@@ -54,11 +54,28 @@ export async function getFolderCategories(): Promise<{
     folders: allFolders.filter((f) => f.category_id === cat.id),
   }));
 
-  // Auto-assign uncategorized folders to the first category (instead of virtual "Uncategorized")
+  // Handle uncategorized folders
   const uncategorizedFolders = allFolders.filter((f) => f.category_id === null);
-  if (uncategorizedFolders.length > 0 && categoriesWithFolders.length > 0) {
-    // Add orphaned folders to the first category
-    categoriesWithFolders[0].folders.push(...uncategorizedFolders);
+
+  if (uncategorizedFolders.length > 0) {
+    if (categoriesWithFolders.length > 0) {
+      // Add orphaned folders to the first category
+      categoriesWithFolders[0].folders.push(...uncategorizedFolders);
+    } else {
+      // No categories exist - create a virtual "My Folders" category
+      categoriesWithFolders.push({
+        id: "virtual-my-folders",
+        household_id: household.household_id,
+        created_by_user_id: user.id,
+        name: "My Folders",
+        emoji: null,
+        is_system: false,
+        sort_order: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        folders: uncategorizedFolders,
+      });
+    }
   }
 
   return { error: null, data: categoriesWithFolders };

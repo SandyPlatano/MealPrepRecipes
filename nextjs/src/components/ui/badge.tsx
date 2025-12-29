@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded border-2 border-black dark:border-white px-2 py-0.5 text-xs font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded border-2 border-black dark:border-white px-2 py-0.5 text-xs font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-0",
   {
     variants: {
       variant: {
@@ -36,7 +36,7 @@ function Badge({ className, variant, ...props }: BadgeProps) {
   const hasImportantModifiers = classNameStr.includes("!bg-") || classNameStr.includes("!text-");
   
   // Base classes without variant styles - ensure border is included
-  const baseClasses = "inline-flex items-center rounded border-2 border-black dark:border-white px-2 py-0.5 text-xs font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2";
+  const baseClasses = "inline-flex items-center rounded border-2 border-black dark:border-white px-2 py-0.5 text-xs font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-0";
   
   // If we have important modifiers and no explicit variant, only apply base classes
   // Apply className last to ensure important modifiers take precedence

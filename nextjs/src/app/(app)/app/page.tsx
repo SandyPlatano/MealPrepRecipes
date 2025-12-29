@@ -24,7 +24,6 @@ import { OnboardingWrapper } from "@/components/onboarding/onboarding-wrapper";
 import { hasActiveSubscription } from "@/lib/stripe/subscription";
 import { ContextualHint } from "@/components/hints/contextual-hint";
 import { HINT_IDS, HINT_CONTENT } from "@/lib/hints";
-import { PersonalizedGreeting } from "@/components/ui/personalized-greeting";
 
 interface HomePageProps {
   searchParams: Promise<{ week?: string }>;
@@ -176,12 +175,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         currentCookColors={cookColors}
       />
 
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col h-full min-h-0 flex-1">
         <PlanScrollRestorer />
-        <div>
-          <PersonalizedGreeting userName={profile?.first_name} />
-          <h1 className="text-3xl font-mono font-bold">Meal Plan</h1>
-          <p className="text-muted-foreground mt-1">
+        <div className="flex-shrink-0 mb-2">
+          <h1 className="text-2xl md:text-3xl font-mono font-bold">Meal Plan</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
             Plan your week. Assign cooks. Send the list. Done.
           </p>
         </div>

@@ -74,6 +74,8 @@ interface PlannerDayRowProps {
   isSelectionMode?: boolean;
   isSelected?: boolean;
   onToggleSelection?: () => void;
+  // Horizontal layout for stacked rows
+  isHorizontalLayout?: boolean;
 }
 
 export const PlannerDayRow = memo(function PlannerDayRow({
@@ -103,6 +105,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
   isSelectionMode = false,
   isSelected = false,
   onToggleSelection,
+  isHorizontalLayout = false,
 }: PlannerDayRowProps) {
   const [isPending, startTransition] = useTransition();
   const [modalOpen, setModalOpen] = useState(false);
@@ -146,10 +149,189 @@ export const PlannerDayRow = memo(function PlannerDayRow({
   // Keyboard shortcut number (1-7 for Mon-Sun)
   const keyboardNumber = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].indexOf(day) + 1;
 
+  // Horizontal layout - compact single row for stacked view
+  if (isHorizontalLayout) {
+    return (
+      <Card
+        className={cn(
+          "group relative transition-all flex-1 min-h-0",
+          isToday && "ring-2 ring-primary",
+          isPast && "opacity-60",
+          isFocused && !isToday && "ring-2 ring-primary/50",
+          isSelectionMode && isSelected && "ring-2 ring-primary bg-primary/5",
+          isPending && "opacity-50"
+        )}
+        onClick={isSelectionMode ? onToggleSelection : undefined}
+      >
+        <CardContent className="flex items-center gap-2 md:gap-3 p-2 md:p-3 h-full min-h-0">
+          {/* Date badge - left side */}
+          <div
+            className={cn(
+              "flex items-center gap-2 md:gap-3 flex-shrink-0 min-w-[70px] md:min-w-[80px]",
+              isToday && "text-primary",
+              isSelectionMode && "cursor-pointer"
+            )}
+            onClick={isSelectionMode ? (e) => { e.stopPropagation(); onToggleSelection?.(); } : undefined}
+          >
+            {/* Selection Checkbox */}
+            {isSelectionMode && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleSelection?.();
+                }}
+                className={cn(
+                  "size-5 rounded border-2 flex items-center justify-center transition-all flex-shrink-0",
+                  isSelected
+                    ? "bg-primary border-primary text-primary-foreground"
+                    : "border-muted-foreground/30 hover:border-primary/50"
+                )}
+                aria-label={isSelected ? "Deselect day" : "Select day"}
+              >
+                {isSelected && <Check className="size-3" />}
+              </button>
+            )}
+
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-lg md:text-xl font-bold font-mono leading-none">
+                {dayNumber}
+              </span>
+              <div className="flex flex-col">
+                <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide leading-none">
+                  {dayAbbrev}
+                </span>
+                <span className="text-[9px] md:text-[10px] text-muted-foreground leading-none">
+                  {monthAbbrev}
+                </span>
+              </div>
+            </div>
+            {isToday && (
+              <Badge variant="default" className="text-[8px] md:text-[9px] px-1.5 py-0 h-4">
+                Today
+              </Badge>
+            )}
+          </div>
+
+          {/* Meals content - center/right */}
+          <div className="flex-1 flex items-center gap-2 min-w-0 overflow-hidden">
+            {assignments.length === 0 ? (
+              isPast ? (
+                <span className="text-sm text-muted-foreground">No meals</span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setModalOpen(true)}
+                  disabled={isPending}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-1.5 rounded-md border border-dashed border-muted-foreground/30",
+                    "hover:border-primary/50 hover:bg-primary/5 transition-all text-sm text-muted-foreground",
+                    "hover:text-primary"
+                  )}
+                >
+                  <Plus className="size-4" />
+                  <span className="hidden sm:inline">Add meal</span>
+                </button>
+              )
+            ) : (
+              <div className="flex items-center gap-2 flex-1 min-w-0 overflow-x-auto">
+                {/* Show first few meals inline */}
+                {assignments.slice(0, 3).map((assignment) => (
+                  <div
+                    key={assignment.id}
+                    className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-secondary/50 border border-border/50 text-sm min-w-0 max-w-[300px]"
+                  >
+                    <RecipePreviewPopover
+                      recipe={assignment.recipe}
+                      nutrition={nutritionData?.get(assignment.recipe_id) || null}
+                    >
+                      <span className="truncate font-medium hover:underline cursor-pointer">
+                        {assignment.recipe.title}
+                      </span>
+                    </RecipePreviewPopover>
+                    <div className="flex items-center gap-0.5 flex-shrink-0">
+                      <Link href={`/app/recipes/${assignment.recipe.id}`} target="_blank">
+                        <Button variant="ghost" size="icon" className="size-6 hover:bg-background">
+                          <Eye className="size-3" />
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-6 hover:bg-background"
+                        onClick={() => {
+                          onRemoveMeal(assignment.id);
+                          setModalOpen(true);
+                        }}
+                      >
+                        <Pencil className="size-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-6 hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => onRemoveMeal(assignment.id)}
+                      >
+                        <Trash2 className="size-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                {assignments.length > 3 && (
+                  <Badge variant="outline" className="flex-shrink-0">
+                    +{assignments.length - 3} more
+                  </Badge>
+                )}
+                {/* Add more button */}
+                {!isPast && (
+                  <QuickAddDropdown
+                    recipes={recipes}
+                    recentRecipeIds={recentRecipeIds}
+                    onQuickAdd={async (recipeId) => {
+                      await onAddMeal(recipeId, day);
+                    }}
+                    onOpenFullPicker={() => setModalOpen(true)}
+                    disabled={isPending}
+                    compact
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        </CardContent>
+
+        {/* Recipe Picker Modal */}
+        {!isPast && (
+          <RecipePickerModal
+            open={modalOpen}
+            onOpenChange={handleModalClose}
+            day={day}
+            recipes={recipes}
+            favorites={favorites}
+            recentRecipeIds={recentRecipeIds}
+            suggestedRecipeIds={suggestedRecipeIds}
+            cookNames={cookNames}
+            cookColors={cookColors}
+            userAllergenAlerts={userAllergenAlerts}
+            defaultCooksByDay={defaultCooksByDay}
+            onAdd={async (recipeIds, cook, mealType) => {
+              startTransition(async () => {
+                for (const recipeId of recipeIds) {
+                  await onAddMeal(recipeId, day, cook || undefined, mealType);
+                }
+              });
+            }}
+          />
+        )}
+      </Card>
+    );
+  }
+
+  // Original card layout
   return (
     <Card
       className={cn(
-        "group relative transition-all min-h-[140px] h-full",
+        "group relative transition-all h-full min-h-0 overflow-hidden",
         isToday && "ring-2 ring-primary",
         isPast && "opacity-70",
         isFocused && !isToday && "ring-2 ring-primary/50 shadow-md",
@@ -219,23 +401,23 @@ export const PlannerDayRow = memo(function PlannerDayRow({
       {/* Card Content - shifted right to accommodate date badge */}
       <CardContent
         className={cn(
-          // Base spacing - flex column with gap
-          "flex flex-col gap-2 md:gap-3 h-full",
+          // Base spacing - flex column with gap, scrollable if needed
+          "flex flex-col gap-1.5 md:gap-2 h-full overflow-y-auto",
           // Left padding for date badge + drag handle space
-          "pl-16 md:pl-20",
+          "pl-14 md:pl-18",
           // Density-based padding
-          viewSettings?.density === "compact" && "p-2 pl-14 md:pl-18 gap-1.5",
-          viewSettings?.density === "comfortable" && "p-3 md:p-4 pl-16 md:pl-20",
-          viewSettings?.density === "spacious" && "p-4 md:p-5 pl-18 md:pl-22 gap-3 md:gap-4",
+          viewSettings?.density === "compact" && "p-2 pl-12 md:pl-16 gap-1",
+          viewSettings?.density === "comfortable" && "p-2 md:p-3 pl-14 md:pl-18",
+          viewSettings?.density === "spacious" && "p-3 md:p-4 pl-16 md:pl-20 gap-2 md:gap-3",
           // Default if no viewSettings
-          !viewSettings?.density && "p-3 md:p-4 pl-16 md:pl-20"
+          !viewSettings?.density && "p-2 md:p-3 pl-14 md:pl-18"
         )}
       >
           {assignments.length === 0 ? (
             isPast ? (
               <div className={cn(
-                "text-sm text-muted-foreground text-center",
-                viewSettings?.density === "compact" ? "py-4 md:py-6" : "py-6 md:py-8"
+                "text-sm text-muted-foreground text-center flex-1 flex items-center justify-center",
+                viewSettings?.density === "compact" ? "py-2 md:py-3" : "py-3 md:py-4"
               )}>
                 No meals planned
               </div>
@@ -678,8 +860,8 @@ function EmptyDayAddMeal({
   return (
     <div
       className={cn(
-        "relative w-full flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 hover:bg-primary/5 transition-all group/empty",
-        density === "compact" ? "py-4 md:py-6" : "py-6 md:py-8",
+        "relative w-full flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 hover:bg-primary/5 transition-all group/empty flex-1 min-h-0",
+        density === "compact" ? "py-2 md:py-3" : "py-3 md:py-4",
         disabled && "opacity-50 cursor-not-allowed"
       )}
     >
@@ -688,13 +870,13 @@ function EmptyDayAddMeal({
         type="button"
         onClick={onOpenFullPicker}
         disabled={disabled}
-        className="flex flex-col items-center justify-center gap-2 cursor-pointer w-full"
+        className="flex flex-col items-center justify-center gap-1 cursor-pointer w-full"
       >
-        <div className="size-10 rounded-full bg-muted/50 group-hover/empty:bg-primary/10 flex items-center justify-center transition-colors">
-          <Plus className="size-5 text-muted-foreground group-hover/empty:text-primary transition-colors" />
+        <div className="size-8 rounded-full bg-muted/50 group-hover/empty:bg-primary/10 flex items-center justify-center transition-colors">
+          <Plus className="size-4 text-muted-foreground group-hover/empty:text-primary transition-colors" />
         </div>
-        <span className="text-sm text-muted-foreground group-hover/empty:text-primary transition-colors">
-          Add a meal
+        <span className="text-xs text-muted-foreground group-hover/empty:text-primary transition-colors">
+          Add meal
         </span>
       </button>
 

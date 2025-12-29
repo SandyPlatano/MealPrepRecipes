@@ -309,7 +309,7 @@ export function PlannerHeader({
         {hasMeals ? (
           <Button
             asChild
-            variant="outline"
+            variant="default"
             size="sm"
             className="gap-1.5 h-10 px-3"
           >
@@ -321,7 +321,7 @@ export function PlannerHeader({
         ) : (
           <Button
             disabled
-            variant="outline"
+            variant="default"
             size="sm"
             className="gap-1.5 h-10 px-3"
           >
