@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit } from "@/lib/rate-limit-redis";
+import { assertValidOrigin } from "@/lib/security/csrf";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +10,10 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // SECURITY: Validate request origin to prevent CSRF attacks
+  const csrfError = assertValidOrigin(request);
+  if (csrfError) return csrfError;
+
   try {
     const { id } = await params;
     const supabase = await createClient();
@@ -17,6 +23,20 @@ export async function POST(
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 }
+      );
+    }
+
+    // Rate limiting: 30 ratings per hour per user
+    const rateLimitResult = await rateLimit({
+      identifier: `recipe-rate-${user.id}`,
+      limit: 30,
+      windowMs: 60 * 60 * 1000, // 1 hour
+    });
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. Try again later." },
+        { status: 429 }
       );
     }
 

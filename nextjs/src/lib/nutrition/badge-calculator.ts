@@ -302,34 +302,34 @@ export function getBadgeColorClasses(color: BadgeColor): {
 } {
   const colors: Record<BadgeColor, { bg: string; text: string; border: string }> = {
     green: {
-      bg: 'bg-green-100 dark:bg-green-900/30',
-      text: 'text-green-700 dark:text-green-300',
-      border: 'border-green-200 dark:border-green-800',
+      bg: 'bg-emerald-50',
+      text: 'text-emerald-700',
+      border: 'border-emerald-200',
     },
     blue: {
-      bg: 'bg-blue-100 dark:bg-blue-900/30',
-      text: 'text-blue-700 dark:text-blue-300',
-      border: 'border-blue-200 dark:border-blue-800',
+      bg: 'bg-blue-50',
+      text: 'text-blue-700',
+      border: 'border-blue-200',
     },
     purple: {
-      bg: 'bg-purple-100 dark:bg-purple-900/30',
-      text: 'text-purple-700 dark:text-purple-300',
-      border: 'border-purple-200 dark:border-purple-800',
+      bg: 'bg-violet-50',
+      text: 'text-violet-700',
+      border: 'border-violet-200',
     },
     red: {
-      bg: 'bg-red-100 dark:bg-red-900/30',
-      text: 'text-red-700 dark:text-red-300',
-      border: 'border-red-200 dark:border-red-800',
+      bg: 'bg-red-50',
+      text: 'text-red-700',
+      border: 'border-red-200',
     },
     orange: {
-      bg: 'bg-orange-100 dark:bg-orange-900/30',
-      text: 'text-orange-700 dark:text-orange-300',
-      border: 'border-orange-200 dark:border-orange-800',
+      bg: 'bg-amber-50',
+      text: 'text-amber-700',
+      border: 'border-amber-200',
     },
     coral: {
-      bg: 'bg-brand-coral/10',
-      text: 'text-brand-coral',
-      border: 'border-brand-coral/20',
+      bg: 'bg-orange-50',
+      text: 'text-orange-700',
+      border: 'border-orange-200',
     },
   };
   return colors[color];

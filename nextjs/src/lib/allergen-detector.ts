@@ -255,15 +255,11 @@ export function getAllergenDisplayName(allergen: AllergenType): string {
 
 /**
  * Get allergen badge color (for UI)
- * Returns className with important modifiers to override Badge defaults
- * For a cleaner approach, consider using variant="warning" on Badge component instead
+ * Returns clean shadcn-style classes for allergen warning badges
  */
 export function getAllergenBadgeColor(): string {
-  // Unified warning style - light red/rose with good contrast
-  // Using !important to override Badge component's default variant styles
-  // Using solid lighter red colors that work reliably
-  // Note: If this doesn't work, use variant="warning" on Badge component instead
-  return "!bg-red-100 !text-red-800 !border !border-red-300 !shadow-none dark:!bg-red-900 dark:!text-red-200 dark:!border dark:!border-red-700";
+  // Clean red badge style for allergen warnings
+  return "bg-red-50 text-red-700 border border-red-200";
 }
 
 /**

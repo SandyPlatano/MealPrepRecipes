@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { rateLimit } from "@/lib/rate-limit-redis";
+import { assertValidOrigin } from "@/lib/security/csrf";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +16,10 @@ export const dynamic = "force-dynamic";
  * The response doesn't matter since sendBeacon is fire-and-forget.
  */
 export async function POST(request: NextRequest) {
+  // SECURITY: Validate request origin to prevent CSRF attacks
+  const csrfError = assertValidOrigin(request);
+  if (csrfError) return csrfError;
+
   try {
     const supabase = await createClient();
     const {
@@ -23,6 +29,20 @@ export async function POST(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    // Rate limiting: 60 syncs per minute per user (generous for sendBeacon)
+    const rateLimitResult = await rateLimit({
+      identifier: `settings-sync-${user.id}`,
+      limit: 60,
+      windowMs: 60 * 1000, // 1 minute
+    });
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded" },
+        { status: 429 }
+      );
     }
 
     // Parse the settings from the request body

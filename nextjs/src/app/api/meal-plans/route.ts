@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCachedUserWithHousehold } from "@/lib/supabase/cached-queries";
+import { rateLimit } from "@/lib/rate-limit-redis";
+import { assertValidOrigin } from "@/lib/security/csrf";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +26,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { error: "Household membership required for meal plans" },
         { status: 400 }
+      );
+    }
+
+    // Rate limiting: 60 requests per minute per user
+    const rateLimitResult = await rateLimit({
+      identifier: `meal-plans-list-${user.id}`,
+      limit: 60,
+      windowMs: 60 * 1000, // 1 minute
+    });
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. Try again later." },
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+            "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+            "Retry-After": Math.ceil((rateLimitResult.reset - Date.now()) / 1000).toString(),
+          },
+        }
       );
     }
 
@@ -69,6 +92,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/meal-plans - Create a new meal plan
 export async function POST(request: NextRequest) {
+  // SECURITY: Validate request origin to prevent CSRF attacks
+  const csrfError = assertValidOrigin(request);
+  if (csrfError) return csrfError;
+
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -77,6 +104,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 }
+      );
+    }
+
+    // Rate limiting: 20 meal plan creations per hour per user
+    const rateLimitResult = await rateLimit({
+      identifier: `meal-plans-create-${user.id}`,
+      limit: 20,
+      windowMs: 60 * 60 * 1000, // 1 hour
+    });
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. Try again later." },
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+            "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+            "Retry-After": Math.ceil((rateLimitResult.reset - Date.now()) / 1000).toString(),
+          },
+        }
       );
     }
 

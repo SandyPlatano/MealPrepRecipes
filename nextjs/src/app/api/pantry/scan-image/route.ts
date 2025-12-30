@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { getUserTier } from '@/lib/stripe/subscription';
 import { SUBSCRIPTION_TIERS } from '@/lib/stripe/client-config';
+import { rateLimit } from '@/lib/rate-limit-redis';
+import { assertValidOrigin } from '@/lib/security/csrf';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
@@ -70,6 +72,10 @@ interface DetectedItem {
 }
 
 export async function POST(request: NextRequest) {
+  // SECURITY: Validate request origin to prevent CSRF attacks
+  const csrfError = assertValidOrigin(request);
+  if (csrfError) return csrfError;
+
   try {
     const supabase = await createClient();
 
@@ -77,6 +83,20 @@ export async function POST(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate limiting: 20 image scans per hour per user (expensive AI operation)
+    const rateLimitResult = await rateLimit({
+      identifier: `pantry-scan-image-${user.id}`,
+      limit: 20,
+      windowMs: 60 * 60 * 1000, // 1 hour
+    });
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Try again later.' },
+        { status: 429 }
+      );
     }
 
     // Get user's household

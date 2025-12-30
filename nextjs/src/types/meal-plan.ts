@@ -45,37 +45,37 @@ export const MEAL_TYPE_CONFIG: Record<
   breakfast: {
     label: "Breakfast",
     emoji: "🌅",
-    borderColor: "border-l-amber-400",
-    bgColor: "bg-amber-50 dark:bg-amber-950/20",
-    accentColor: "#fbbf24", // amber-400
+    borderColor: "border-l-amber-500",
+    bgColor: "bg-amber-50",
+    accentColor: "#f59e0b", // amber-500
   },
   lunch: {
     label: "Lunch",
     emoji: "🥗",
-    borderColor: "border-l-emerald-400",
-    bgColor: "bg-emerald-50 dark:bg-emerald-950/20",
-    accentColor: "#34d399", // emerald-400
+    borderColor: "border-l-emerald-500",
+    bgColor: "bg-emerald-50",
+    accentColor: "#10b981", // emerald-500
   },
   dinner: {
     label: "Dinner",
     emoji: "🍽️",
     borderColor: "border-l-orange-500",
-    bgColor: "bg-orange-50 dark:bg-orange-950/20",
+    bgColor: "bg-orange-50",
     accentColor: "#f97316", // orange-500 (brand coral)
   },
   snack: {
     label: "Snack",
     emoji: "🍿",
-    borderColor: "border-l-violet-400",
-    bgColor: "bg-violet-50 dark:bg-violet-950/20",
-    accentColor: "#a78bfa", // violet-400
+    borderColor: "border-l-violet-500",
+    bgColor: "bg-violet-50",
+    accentColor: "#8b5cf6", // violet-500
   },
   other: {
     label: "Other",
     emoji: "📋",
-    borderColor: "border-l-gray-300 dark:border-l-gray-600",
-    bgColor: "bg-gray-50 dark:bg-gray-800/50",
-    accentColor: "#9ca3af", // gray-400
+    borderColor: "border-l-stone-300",
+    bgColor: "bg-stone-50",
+    accentColor: "#a8a29e", // stone-400
   },
 };
 

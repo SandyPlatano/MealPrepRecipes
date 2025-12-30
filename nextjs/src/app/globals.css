@@ -1,71 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 @import "tailwindcss";
 @import "tw-animate-css";
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   BWFD BRAND SYSTEM - Pale Lilac Theme
-   Warm, editorial, high-contrast design
+   RETRO DESIGN SYSTEM v2 - Neo-Brutalist Theme (Light Mode Only)
+   Clean, bold, playful design with hard shadows and warm colors
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 @theme {
   /* ─────────────────────────────────────────────────────────────────────────────
-     Font Families (loaded via next/font in layout.tsx)
+     Font Families
      ───────────────────────────────────────────────────────────────────────────── */
-  --font-primary: var(--font-primary), "Manrope", sans-serif;
-  --font-script: var(--font-script), "Caveat", cursive;
-  --font-serif: var(--font-serif), "Cormorant Garamond", serif;
-  --font-sans: var(--font-primary), system-ui, sans-serif;
-
-  /* ─────────────────────────────────────────────────────────────────────────────
-     Brand Colors
-     ───────────────────────────────────────────────────────────────────────────── */
-  --color-ivory: #FFFCF9;
-  --color-pale-lilac: #DDC3E0;
-  --color-pale-lilac-light: #EBD9ED;
-  --color-pale-lilac-dark: #C9A8CD;
-  --color-chestnut: #7D4A5A;
-  --color-black: #000000;
-  --color-white: #FFFFFF;
-
-  /* Gray Scale */
-  --color-gray-100: #F7F5F6;
-  --color-gray-200: #E8E4E8;
-  --color-gray-300: #D1CCD1;
-  --color-gray-400: #9E979E;
-  --color-gray-500: #6B636B;
-
-  /* Semantic Colors */
-  --color-success: #2D5A2D;
-  --color-success-light: #E8F0E8;
-  --color-warning: #5A4A2D;
-  --color-warning-light: #FDF5ED;
-  --color-error: #5A2D2D;
-  --color-error-light: #FDEDED;
-
-  /* Cook Assignment Colors */
-  --color-cook-1: #000000;
-  --color-cook-2: #4A7C59;
-  --color-cook-3: #8B6914;
-  --color-cook-4: #2E5984;
-  --color-cook-5: #6B4A7C;
+  --font-display: "Space Mono", monospace;
+  --font-body: "Work Sans", sans-serif;
+  --font-sans: "Work Sans", system-ui, sans-serif;
+  --font-mono: "Space Mono", "JetBrains Mono", monospace;
 
   /* ─────────────────────────────────────────────────────────────────────────────
      Border Radius
      ───────────────────────────────────────────────────────────────────────────── */
   --radius: 0.5rem;
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
-  --radius-full: 9999px;
-
-  /* ─────────────────────────────────────────────────────────────────────────────
-     Shadows (Soft blur - editorial style)
-     ───────────────────────────────────────────────────────────────────────────── */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --radius-lg: 1rem;
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
 
   /* ─────────────────────────────────────────────────────────────────────────────
      Semantic Colors (Tailwind v4 / shadcn/ui)
@@ -84,6 +42,7 @@
   --color-muted-foreground: hsl(var(--muted-foreground));
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-tertiary: #60A5FA;
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
   --color-border: hsl(var(--border));
@@ -98,11 +57,28 @@
   --color-chart-5: hsl(var(--chart-5));
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Transitions
+     Retro Palette (Direct Colors)
      ───────────────────────────────────────────────────────────────────────────── */
-  --transition-fast: 150ms ease;
-  --transition-base: 200ms ease;
-  --transition-slow: 300ms ease;
+  --color-retro-primary: #F56565;
+  --color-retro-secondary: #FBBF24;
+  --color-retro-tertiary: #60A5FA;
+  --color-retro-background: #FEF6E4;
+  --color-retro-surface: #FFFFFF;
+  --color-retro-text-main: #111827;
+  --color-retro-text-muted: #6B7280;
+
+  /* ─────────────────────────────────────────────────────────────────────────────
+     Retro Shadows (Hard offset - no blur) - 2px compact style
+     ───────────────────────────────────────────────────────────────────────────── */
+  --shadow-retro: 2px 2px 0px 0px #000000;
+  --shadow-retro-hover: 1px 1px 0px 0px #000000;
+  --shadow-retro-active: 0px 0px 0px 0px #000000;
+  --shadow-retro-sm: 2px 2px 0px 0px #000000;
+  --shadow-retro-sm-hover: 1px 1px 0px 0px #000000;
+  --shadow-retro-input: 2px 2px 0px 0px rgba(0,0,0,0.1);
+  --shadow-retro-success: 2px 2px 0px 0px #064e3b;
+  --shadow-retro-warning: 2px 2px 0px 0px #78350f;
+  --shadow-retro-error: 2px 2px 0px 0px #7f1d1d;
 
   /* ─────────────────────────────────────────────────────────────────────────────
      Animations
@@ -139,54 +115,45 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   shadcn/ui Semantic Token Values - Pale Lilac Brand
+   shadcn/ui Semantic Token Values - Retro Light Mode
    ═══════════════════════════════════════════════════════════════════════════════ */
 :root {
-  /* Backgrounds */
-  --background: 40 100% 99%;           /* #FFFCF9 - ivory */
-  --foreground: 0 0% 0%;               /* #000000 - black text */
+  --background: 47 77% 95%;          /* #FEF6E4 - warm cream */
+  --foreground: 221 39% 11%;         /* #111827 - text-main */
 
-  /* Cards */
-  --card: 0 0% 100%;                   /* #FFFFFF - white */
-  --card-foreground: 0 0% 0%;          /* #000000 */
+  --card: 0 0% 100%;                 /* #FFFFFF - surface */
+  --card-foreground: 221 39% 11%;   /* #111827 */
 
-  /* Popovers */
   --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 0%;
+  --popover-foreground: 221 39% 11%;
 
-  /* Primary - Black (for buttons, emphasis) */
-  --primary: 0 0% 0%;                  /* #000000 */
-  --primary-foreground: 0 0% 100%;     /* #FFFFFF */
+  --primary: 0 91% 71%;              /* #F56565 - retro red */
+  --primary-foreground: 0 0% 100%;  /* white text on red */
 
-  /* Secondary - Pale Lilac (accent) */
-  --secondary: 296 32% 82%;            /* #DDC3E0 */
-  --secondary-foreground: 0 0% 0%;     /* #000000 */
+  --secondary: 45 97% 56%;           /* #FBBF24 - retro yellow */
+  --secondary-foreground: 0 0% 0%;  /* black text on yellow */
 
-  /* Accent - Same as secondary */
-  --accent: 296 32% 82%;               /* #DDC3E0 */
-  --accent-foreground: 0 0% 0%;        /* #000000 */
+  --accent: 213 94% 68%;             /* #60A5FA - retro blue */
+  --accent-foreground: 0 0% 100%;   /* white text on blue */
 
-  /* Muted */
-  --muted: 330 6% 97%;                 /* #F7F5F6 - gray-100 */
-  --muted-foreground: 330 4% 42%;      /* #6B636B - gray-500 */
+  --muted: 220 14% 96%;              /* #F3F4F6 */
+  --muted-foreground: 220 9% 46%;   /* #6B7280 */
 
-  /* Destructive */
-  --destructive: 0 35% 27%;            /* #5A2D2D */
+  --destructive: 0 84% 60%;          /* Red */
   --destructive-foreground: 0 0% 100%;
 
-  /* Borders & Inputs */
-  --border: 330 6% 91%;                /* #E8E4E8 - gray-200 */
-  --input: 330 6% 91%;                 /* #E8E4E8 - gray-200 */
-  --ring: 0 0% 0%;                     /* #000000 - black focus ring */
+  --border: 0 0% 0%;                 /* #000000 - BLACK borders! */
+  --input: 0 0% 0%;                  /* Black input borders */
+  --ring: 0 91% 71%;                 /* Primary red for focus ring */
 
   /* Chart Colors */
-  --chart-1: 0 0% 0%;                  /* Black */
-  --chart-2: 296 32% 82%;              /* Pale Lilac */
-  --chart-3: 138 27% 39%;              /* Forest (cook-2) */
-  --chart-4: 40 75% 31%;               /* Amber (cook-3) */
-  --chart-5: 341 26% 39%;              /* Chestnut */
+  --chart-1: 0 91% 71%;              /* Primary red */
+  --chart-2: 45 97% 56%;             /* Secondary yellow */
+  --chart-3: 213 94% 68%;            /* Tertiary blue */
+  --chart-4: 142 76% 36%;            /* Green */
+  --chart-5: 262 83% 58%;            /* Purple */
 
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -198,379 +165,370 @@
   }
 
   body {
-    @apply bg-ivory text-black font-primary;
+    @apply bg-background text-foreground font-body;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-primary font-bold text-black;
-  }
-
-  /* Script accent class for decorative text */
-  .script {
-    font-family: var(--font-script);
-  }
-
-  /* Serif class for optional recipe titles */
-  .serif {
-    font-family: var(--font-serif);
+    @apply font-display font-bold;
   }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   Custom Scrollbar - Brand Style
+   Custom Scrollbar - Retro Style
    ═══════════════════════════════════════════════════════════════════════════════ */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-ivory);
+  background: #fef6e4;
+  border-left: 2px solid #000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-gray-300);
-  border-radius: var(--radius-full);
+  background: #f56565;
+  border: 2px solid #000;
+  border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-gray-400);
+  background: #e53e3e;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   Component Layer - Brand UI Components
+   Component Layer - Retro UI Components
    ═══════════════════════════════════════════════════════════════════════════════ */
 @layer components {
   /* ─────────────────────────────────────────────────────────────────────────────
+     Retro Border - Core design element (2px solid black)
+     ───────────────────────────────────────────────────────────────────────────── */
+  .retro-border {
+    @apply border-2 border-black;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────────────
      Buttons
      ───────────────────────────────────────────────────────────────────────────── */
+  .btn-retro {
+    @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
+    box-shadow: var(--shadow-retro);
+    @apply hover:translate-x-[1px] hover:translate-y-[1px];
+    @apply active:translate-x-[2px] active:translate-y-[2px];
+    @apply transition-all duration-150;
+  }
+
+  .btn-retro:hover {
+    box-shadow: var(--shadow-retro-hover);
+  }
+
+  .btn-retro:active {
+    box-shadow: var(--shadow-retro-active);
+  }
+
   .btn-primary {
-    @apply font-primary font-semibold py-3 px-6 rounded-lg;
-    @apply transition-all duration-200;
-    @apply bg-black text-white;
-    @apply hover:bg-gray-800;
-    @apply active:bg-gray-900;
-    @apply focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2;
+    @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
+    @apply bg-primary text-white;
+    box-shadow: var(--shadow-retro);
+    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:brightness-110;
+    @apply active:translate-x-[2px] active:translate-y-[2px] active:brightness-90;
+    @apply transition-all duration-150;
+  }
+
+  .btn-primary:hover {
+    box-shadow: var(--shadow-retro-hover);
+  }
+
+  .btn-primary:active {
+    box-shadow: var(--shadow-retro-active);
   }
 
   .btn-secondary {
-    @apply font-primary font-semibold py-3 px-6 rounded-lg;
-    @apply transition-all duration-200;
-    @apply bg-pale-lilac text-black;
-    @apply hover:bg-pale-lilac-light;
-    @apply active:bg-pale-lilac-dark;
-    @apply focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2;
+    @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
+    @apply bg-secondary text-black;
+    box-shadow: var(--shadow-retro);
+    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-yellow-300;
+    @apply active:translate-x-[2px] active:translate-y-[2px] active:bg-yellow-500;
+    @apply transition-all duration-150;
   }
 
-  .btn-outline {
-    @apply font-primary font-semibold py-3 px-6 rounded-lg;
-    @apply transition-all duration-200;
-    @apply bg-transparent text-black border-2 border-black;
-    @apply hover:bg-gray-100;
-    @apply active:bg-gray-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2;
+  .btn-secondary:hover {
+    box-shadow: var(--shadow-retro-hover);
+  }
+
+  .btn-secondary:active {
+    box-shadow: var(--shadow-retro-active);
+  }
+
+  .btn-tertiary {
+    @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
+    @apply bg-accent text-white;
+    box-shadow: var(--shadow-retro);
+    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:brightness-110;
+    @apply active:translate-x-[2px] active:translate-y-[2px] active:brightness-90;
+    @apply transition-all duration-150;
+  }
+
+  .btn-tertiary:hover {
+    box-shadow: var(--shadow-retro-hover);
+  }
+
+  .btn-tertiary:active {
+    box-shadow: var(--shadow-retro-active);
   }
 
   .btn-ghost {
-    @apply font-primary font-semibold py-3 px-6 rounded-lg;
-    @apply transition-all duration-200;
-    @apply bg-transparent text-black;
-    @apply hover:bg-gray-100;
-    @apply active:bg-gray-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2;
+    @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
+    @apply bg-transparent;
+    box-shadow: var(--shadow-retro);
+    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-gray-100;
+    @apply active:translate-x-[2px] active:translate-y-[2px] active:bg-gray-200;
+    @apply transition-all duration-150;
+  }
+
+  .btn-ghost:hover {
+    box-shadow: var(--shadow-retro-hover);
+  }
+
+  .btn-ghost:active {
+    box-shadow: var(--shadow-retro-active);
   }
 
   .btn-icon {
-    @apply p-3 rounded-lg;
-    @apply transition-all duration-200;
-    @apply hover:bg-gray-100;
-    @apply active:bg-gray-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2;
+    @apply p-3 rounded-full border-2 border-black;
+    @apply bg-white;
+    box-shadow: var(--shadow-retro);
+    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-gray-50;
+    @apply active:translate-x-[2px] active:translate-y-[2px];
+    @apply transition-all duration-150;
   }
 
-  .btn-icon-primary {
-    @apply p-3 rounded-lg;
-    @apply transition-all duration-200;
-    @apply bg-black text-white;
-    @apply hover:bg-gray-800;
-    @apply focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2;
+  .btn-icon:hover {
+    box-shadow: var(--shadow-retro-hover);
   }
 
-  .btn-icon-secondary {
-    @apply p-3 rounded-lg;
-    @apply transition-all duration-200;
-    @apply bg-pale-lilac text-black;
-    @apply hover:bg-pale-lilac-light;
-    @apply focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2;
+  .btn-icon:active {
+    box-shadow: var(--shadow-retro-active);
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
      Cards
      ───────────────────────────────────────────────────────────────────────────── */
-  .card {
-    @apply bg-white rounded-xl p-6 border border-gray-200;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .card-interactive {
-    @apply bg-white rounded-xl p-6 border border-gray-200 cursor-pointer;
-    @apply transition-all duration-200;
-    @apply hover:-translate-y-0.5;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .card-interactive:hover {
-    box-shadow: var(--shadow-lg);
-  }
-
-  .card-ivory {
-    @apply bg-ivory rounded-xl p-6 border border-gray-200;
-    box-shadow: var(--shadow-sm);
+  .card-retro {
+    @apply bg-card rounded-xl p-6 border-2 border-black;
+    box-shadow: var(--shadow-retro);
   }
 
   .card-accent {
-    @apply bg-pale-lilac-light rounded-xl p-6;
-    @apply transition-all duration-200;
+    @apply bg-secondary rounded-xl p-6 border-2 border-black;
+    box-shadow: var(--shadow-retro);
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Form Inputs
+     Inputs - with yellow focus states
      ───────────────────────────────────────────────────────────────────────────── */
-  .form-input {
+  .input-retro {
     @apply w-full bg-white rounded-lg py-3 px-4;
-    @apply border-2 border-gray-200;
-    @apply text-black placeholder-gray-400;
-    @apply transition-all duration-200;
-    @apply focus:outline-none focus:border-black;
-    box-shadow: 0 0 0 0 var(--color-pale-lilac-light);
+    @apply border-2 border-black;
+    box-shadow: var(--shadow-retro-input);
+    @apply focus:bg-yellow-50;
+    @apply focus:border-primary focus:outline-none;
+    @apply transition-all duration-150;
+    @apply placeholder-gray-400;
   }
 
-  .form-input:focus {
-    box-shadow: 0 0 0 3px var(--color-pale-lilac-light);
+  .input-retro:focus {
+    box-shadow: var(--shadow-retro);
   }
 
-  .form-select {
+  .select-retro {
     @apply w-full bg-white rounded-lg py-3 px-4;
-    @apply border-2 border-gray-200;
-    @apply text-black;
-    @apply transition-all duration-200;
-    @apply focus:outline-none focus:border-black;
+    @apply border-2 border-black;
     @apply appearance-none cursor-pointer;
-    box-shadow: 0 0 0 0 var(--color-pale-lilac-light);
+    box-shadow: var(--shadow-retro-input);
+    @apply focus:bg-yellow-50;
+    @apply focus:border-primary focus:outline-none;
+    @apply transition-all duration-150;
   }
 
-  .form-select:focus {
-    box-shadow: 0 0 0 3px var(--color-pale-lilac-light);
+  .label-retro {
+    @apply font-bold text-sm uppercase tracking-wide;
   }
 
-  .form-label {
-    @apply font-semibold text-sm text-black mb-1.5 block;
+  /* Search input (left side of combo) */
+  .input-search-left {
+    @apply w-full bg-white;
+    @apply border-2 border-black border-r-0 rounded-l-lg py-3 px-4;
+    @apply focus:bg-yellow-50;
+    @apply focus:shadow-[inset_2px_2px_0px_rgba(0,0,0,0.05)] focus:outline-none;
+    @apply transition-colors;
+  }
+
+  /* Search button (right side of combo) */
+  .btn-search-right {
+    @apply bg-secondary text-black font-bold px-6;
+    @apply rounded-r-lg border-2 border-black border-l-2;
+    @apply hover:bg-yellow-300 hover:shadow-inner;
+    @apply active:bg-yellow-500;
+    @apply transition-all;
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Badges
+     Icons
      ───────────────────────────────────────────────────────────────────────────── */
-  .badge {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
+  .icon-retro {
+    @apply w-12 h-12 flex items-center justify-center;
+    @apply bg-white border-2 border-black rounded-lg;
+    box-shadow: var(--shadow-retro-sm);
+    @apply group-hover:translate-x-[1px] group-hover:translate-y-[1px];
+    @apply group-active:translate-x-[2px] group-active:translate-y-[2px] group-active:shadow-none;
+    @apply transition-all;
   }
 
-  .badge-primary {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
-    @apply bg-black text-white;
+  .icon-retro:hover {
+    box-shadow: var(--shadow-retro-sm-hover);
   }
 
-  .badge-secondary {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
-    @apply bg-pale-lilac text-black;
+  /* ─────────────────────────────────────────────────────────────────────────────
+     Badges & Tags
+     ───────────────────────────────────────────────────────────────────────────── */
+  .badge-retro {
+    @apply inline-block px-2 py-1;
+    @apply text-xs font-bold;
+    @apply border-2 border-black rounded;
   }
 
-  .badge-outline {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
-    @apply bg-transparent text-black border border-black;
+  .badge-new {
+    @apply inline-block px-2 py-1 text-xs font-bold;
+    @apply border-2 border-black rounded;
+    @apply bg-secondary text-black;
   }
 
   .badge-success {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
-    @apply bg-success-light text-success;
+    @apply inline-block px-2 py-1 text-xs font-bold;
+    @apply border-2 border-black rounded;
+    @apply bg-green-200 text-green-800;
+  }
+
+  .badge-info {
+    @apply inline-block px-2 py-1 text-xs font-bold;
+    @apply border-2 border-black rounded;
+    @apply bg-blue-200 text-blue-800;
   }
 
   .badge-warning {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
-    @apply bg-warning-light text-warning;
+    @apply inline-block px-2 py-1 text-xs font-bold;
+    @apply border-2 border-black rounded;
+    @apply bg-yellow-200 text-yellow-800;
   }
 
   .badge-error {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
-    @apply bg-error-light text-error;
+    @apply inline-block px-2 py-1 text-xs font-bold;
+    @apply border-2 border-black rounded;
+    @apply bg-red-200 text-red-800;
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
      Alerts
      ───────────────────────────────────────────────────────────────────────────── */
-  .alert {
-    @apply p-4 rounded-xl flex items-start gap-3;
+  .alert-retro {
+    @apply p-4 rounded-lg border-2 border-black flex items-start gap-3;
   }
 
   .alert-success {
-    @apply p-4 rounded-xl flex items-start gap-3;
-    @apply bg-success-light text-success border border-success/20;
+    @apply p-4 rounded-lg border-2 border-black flex items-start gap-3;
+    @apply bg-green-100 text-green-900;
+    box-shadow: var(--shadow-retro-success);
   }
 
   .alert-warning {
-    @apply p-4 rounded-xl flex items-start gap-3;
-    @apply bg-warning-light text-warning border border-warning/20;
+    @apply p-4 rounded-lg border-2 border-black flex items-start gap-3;
+    @apply bg-yellow-100 text-yellow-900;
+    box-shadow: var(--shadow-retro-warning);
   }
 
   .alert-error {
-    @apply p-4 rounded-xl flex items-start gap-3;
-    @apply bg-error-light text-error border border-error/20;
-  }
-
-  .alert-info {
-    @apply p-4 rounded-xl flex items-start gap-3;
-    @apply bg-pale-lilac-light text-black border border-pale-lilac/20;
-  }
-
-  /* ─────────────────────────────────────────────────────────────────────────────
-     Cook Avatars
-     ───────────────────────────────────────────────────────────────────────────── */
-  .avatar-cook {
-    @apply w-10 h-10 rounded-full flex items-center justify-center;
-    @apply text-sm font-bold text-white;
-  }
-
-  .avatar-cook-1 {
-    @apply w-10 h-10 rounded-full flex items-center justify-center;
-    @apply text-sm font-bold text-white;
-    background-color: var(--color-cook-1);
-  }
-
-  .avatar-cook-2 {
-    @apply w-10 h-10 rounded-full flex items-center justify-center;
-    @apply text-sm font-bold text-white;
-    background-color: var(--color-cook-2);
-  }
-
-  .avatar-cook-3 {
-    @apply w-10 h-10 rounded-full flex items-center justify-center;
-    @apply text-sm font-bold text-white;
-    background-color: var(--color-cook-3);
-  }
-
-  .avatar-cook-4 {
-    @apply w-10 h-10 rounded-full flex items-center justify-center;
-    @apply text-sm font-bold text-white;
-    background-color: var(--color-cook-4);
-  }
-
-  .avatar-cook-5 {
-    @apply w-10 h-10 rounded-full flex items-center justify-center;
-    @apply text-sm font-bold text-white;
-    background-color: var(--color-cook-5);
+    @apply p-4 rounded-lg border-2 border-black flex items-start gap-3;
+    @apply bg-red-100 text-red-900;
+    box-shadow: var(--shadow-retro-error);
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
      Navigation - Pills/Tabs
      ───────────────────────────────────────────────────────────────────────────── */
-  .pill {
-    @apply px-4 py-2 rounded-full text-sm font-medium;
-    @apply transition-all duration-200;
-  }
-
-  .pill-default {
-    @apply px-4 py-2 rounded-full text-sm font-medium;
-    @apply transition-all duration-200;
-    @apply bg-white text-gray-500 border border-gray-200;
-    @apply hover:bg-gray-50 hover:text-black;
+  .pill-retro {
+    @apply px-4 py-2 rounded-lg border-2 border-black text-sm font-bold;
+    @apply bg-white;
+    @apply hover:bg-gray-100;
+    @apply hover:-translate-y-0.5;
+    @apply transition-all;
   }
 
   .pill-active {
-    @apply px-4 py-2 rounded-full text-sm font-medium;
-    @apply transition-all duration-200;
-    @apply bg-black text-white;
+    @apply px-4 py-2 rounded-lg border-2 border-black text-sm font-bold;
+    @apply bg-primary text-white;
+    box-shadow: var(--shadow-retro-hover);
+    @apply hover:brightness-110;
+    @apply active:translate-y-[2px];
+    @apply transition-all;
   }
 
-  .tab {
-    @apply px-4 py-2 text-sm font-medium text-gray-500;
-    @apply border-b-2 border-transparent;
-    @apply transition-all duration-200;
-    @apply hover:text-black hover:border-gray-200;
+  .pill-active:active {
+    box-shadow: var(--shadow-retro-active);
   }
 
-  .tab-active {
-    @apply px-4 py-2 text-sm font-medium;
-    @apply border-b-2 border-black text-black;
-    @apply transition-all duration-200;
+  .breadcrumb-retro {
+    @apply flex items-center text-sm font-mono;
+    @apply bg-white border-2 border-black;
+    @apply inline-flex px-4 py-2 rounded-full;
+    box-shadow: var(--shadow-retro);
   }
 
-  /* ─────────────────────────────────────────────────────────────────────────────
-     Meal Slots (for meal planning)
-     ───────────────────────────────────────────────────────────────────────────── */
-  .meal-slot {
-    @apply bg-ivory rounded-xl p-4;
-    @apply border-2 border-dashed border-gray-200;
-    @apply transition-all duration-200;
+  .breadcrumb-link {
+    @apply hover:underline hover:text-primary transition-colors;
   }
 
-  .meal-slot:hover {
-    @apply border-pale-lilac-dark bg-pale-lilac-light;
-  }
-
-  .meal-slot-filled {
-    @apply bg-white rounded-xl p-4;
-    @apply border-2 border-solid border-gray-200;
-    @apply transition-all duration-200;
+  .breadcrumb-current {
+    @apply font-bold text-primary;
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
      Progress Bar
      ───────────────────────────────────────────────────────────────────────────── */
-  .progress {
-    @apply w-full h-2 bg-gray-200 rounded-full overflow-hidden;
+  .progress-retro {
+    @apply w-full h-6 bg-gray-200;
+    @apply border-2 border-black rounded-full overflow-hidden relative;
   }
 
-  .progress-bar {
-    @apply h-full bg-black rounded-full;
-    @apply transition-all duration-300;
-  }
-
-  .progress-bar-secondary {
-    @apply h-full bg-pale-lilac rounded-full;
-    @apply transition-all duration-300;
+  .progress-retro-bar {
+    @apply h-full bg-secondary absolute top-0 left-0;
+    @apply border-r-2 border-black;
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Toggle/Switch
+     Data Viz - Bar Chart
      ───────────────────────────────────────────────────────────────────────────── */
-  .toggle {
-    @apply relative w-12 h-7 bg-gray-200 rounded-full;
-    @apply transition-all duration-200;
+  .bar-retro {
+    @apply border-2 border-black border-b-0 rounded-t-sm;
+    @apply transition-all cursor-pointer;
   }
 
-  .toggle-active {
-    @apply relative w-12 h-7 bg-black rounded-full;
-    @apply transition-all duration-200;
+  .bar-primary {
+    @apply border-2 border-black border-b-0 rounded-t-sm;
+    @apply transition-all cursor-pointer;
+    @apply bg-primary hover:bg-red-400;
   }
 
-  .toggle-thumb {
-    @apply absolute top-1 left-1 w-5 h-5 bg-white rounded-full;
-    @apply transition-all duration-200;
-    box-shadow: var(--shadow-sm);
+  .bar-secondary {
+    @apply border-2 border-black border-b-0 rounded-t-sm;
+    @apply transition-all cursor-pointer;
+    @apply bg-secondary hover:bg-yellow-300;
   }
 
-  .toggle-active .toggle-thumb {
-    @apply left-6;
-  }
-
-  /* ─────────────────────────────────────────────────────────────────────────────
-     Dividers
-     ───────────────────────────────────────────────────────────────────────────── */
-  .divider {
-    @apply w-full h-px bg-gray-200;
-  }
-
-  .divider-vertical {
-    @apply w-px h-full bg-gray-200;
+  .bar-tertiary {
+    @apply border-2 border-black border-b-0 rounded-t-sm;
+    @apply transition-all cursor-pointer;
+    @apply bg-accent hover:bg-blue-300;
   }
 }
 
@@ -578,44 +536,48 @@
    Utility Layer
    ═══════════════════════════════════════════════════════════════════════════════ */
 @layer utilities {
+  /* Retro striped pattern overlay */
+  .retro-stripes {
+    background-image: repeating-linear-gradient(
+      45deg,
+      #000 0,
+      #000 1px,
+      transparent 0,
+      transparent 50%
+    );
+    background-size: 10px 10px;
+    opacity: 0.1;
+  }
+
+  /* Grid lines for charts */
+  .chart-grid {
+    background-image: linear-gradient(#00000010 1px, transparent 1px);
+    background-size: 100% 20%;
+  }
+
   /* Text selection */
   ::selection {
-    @apply bg-pale-lilac text-black;
+    @apply bg-secondary text-black;
   }
 
   /* Focus visible for accessibility */
-  .focus-visible-ring:focus-visible {
-    @apply outline-none ring-2 ring-black ring-offset-2;
-  }
-
-  /* Illustration color (Chestnut only) */
-  .illustration {
-    color: var(--color-chestnut);
-    stroke: var(--color-chestnut);
-  }
-
-  /* Script accent text */
-  .text-script {
-    font-family: var(--font-script);
-  }
-
-  /* Serif text */
-  .text-serif {
-    font-family: var(--font-serif);
+  .focus-visible-retro:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2;
   }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   shadcn/ui Component Overrides
+   shadcn/ui Component Overrides (Tailwind v4)
+   These ensure shadcn components work with our retro theme
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 /* Ensure proper border inheritance */
 [data-slot="card"] {
-  @apply border;
+  @apply border-2;
 }
 
 /* Dialog/Sheet overlay */
 [data-slot="dialog-overlay"],
 [data-slot="sheet-overlay"] {
-  @apply bg-black/40 backdrop-blur-sm;
+  @apply bg-black/50 backdrop-blur-sm;
 }

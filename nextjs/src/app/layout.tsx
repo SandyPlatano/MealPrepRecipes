@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope, Caveat, Cormorant_Garamond } from "next/font/google";
+import { Space_Mono, Work_Sans, Caveat, Playfair_Display } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import { CookieConsent } from "@/components/cookie-consent";
@@ -7,23 +7,28 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
-const manrope = Manrope({
+const workSans = Work_Sans({
   subsets: ["latin"],
-  variable: "--font-primary",
-  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-body",
+  weight: ["400", "500", "600", "700"],
+});
+
+const spaceMono = Space_Mono({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: ["400", "700"],
 });
 
 const caveat = Caveat({
   subsets: ["latin"],
-  variable: "--font-script",
+  variable: "--font-handwritten",
   weight: ["400", "500", "600", "700"],
 });
 
-const cormorant = Cormorant_Garamond({
+const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-serif",
   weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://babewfd.com";
@@ -119,12 +124,12 @@ export default function RootLayout({
         />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="theme-color" content="#FFFCF9" />
+        <meta name="theme-color" content="#F56565" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
       <body
-        className={`${manrope.variable} ${caveat.variable} ${cormorant.variable} font-primary antialiased`}
+        className={`${workSans.variable} ${spaceMono.variable} ${caveat.variable} ${playfair.variable} font-body antialiased`}
         suppressHydrationWarning
       >
         <Providers>

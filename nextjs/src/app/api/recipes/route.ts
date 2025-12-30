@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { recipeFormSchema, validateSchema } from "@/lib/validations/schemas";
 import { assertValidOrigin } from "@/lib/security/csrf";
+import { rateLimit } from "@/lib/rate-limit-redis";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,27 @@ export async function GET() {
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 }
+      );
+    }
+
+    // Rate limiting: 100 requests per minute per user
+    const rateLimitResult = await rateLimit({
+      identifier: `recipes-list-${user.id}`,
+      limit: 100,
+      windowMs: 60 * 1000, // 1 minute
+    });
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. Try again later." },
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+            "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+            "Retry-After": Math.ceil((rateLimitResult.reset - Date.now()) / 1000).toString(),
+          },
+        }
       );
     }
 
@@ -54,6 +76,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 }
+      );
+    }
+
+    // Rate limiting: 30 recipe creations per hour per user
+    const rateLimitResult = await rateLimit({
+      identifier: `recipes-create-${user.id}`,
+      limit: 30,
+      windowMs: 60 * 60 * 1000, // 1 hour
+    });
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. Try again later." },
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+            "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+            "Retry-After": Math.ceil((rateLimitResult.reset - Date.now()) / 1000).toString(),
+          },
+        }
       );
     }
 
