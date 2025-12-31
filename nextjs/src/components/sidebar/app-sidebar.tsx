@@ -2,26 +2,21 @@
 
 import * as React from "react";
 import type { User } from "@supabase/supabase-js";
-import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { useSidebar, SIDEBAR_DIMENSIONS } from "./sidebar-context";
-import { SidebarUserArea } from "./sidebar-user-area";
 import { SidebarQuickNav } from "./sidebar-quick-nav";
 import { SidebarPinned } from "./sidebar-pinned";
 import { SidebarMealPlan } from "./sidebar-meal-plan";
 import { SidebarCollections } from "./sidebar-collections";
 import { SidebarBottomNav } from "./sidebar-bottom-nav";
 import { SidebarResizeHandle } from "./sidebar-resize-handle";
+import { RetroLogo } from "@/components/branding/retro-logo";
+import { MaterialIcon } from "@/components/ui/material-icon";
 import type {
-  FolderWithChildren,
   FolderCategoryWithFolders,
 } from "@/types/folder";
 import type { SystemSmartFolder } from "@/types/smart-folder";
@@ -116,71 +111,59 @@ export function AppSidebar({
         aria-label="Main navigation"
         aria-expanded={!isCollapsed}
         className={cn(
-          "relative flex flex-col h-screen bg-muted/30 border-r",
-          "shrink-0 overflow-hidden sticky top-0"
+          "relative flex flex-col h-screen",
+          "shrink-0 overflow-hidden sticky top-0",
+          // Always-dark sidebar styling
+          "bg-[var(--color-sidebar-bg)]",
+          "border-r border-[var(--color-sidebar-border)]"
         )}
         style={{ width: sidebarWidth }}
       >
-        {/* User Area - Top (includes collapse toggle) */}
-        <SidebarUserArea
-          user={user}
-          logoutAction={logoutAction}
-        />
+        {/* Logo Area - Top */}
+        <div className="flex items-center justify-between px-4 h-16 border-b border-[var(--color-sidebar-border)]">
+          {!isIconOnly ? (
+            <RetroLogo size="md" />
+          ) : (
+            <div className="w-full flex justify-center">
+              <span className="text-[var(--color-brand-primary)] text-xl font-bold">●</span>
+            </div>
+          )}
+          {!isIconOnly && (
+            <div className="w-3 h-3 bg-[var(--color-brand-primary)] rounded-full border border-[var(--color-sidebar-text)]" />
+          )}
+        </div>
 
-        {/* Search - Prominent standalone button below user area */}
-        {onSearchClick && (
-          <div className="px-2 py-2 border-b">
-            {isIconOnly ? (
-              <Tooltip delayDuration={0}>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={onSearchClick}
-                    className="w-full h-10 text-muted-foreground hover:text-foreground hover:bg-accent"
-                  >
-                    <Search className="size-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right" className="flex items-center gap-2">
-                  <span>Search</span>
-                  <kbd className="text-[10px] font-medium bg-muted px-1.5 py-0.5 rounded">/</kbd>
-                </TooltipContent>
-              </Tooltip>
-            ) : (
-              <Button
-                variant="outline"
-                onClick={onSearchClick}
-                className={cn(
-                  "w-full justify-start gap-3 h-10",
-                  "text-muted-foreground hover:text-foreground",
-                  "bg-muted/50 hover:bg-muted border-border/50"
-                )}
-              >
-                <Search className="size-4 shrink-0" />
-                <span className="flex-1 text-left text-sm">Search...</span>
-                <kbd className="ml-auto text-[10px] font-medium text-muted-foreground bg-background px-1.5 py-0.5 rounded border border-border/50">
-                  /
-                </kbd>
-              </Button>
-            )}
+        {/* Section Label - GENERAL */}
+        {!isIconOnly && (
+          <div className="px-4 pt-4 pb-2">
+            <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-sidebar-text-muted)]">
+              General
+            </span>
           </div>
         )}
 
         {/* Scrollable Content */}
         <ScrollArea className="flex-1">
-          <div className="py-2">
+          <div className={cn("py-2", isIconOnly && "pt-4")}>
             {visibleSections.map((section, index) => (
               <div key={section.id}>
-                {/* Skip first divider - user area border-b provides separation */}
-                {index > 1 && <SidebarDivider />}
+                {index > 1 && !isIconOnly && <SidebarDivider className="border-[var(--color-sidebar-border)]" />}
                 {renderSection(section)}
               </div>
             ))}
           </div>
         </ScrollArea>
 
-        {/* Bottom Navigation - Settings, Theme, Help */}
+        {/* Section Label - TOOLS */}
+        {!isIconOnly && (
+          <div className="px-4 pt-2 pb-2 border-t border-[var(--color-sidebar-border)]">
+            <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-sidebar-text-muted)]">
+              Tools
+            </span>
+          </div>
+        )}
+
+        {/* Bottom Navigation - Settings, Log out */}
         <SidebarBottomNav />
 
         {/* Resize Handle */}

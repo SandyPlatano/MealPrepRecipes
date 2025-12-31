@@ -3,6 +3,28 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Material Symbols - must be outside @layer for font to load correctly */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+}
+
+.material-symbols-outlined.filled {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════════
    RETRO UI KIT - Deep Black Mode
    Neo-brutalist design system with bold borders, vibrant colors, and sharp shadows
@@ -73,6 +95,13 @@
   --color-brand-border-dark: #262626;
   --color-brand-text-main-dark: #F5F5F5;
   --color-brand-text-muted-dark: #737373;
+
+  /* Sidebar Colors (Always Dark - ignores theme) */
+  --color-sidebar-bg: #020202;
+  --color-sidebar-surface: #0A0A0A;
+  --color-sidebar-border: #262626;
+  --color-sidebar-text: #F5F5F5;
+  --color-sidebar-text-muted: #737373;
 
   /* Semantic Brand Colors (Nutrition Feedback) */
   --color-brand-sage: #10B981;      /* Emerald-500 - success/achieved */

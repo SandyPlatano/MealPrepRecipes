@@ -21,6 +21,8 @@ import {
   type AppSidebarProps,
 } from "@/components/sidebar";
 import { MobileBottomNav } from "./mobile-bottom-nav";
+import { HeaderSearchBar } from "./header-search-bar";
+import { ProfilePill } from "./profile-pill";
 import type { FolderCategoryWithFolders } from "@/types/folder";
 import type { SystemSmartFolder } from "@/types/smart-folder";
 
@@ -189,7 +191,7 @@ function AppShellContent({
     );
   }
 
-  // Desktop layout: sidebar + content (simple flex layout)
+  // Desktop layout: sidebar + header + content
   // When collapsed, fully hide sidebar (width 0) and show floating expand button
   return (
     <div className="flex min-h-screen bg-background">
@@ -205,7 +207,6 @@ function AppShellContent({
         <AppSidebar
           user={user}
           logoutAction={logoutAction}
-          onSearchClick={handleSearchClick}
           {...sidebarProps}
         />
       </div>
@@ -213,12 +214,33 @@ function AppShellContent({
       {/* Floating expand button - appears when sidebar is fully collapsed */}
       {isCollapsed && <SidebarExpandButton />}
 
-      {/* Main Content - takes remaining space */}
-      <main id="main-content" className="flex-1 min-w-0 h-screen overflow-y-auto">
-        <div className="container mx-auto w-full px-4 py-8">
-          {children}
-        </div>
-      </main>
+      {/* Main area with header */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header with search and profile */}
+        <header
+          className={cn(
+            "sticky top-0 z-40 h-16 px-6",
+            "flex items-center justify-between",
+            "bg-background/95 backdrop-blur",
+            "border-b-2 border-black"
+          )}
+        >
+          {/* Search bar */}
+          <div className="flex-1 max-w-md">
+            <HeaderSearchBar />
+          </div>
+
+          {/* Profile pill */}
+          <ProfilePill user={user} />
+        </header>
+
+        {/* Main Content - takes remaining space */}
+        <main id="main-content" className="flex-1 overflow-y-auto">
+          <div className="container mx-auto w-full px-4 py-8">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

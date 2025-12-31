@@ -13,11 +13,11 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useSidebar } from "./sidebar-context";
-import { SidebarUserArea } from "./sidebar-user-area";
 import { SidebarNavItem } from "./sidebar-nav-item";
 import { SidebarQuickNav } from "./sidebar-quick-nav";
 import { SidebarCollections } from "./sidebar-collections";
 import { SidebarBottomNav } from "./sidebar-bottom-nav";
+import { RetroLogo } from "@/components/branding/retro-logo";
 import type { FolderCategoryWithFolders } from "@/types/folder";
 import type { SystemSmartFolder } from "@/types/smart-folder";
 
@@ -53,7 +53,7 @@ export function MobileSidebarSheet({
     <Sheet open={isMobileOpen} onOpenChange={(open) => (open ? openMobile() : closeMobile())}>
       <SheetContent
         side="left"
-        className="w-[85vw] max-w-none p-0 flex flex-col"
+        className="w-[85vw] max-w-none p-0 flex flex-col bg-[var(--color-sidebar-bg)] border-r border-[var(--color-sidebar-border)]"
         hideCloseButton
       >
         <SheetHeader className="sr-only">
@@ -61,28 +61,35 @@ export function MobileSidebarSheet({
         </SheetHeader>
 
         <TooltipProvider delayDuration={0}>
-          {/* User Area - Top */}
-          <SidebarUserArea
-            user={user}
-            logoutAction={logoutAction}
-          />
+          {/* Logo Area - Top */}
+          <div className="flex items-center justify-between px-4 h-16 border-b border-[var(--color-sidebar-border)]">
+            <RetroLogo size="md" />
+            <div className="w-3 h-3 bg-[var(--color-brand-primary)] rounded-full border border-[var(--color-sidebar-text)]" />
+          </div>
 
-          {/* Search - Prominent standalone button below user area */}
+          {/* Search - Prominent standalone button below logo */}
           {onSearchClick && (
-            <div className="px-3 py-2 border-b">
+            <div className="px-3 py-3 border-b border-[var(--color-sidebar-border)]">
               <Button
                 variant="outline"
                 onClick={onSearchClick}
-                className="w-full justify-start gap-3 h-11 text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted border-border/50"
+                className="w-full justify-start gap-3 h-11 text-[var(--color-sidebar-text-muted)] hover:text-[var(--color-sidebar-text)] bg-[var(--color-sidebar-surface)] hover:bg-[var(--color-sidebar-surface)]/80 border-[var(--color-sidebar-border)]"
               >
-                <Search className="size-4 shrink-0" />
+                <Search className="size-4" />
                 <span className="flex-1 text-left text-sm">Search...</span>
-                <kbd className="ml-auto text-[10px] font-medium text-muted-foreground bg-background px-1.5 py-0.5 rounded border border-border/50">
+                <kbd className="ml-auto text-[10px] font-medium text-[var(--color-sidebar-text-muted)] bg-[var(--color-sidebar-bg)] px-1.5 py-0.5 rounded border border-[var(--color-sidebar-border)]">
                   /
                 </kbd>
               </Button>
             </div>
           )}
+
+          {/* Section Label - GENERAL */}
+          <div className="px-4 pt-4 pb-2">
+            <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-sidebar-text-muted)]">
+              General
+            </span>
+          </div>
 
           {/* Scrollable Content - Secondary navigation only */}
           {/* Primary nav (Plan, Recipes, Shop, Stats) is now in bottom tabs */}
@@ -111,6 +118,13 @@ export function MobileSidebarSheet({
               />
             </div>
           </ScrollArea>
+
+          {/* Section Label - TOOLS */}
+          <div className="px-4 pt-2 pb-2 border-t border-[var(--color-sidebar-border)]">
+            <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-sidebar-text-muted)]">
+              Tools
+            </span>
+          </div>
 
           {/* Bottom Navigation - Settings, Theme, Help */}
           <SidebarBottomNav />

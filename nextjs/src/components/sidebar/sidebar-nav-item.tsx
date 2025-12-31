@@ -82,15 +82,21 @@ export function SidebarNavItem({
       variant="ghost"
       asChild
       className={cn(
-        "w-full justify-start gap-3 h-11 px-3 relative",
+        "w-full justify-start gap-3 h-11 px-3 relative rounded-lg",
         "transition-all duration-150",
         isIconOnly && "justify-center px-0",
+        // Dark sidebar theme - always dark regardless of app theme
         isActive && [
-          "bg-primary/15 text-primary font-semibold",
-          "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
-          "before:h-7 before:w-1 before:bg-primary before:rounded-r",
+          "bg-[var(--color-sidebar-surface)]",
+          "border border-[var(--color-sidebar-border)]",
+          "text-[var(--color-sidebar-text)] font-semibold",
         ],
-        !isActive && "text-muted-foreground hover:text-foreground hover:bg-accent"
+        !isActive && [
+          "text-[var(--color-sidebar-text-muted)]",
+          "hover:text-[var(--color-sidebar-text)]",
+          "hover:bg-[var(--color-sidebar-surface)]/50",
+          "border border-transparent",
+        ]
       )}
     >
       <Link href={href} onClick={handleClick}>
@@ -102,7 +108,7 @@ export function SidebarNavItem({
           <Icon
             className={cn(
               "size-4 shrink-0 transition-colors",
-              isActive && "text-primary"
+              isActive && "text-[var(--color-sidebar-text)]"
             )}
           />
         )}
@@ -112,10 +118,8 @@ export function SidebarNavItem({
             {badge !== undefined && (
               <span
                 className={cn(
-                  "ml-auto text-xs font-medium px-1.5 py-0.5 rounded-full",
-                  isActive
-                    ? "bg-primary/20 text-primary"
-                    : "bg-muted text-muted-foreground"
+                  "ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full",
+                  "bg-[var(--color-brand-primary)] text-black"
                 )}
               >
                 {badge}
@@ -161,15 +165,18 @@ export function SidebarNavItem({
     return (
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>{contentWithContextMenu}</TooltipTrigger>
-        <TooltipContent side="right" className="flex items-center gap-2">
+        <TooltipContent
+          side="right"
+          className="flex items-center gap-2 bg-[var(--color-sidebar-surface)] text-[var(--color-sidebar-text)] border-[var(--color-sidebar-border)]"
+        >
           <span>{label}</span>
           {badge !== undefined && (
-            <span className="text-xs bg-muted px-1.5 py-0.5 rounded-full">
+            <span className="text-xs font-bold bg-[var(--color-brand-primary)] text-black px-1.5 py-0.5 rounded-full">
               {badge}
             </span>
           )}
           {shortcut && (
-            <kbd className="text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+            <kbd className="text-[10px] font-medium text-[var(--color-sidebar-text-muted)] bg-[var(--color-sidebar-bg)] px-1.5 py-0.5 rounded border border-[var(--color-sidebar-border)]">
               {shortcut}
             </kbd>
           )}
@@ -202,8 +209,12 @@ export function SidebarActionItem({
       variant="ghost"
       onClick={onClick}
       className={cn(
-        "w-full justify-start gap-3 h-11 px-3",
-        "text-muted-foreground hover:text-foreground hover:bg-accent",
+        "w-full justify-start gap-3 h-11 px-3 rounded-lg",
+        // Dark sidebar theme
+        "text-[var(--color-sidebar-text-muted)]",
+        "hover:text-[var(--color-sidebar-text)]",
+        "hover:bg-[var(--color-sidebar-surface)]/50",
+        "border border-transparent",
         "transition-all duration-150",
         isIconOnly && "justify-center px-0"
       )}
@@ -226,10 +237,13 @@ export function SidebarActionItem({
     return (
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>{content}</TooltipTrigger>
-        <TooltipContent side="right" className="flex items-center gap-2">
+        <TooltipContent
+          side="right"
+          className="flex items-center gap-2 bg-[var(--color-sidebar-surface)] text-[var(--color-sidebar-text)] border-[var(--color-sidebar-border)]"
+        >
           <span>{label}</span>
           {shortcut && (
-            <kbd className="text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+            <kbd className="text-[10px] font-medium text-[var(--color-sidebar-text-muted)] bg-[var(--color-sidebar-bg)] px-1.5 py-0.5 rounded border border-[var(--color-sidebar-border)]">
               {shortcut}
             </kbd>
           )}
