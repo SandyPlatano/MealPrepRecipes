@@ -131,6 +131,9 @@ export function MealPlannerGrid({
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedDays, setSelectedDays] = useState<Set<DayOfWeek>>(new Set());
 
+  // Clipboard state for copy/paste day functionality
+  const [clipboardDay, setClipboardDay] = useState<DayOfWeek | null>(null);
+
   // Keyboard shortcuts for planner navigation
   const { focusedDayIndex } = usePlannerKeyboard({
     enabled: true,
@@ -308,6 +311,11 @@ export function MealPlannerGrid({
 
   const hasMeals = allAssignments.length > 0;
 
+  // Count how many days have at least one meal
+  const daysWithMealsCount = useMemo(() => {
+    return DAYS_OF_WEEK.filter((day) => (assignmentsWithOptimisticCooks[day]?.length || 0) > 0).length;
+  }, [assignmentsWithOptimisticCooks]);
+
   // Calculate meal counts per day for bulk actions
   const mealCountsPerDay = useMemo(() => {
     const counts: Record<DayOfWeek, number> = {} as Record<DayOfWeek, number>;
@@ -357,6 +365,37 @@ export function MealPlannerGrid({
     setSelectedDays(new Set());
   }, []);
 
+  // Copy day to clipboard (context menu)
+  const handleCopyDay = useCallback((day: DayOfWeek) => {
+    setClipboardDay(day);
+    toast.success(`Copied ${day}'s meals to clipboard`);
+  }, []);
+
+  // Paste clipboard to day (context menu)
+  const handlePasteDay = useCallback(async (targetDay: DayOfWeek) => {
+    if (!clipboardDay) return;
+    const sourceMeals = assignmentsWithOptimisticCooks[clipboardDay] || [];
+    if (sourceMeals.length === 0) {
+      toast.error("Nothing to paste");
+      return;
+    }
+
+    startTransition(async () => {
+      for (const meal of sourceMeals) {
+        await addMealAssignment(weekStartStr, meal.recipe_id, targetDay, meal.cook || undefined, meal.meal_type);
+      }
+      toast.success(`Pasted ${sourceMeals.length} meal(s) to ${targetDay}`);
+    });
+  }, [clipboardDay, assignmentsWithOptimisticCooks, weekStartStr]);
+
+  // Clear day (context menu)
+  const handleClearDayContext = useCallback(async (day: DayOfWeek) => {
+    startTransition(async () => {
+      await clearDayAssignments(weekStartStr, day);
+      toast.success(`Cleared ${day}`);
+    });
+  }, [weekStartStr]);
+
   return (
     <TooltipProvider>
         {/* Loading Indicator */}
@@ -379,6 +418,7 @@ export function MealPlannerGrid({
               previousWeekMealCount={previousWeekMealCount}
               isSending={isSending}
               currentWeekMealCount={allAssignments.length}
+              daysWithMealsCount={daysWithMealsCount}
               subscriptionTier={subscriptionTier}
               aiQuotaRemaining={aiQuotaRemaining}
               existingMealDays={existingMealDays}
@@ -443,6 +483,10 @@ export function MealPlannerGrid({
                       isSelected={selectedDays.has(day)}
                       onToggleSelection={() => toggleDaySelection(day)}
                       isHorizontalLayout
+                      onCopyDay={handleCopyDay}
+                      onPasteDay={handlePasteDay}
+                      onClearDay={handleClearDayContext}
+                      canPaste={clipboardDay !== null}
                     />
                   </DroppableDay>
                 );

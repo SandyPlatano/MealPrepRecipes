@@ -40,7 +40,14 @@ import {
   Eye,
   SlidersHorizontal,
   CheckSquare,
+  UtensilsCrossed,
 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { formatWeekRange, getWeekStart } from "@/types/meal-plan";
 import { SaveTemplateDialog } from "./save-template-dialog";
 import { TemplateManagerDialog } from "./template-manager-dialog";
@@ -60,6 +67,7 @@ interface PlannerHeaderProps {
   previousWeekMealCount: number;
   isSending?: boolean;
   currentWeekMealCount: number;
+  daysWithMealsCount?: number;
   subscriptionTier?: SubscriptionTier;
   aiQuotaRemaining?: number | null;
   existingMealDays?: string[];
@@ -77,6 +85,7 @@ export function PlannerHeader({
   hasMeals,
   previousWeekMealCount,
   currentWeekMealCount,
+  daysWithMealsCount = 0,
   subscriptionTier = "free",
   aiQuotaRemaining = null,
   existingMealDays = [],
@@ -221,8 +230,12 @@ export function PlannerHeader({
     });
   };
 
+  // Calculate week completion percentage
+  const weekProgressPercent = Math.round((daysWithMealsCount / 7) * 100);
+
   return (
-    <div className="flex items-center justify-between gap-2 pb-4 border-b">
+    <div className="flex flex-col gap-3 pb-4 border-b">
+      <div className="flex items-center justify-between gap-2">
       {/* Week Navigation - Left side (compact) */}
       <div className="flex items-center gap-1">
         <Button
@@ -492,6 +505,31 @@ export function PlannerHeader({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+      </div>
+      </div>
+
+      {/* Week Progress Bar - shows days planned */}
+      <div className="flex items-center gap-3">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
+              <UtensilsCrossed className="h-3.5 w-3.5" />
+              <span className="font-mono">{daysWithMealsCount}/7</span>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{daysWithMealsCount} of 7 days planned</p>
+          </TooltipContent>
+        </Tooltip>
+        <Progress
+          value={weekProgressPercent}
+          className="h-1.5 flex-1 bg-muted/50"
+        />
+        {weekProgressPercent === 100 && (
+          <span className="text-xs text-emerald-600 font-medium flex-shrink-0">
+            Week complete!
+          </span>
+        )}
       </div>
 
       {/* Template Dialogs */}

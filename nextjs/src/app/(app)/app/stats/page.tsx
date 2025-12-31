@@ -18,13 +18,20 @@ export default async function StatsOverviewPage() {
   // Get current week start for meal count query
   const currentWeekStart = getWeekStart(new Date()).toISOString().split("T")[0];
 
-  // Fetch real data in parallel
-  const [wasteDashboard, mealCounts] = await Promise.all([
-    getWasteDashboard(),
-    getWeeksMealCounts([currentWeekStart]),
-  ]);
+  // Fetch real data in parallel with error handling
+  let wasteDashboard: Awaited<ReturnType<typeof getWasteDashboard>> = { error: null, data: null };
+  let mealCounts: Awaited<ReturnType<typeof getWeeksMealCounts>> = { error: null, data: [] };
 
-  // Extract stats from fetched data
+  try {
+    [wasteDashboard, mealCounts] = await Promise.all([
+      getWasteDashboard().catch(() => ({ error: "Failed to load waste data", data: null })),
+      getWeeksMealCounts([currentWeekStart]).catch(() => ({ error: "Failed to load meal counts", data: [] })),
+    ]);
+  } catch {
+    // If Promise.all fails entirely, we already have defaults
+  }
+
+  // Extract stats from fetched data (with safe defaults)
   const mealsPlanned = mealCounts.data?.[0]?.mealCount || 0;
   const utilizationRate = wasteDashboard.data?.aggregate?.average_utilization_rate || 0;
   const totalSavedCents = wasteDashboard.data?.aggregate?.total_money_saved_cents || 0;

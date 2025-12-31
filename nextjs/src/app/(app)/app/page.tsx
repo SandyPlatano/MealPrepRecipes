@@ -24,6 +24,9 @@ import { OnboardingWrapper } from "@/components/onboarding/onboarding-wrapper";
 import { hasActiveSubscription } from "@/lib/stripe/subscription";
 import { ContextualHint } from "@/components/hints/contextual-hint";
 import { HINT_IDS, HINT_CONTENT } from "@/lib/hints";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { Lightbulb, Keyboard } from "lucide-react";
 
 interface HomePageProps {
   searchParams: Promise<{ week?: string }>;
@@ -166,6 +169,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   const needsOnboarding = !hasCompletedOnboarding && recipes.length === 0;
 
+  // Check if the week is completely empty (no meals planned)
+  const totalMealsThisWeek = Object.values(weekPlan.assignments).flat().length;
+  const isWeekEmpty = totalMealsThisWeek === 0 && !needsOnboarding;
+
   return (
     <>
       <OnboardingWrapper
@@ -177,12 +184,28 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
       <div className="flex flex-col h-full min-h-0 flex-1">
         <PlanScrollRestorer />
-        <div className="flex-shrink-0 mb-2">
+        <div className="flex-shrink-0 mb-3">
           <h1 className="text-2xl md:text-3xl font-mono font-bold">Meal Plan</h1>
           <p className="text-muted-foreground text-sm md:text-base">
             Plan your week. Assign cooks. Send the list. Done.
           </p>
         </div>
+
+        <Separator className="mb-4" />
+
+        {/* Empty week tip */}
+        {isWeekEmpty && recipes.length > 0 && (
+          <Alert className="mb-4 bg-amber-50/50 border-amber-200/50 dark:bg-amber-950/20 dark:border-amber-800/30">
+            <Lightbulb className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <AlertDescription className="text-sm text-amber-800 dark:text-amber-200">
+              <span className="font-medium">Tip:</span> Click any row to add a meal, or right-click for more options.
+              <span className="hidden md:inline ml-1">
+                <Keyboard className="inline h-3 w-3 mx-1" />
+                Press <kbd className="px-1 py-0.5 rounded bg-amber-100 dark:bg-amber-900/50 text-xs font-mono">1-7</kbd> to jump to a day.
+              </span>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <ContextualHint
           hintId={HINT_IDS.MEAL_PLANNER_INTRO}

@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Trash2, Eye, Pencil, ChefHat, CalendarOff, ChevronRight, Check, Plus, Zap, ChevronDown, Clock } from "lucide-react";
+import { Trash2, Eye, Pencil, ChefHat, CalendarOff, ChevronRight, Check, Plus, Zap, ChevronDown, Clock, Copy, ClipboardPaste, ArrowRight } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +21,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import {
   Collapsible,
   CollapsibleContent,
@@ -76,6 +84,11 @@ interface PlannerDayRowProps {
   onToggleSelection?: () => void;
   // Horizontal layout for stacked rows
   isHorizontalLayout?: boolean;
+  // Context menu actions
+  onCopyDay?: (day: DayOfWeek) => void;
+  onPasteDay?: (day: DayOfWeek) => void;
+  onClearDay?: (day: DayOfWeek) => Promise<void>;
+  canPaste?: boolean;
 }
 
 export const PlannerDayRow = memo(function PlannerDayRow({
@@ -106,6 +119,10 @@ export const PlannerDayRow = memo(function PlannerDayRow({
   isSelected = false,
   onToggleSelection,
   isHorizontalLayout = false,
+  onCopyDay,
+  onPasteDay,
+  onClearDay,
+  canPaste = false,
 }: PlannerDayRowProps) {
   const [isPending, startTransition] = useTransition();
   const [modalOpen, setModalOpen] = useState(false);
@@ -152,7 +169,9 @@ export const PlannerDayRow = memo(function PlannerDayRow({
   // Horizontal layout - compact single row for stacked view
   if (isHorizontalLayout) {
     return (
-      <Card
+      <ContextMenu>
+        <ContextMenuTrigger asChild disabled={isSelectionMode}>
+          <Card
         className={cn(
           "group relative transition-all flex-1 min-h-0",
           isToday && "ring-2 ring-primary",
@@ -323,7 +342,45 @@ export const PlannerDayRow = memo(function PlannerDayRow({
             }}
           />
         )}
-      </Card>
+          </Card>
+        </ContextMenuTrigger>
+        <ContextMenuContent className="w-48">
+          <ContextMenuItem
+            onClick={() => onCopyDay?.(day)}
+            disabled={assignments.length === 0}
+          >
+            <Copy className="mr-2 h-4 w-4" />
+            Copy day
+            <ContextMenuShortcut>⌘C</ContextMenuShortcut>
+          </ContextMenuItem>
+          <ContextMenuItem
+            onClick={() => onPasteDay?.(day)}
+            disabled={!canPaste || isPast}
+          >
+            <ClipboardPaste className="mr-2 h-4 w-4" />
+            Paste
+            <ContextMenuShortcut>⌘V</ContextMenuShortcut>
+          </ContextMenuItem>
+          <ContextMenuSeparator />
+          <ContextMenuItem
+            onClick={() => setModalOpen(true)}
+            disabled={isPast}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add meal
+            <ContextMenuShortcut>A</ContextMenuShortcut>
+          </ContextMenuItem>
+          <ContextMenuSeparator />
+          <ContextMenuItem
+            onClick={() => onClearDay?.(day)}
+            disabled={assignments.length === 0}
+            className="text-destructive focus:text-destructive"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Clear day
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
     );
   }
 
