@@ -1,7 +1,7 @@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle } from "lucide-react";
-import { getAllergenDisplayName } from "@/lib/allergen-detector";
+import { getAllergenDisplayName, type AllergenType } from "@/lib/allergen-detector";
 
 interface RecipeAllergensSectionProps {
   matchingAllergens: string[];
@@ -33,7 +33,7 @@ export function RecipeAllergensSection({
                 key={allergen}
                 className="bg-amber-600 dark:bg-amber-700 text-white"
               >
-                {getAllergenDisplayName(allergen)}
+                {getAllergenDisplayName(allergen as AllergenType)}
               </Badge>
             ))}
             {matchingCustomRestrictions.map((restriction) => (

@@ -1,11 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
 @import "tailwindcss";
 @import "tw-animate-css";
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   RETRO DESIGN SYSTEM v2 - Neo-Brutalist Theme (Light Mode Only)
-   Clean, bold, playful design with hard shadows and warm colors
+   RETRO UI KIT - Deep Black Mode
+   Neo-brutalist design system with bold borders, vibrant colors, and sharp shadows
+   Based on Brand_Kit/code.html
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 @theme {
@@ -21,7 +22,8 @@
      Border Radius
      ───────────────────────────────────────────────────────────────────────────── */
   --radius: 0.5rem;
-  --radius-lg: 1rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
@@ -42,7 +44,6 @@
   --color-muted-foreground: hsl(var(--muted-foreground));
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-tertiary: #60A5FA;
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
   --color-border: hsl(var(--border));
@@ -57,28 +58,47 @@
   --color-chart-5: hsl(var(--chart-5));
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Retro Palette (Direct Colors)
+     Brand Kit Palette (Direct Colors)
      ───────────────────────────────────────────────────────────────────────────── */
-  --color-retro-primary: #F56565;
-  --color-retro-secondary: #FBBF24;
-  --color-retro-tertiary: #60A5FA;
-  --color-retro-background: #FEF6E4;
-  --color-retro-surface: #FFFFFF;
-  --color-retro-text-main: #111827;
-  --color-retro-text-muted: #6B7280;
+  --color-brand-primary: #FFD166;
+  --color-brand-background: #FFFBEB;
+  --color-brand-surface: #FFFFFF;
+  --color-brand-ink: #050505;
+  --color-brand-text-main: #111827;
+  --color-brand-text-muted: #6B7280;
+
+  /* Dark Mode Colors */
+  --color-brand-background-dark: #020202;
+  --color-brand-surface-dark: #0A0A0A;
+  --color-brand-border-dark: #262626;
+  --color-brand-text-main-dark: #F5F5F5;
+  --color-brand-text-muted-dark: #737373;
+
+  /* Semantic Brand Colors (Nutrition Feedback) */
+  --color-brand-sage: #10B981;      /* Emerald-500 - success/achieved */
+  --color-brand-coral: #F87171;     /* Red-400 - warning/over-limit */
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Retro Shadows (Hard offset - no blur) - 2px compact style
+     Retro Shadows (Hard offset - no blur) - 4px Brand Kit style
      ───────────────────────────────────────────────────────────────────────────── */
-  --shadow-retro: 2px 2px 0px 0px #000000;
-  --shadow-retro-hover: 1px 1px 0px 0px #000000;
-  --shadow-retro-active: 0px 0px 0px 0px #000000;
-  --shadow-retro-sm: 2px 2px 0px 0px #000000;
-  --shadow-retro-sm-hover: 1px 1px 0px 0px #000000;
+  --shadow-retro: 4px 4px 0px 0px rgba(0,0,0,1);
+  --shadow-retro-hover: 2px 2px 0px 0px rgba(0,0,0,1);
+  --shadow-retro-active: 0px 0px 0px 0px rgba(0,0,0,1);
+  --shadow-retro-sm: 2px 2px 0px 0px rgba(0,0,0,1);
+  --shadow-retro-sm-hover: 1px 1px 0px 0px rgba(0,0,0,1);
   --shadow-retro-input: 2px 2px 0px 0px rgba(0,0,0,0.1);
-  --shadow-retro-success: 2px 2px 0px 0px #064e3b;
-  --shadow-retro-warning: 2px 2px 0px 0px #78350f;
-  --shadow-retro-error: 2px 2px 0px 0px #7f1d1d;
+
+  /* Dark Mode Shadows (White) */
+  --shadow-retro-dark: 4px 4px 0px 0px rgba(255,255,255,0.8);
+  --shadow-retro-dark-hover: 2px 2px 0px 0px rgba(255,255,255,0.8);
+  --shadow-retro-dark-active: 0px 0px 0px 0px rgba(255,255,255,0.8);
+  --shadow-retro-sm-dark: 2px 2px 0px 0px rgba(255,255,255,0.8);
+  --shadow-retro-sm-dark-hover: 1px 1px 0px 0px rgba(255,255,255,0.8);
+
+  /* Semantic Shadows */
+  --shadow-retro-success: 4px 4px 0px 0px #064e3b;
+  --shadow-retro-warning: 4px 4px 0px 0px #78350f;
+  --shadow-retro-error: 4px 4px 0px 0px #7f1d1d;
 
   /* ─────────────────────────────────────────────────────────────────────────────
      Animations
@@ -115,10 +135,10 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   shadcn/ui Semantic Token Values - Retro Light Mode
+   shadcn/ui Semantic Token Values - Brand Kit Light Mode
    ═══════════════════════════════════════════════════════════════════════════════ */
 :root {
-  --background: 47 77% 95%;          /* #FEF6E4 - warm cream */
+  --background: 48 100% 97%;         /* #FFFBEB - Brand Kit beige */
   --foreground: 221 39% 11%;         /* #111827 - text-main */
 
   --card: 0 0% 100%;                 /* #FFFFFF - surface */
@@ -127,14 +147,14 @@
   --popover: 0 0% 100%;
   --popover-foreground: 221 39% 11%;
 
-  --primary: 0 91% 71%;              /* #F56565 - retro red */
-  --primary-foreground: 0 0% 100%;  /* white text on red */
+  --primary: 45 100% 70%;            /* #FFD166 - Brand Kit yellow */
+  --primary-foreground: 0 0% 0%;    /* black text on yellow */
 
-  --secondary: 45 97% 56%;           /* #FBBF24 - retro yellow */
-  --secondary-foreground: 0 0% 0%;  /* black text on yellow */
+  --secondary: 0 0% 100%;            /* White - simplified palette */
+  --secondary-foreground: 0 0% 0%;  /* black text */
 
-  --accent: 213 94% 68%;             /* #60A5FA - retro blue */
-  --accent-foreground: 0 0% 100%;   /* white text on blue */
+  --accent: 48 100% 97%;             /* Same as background for subtle accent */
+  --accent-foreground: 221 39% 11%;
 
   --muted: 220 14% 96%;              /* #F3F4F6 */
   --muted-foreground: 220 9% 46%;   /* #6B7280 */
@@ -142,18 +162,51 @@
   --destructive: 0 84% 60%;          /* Red */
   --destructive-foreground: 0 0% 100%;
 
-  --border: 0 0% 0%;                 /* #000000 - BLACK borders! */
+  --border: 0 0% 0%;                 /* #000000 - BLACK borders */
   --input: 0 0% 0%;                  /* Black input borders */
-  --ring: 0 91% 71%;                 /* Primary red for focus ring */
+  --ring: 45 100% 70%;               /* Primary yellow for focus ring */
 
   /* Chart Colors */
-  --chart-1: 0 91% 71%;              /* Primary red */
-  --chart-2: 45 97% 56%;             /* Secondary yellow */
-  --chart-3: 213 94% 68%;            /* Tertiary blue */
-  --chart-4: 142 76% 36%;            /* Green */
+  --chart-1: 45 100% 70%;            /* Primary yellow */
+  --chart-2: 142 76% 36%;            /* Green */
+  --chart-3: 213 94% 68%;            /* Blue */
+  --chart-4: 0 84% 60%;              /* Red */
   --chart-5: 262 83% 58%;            /* Purple */
 
   --radius: 0.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Dark Mode - Brand Kit Deep Black
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.dark {
+  --background: 0 0% 1%;             /* #020202 - deepest black */
+  --foreground: 0 0% 96%;            /* #F5F5F5 - bright text */
+
+  --card: 0 0% 4%;                   /* #0A0A0A - surface dark */
+  --card-foreground: 0 0% 96%;
+
+  --popover: 0 0% 4%;
+  --popover-foreground: 0 0% 96%;
+
+  --primary: 45 100% 70%;            /* #FFD166 - same yellow */
+  --primary-foreground: 0 0% 0%;    /* black text on yellow */
+
+  --secondary: 0 0% 13%;             /* #212121 - dark surface */
+  --secondary-foreground: 0 0% 96%;
+
+  --accent: 0 0% 4%;
+  --accent-foreground: 0 0% 96%;
+
+  --muted: 0 0% 15%;                 /* Dark gray */
+  --muted-foreground: 0 0% 45%;     /* #737373 */
+
+  --destructive: 0 62% 50%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 0 0% 90%;                /* Light borders on dark (E5E7EB) */
+  --input: 0 0% 40%;                 /* Gray-500 for inputs */
+  --ring: 45 100% 70%;               /* Primary yellow */
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -165,8 +218,9 @@
   }
 
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground font-body antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -175,302 +229,351 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   Custom Scrollbar - Retro Style
+   Custom Scrollbar - Brand Kit Style
    ═══════════════════════════════════════════════════════════════════════════════ */
 ::-webkit-scrollbar {
   width: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #fef6e4;
+  background: #FFFBEB;
   border-left: 2px solid #000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #f56565;
+  background: #FFD166;
   border: 2px solid #000;
   border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #e53e3e;
+  background: #f0c050;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #020202;
+  border-left: 2px solid #262626;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #FFD166;
+  border: 2px solid #E5E7EB;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   Component Layer - Retro UI Components
+   Component Layer - Neo-Brutalist UI Components
    ═══════════════════════════════════════════════════════════════════════════════ */
 @layer components {
   /* ─────────────────────────────────────────────────────────────────────────────
-     Retro Border - Core design element (2px solid black)
+     Neo-Brutalist Base Class
      ───────────────────────────────────────────────────────────────────────────── */
-  .retro-border {
-    @apply border-2 border-black;
+  .neo-brutalist {
+    @apply border-2 border-black dark:border-gray-200;
+    box-shadow: var(--shadow-retro);
+    transition: all 0.2s ease;
+  }
+
+  .neo-brutalist:active {
+    transform: translate(2px, 2px);
+    box-shadow: none !important;
+  }
+
+  .dark .neo-brutalist {
+    box-shadow: var(--shadow-retro-dark);
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Buttons
+     Retro Border - Core design element (2px solid)
+     ───────────────────────────────────────────────────────────────────────────── */
+  .retro-border {
+    @apply border-2 border-black dark:border-white;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────────────
+     Buttons - Brand Kit Style (Yellow Primary)
      ───────────────────────────────────────────────────────────────────────────── */
   .btn-retro {
-    @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
-    box-shadow: var(--shadow-retro);
+    @apply font-bold py-3 px-6 rounded border-2 border-black dark:border-white;
+    box-shadow: var(--shadow-retro-sm);
     @apply hover:translate-x-[1px] hover:translate-y-[1px];
     @apply active:translate-x-[2px] active:translate-y-[2px];
     @apply transition-all duration-150;
   }
 
   .btn-retro:hover {
-    box-shadow: var(--shadow-retro-hover);
+    box-shadow: var(--shadow-retro-sm-hover);
   }
 
   .btn-retro:active {
     box-shadow: var(--shadow-retro-active);
   }
 
+  .dark .btn-retro {
+    box-shadow: var(--shadow-retro-sm-dark);
+  }
+
+  .dark .btn-retro:hover {
+    box-shadow: var(--shadow-retro-sm-dark-hover);
+  }
+
   .btn-primary {
-    @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
-    @apply bg-primary text-white;
-    box-shadow: var(--shadow-retro);
+    @apply font-bold py-3 px-6 rounded border-2 border-black dark:border-white;
+    @apply bg-primary text-black;
+    box-shadow: var(--shadow-retro-sm);
     @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:brightness-110;
     @apply active:translate-x-[2px] active:translate-y-[2px] active:brightness-90;
     @apply transition-all duration-150;
   }
 
   .btn-primary:hover {
-    box-shadow: var(--shadow-retro-hover);
+    box-shadow: var(--shadow-retro-sm-hover);
   }
 
   .btn-primary:active {
     box-shadow: var(--shadow-retro-active);
   }
 
+  .dark .btn-primary {
+    box-shadow: var(--shadow-retro-sm-dark);
+  }
+
   .btn-secondary {
-    @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
-    @apply bg-secondary text-black;
-    box-shadow: var(--shadow-retro);
-    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-yellow-300;
-    @apply active:translate-x-[2px] active:translate-y-[2px] active:bg-yellow-500;
+    @apply font-bold py-3 px-6 rounded border-2 border-black dark:border-white;
+    @apply bg-white dark:bg-gray-800 text-black dark:text-white;
+    box-shadow: var(--shadow-retro-sm);
+    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-gray-50 dark:hover:bg-gray-700;
+    @apply active:translate-x-[2px] active:translate-y-[2px];
     @apply transition-all duration-150;
   }
 
   .btn-secondary:hover {
-    box-shadow: var(--shadow-retro-hover);
+    box-shadow: var(--shadow-retro-sm-hover);
   }
 
   .btn-secondary:active {
     box-shadow: var(--shadow-retro-active);
   }
 
-  .btn-tertiary {
-    @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
-    @apply bg-accent text-white;
-    box-shadow: var(--shadow-retro);
-    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:brightness-110;
-    @apply active:translate-x-[2px] active:translate-y-[2px] active:brightness-90;
-    @apply transition-all duration-150;
-  }
-
-  .btn-tertiary:hover {
-    box-shadow: var(--shadow-retro-hover);
-  }
-
-  .btn-tertiary:active {
-    box-shadow: var(--shadow-retro-active);
+  .dark .btn-secondary {
+    box-shadow: var(--shadow-retro-sm-dark);
   }
 
   .btn-ghost {
-    @apply font-bold py-3 px-6 rounded-lg border-2 border-black;
-    @apply bg-transparent;
-    box-shadow: var(--shadow-retro);
-    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-gray-100;
-    @apply active:translate-x-[2px] active:translate-y-[2px] active:bg-gray-200;
+    @apply font-bold py-3 px-6 rounded border-2 border-black dark:border-white;
+    @apply bg-white dark:bg-gray-900 text-black dark:text-white;
+    box-shadow: var(--shadow-retro-sm);
+    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-gray-50 dark:hover:bg-gray-800;
+    @apply active:translate-x-[2px] active:translate-y-[2px];
     @apply transition-all duration-150;
   }
 
   .btn-ghost:hover {
-    box-shadow: var(--shadow-retro-hover);
+    box-shadow: var(--shadow-retro-sm-hover);
   }
 
   .btn-ghost:active {
     box-shadow: var(--shadow-retro-active);
   }
 
+  .dark .btn-ghost {
+    box-shadow: var(--shadow-retro-sm-dark);
+  }
+
   .btn-icon {
-    @apply p-3 rounded-full border-2 border-black;
-    @apply bg-white;
-    box-shadow: var(--shadow-retro);
-    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-gray-50;
+    @apply p-3 rounded-full border-2 border-black dark:border-white;
+    @apply bg-white dark:bg-gray-900;
+    box-shadow: var(--shadow-retro-sm);
+    @apply hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-gray-50 dark:hover:bg-gray-800;
     @apply active:translate-x-[2px] active:translate-y-[2px];
     @apply transition-all duration-150;
   }
 
   .btn-icon:hover {
-    box-shadow: var(--shadow-retro-hover);
+    box-shadow: var(--shadow-retro-sm-hover);
   }
 
   .btn-icon:active {
     box-shadow: var(--shadow-retro-active);
   }
 
+  .dark .btn-icon {
+    box-shadow: var(--shadow-retro-sm-dark);
+  }
+
   /* ─────────────────────────────────────────────────────────────────────────────
-     Cards
+     Cards - Brand Kit Style
      ───────────────────────────────────────────────────────────────────────────── */
   .card-retro {
-    @apply bg-card rounded-xl p-6 border-2 border-black;
+    @apply bg-card rounded-xl p-6 border-2 border-black dark:border-white;
     box-shadow: var(--shadow-retro);
+  }
+
+  .dark .card-retro {
+    box-shadow: var(--shadow-retro-dark);
   }
 
   .card-accent {
-    @apply bg-secondary rounded-xl p-6 border-2 border-black;
+    @apply bg-primary rounded-xl p-6 border-2 border-black dark:border-white text-black;
     box-shadow: var(--shadow-retro);
+  }
+
+  .dark .card-accent {
+    box-shadow: var(--shadow-retro-dark);
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Inputs - with yellow focus states
+     Inputs - Brand Kit Style with yellow focus
      ───────────────────────────────────────────────────────────────────────────── */
   .input-retro {
-    @apply w-full bg-white rounded-lg py-3 px-4;
-    @apply border-2 border-black;
-    box-shadow: var(--shadow-retro-input);
-    @apply focus:bg-yellow-50;
+    @apply w-full bg-white dark:bg-black rounded py-3 px-4;
+    @apply border-2 border-black dark:border-gray-500;
+    @apply focus:bg-yellow-50 dark:focus:bg-gray-900;
     @apply focus:border-primary focus:outline-none;
+    @apply placeholder-gray-400 dark:placeholder-gray-600;
+    @apply dark:text-white;
     @apply transition-all duration-150;
-    @apply placeholder-gray-400;
-  }
-
-  .input-retro:focus {
-    box-shadow: var(--shadow-retro);
   }
 
   .select-retro {
-    @apply w-full bg-white rounded-lg py-3 px-4;
-    @apply border-2 border-black;
+    @apply w-full bg-white dark:bg-black rounded py-3 px-4;
+    @apply border-2 border-black dark:border-gray-500;
     @apply appearance-none cursor-pointer;
-    box-shadow: var(--shadow-retro-input);
-    @apply focus:bg-yellow-50;
+    @apply focus:bg-yellow-50 dark:focus:bg-gray-900;
     @apply focus:border-primary focus:outline-none;
+    @apply dark:text-white;
     @apply transition-all duration-150;
   }
 
   .label-retro {
-    @apply font-bold text-sm uppercase tracking-wide;
+    @apply font-display font-bold text-xs uppercase tracking-wider;
+    @apply text-gray-700 dark:text-gray-300;
   }
 
-  /* Search input (left side of combo) */
+  /* Search combo - Brand Kit style */
   .input-search-left {
-    @apply w-full bg-white;
-    @apply border-2 border-black border-r-0 rounded-l-lg py-3 px-4;
-    @apply focus:bg-yellow-50;
-    @apply focus:shadow-[inset_2px_2px_0px_rgba(0,0,0,0.05)] focus:outline-none;
+    @apply w-full bg-white dark:bg-black;
+    @apply border-2 border-black dark:border-gray-500 border-r-0 rounded-l py-3 px-4;
+    @apply focus:bg-yellow-50 dark:focus:bg-gray-900;
+    @apply focus:outline-none;
+    @apply placeholder-gray-400 dark:placeholder-gray-600;
+    @apply dark:text-white;
     @apply transition-colors;
   }
 
-  /* Search button (right side of combo) */
   .btn-search-right {
-    @apply bg-secondary text-black font-bold px-6;
-    @apply rounded-r-lg border-2 border-black border-l-2;
-    @apply hover:bg-yellow-300 hover:shadow-inner;
-    @apply active:bg-yellow-500;
+    @apply bg-primary text-black font-bold px-6;
+    @apply rounded-r border-2 border-black dark:border-white border-l-2;
+    @apply hover:brightness-105;
+    @apply active:brightness-95;
     @apply transition-all;
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Icons
+     Icons - Brand Kit Style
      ───────────────────────────────────────────────────────────────────────────── */
   .icon-retro {
     @apply w-12 h-12 flex items-center justify-center;
-    @apply bg-white border-2 border-black rounded-lg;
+    @apply bg-white dark:bg-gray-900 border-2 border-black dark:border-white rounded-lg;
     box-shadow: var(--shadow-retro-sm);
     @apply group-hover:translate-x-[1px] group-hover:translate-y-[1px];
     @apply group-active:translate-x-[2px] group-active:translate-y-[2px] group-active:shadow-none;
     @apply transition-all;
   }
 
-  .icon-retro:hover {
-    box-shadow: var(--shadow-retro-sm-hover);
+  .dark .icon-retro {
+    box-shadow: var(--shadow-retro-sm-dark);
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Badges & Tags
+     Badges & Tags - Brand Kit Style
      ───────────────────────────────────────────────────────────────────────────── */
   .badge-retro {
     @apply inline-block px-2 py-1;
     @apply text-xs font-bold;
-    @apply border-2 border-black rounded;
+    @apply border-2 border-black dark:border-white rounded;
   }
 
   .badge-new {
     @apply inline-block px-2 py-1 text-xs font-bold;
-    @apply border-2 border-black rounded;
-    @apply bg-secondary text-black;
+    @apply border-2 border-black dark:border-white rounded;
+    @apply bg-primary text-black;
   }
 
   .badge-success {
     @apply inline-block px-2 py-1 text-xs font-bold;
-    @apply border-2 border-black rounded;
-    @apply bg-green-200 text-green-800;
+    @apply border border-black dark:border-green-500 rounded;
+    @apply bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-300;
   }
 
   .badge-info {
     @apply inline-block px-2 py-1 text-xs font-bold;
-    @apply border-2 border-black rounded;
-    @apply bg-blue-200 text-blue-800;
+    @apply border border-black dark:border-blue-500 rounded;
+    @apply bg-blue-200 dark:bg-blue-900 text-blue-800 dark:text-blue-300;
   }
 
   .badge-warning {
     @apply inline-block px-2 py-1 text-xs font-bold;
-    @apply border-2 border-black rounded;
-    @apply bg-yellow-200 text-yellow-800;
+    @apply border border-black dark:border-yellow-400 rounded;
+    @apply bg-primary text-black;
   }
 
   .badge-error {
     @apply inline-block px-2 py-1 text-xs font-bold;
-    @apply border-2 border-black rounded;
-    @apply bg-red-200 text-red-800;
+    @apply border border-black dark:border-red-400 rounded;
+    @apply bg-red-200 dark:bg-red-900 text-red-800 dark:text-red-300;
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Alerts
+     Alerts - Brand Kit Style
      ───────────────────────────────────────────────────────────────────────────── */
   .alert-retro {
-    @apply p-4 rounded-lg border-2 border-black flex items-start gap-3;
+    @apply p-4 rounded-lg border-2 border-black dark:border-white flex items-start gap-4;
+    box-shadow: var(--shadow-retro-sm);
+  }
+
+  .dark .alert-retro {
+    box-shadow: var(--shadow-retro-sm-dark);
   }
 
   .alert-success {
-    @apply p-4 rounded-lg border-2 border-black flex items-start gap-3;
-    @apply bg-green-100 text-green-900;
-    box-shadow: var(--shadow-retro-success);
+    @apply p-4 rounded-lg border-2 border-black dark:border-green-400 flex items-start gap-4;
+    @apply bg-green-100 dark:bg-green-950 text-green-800 dark:text-green-300;
+    box-shadow: var(--shadow-retro-sm);
   }
 
   .alert-warning {
-    @apply p-4 rounded-lg border-2 border-black flex items-start gap-3;
-    @apply bg-yellow-100 text-yellow-900;
-    box-shadow: var(--shadow-retro-warning);
+    @apply p-4 rounded-lg border-2 border-black dark:border-yellow-400 flex items-start gap-4;
+    @apply bg-primary text-black;
+    box-shadow: var(--shadow-retro-sm);
   }
 
   .alert-error {
-    @apply p-4 rounded-lg border-2 border-black flex items-start gap-3;
-    @apply bg-red-100 text-red-900;
-    box-shadow: var(--shadow-retro-error);
+    @apply p-4 rounded-lg border-2 border-black dark:border-red-400 flex items-start gap-4;
+    @apply bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300;
+    box-shadow: var(--shadow-retro-sm);
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Navigation - Pills/Tabs
+     Navigation - Pills/Tabs (Brand Kit Style)
      ───────────────────────────────────────────────────────────────────────────── */
   .pill-retro {
-    @apply px-4 py-2 rounded-lg border-2 border-black text-sm font-bold;
-    @apply bg-white;
-    @apply hover:bg-gray-100;
-    @apply hover:-translate-y-0.5;
+    @apply px-5 py-2 rounded-lg border-2 border-black dark:border-white text-sm font-bold;
+    @apply bg-white dark:bg-gray-900 text-black dark:text-white;
+    @apply hover:bg-gray-50 dark:hover:bg-gray-800;
     @apply transition-all;
   }
 
   .pill-active {
-    @apply px-4 py-2 rounded-lg border-2 border-black text-sm font-bold;
-    @apply bg-primary text-white;
-    box-shadow: var(--shadow-retro-hover);
+    @apply px-5 py-2 rounded-lg border-2 border-black dark:border-white text-sm font-bold;
+    @apply bg-primary text-black;
+    box-shadow: var(--shadow-retro-sm);
     @apply hover:brightness-110;
     @apply active:translate-y-[2px];
     @apply transition-all;
+  }
+
+  .dark .pill-active {
+    box-shadow: var(--shadow-retro-sm-dark);
   }
 
   .pill-active:active {
@@ -479,13 +582,13 @@
 
   .breadcrumb-retro {
     @apply flex items-center text-sm font-mono;
-    @apply bg-white border-2 border-black;
-    @apply inline-flex px-4 py-2 rounded-full;
-    box-shadow: var(--shadow-retro);
+    @apply bg-white dark:bg-gray-900 border-2 border-black dark:border-white;
+    @apply inline-flex px-5 py-2 rounded-full;
+    @apply text-black dark:text-white;
   }
 
   .breadcrumb-link {
-    @apply hover:underline hover:text-primary transition-colors;
+    @apply hover:underline transition-colors;
   }
 
   .breadcrumb-current {
@@ -493,42 +596,35 @@
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Progress Bar
+     Progress Bar - Brand Kit Style
      ───────────────────────────────────────────────────────────────────────────── */
   .progress-retro {
-    @apply w-full h-6 bg-gray-200;
-    @apply border-2 border-black rounded-full overflow-hidden relative;
+    @apply w-full h-6 bg-gray-200 dark:bg-gray-800;
+    @apply border-2 border-black dark:border-white rounded-full overflow-hidden relative;
   }
 
   .progress-retro-bar {
-    @apply h-full bg-secondary absolute top-0 left-0;
-    @apply border-r-2 border-black;
+    @apply h-full bg-primary absolute top-0 left-0;
+    @apply border-r-2 border-black dark:border-white;
+  }
+
+  .progress-retro-remaining {
+    background-image: linear-gradient(45deg, transparent 25%, rgba(0, 0, 0, .1) 25%, rgba(0, 0, 0, .1) 50%, transparent 50%, transparent 75%, rgba(0, 0, 0, .1) 75%, rgba(0, 0, 0, .1));
+    background-size: 10px 10px;
   }
 
   /* ─────────────────────────────────────────────────────────────────────────────
-     Data Viz - Bar Chart
+     Data Viz - Bar Chart (Simplified for Brand Kit)
      ───────────────────────────────────────────────────────────────────────────── */
   .bar-retro {
-    @apply border-2 border-black border-b-0 rounded-t-sm;
+    @apply border-2 border-black dark:border-white border-b-0 rounded-t-sm;
     @apply transition-all cursor-pointer;
   }
 
   .bar-primary {
-    @apply border-2 border-black border-b-0 rounded-t-sm;
+    @apply border-2 border-black dark:border-white border-b-0 rounded-t-sm;
     @apply transition-all cursor-pointer;
-    @apply bg-primary hover:bg-red-400;
-  }
-
-  .bar-secondary {
-    @apply border-2 border-black border-b-0 rounded-t-sm;
-    @apply transition-all cursor-pointer;
-    @apply bg-secondary hover:bg-yellow-300;
-  }
-
-  .bar-tertiary {
-    @apply border-2 border-black border-b-0 rounded-t-sm;
-    @apply transition-all cursor-pointer;
-    @apply bg-accent hover:bg-blue-300;
+    @apply bg-primary hover:brightness-110;
   }
 }
 
@@ -549,15 +645,29 @@
     opacity: 0.1;
   }
 
+  .dark .retro-stripes {
+    background-image: repeating-linear-gradient(
+      45deg,
+      #fff 0,
+      #fff 1px,
+      transparent 0,
+      transparent 50%
+    );
+  }
+
   /* Grid lines for charts */
   .chart-grid {
     background-image: linear-gradient(#00000010 1px, transparent 1px);
     background-size: 100% 20%;
   }
 
+  .dark .chart-grid {
+    background-image: linear-gradient(#ffffff10 1px, transparent 1px);
+  }
+
   /* Text selection */
   ::selection {
-    @apply bg-secondary text-black;
+    @apply bg-primary text-black;
   }
 
   /* Focus visible for accessibility */
@@ -568,7 +678,7 @@
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    shadcn/ui Component Overrides (Tailwind v4)
-   These ensure shadcn components work with our retro theme
+   These ensure shadcn components work with our Brand Kit theme
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 /* Ensure proper border inheritance */
