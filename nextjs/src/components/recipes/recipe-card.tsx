@@ -418,7 +418,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
           style={animationIndex !== undefined ? { animationDelay: `${animationIndex * 50}ms`, animationFillMode: 'backwards' } : undefined}
         >
           {/* Image Section - ALWAYS present for consistent card height */}
-          <div className="relative w-full h-40 rounded-t-xl overflow-hidden bg-muted">
+          <div className="relative w-full h-40 rounded-t-xl overflow-hidden bg-[#F5F3EE] dark:bg-slate-700">
             {recipe.image_url ? (
               <Image
                 src={recipe.image_url}
@@ -431,8 +431,8 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
               />
             ) : (
               /* Placeholder for cards without images */
-              <div className="absolute inset-0 flex items-center justify-center">
-                <UtensilsCrossed className="size-12 text-muted-foreground/30" />
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#F5F3EE] to-[#EBE8E0] dark:from-slate-700 dark:to-slate-800">
+                <UtensilsCrossed className="size-12 text-gray-400/50 dark:text-slate-500" />
               </div>
             )}
 
@@ -610,7 +610,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
           </div>
 
           {/* Title Section - with rating - fixed height for consistency */}
-          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 shrink-0 min-h-[60px] flex items-center">
+          <div className="px-4 py-3 border-b border-gray-300 dark:border-gray-600 shrink-0 min-h-[60px] flex items-center">
             <div className="flex items-start justify-between gap-2 w-full">
               <CardTitle className="text-base leading-snug line-clamp-2 flex-1 text-[#1A1A1A] dark:text-white">
                 <HighlightText text={recipe.title} searchTerm={searchTerm} />
@@ -639,7 +639,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
           </div>
 
           {/* Badge + Metadata Row - shrink-0 for consistent height */}
-          <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 flex-wrap shrink-0">
+          <div className="px-4 py-2 border-b border-gray-300 dark:border-gray-600 flex items-center gap-2 flex-wrap shrink-0">
             {/* Recipe Type Badge - Smaller */}
             <div
               className={cn(
@@ -733,7 +733,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
             )}
 
             {/* Footer: Add to Plan + Favorite */}
-            <div className={cn("pt-3 mt-auto flex items-center gap-2", !isMobile && "border-t border-gray-200 dark:border-gray-700")}>
+            <div className={cn("pt-3 mt-auto flex items-center gap-2", !isMobile && "border-t border-gray-300 dark:border-gray-600")}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button

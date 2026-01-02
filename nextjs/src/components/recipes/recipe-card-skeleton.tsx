@@ -22,7 +22,7 @@ export function RecipeCardSkeleton({ animationIndex }: RecipeCardSkeletonProps) 
       <Skeleton className="w-full h-40 rounded-t-xl" />
 
       {/* Title section */}
-      <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="px-4 py-4 border-b border-gray-300 dark:border-gray-600">
         <div className="flex items-start justify-between gap-2">
           <Skeleton className="h-5 w-3/4 bg-gray-100 dark:bg-gray-700" />
           <Skeleton className="h-6 w-12 rounded-full bg-gray-100 dark:bg-gray-700" />
@@ -30,7 +30,7 @@ export function RecipeCardSkeleton({ animationIndex }: RecipeCardSkeletonProps) 
       </div>
 
       {/* Badge + Metadata Row */}
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+      <div className="px-4 py-3 border-b border-gray-300 dark:border-gray-600 flex items-center gap-2">
         <Skeleton className="h-5 w-16 rounded-full bg-gray-100 dark:bg-gray-700" />
         <Skeleton className="h-4 w-32 bg-gray-100 dark:bg-gray-700" />
       </div>

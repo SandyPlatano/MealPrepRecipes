@@ -122,7 +122,7 @@ export function SubstitutionSuggestionCard({
 
       {/* Select Button */}
       <Button
-        className={`w-full mt-3 rounded-full ${in_pantry ? "bg-[#1A1A1A] hover:bg-[#1A1A1A]/90" : "border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"}`}
+        className={`w-full mt-3 rounded-full ${in_pantry ? "bg-[#1A1A1A] hover:bg-[#1A1A1A]/90" : "border-gray-300 text-gray-900 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-100"}`}
         size="sm"
         variant={in_pantry ? "default" : "outline"}
         onClick={() => onSelect(suggestion)}

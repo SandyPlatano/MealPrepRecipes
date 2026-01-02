@@ -70,7 +70,7 @@ export const SortableCategorySection = memo(function SortableCategorySection({
       <Card
         ref={setNodeRef}
         style={style}
-        className={`border-gray-200 dark:border-gray-700 ${allChecked ? "opacity-60" : ""} ${
+        className={`border-gray-300 dark:border-gray-600 ${allChecked ? "opacity-60" : ""} ${
           isDragging ? "opacity-50 shadow-lg ring-2 ring-[#D9F99D] z-50" : ""
         }`}
       >

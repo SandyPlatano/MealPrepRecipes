@@ -735,7 +735,7 @@ export function ShoppingListView({
           <div className="flex gap-2 flex-1">
             {/* Email Meal Plan - Primary */}
             {plannedRecipes.length > 0 && (
-              <Button variant="outline" className="flex-1 rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300" onClick={handleSendPlan} disabled={isSendingPlan}>
+              <Button variant="outline" className="flex-1 rounded-full border-gray-300 text-gray-900 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-100" onClick={handleSendPlan} disabled={isSendingPlan}>
                 <Mail className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">{isSendingPlan ? "Emailing..." : "Email Meal Plan"}</span>
                 <span className="sm:hidden">{isSendingPlan ? "..." : "Email"}</span>
@@ -746,7 +746,7 @@ export function ShoppingListView({
             {pantryCount > 0 && (
               <Button
                 variant={showPantryItems ? "default" : "outline"}
-                className={`flex-1 rounded-full ${showPantryItems ? "bg-[#1A1A1A] hover:bg-[#1A1A1A]/90" : "border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"}`}
+                className={`flex-1 rounded-full ${showPantryItems ? "bg-[#1A1A1A] hover:bg-[#1A1A1A]/90" : "border-gray-300 text-gray-900 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-100"}`}
                 onClick={() => setShowPantryItems(!showPantryItems)}
               >
                 <Cookie className="h-4 w-4 mr-2" />
@@ -760,9 +760,9 @@ export function ShoppingListView({
             )}
 
             {/* Show Recipe Sources Toggle */}
-            <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-              <BookOpen className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-              <span className="text-sm hidden sm:inline text-gray-700 dark:text-gray-300">Sources</span>
+            <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-full border border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800">
+              <BookOpen className="h-4 w-4 text-gray-700 dark:text-gray-300" />
+              <span className="text-sm hidden sm:inline text-gray-900 dark:text-gray-100">Sources</span>
               <Switch
                 checked={showRecipeSources}
                 onCheckedChange={handleToggleRecipeSources}
@@ -773,7 +773,7 @@ export function ShoppingListView({
             {/* Store Mode Toggle */}
             <Button
               variant={storeMode ? "default" : "outline"}
-              className={`flex-1 rounded-full ${storeMode ? "bg-[#1A1A1A] hover:bg-[#1A1A1A]/90" : "border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"}`}
+              className={`flex-1 rounded-full ${storeMode ? "bg-[#1A1A1A] hover:bg-[#1A1A1A]/90" : "border-gray-300 text-gray-900 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-100"}`}
               onClick={handleToggleStoreMode}
             >
               <Store className="h-4 w-4 mr-2" />
@@ -788,7 +788,7 @@ export function ShoppingListView({
             {/* Clear All Items */}
             <Button
               variant="outline"
-              className="flex-1 rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"
+              className="flex-1 rounded-full border-gray-300 text-gray-900 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-100"
               onClick={() => setClearAllDialogOpen(true)}
             >
               <Trash2 className="h-4 w-4 mr-2" />

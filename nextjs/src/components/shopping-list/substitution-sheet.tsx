@@ -296,7 +296,7 @@ export function SubstitutionSheet({
               {/* Try Again */}
               <Button
                 variant="outline"
-                className="w-full rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"
+                className="w-full rounded-full border-gray-300 text-gray-900 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-100"
                 onClick={() => {
                   setHasFetched(false);
                   setSuggestions([]);

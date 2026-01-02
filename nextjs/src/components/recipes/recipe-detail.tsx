@@ -112,6 +112,10 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { RecipeLayoutPreferences, RecipeSectionId } from "@/types/recipe-layout";
 import { DEFAULT_RECIPE_LAYOUT_PREFERENCES } from "@/types/recipe-layout";
+import { AddIngredientsDialog } from "@/components/recipes/add-ingredients-dialog";
+import { ClickableIngredient } from "@/components/recipes/clickable-ingredient";
+import { useQuickCartContext } from "@/components/quick-cart";
+import { ShoppingCart } from "lucide-react";
 
 interface CookingHistoryEntry {
   id: string;
@@ -209,6 +213,11 @@ export function RecipeDetail({
   const [editingHistoryEntry, setEditingHistoryEntry] = useState<CookingHistoryEntry | null>(null);
   const [deleteHistoryEntryId, setDeleteHistoryEntryId] = useState<string | null>(null);
   const [isDeletingHistoryEntry, setIsDeletingHistoryEntry] = useState(false);
+
+  // Quick cart integration
+  const [showAddIngredientsDialog, setShowAddIngredientsDialog] = useState(false);
+  const [isAddingIngredients, setIsAddingIngredients] = useState(false);
+  const quickCart = useQuickCartContext();
   const router = useRouter();
 
   // Check if recipe was cooked today
@@ -445,6 +454,34 @@ export function RecipeDetail({
     setCurrentServings(clampedValue);
   };
 
+  // Handle adding all ingredients to shopping cart
+  const handleAddAllIngredients = async () => {
+    setIsAddingIngredients(true);
+    try {
+      const result = await quickCart.addItemsFromRecipe(
+        recipe.ingredients,
+        recipe.id,
+        recipe.title
+      );
+
+      setShowAddIngredientsDialog(false);
+
+      if (result.error) {
+        toast.error(result.error);
+      } else if (result.added > 0) {
+        toast.success(`Added ${result.added} items to cart`, {
+          description: result.skipped > 0 ? `${result.skipped} already in list` : undefined,
+        });
+      } else {
+        toast.info("All ingredients already in cart");
+      }
+    } catch {
+      toast.error("Failed to add ingredients");
+    } finally {
+      setIsAddingIngredients(false);
+    }
+  };
+
   const lastCooked = localHistory.length > 0 ? localHistory[0].cooked_at : null;
 
   // ============================================================================
@@ -454,11 +491,22 @@ export function RecipeDetail({
   const renderIngredientsSection = () => (
     <div className="flex flex-col gap-4">
       {/* Title Row */}
-      <div className="flex items-baseline gap-2">
-        <h3 className="text-lg font-semibold text-[#1A1A1A] dark:text-white">Ingredients</h3>
-        <Badge variant="secondary" className="text-xs">
-          {recipe.ingredients.length} items
-        </Badge>
+      <div className="flex items-center justify-between">
+        <div className="flex items-baseline gap-2">
+          <h3 className="text-lg font-semibold text-[#1A1A1A] dark:text-white">Ingredients</h3>
+          <Badge variant="secondary" className="text-xs">
+            {recipe.ingredients.length} items
+          </Badge>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowAddIngredientsDialog(true)}
+          className="gap-2"
+        >
+          <ShoppingCart className="size-4" />
+          Add All
+        </Button>
       </div>
 
       {/* Unit toggle for non-scalable recipes */}
@@ -542,7 +590,13 @@ export function RecipeDetail({
             <li key={index} className="flex items-start gap-2 group">
               <span className="text-muted-foreground">•</span>
               <div className="flex-1 flex items-center gap-2">
-                <span>{ingredient}</span>
+                <ClickableIngredient
+                  ingredient={recipe.ingredients[index] || ingredient}
+                  recipeId={recipe.id}
+                  recipeTitle={recipe.title}
+                >
+                  <span>{ingredient}</span>
+                </ClickableIngredient>
                 {ingredientSubs && ingredientSubs.length > 0 && (
                   <Popover>
                     <PopoverTrigger asChild>
@@ -577,6 +631,16 @@ export function RecipeDetail({
           );
         })}
       </ul>
+
+      {/* Add All Ingredients Dialog */}
+      <AddIngredientsDialog
+        open={showAddIngredientsDialog}
+        onOpenChange={setShowAddIngredientsDialog}
+        ingredients={recipe.ingredients}
+        recipeTitle={recipe.title}
+        onConfirm={handleAddAllIngredients}
+        isLoading={isAddingIngredients}
+      />
     </div>
   );
 
@@ -809,7 +873,7 @@ export function RecipeDetail({
         // Render two half-width sections side-by-side
         sections.push(
           <div key={`${sectionId}-${nextSectionId}`}>
-            <div className="border-t border-gray-200 dark:border-gray-700" />
+            <div className="border-t border-gray-300 dark:border-gray-600" />
             <div className="grid gap-8 md:grid-cols-2 pt-6">
               <div>{sectionRenderers[sectionId]()}</div>
               <div>{sectionRenderers[nextSectionId]()}</div>
@@ -821,7 +885,7 @@ export function RecipeDetail({
         // Render single full-width section
         sections.push(
           <div key={sectionId}>
-            <div className="border-t border-gray-200 dark:border-gray-700" />
+            <div className="border-t border-gray-300 dark:border-gray-600" />
             <div className="pt-6">{sectionRenderers[sectionId]()}</div>
           </div>
         );

@@ -92,7 +92,7 @@ export function EmojiPicker({
     : EMOJI_CATEGORIES[activeCategory].emojis;
 
   return (
-    <div className={cn("w-72 bg-popover border border-gray-200 dark:border-gray-700 rounded-xl shadow-md p-2", className)}>
+    <div className={cn("w-72 bg-popover border border-gray-300 dark:border-gray-600 rounded-xl shadow-md p-2", className)}>
       {/* Search */}
       <div className="relative mb-2">
         <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
