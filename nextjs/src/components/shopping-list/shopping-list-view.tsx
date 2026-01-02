@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -11,34 +10,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Plus,
   Trash2,
   Check,
   RefreshCw,
   Copy,
   Cookie,
   BookOpen,
-  ExternalLink,
   Store,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
-  toggleShoppingListItem,
-  removeShoppingListItem,
   clearCheckedItems,
   clearShoppingList,
 } from "@/app/actions/shopping-list";
 import {
-  addToPantry,
-  removeFromPantry,
-} from "@/app/actions/pantry";
-import {
   type ShoppingListWithItems,
   type ShoppingListItem,
   type PantryItem,
-  INGREDIENT_CATEGORIES,
 } from "@/types/shopping-list";
 import { convertIngredientToSystem, type UnitSystem } from "@/lib/ingredient-scaler";
 import { triggerHaptic } from "@/lib/haptics";
@@ -60,12 +49,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
@@ -78,39 +61,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, ChevronUp, CalendarDays, Mail, ChefHat } from "lucide-react";
-import { GripVertical, RotateCcw, WifiOff, MoreVertical } from "lucide-react";
+import { RotateCcw, WifiOff, MoreVertical } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import Link from "next/link";
 import {
   DndContext,
   DragOverlay,
   closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  type DragStartEvent,
-  type DragEndEvent,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
-  sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-  useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { useOffline } from "@/lib/use-offline";
 import { Confetti } from "@/components/ui/confetti";
 import { SubstitutionSheet } from "./substitution-sheet";
 import { SortableCategorySection, CategoryCardOverlay } from "./category-section";
+import { AddItemForm } from "./add-item-form";
+import { ProgressBar } from "./progress-bar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ShoppingCart } from "lucide-react";
 
@@ -426,36 +393,14 @@ export function ShoppingListView({
       )}
 
       {/* Add Item Form */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg text-gray-900 dark:text-gray-100">Add Item</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAddItem} className="flex gap-2">
-            <Input
-              placeholder="Add ingredient..."
-              value={newItem}
-              onChange={(e) => setNewItem(e.target.value)}
-              className="flex-1 border-gray-200 focus:border-[#D9F99D] focus:ring-1 focus:ring-[#D9F99D] dark:border-gray-700"
-            />
-            <Select value={newCategory} onValueChange={setNewCategory}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {INGREDIENT_CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button type="submit" disabled={isAdding || !newItem.trim()} className="bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-white rounded-full">
-              <Plus className="h-4 w-4" />
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      <AddItemForm
+        newItem={newItem}
+        setNewItem={setNewItem}
+        newCategory={newCategory}
+        setNewCategory={setNewCategory}
+        isAdding={isAdding}
+        onSubmit={handleAddItem}
+      />
 
       {/* Actions */}
       {shoppingList.items.length > 0 && (
@@ -646,29 +591,8 @@ export function ShoppingListView({
       {/* Spacer for sticky progress bar on mobile */}
       {totalCount > 0 && <div className="h-20 sm:h-0" />}
 
-      {/* Sticky Progress Bar - Bottom anchored on mobile */}
-      {totalCount > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 sm:relative sm:mt-6 bg-white/95 backdrop-blur-sm border-t border-gray-200 sm:border sm:rounded-lg p-4 sm:p-4 shadow-lg sm:shadow-sm z-40 safe-area-bottom dark:bg-gray-900/95 dark:border-gray-700">
-          <div className="max-w-4xl mx-auto flex flex-col gap-2">
-            <div className="h-3 sm:h-2 bg-gray-100 rounded-full overflow-hidden dark:bg-gray-800">
-              <div
-                className="h-full bg-[#D9F99D] transition-all duration-500 ease-out"
-                style={{ width: `${(checkedCount / totalCount) * 100}%` }}
-              />
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-between">
-              <span className="font-medium">
-                {checkedCount} of {totalCount} items
-              </span>
-              {checkedCount === totalCount && totalCount > 0 && (
-                <span className="text-green-600 dark:text-green-400 font-medium">
-                  Shopping done!
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Sticky Progress Bar */}
+      <ProgressBar checkedCount={checkedCount} totalCount={totalCount} />
     </div>
   );
 }

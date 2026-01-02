@@ -116,11 +116,11 @@ export const ShoppingItemRow = memo(function ShoppingItemRow({
     >
       <TooltipProvider>
         <li
-          className={`flex items-center group cursor-pointer hover:bg-gray-50 transition-colors dark:hover:bg-gray-800/30 ${
+          className={`flex items-center group cursor-pointer hover:bg-muted/50 transition-colors ${
             storeMode
               ? "gap-4 px-4 py-4 min-h-[72px]" // Much larger for in-store shopping
-              : "gap-3 px-3 py-2.5 min-h-[52px]"
-          } ${item.is_in_pantry ? "opacity-50" : ""}`}
+              : "gap-3 px-3 py-3 min-h-[56px]"
+          }`}
           onClick={handleToggle}
           role="button"
           tabIndex={0}
@@ -142,21 +142,23 @@ export const ShoppingItemRow = memo(function ShoppingItemRow({
           />
           <span
             className={`flex-1 flex items-center gap-2 flex-wrap ${
-              storeMode ? "text-base" : "text-sm"
-            } ${
-              item.is_checked ? "line-through text-gray-400 dark:text-gray-500" : "text-gray-800 dark:text-gray-200"
+              storeMode ? "text-lg" : "text-base"
             }`}
           >
             {/* Quantity - prominent display */}
             {convertedQuantity && (
-              <span className={`min-w-[60px] tabular-nums font-semibold ${
-                storeMode ? "text-lg" : ""
-              } ${item.is_checked ? "" : "text-gray-900 dark:text-gray-100"}`}>
+              <span className={`min-w-[60px] tabular-nums font-bold ${
+                storeMode ? "text-xl" : "text-base"
+              } ${item.is_checked ? "line-through text-muted-foreground" : "text-foreground"}`}>
                 {convertedQuantity}
               </span>
             )}
             {/* Ingredient name */}
-            <span className={`font-medium ${item.is_checked ? "" : "text-gray-800 dark:text-gray-200"}`}>
+            <span className={`font-medium ${
+              item.is_checked
+                ? "line-through text-muted-foreground"
+                : "text-foreground"
+            }`}>
               {item.ingredient}
             </span>
 
