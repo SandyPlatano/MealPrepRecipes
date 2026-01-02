@@ -116,10 +116,10 @@ export const ShoppingItemRow = memo(function ShoppingItemRow({
     >
       <TooltipProvider>
         <li
-          className={`flex items-center gap-3 group cursor-pointer hover:bg-gray-50 px-3 py-2 transition-colors dark:hover:bg-gray-800/30 ${
+          className={`flex items-center group cursor-pointer hover:bg-gray-50 transition-colors dark:hover:bg-gray-800/30 ${
             storeMode
-              ? "min-h-[56px] py-3" // Larger targets in store mode
-              : "min-h-[48px]"
+              ? "gap-4 px-4 py-4 min-h-[72px]" // Much larger for in-store shopping
+              : "gap-3 px-3 py-2.5 min-h-[52px]"
           } ${item.is_in_pantry ? "opacity-50" : ""}`}
           onClick={handleToggle}
           role="button"
@@ -136,21 +136,27 @@ export const ShoppingItemRow = memo(function ShoppingItemRow({
             checked={item.is_checked}
             onCheckedChange={handleToggle}
             onClick={(e) => e.stopPropagation()}
-            className="h-6 w-6 sm:h-5 sm:w-5 pointer-events-auto data-[state=checked]:bg-[#D9F99D] data-[state=checked]:border-[#D9F99D] border-2 border-gray-300 dark:border-gray-600"
+            className={`pointer-events-auto data-[state=checked]:bg-[#D9F99D] data-[state=checked]:border-[#D9F99D] border-2 border-gray-300 dark:border-gray-600 ${
+              storeMode ? "h-8 w-8" : "h-6 w-6 sm:h-5 sm:w-5"
+            }`}
           />
           <span
-            className={`flex-1 text-sm flex items-center gap-2 flex-wrap ${
-              item.is_checked ? "line-through text-gray-400 dark:text-gray-500" : "text-gray-700 dark:text-gray-300"
+            className={`flex-1 flex items-center gap-2 flex-wrap ${
+              storeMode ? "text-base" : "text-sm"
+            } ${
+              item.is_checked ? "line-through text-gray-400 dark:text-gray-500" : "text-gray-800 dark:text-gray-200"
             }`}
           >
             {/* Quantity - prominent display */}
             {convertedQuantity && (
-              <span className={`min-w-[60px] tabular-nums font-medium ${item.is_checked ? "" : "text-gray-900 dark:text-gray-100"}`}>
+              <span className={`min-w-[60px] tabular-nums font-semibold ${
+                storeMode ? "text-lg" : ""
+              } ${item.is_checked ? "" : "text-gray-900 dark:text-gray-100"}`}>
                 {convertedQuantity}
               </span>
             )}
-            {/* Ingredient name - secondary */}
-            <span className={convertedQuantity && !item.is_checked ? "text-gray-600 dark:text-gray-400" : ""}>
+            {/* Ingredient name */}
+            <span className={`font-medium ${item.is_checked ? "" : "text-gray-800 dark:text-gray-200"}`}>
               {item.ingredient}
             </span>
 

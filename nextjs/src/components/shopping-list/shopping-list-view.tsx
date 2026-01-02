@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition, memo } from "react";
+import { useState, useEffect, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,15 +25,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import {
-  addShoppingListItem,
   toggleShoppingListItem,
   removeShoppingListItem,
   clearCheckedItems,
   clearShoppingList,
-  generateFromMealPlan,
-  removeItemsByRecipeId,
 } from "@/app/actions/shopping-list";
-import { updateMealAssignment } from "@/app/actions/meal-plans";
 import {
   addToPantry,
   removeFromPantry,
@@ -44,13 +40,14 @@ import {
   type PantryItem,
   INGREDIENT_CATEGORIES,
 } from "@/types/shopping-list";
-import { normalizeIngredientName, convertIngredientToSystem, type UnitSystem } from "@/lib/ingredient-scaler";
+import { convertIngredientToSystem, type UnitSystem } from "@/lib/ingredient-scaler";
 import { triggerHaptic } from "@/lib/haptics";
 import {
   useShoppingListState,
   useCelebration,
   useCategoryDnd,
   useStoreMode,
+  useShoppingListHandlers,
 } from "./hooks";
 import {
   AlertDialog,
@@ -82,7 +79,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, ChevronUp, CalendarDays, Mail, ChefHat } from "lucide-react";
 import { GripVertical, RotateCcw, WifiOff, MoreVertical } from "lucide-react";
-import { updateSettings, updateShowRecipeSources } from "@/app/actions/settings";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -111,12 +107,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {
-  useOffline,
-  setCachedShoppingList,
-  getCachedShoppingList,
-  type CachedShoppingList,
-} from "@/lib/use-offline";
+import { useOffline } from "@/lib/use-offline";
 import { Confetti } from "@/components/ui/confetti";
 import { SubstitutionButton } from "./substitution-button";
 import { SwipeableShoppingItem } from "./swipeable-shopping-item";
@@ -200,9 +191,6 @@ export function ShoppingListView({
     pantryCount,
   } = state;
 
-  // Transition for cook assignment updates
-  const [, startTransition] = useTransition();
-
   // ─────────────────────────────────────────────────────────────────────────
   // Feature Hooks
   // ─────────────────────────────────────────────────────────────────────────
@@ -281,209 +269,40 @@ export function ShoppingListView({
       )
     : [];
 
-  // Handler for updating cook assignment with optimistic updates
-  const handleUpdateCook = async (assignmentId: string, cook: string | null) => {
-    // Optimistically update local state immediately for instant UI feedback
-    setOptimisticCooks(prev => ({ ...prev, [assignmentId]: cook }));
-
-    startTransition(async () => {
-      const result = await updateMealAssignment(assignmentId, { cook: cook || undefined });
-      if (result.error) {
-        // Rollback optimistic update on error
-        setOptimisticCooks(prev => {
-          const next = { ...prev };
-          delete next[assignmentId];
-          return next;
-        });
-        toast.error(result.error);
-      }
-    });
-  };
-
-  // Helper to get cook value with optimistic override
-  const getCookForAssignment = (assignmentId: string, serverCook: string | undefined): string | undefined => {
-    if (assignmentId in optimisticCooks) {
-      const optimisticValue = optimisticCooks[assignmentId];
-      return optimisticValue === null ? undefined : optimisticValue;
-    }
-    return serverCook;
-  };
-
-  // Handler for sending meal plan
-  const handleSendPlan = async () => {
-    if (plannedRecipes.length === 0) {
-      toast.error("No planned meals to send");
-      return;
-    }
-
-    setIsSendingPlan(true);
-    try {
-      const response = await fetch("/api/send-shopping-list", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          weekRange: `${new Date(weekStart!).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            timeZone: "UTC",
-          })} - ${new Date(new Date(weekStart!).getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            timeZone: "UTC",
-          })}`,
-          weekStart: weekStart,
-          items: plannedRecipes.map((item) => ({
-            recipe: item.recipe,
-            cook: item.cook,
-            day: item.day,
-          })),
-        }),
-      });
-
-      const result = await response.json();
-      if (!response.ok) {
-        toast.error(result.error || "Failed to send plan");
-      } else {
-        toast.success(result.message || "Plan sent!");
-      }
-    } catch {
-      toast.error("Failed to send plan");
-    } finally {
-      setIsSendingPlan(false);
-    }
-  };
-
-  // Refresh pantry lookup when initialPantryItems changes
-  useEffect(() => {
-    setPantryLookup(
-      new Set(initialPantryItems.map((p) => p.normalized_ingredient))
-    );
-  }, [initialPantryItems]);
-
-  // Cache shopping list for offline use
-  useEffect(() => {
-    if (shoppingList.items.length > 0) {
-      const cacheData: CachedShoppingList = {
-        items: shoppingList.items.map((item) => ({
-          id: item.id,
-          ingredient: item.ingredient,
-          quantity: item.quantity,
-          unit: item.unit,
-          category: item.category,
-          is_checked: item.is_checked,
-          recipe_title: item.recipe_title,
-        })),
-        lastUpdated: new Date().toISOString(),
-        pendingChanges: getCachedShoppingList()?.pendingChanges || [],
-      };
-      setCachedShoppingList(cacheData);
-    }
-  }, [shoppingList.items]);
-
-  // NOTE: Derived data (itemsWithPantryStatus, visibleItems, groupedItems,
-  // sortedCategories, counts) are now memoized in useShoppingListState hook.
-  // Celebration (confetti) is now handled by useCelebration hook.
-
-  const handleAddItem = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newItem.trim()) return;
-
-    setIsAdding(true);
-    await addShoppingListItem({
-      ingredient: newItem.trim(),
-      category: newCategory,
-    });
-    setNewItem("");
-    setIsAdding(false);
-  };
-
-  const handleGenerateFromPlan = async () => {
-    setIsGenerating(true);
-    try {
-      const result = await generateFromMealPlan();
-      
-      if (result.error) {
-        toast.error(result.error);
-      } else if (result.count === 0) {
-        toast.info("No meals planned for this week");
-      } else {
-        toast.success(`Added ${result.count} item${result.count !== 1 ? "s" : ""} to your list!`);
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error && error.message.includes("fetch")
-        ? "Network error. Please check your connection and try again."
-        : "Failed to generate shopping list";
-      toast.error(errorMessage);
-      console.error("Generate error:", error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleCopyToClipboard = async () => {
-    if (totalCount === 0) {
-      toast.error("Nothing to copy yet");
-      return;
-    }
-
-    // Format shopping list as plain text
-    let text = "Shopping List\n\n";
-
-    sortedCategories.forEach((category) => {
-      const items = groupedItems[category];
-      text += `${category}:\n`;
-      items.forEach((item) => {
-        const displayText = [item.quantity, item.unit, item.ingredient]
-          .filter(Boolean)
-          .join(" ");
-        text += `  ${item.is_checked ? "✓" : "○"} ${displayText}\n`;
-      });
-      text += "\n";
-    });
-
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.success("Copied to clipboard!");
-    } catch {
-      toast.error("Failed to copy. Try again?");
-    }
-  };
-
-  const handlePantryToggle = (ingredient: string, isInPantry: boolean) => {
-    const normalized = normalizeIngredientName(ingredient);
-    setPantryLookup((prev) => {
-      const next = new Set(prev);
-      if (isInPantry) {
-        next.add(normalized);
-      } else {
-        next.delete(normalized);
-      }
-      return next;
-    });
-  };
-
-
-  // NOTE: DnD sensors and handlers (handleDragStart, handleDragEnd, handleResetOrder)
-  // are now provided by useCategoryDnd hook above.
-
-  // Toggle recipe sources visibility and persist to settings
-  const handleToggleRecipeSources = async (checked: boolean) => {
-    setShowRecipeSources(checked);
-    await updateShowRecipeSources(checked);
-  };
-
-  // Toggle category expansion (accordion behavior on mobile)
-  const handleToggleCategory = (category: string) => {
-    setExpandedCategories(prev => {
-      const next = new Set(prev);
-      if (next.has(category)) {
-        next.delete(category);
-      } else {
-        next.add(category);
-      }
-      return next;
-    });
-  };
+  // ─────────────────────────────────────────────────────────────────────────
+  // Handler Hook - all action handlers and side effects
+  // ─────────────────────────────────────────────────────────────────────────
+  const {
+    handleAddItem,
+    handleGenerateFromPlan,
+    handleCopyToClipboard,
+    handlePantryToggle,
+    handleUpdateCook,
+    getCookForAssignment,
+    handleSendPlan,
+    handleToggleRecipeSources,
+    handleToggleCategory,
+    handleRemoveRecipeItems,
+  } = useShoppingListHandlers({
+    newItem,
+    setNewItem,
+    newCategory,
+    setIsAdding,
+    setIsGenerating,
+    totalCount,
+    sortedCategories,
+    groupedItems,
+    setPantryLookup,
+    setOptimisticCooks,
+    optimisticCooks,
+    plannedRecipes,
+    weekStart,
+    setIsSendingPlan,
+    setShowRecipeSources,
+    setExpandedCategories,
+    shoppingList,
+    initialPantryItems,
+  });
 
   // Auto-expand first category with unchecked items on initial load
   useEffect(() => {
@@ -497,19 +316,6 @@ export function ShoppingListView({
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // NOTE: Store mode logic (localStorage, toggle handler, auto-advance)
-  // is now provided by useStoreMode hook above.
-
-  // Remove all items from a specific recipe
-  const handleRemoveRecipeItems = async (recipeId: string, recipeTitle: string) => {
-    const result = await removeItemsByRecipeId(recipeId);
-    if (result.error) {
-      toast.error(result.error);
-    } else {
-      toast.success(`Removed ${result.count} item${result.count !== 1 ? "s" : ""} from ${recipeTitle}`);
-    }
-  };
 
   return (
     <div className="flex flex-col gap-6">
