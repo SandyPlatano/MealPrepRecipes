@@ -136,7 +136,7 @@ export default function DifficultySettingsPage() {
         title="Time Thresholds"
         description="Based on total time (prep + cook)"
       >
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="time-easy" className="text-sm flex items-center gap-2">
               <span className="text-green-600 dark:text-green-400">Easy</span> if under
@@ -153,7 +153,7 @@ export default function DifficultySettingsPage() {
                 }
                 className="w-20"
               />
-              <span className="text-sm text-muted-foreground">minutes</span>
+              <span className="text-sm text-muted-foreground">min</span>
             </div>
           </div>
           <div className="space-y-2">
@@ -171,14 +171,28 @@ export default function DifficultySettingsPage() {
                 }
                 className="w-20"
               />
-              <span className="text-sm text-muted-foreground">minutes</span>
+              <span className="text-sm text-muted-foreground">min</span>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="time-hard" className="text-sm flex items-center gap-2">
+              <span className="text-red-600 dark:text-red-400">Hard</span> if above
+            </Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="time-hard"
+                type="number"
+                min={thresholds.time.easyMax + 1}
+                value={thresholds.time.mediumMax}
+                onChange={(e) =>
+                  handleChange("time", "mediumMax", parseInt(e.target.value) || 60)
+                }
+                className="w-20"
+              />
+              <span className="text-sm text-muted-foreground">min</span>
             </div>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground mt-2">
-          Above {thresholds.time.mediumMax} minutes ={" "}
-          <span className="text-red-600 dark:text-red-400 font-medium">Hard</span>
-        </p>
       </SettingSection>
 
       {/* Ingredient Thresholds */}
@@ -186,7 +200,7 @@ export default function DifficultySettingsPage() {
         title="Ingredient Thresholds"
         description="Based on number of ingredients"
       >
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="ing-easy" className="text-sm flex items-center gap-2">
               <span className="text-green-600 dark:text-green-400">Easy</span> if under
@@ -224,11 +238,25 @@ export default function DifficultySettingsPage() {
               <span className="text-sm text-muted-foreground">items</span>
             </div>
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="ing-hard" className="text-sm flex items-center gap-2">
+              <span className="text-red-600 dark:text-red-400">Hard</span> if above
+            </Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="ing-hard"
+                type="number"
+                min={thresholds.ingredients.easyMax + 1}
+                value={thresholds.ingredients.mediumMax}
+                onChange={(e) =>
+                  handleChange("ingredients", "mediumMax", parseInt(e.target.value) || 15)
+                }
+                className="w-20"
+              />
+              <span className="text-sm text-muted-foreground">items</span>
+            </div>
+          </div>
         </div>
-        <p className="text-xs text-muted-foreground mt-2">
-          Above {thresholds.ingredients.mediumMax} ingredients ={" "}
-          <span className="text-red-600 dark:text-red-400 font-medium">Hard</span>
-        </p>
       </SettingSection>
 
       {/* Steps Thresholds */}
@@ -236,7 +264,7 @@ export default function DifficultySettingsPage() {
         title="Steps Thresholds"
         description="Based on number of instruction steps"
       >
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="steps-easy" className="text-sm flex items-center gap-2">
               <span className="text-green-600 dark:text-green-400">Easy</span> if under
@@ -274,11 +302,25 @@ export default function DifficultySettingsPage() {
               <span className="text-sm text-muted-foreground">steps</span>
             </div>
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="steps-hard" className="text-sm flex items-center gap-2">
+              <span className="text-red-600 dark:text-red-400">Hard</span> if above
+            </Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="steps-hard"
+                type="number"
+                min={thresholds.steps.easyMax + 1}
+                value={thresholds.steps.mediumMax}
+                onChange={(e) =>
+                  handleChange("steps", "mediumMax", parseInt(e.target.value) || 12)
+                }
+                className="w-20"
+              />
+              <span className="text-sm text-muted-foreground">steps</span>
+            </div>
+          </div>
         </div>
-        <p className="text-xs text-muted-foreground mt-2">
-          Above {thresholds.steps.mediumMax} steps ={" "}
-          <span className="text-red-600 dark:text-red-400 font-medium">Hard</span>
-        </p>
       </SettingSection>
 
       {/* Reset Button */}
