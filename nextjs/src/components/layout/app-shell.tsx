@@ -21,8 +21,7 @@ import {
   type AppSidebarProps,
 } from "@/components/sidebar";
 import { MobileBottomNav } from "./mobile-bottom-nav";
-import { HeaderSearchBar } from "./header-search-bar";
-import { ProfilePill } from "./profile-pill";
+import { CommandPalette } from "@/components/command-palette";
 import type { FolderCategoryWithFolders } from "@/types/folder";
 import type { SystemSmartFolder } from "@/types/smart-folder";
 
@@ -118,6 +117,19 @@ function AppShellContent({
     window.dispatchEvent(new CustomEvent("keyboard:openSearch"));
   }, []);
 
+  // ⌘K / Ctrl+K keyboard shortcut to open command palette
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        handleSearchClick();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleSearchClick]);
+
   const sidebarProps: Omit<AppSidebarProps, "user" | "logoutAction"> = {
     categories,
     systemSmartFolders,
@@ -187,11 +199,14 @@ function AppShellContent({
 
         {/* Bottom Tab Navigation */}
         <MobileBottomNav />
+
+        {/* Command Palette */}
+        <CommandPalette />
       </div>
     );
   }
 
-  // Desktop layout: sidebar + header + content
+  // Desktop layout: sidebar + content (no header - search and profile are in sidebar)
   // When collapsed, fully hide sidebar (width 0) and show floating expand button
   return (
     <div className="flex min-h-screen bg-[#FFFCF6]">
@@ -214,33 +229,15 @@ function AppShellContent({
       {/* Floating expand button - appears when sidebar is fully collapsed */}
       {isCollapsed && <SidebarExpandButton />}
 
-      {/* Main area with header */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header with search and profile */}
-        <header
-          className={cn(
-            "sticky top-0 z-40 h-16 px-6",
-            "flex items-center justify-between",
-            "bg-white/95 backdrop-blur",
-            "border-b border-gray-200"
-          )}
-        >
-          {/* Search bar */}
-          <div className="flex-1 max-w-md">
-            <HeaderSearchBar />
-          </div>
+      {/* Main content area - no header, search and profile are in sidebar */}
+      <main id="main-content" className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <div className="flex-1 flex flex-col w-full px-4 md:px-6 pt-4 pb-4 min-h-0">
+          {children}
+        </div>
+      </main>
 
-          {/* Profile pill */}
-          <ProfilePill user={user} />
-        </header>
-
-        {/* Main Content - takes remaining space, fills viewport height */}
-        <main id="main-content" className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 flex flex-col w-full px-4 md:px-6 pt-2 pb-4 min-h-0">
-            {children}
-          </div>
-        </main>
-      </div>
+      {/* Command Palette */}
+      <CommandPalette />
     </div>
   );
 }

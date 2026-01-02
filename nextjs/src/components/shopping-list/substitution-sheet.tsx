@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -138,14 +138,14 @@ export function SubstitutionSheet({
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
+    <Drawer open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+      <DrawerContent className="bg-white rounded-t-xl max-h-[85vh] overflow-y-auto px-4 pb-6">
+        <DrawerHeader className="px-0">
+          <DrawerTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
             <Sparkles className="h-5 w-5 text-[#D9F99D]" />
             Find Substitutes
-          </SheetTitle>
-          <SheetDescription>
+          </DrawerTitle>
+          <DrawerDescription>
             {item ? (
               <>
                 Get AI-powered substitution suggestions for{" "}
@@ -158,10 +158,10 @@ export function SubstitutionSheet({
             ) : (
               "Select an ingredient to find substitutes"
             )}
-          </SheetDescription>
-        </SheetHeader>
+          </DrawerDescription>
+        </DrawerHeader>
 
-        <div className="mt-6 flex flex-col gap-6">
+        <div className="mt-4 flex flex-col gap-6">
           {/* Reason Selection */}
           {!hasFetched && (
             <div className="flex flex-col gap-3">
@@ -318,8 +318,8 @@ export function SubstitutionSheet({
             </div>
           )}
         </div>
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 }
 

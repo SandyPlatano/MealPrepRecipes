@@ -1,6 +1,12 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -60,37 +66,6 @@ export function MobileRecipePickerSheet({
       }, 100);
       return () => clearTimeout(timeout);
     }
-  }, [isOpen]);
-
-  // Handle escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Only handle Escape key, and only if not typing in an input/textarea
-      if (e.key === "Escape" && isOpen) {
-        const target = e.target as HTMLElement;
-        const isInput = target.tagName === "INPUT" || target.tagName === "TEXTAREA";
-        // Allow Escape to work even in inputs to close the sheet
-        if (!isInput || target === inputRef.current) {
-          onClose();
-        }
-      }
-      // Explicitly allow all other keyboard shortcuts (Ctrl/Cmd+A, Ctrl/Cmd+C, etc.)
-      // to work normally - don't prevent default or stop propagation
-    };
-    window.addEventListener("keydown", handleKeyDown, { capture: false });
-    return () => window.removeEventListener("keydown", handleKeyDown, { capture: false });
-  }, [onClose, isOpen]);
-
-  // Prevent body scroll when open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
   }, [isOpen]);
 
   // Note: Search and tab state persist via context (no reset on close)
@@ -155,54 +130,15 @@ export function MobileRecipePickerSheet({
     },
   ];
 
-  if (!isOpen) return null;
-
   return (
-    <>
-      {/* Backdrop with blur */}
-      <div
-        className={cn(
-          "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm",
-          "animate-in fade-in duration-200"
-        )}
-        onClick={onClose}
-      />
-
-      {/* Sheet */}
-      <div
-        className={cn(
-          "fixed inset-x-0 bottom-0 z-50",
-          "h-[70vh] max-h-[70vh]",
-          "bg-background rounded-t-2xl shadow-2xl",
-          "animate-in slide-in-from-bottom duration-300 ease-out",
-          "flex flex-col"
-        )}
-      >
-        {/* Drag handle */}
-        <div className="flex justify-center pt-3 pb-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-12 h-1.5 rounded-full bg-muted-foreground/30 hover:bg-muted-foreground/50 transition-colors"
-            aria-label="Close"
-          />
-        </div>
-
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 pb-3">
-          <div className="flex items-center gap-2">
+    <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DrawerContent className="bg-white rounded-t-xl">
+        <DrawerHeader className="px-4 pb-3">
+          <DrawerTitle className="flex items-center gap-2">
             <Plus className="h-5 w-5 text-primary" />
             <span className="text-lg font-semibold">Add to {day}</span>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-10 w-10 rounded-full"
-            onClick={onClose}
-          >
-            <ChevronDown className="h-5 w-5" />
-          </Button>
-        </div>
+          </DrawerTitle>
+        </DrawerHeader>
 
         {/* Search */}
         <div className="px-4 pb-3">
@@ -255,7 +191,7 @@ export function MobileRecipePickerSheet({
         </div>
 
         {/* Recipe List */}
-        <ScrollArea className="flex-1 px-4">
+        <ScrollArea className="flex-1 px-4 max-h-[50vh]">
           {filteredRecipes.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <Search className="h-12 w-12 mb-3 opacity-30" />
@@ -320,7 +256,7 @@ export function MobileRecipePickerSheet({
             </div>
           )}
         </ScrollArea>
-      </div>
-    </>
+      </DrawerContent>
+    </Drawer>
   );
 }

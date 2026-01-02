@@ -23,6 +23,8 @@ import type { SystemSmartFolder } from "@/types/smart-folder";
 import type { SectionConfig, CustomSectionConfig } from "@/types/sidebar-customization";
 import { SidebarCustomSection } from "./sidebar-custom-section";
 import { SidebarDivider } from "./sidebar-section";
+import { SidebarProfileAvatar } from "./sidebar-profile-avatar";
+import { SidebarSearchBar } from "./sidebar-search-bar";
 
 export interface AppSidebarProps {
   user: User | null;
@@ -125,13 +127,16 @@ export function AppSidebar({
             <Logo size="md" />
           ) : (
             <div className="w-full flex justify-center">
-              <span className="text-[var(--color-brand-primary)] text-xl font-bold">●</span>
+              <SidebarProfileAvatar user={user} isIconOnly />
             </div>
           )}
           {!isIconOnly && (
-            <div className="w-3 h-3 bg-[var(--color-brand-primary)] rounded-full border border-[var(--color-sidebar-text)]" />
+            <SidebarProfileAvatar user={user} />
           )}
         </div>
+
+        {/* Search Bar */}
+        <SidebarSearchBar isIconOnly={isIconOnly} />
 
         {/* Section Label - GENERAL */}
         {!isIconOnly && (

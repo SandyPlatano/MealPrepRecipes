@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles, Star, Leaf, Wheat, Flame, Mountain, Ship, Milk, TrendingDown, Tags, PanelLeftClose, PanelLeft, ChevronDown } from "lucide-react";
 import { StarRatingFilter } from "@/components/ui/star-rating-filter";
 import { useRecipeFilters } from "@/hooks/use-recipe-filters";
@@ -337,35 +338,32 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
           </Button>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setFilter("dietFilter", "all")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all ${
-              dietFilter === "all"
-                ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                : "border-input hover:bg-accent"
-            }`}
+          <ToggleGroup
+            type="single"
+            value={dietFilter}
+            onValueChange={(value) => setFilter("dietFilter", value || "all")}
+            spacing={2}
           >
-            All Diets
-          </button>
-          {dietTypes.map((diet) => {
-            const Icon = diet.icon;
-            return (
-              <button
-                type="button"
-                key={diet.label}
-                onClick={() => setFilter("dietFilter", diet.label)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all ${
-                  dietFilter === diet.label
-                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                    : "border-input hover:bg-accent"
-                }`}
-              >
-                <Icon className="size-4" />
-                {diet.label}
-              </button>
-            );
-          })}
+            <ToggleGroupItem
+              value="all"
+              className="rounded-full px-3 py-1.5 text-sm data-[state=on]:bg-[#D9F99D] data-[state=on]:text-[#1A1A1A] data-[state=on]:border-[#D9F99D] bg-white border border-gray-200"
+            >
+              All Diets
+            </ToggleGroupItem>
+            {dietTypes.map((diet) => {
+              const Icon = diet.icon;
+              return (
+                <ToggleGroupItem
+                  key={diet.label}
+                  value={diet.label}
+                  className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm data-[state=on]:bg-[#D9F99D] data-[state=on]:text-[#1A1A1A] data-[state=on]:border-[#D9F99D] bg-white border border-gray-200"
+                >
+                  <Icon className="size-4" />
+                  {diet.label}
+                </ToggleGroupItem>
+              );
+            })}
+          </ToggleGroup>
         </div>
       </div>
 
