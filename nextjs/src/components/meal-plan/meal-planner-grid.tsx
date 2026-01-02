@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useTransition } from "react";
+import { useUndoToast } from "@/hooks/use-undo-toast";
 import { useRouter } from "next/navigation";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Loader2 } from "lucide-react";
@@ -103,6 +104,7 @@ export function MealPlannerGrid({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isSending, setIsSending] = useState(false);
+  const { showUndoToast } = useUndoToast();
 
   // Swipe gesture for week navigation (mobile)
   const navigateWeek = useCallback((direction: "prev" | "next") => {
@@ -230,20 +232,45 @@ export function MealPlannerGrid({
     []
   );
 
-  // Handler for removing a meal
+  // Handler for removing a meal (with undo support)
   const handleRemoveMeal = useCallback(
     async (assignmentId: string) => {
       const assignment = allAssignments.find((a) => a.id === assignmentId);
+      if (!assignment) return;
+
+      // Store data needed for undo before deletion
+      const undoData = {
+        recipeId: assignment.recipe_id,
+        day: assignment.day_of_week,
+        cook: assignment.cook,
+        mealType: assignment.meal_type,
+        servingSize: assignment.serving_size,
+        title: assignment.recipe.title,
+      };
+
       startTransition(async () => {
         const result = await removeMealAssignment(assignmentId);
         if (result.error) {
           toast.error(result.error);
         } else {
-          toast.success(`Removed "${assignment?.recipe.title}"`);
+          // Show undo toast instead of simple success
+          showUndoToast(`Removed "${undoData.title}"`, async () => {
+            const restoreResult = await addMealAssignment(
+              weekStartStr,
+              undoData.recipeId,
+              undoData.day,
+              undoData.cook ?? undefined,
+              undoData.mealType,
+              undoData.servingSize
+            );
+            if (restoreResult.error) {
+              throw new Error(restoreResult.error);
+            }
+          });
         }
       });
     },
-    [allAssignments]
+    [allAssignments, weekStartStr, showUndoToast]
   );
 
   // Handler for copying last week
