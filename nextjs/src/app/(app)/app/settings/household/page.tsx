@@ -17,6 +17,7 @@ import { ChildPermissionsEditor } from "@/components/settings/household/child-pe
 import { ContributionDashboard } from "@/components/settings/household/contribution-dashboard";
 import { InvitationManager } from "@/components/settings/household/invitation-manager";
 import { DefaultCooksByDayEditor } from "@/components/household/default-cooks-by-day-editor";
+import { CustomCooksManager } from "@/components/household";
 import {
   updatePermissionMode,
   updateMemberRole,
@@ -24,7 +25,8 @@ import {
   getHouseholdPermissions,
   getHouseholdContributionStats,
 } from "@/app/actions/household-permissions";
-import { updateHouseholdName } from "@/app/actions/settings";
+import { updateHouseholdName, getHouseholdCooks } from "@/app/actions/settings";
+import type { HouseholdCook } from "@/types/household-cooks";
 import type { PermissionMode, HouseholdRole, ChildPermissions } from "@/types/household-permissions";
 import { DEFAULT_CHILD_PERMISSIONS } from "@/types/household-permissions";
 import { toast } from "sonner";
@@ -48,6 +50,7 @@ export default function HouseholdSettingsPage() {
   const [permissionMode, setPermissionMode] = useState<PermissionMode>("managed");
   const [childPermissions, setChildPermissions] = useState<ChildPermissions>(DEFAULT_CHILD_PERMISSIONS);
   const [contributions, setContributions] = useState<MemberContribution[]>([]);
+  const [customCooks, setCustomCooks] = useState<HouseholdCook[]>([]);
 
   // Household name editing state
   const [householdName, setHouseholdName] = useState("");
@@ -64,12 +67,13 @@ export default function HouseholdSettingsPage() {
     }
   }, [household?.household?.name]);
 
-  // Load household permissions and contribution stats on mount
+  // Load household permissions, contribution stats, and custom cooks on mount
   useEffect(() => {
     async function loadData() {
-      const [permissionsResult, contributionsResult] = await Promise.all([
+      const [permissionsResult, contributionsResult, cooksResult] = await Promise.all([
         getHouseholdPermissions(),
         getHouseholdContributionStats(),
+        getHouseholdCooks(),
       ]);
 
       if (!permissionsResult.error && permissionsResult.data) {
@@ -90,6 +94,10 @@ export default function HouseholdSettingsPage() {
             items_added: stat.recipesCreated,
           }))
         );
+      }
+
+      if (!cooksResult.error && cooksResult.data) {
+        setCustomCooks(cooksResult.data);
       }
     }
 
@@ -372,6 +380,16 @@ export default function HouseholdSettingsPage() {
               </Button>
             </div>
           </div>
+        </div>
+      </SettingSection>
+
+      {/* Custom Cooks with Avatars */}
+      <SettingSection
+        title="Custom Cooks"
+        description="Family members who don't have their own accounts"
+      >
+        <div className="py-4">
+          <CustomCooksManager initialCooks={customCooks} />
         </div>
       </SettingSection>
 

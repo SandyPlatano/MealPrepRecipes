@@ -232,8 +232,8 @@ export const PlannerDayRow = memo(function PlannerDayRow({
             )}
           </div>
 
-          {/* Meals content - center/right */}
-          <div className="flex-1 flex items-center gap-2 min-w-0 overflow-hidden">
+          {/* Meals content - center/right - stacked vertically for better readability */}
+          <div className="flex-1 flex flex-col gap-1 min-w-0 overflow-y-auto">
             {assignments.length === 0 ? (
               isPast ? (
                 <span className="text-sm text-muted-foreground">No meals</span>
@@ -245,7 +245,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                   className={cn(
                     "flex items-center gap-2 px-3 py-1.5 rounded-md border border-dashed border-gray-300",
                     "hover:border-[#D9F99D] hover:bg-[#D9F99D]/10 transition-all text-sm text-gray-600",
-                    "hover:text-[#1A1A1A]"
+                    "hover:text-[#1A1A1A] w-fit"
                   )}
                 >
                   <Plus className="size-4" />
@@ -253,18 +253,18 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                 </button>
               )
             ) : (
-              <div className="flex items-center gap-2 flex-1 min-w-0 overflow-x-auto">
-                {/* Show first few meals inline */}
-                {assignments.slice(0, 3).map((assignment) => (
+              <>
+                {/* Stack all meals vertically - each takes full width */}
+                {assignments.map((assignment) => (
                   <div
                     key={assignment.id}
-                    className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-secondary/50 border border-border/50 text-sm min-w-0 max-w-[300px]"
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-secondary/50 border border-border/50 text-sm w-full"
                   >
                     <RecipePreviewPopover
                       recipe={assignment.recipe}
                       nutrition={nutritionData?.get(assignment.recipe_id) || null}
                     >
-                      <span className="truncate font-medium hover:underline cursor-pointer">
+                      <span className="flex-1 truncate font-medium hover:underline cursor-pointer min-w-0">
                         {assignment.recipe.title}
                       </span>
                     </RecipePreviewPopover>
@@ -296,12 +296,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                     </div>
                   </div>
                 ))}
-                {assignments.length > 3 && (
-                  <Badge variant="outline" className="flex-shrink-0">
-                    +{assignments.length - 3} more
-                  </Badge>
-                )}
-                {/* Add more button */}
+                {/* Add more button at the end */}
                 {!isPast && (
                   <QuickAddDropdown
                     recipes={recipes}
@@ -314,7 +309,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                     compact
                   />
                 )}
-              </div>
+              </>
             )}
           </div>
         </CardContent>
