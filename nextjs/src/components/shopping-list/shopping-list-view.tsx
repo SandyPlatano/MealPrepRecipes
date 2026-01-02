@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition, memo, useRef } from "react";
+import { useState, useEffect, useTransition, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,11 +43,15 @@ import {
   type ShoppingListItem,
   type PantryItem,
   INGREDIENT_CATEGORIES,
-  groupItemsByCategory,
-  sortCategories,
 } from "@/types/shopping-list";
 import { normalizeIngredientName, convertIngredientToSystem, type UnitSystem } from "@/lib/ingredient-scaler";
 import { triggerHaptic } from "@/lib/haptics";
+import {
+  useShoppingListState,
+  useCelebration,
+  useCategoryDnd,
+  useStoreMode,
+} from "./hooks";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -143,42 +147,89 @@ export function ShoppingListView({
   userUnitSystem = "imperial",
   initialShowRecipeSources = false,
 }: ShoppingListViewProps) {
-  const [newItem, setNewItem] = useState("");
-  const [newCategory, setNewCategory] = useState<string>("Other");
-  const [isAdding, setIsAdding] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [pantryLookup, setPantryLookup] = useState<Set<string>>(
-    new Set(initialPantryItems.map((p) => p.normalized_ingredient))
-  );
-  const [showPantryItems, setShowPantryItems] = useState(false);
-  const [showRecipeSources, setShowRecipeSources] = useState(initialShowRecipeSources);
-  const [categoryOrder, setCategoryOrder] = useState<string[] | null>(
-    initialCategoryOrder
-  );
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
-  const [storeMode, setStoreMode] = useState(false);
-  const [isRecipesOpen, setIsRecipesOpen] = useState(false);
-  const [isSendingPlan, setIsSendingPlan] = useState(false);
-  const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
+  // ─────────────────────────────────────────────────────────────────────────
+  // State Hook - all UI state and memoized derived data
+  // ─────────────────────────────────────────────────────────────────────────
+  const state = useShoppingListState({
+    items: shoppingList.items,
+    initialPantryItems,
+    initialCategoryOrder,
+    initialShowRecipeSources,
+  });
+
+  // Destructure for convenience
+  const {
+    // UI State
+    newItem,
+    setNewItem,
+    newCategory,
+    setNewCategory,
+    isAdding,
+    setIsAdding,
+    isGenerating,
+    setIsGenerating,
+    pantryLookup,
+    setPantryLookup,
+    showPantryItems,
+    setShowPantryItems,
+    showRecipeSources,
+    setShowRecipeSources,
+    categoryOrder,
+    setCategoryOrder,
+    expandedCategories,
+    setExpandedCategories,
+    isRecipesOpen,
+    setIsRecipesOpen,
+    isSendingPlan,
+    setIsSendingPlan,
+    clearAllDialogOpen,
+    setClearAllDialogOpen,
+    optimisticCooks,
+    setOptimisticCooks,
+    showConfetti,
+    setShowConfetti,
+    substitutionItem,
+    setSubstitutionItem,
+    // Derived Data (memoized)
+    itemsWithPantryStatus,
+    visibleItems,
+    groupedItems,
+    sortedCategories,
+    checkedCount,
+    totalCount,
+    pantryCount,
+  } = state;
+
+  // Transition for cook assignment updates
   const [, startTransition] = useTransition();
 
-  // Optimistic state for cook assignments (instant UI feedback)
-  const [optimisticCooks, setOptimisticCooks] = useState<Record<string, string | null>>({});
+  // ─────────────────────────────────────────────────────────────────────────
+  // Feature Hooks
+  // ─────────────────────────────────────────────────────────────────────────
 
-  // Confetti celebration state
-  const [showConfetti, setShowConfetti] = useState(false);
-  const prevCheckedCountRef = useRef<number | null>(null);
+  // DnD for category reordering
+  const {
+    sensors,
+    activeCategory,
+    handleDragStart,
+    handleDragEnd,
+    handleResetOrder,
+  } = useCategoryDnd(sortedCategories, setCategoryOrder);
 
-  // Substitution sheet state
-  const [substitutionItem, setSubstitutionItem] = useState<{
-    id: string;
-    ingredient: string;
-    quantity?: string | null;
-    unit?: string | null;
-    recipe_id?: string | null;
-    recipe_title?: string | null;
-  } | null>(null);
+  // Store mode with localStorage persistence and auto-advance
+  const { storeMode, handleToggleStoreMode } = useStoreMode(
+    expandedCategories,
+    setExpandedCategories,
+    sortedCategories,
+    groupedItems
+  );
+
+  // Celebration - triggers confetti when all items checked
+  useCelebration({
+    checkedCount,
+    totalCount,
+    setShowConfetti,
+  });
 
   // Offline support
   const { isOffline } = useOffline();
@@ -329,42 +380,9 @@ export function ShoppingListView({
     }
   }, [shoppingList.items]);
 
-  // Mark items that are in pantry
-  const itemsWithPantryStatus = shoppingList.items.map((item) => ({
-    ...item,
-    is_in_pantry: pantryLookup.has(normalizeIngredientName(item.ingredient)),
-  }));
-
-  // Filter items based on showPantryItems toggle
-  const visibleItems = showPantryItems
-    ? itemsWithPantryStatus
-    : itemsWithPantryStatus.filter((item) => !item.is_in_pantry);
-
-  const groupedItems = groupItemsByCategory(visibleItems);
-  const sortedCategories = sortCategories(
-    Object.keys(groupedItems),
-    categoryOrder
-  );
-
-  const checkedCount = visibleItems.filter((i) => i.is_checked).length;
-  const totalCount = visibleItems.length;
-  const pantryCount = itemsWithPantryStatus.filter(
-    (i) => i.is_in_pantry
-  ).length;
-
-  // Trigger confetti when all items are checked (and it's a meaningful change)
-  useEffect(() => {
-    const allChecked = checkedCount === totalCount && totalCount > 0;
-    const wasNotAllChecked = prevCheckedCountRef.current !== null && prevCheckedCountRef.current < totalCount;
-
-    if (allChecked && wasNotAllChecked) {
-      setShowConfetti(true);
-      triggerHaptic("success");
-      setTimeout(() => setShowConfetti(false), 100);
-    }
-
-    prevCheckedCountRef.current = checkedCount;
-  }, [checkedCount, totalCount]);
+  // NOTE: Derived data (itemsWithPantryStatus, visibleItems, groupedItems,
+  // sortedCategories, counts) are now memoized in useShoppingListState hook.
+  // Celebration (confetti) is now handled by useCelebration hook.
 
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -445,48 +463,8 @@ export function ShoppingListView({
   };
 
 
-  // @dnd-kit sensors for drag-and-drop
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: { delay: 200, tolerance: 5 },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  // Drag and drop handlers for category reordering
-  const handleDragStart = (event: DragStartEvent) => {
-    triggerHaptic("medium");
-    setActiveCategory(event.active.id as string);
-  };
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveCategory(null);
-
-    if (!over || active.id === over.id) return;
-
-    triggerHaptic("success");
-    const oldIndex = sortedCategories.indexOf(active.id as string);
-    const newIndex = sortedCategories.indexOf(over.id as string);
-
-    if (oldIndex !== -1 && newIndex !== -1) {
-      const newOrder = arrayMove(sortedCategories, oldIndex, newIndex);
-      setCategoryOrder(newOrder);
-      await updateSettings({ category_order: newOrder });
-      toast.success("Shopping route saved");
-    }
-  };
-
-  const handleResetOrder = async () => {
-    setCategoryOrder(null);
-    await updateSettings({ category_order: null });
-    toast.success("Reset to default order");
-  };
+  // NOTE: DnD sensors and handlers (handleDragStart, handleDragEnd, handleResetOrder)
+  // are now provided by useCategoryDnd hook above.
 
   // Toggle recipe sources visibility and persist to settings
   const handleToggleRecipeSources = async (checked: boolean) => {
@@ -520,62 +498,8 @@ export function ShoppingListView({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Store Mode: Load from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem("shopping-store-mode");
-    if (saved === "true") {
-      setStoreMode(true);
-    }
-  }, []);
-
-  // Store Mode: Toggle handler with localStorage persistence
-  const handleToggleStoreMode = () => {
-    const newValue = !storeMode;
-    setStoreMode(newValue);
-    localStorage.setItem("shopping-store-mode", String(newValue));
-    triggerHaptic("medium");
-
-    if (newValue) {
-      // Entering store mode: collapse all, expand first with unchecked
-      const firstWithUnchecked = sortedCategories.find(cat =>
-        groupedItems[cat]?.some(item => !item.is_checked)
-      );
-      if (firstWithUnchecked) {
-        setExpandedCategories(new Set([firstWithUnchecked]));
-      } else {
-        setExpandedCategories(new Set());
-      }
-      toast.success("Store Mode activated - focus on one category at a time");
-    } else {
-      toast.success("Store Mode deactivated");
-    }
-  };
-
-  // Store Mode: Auto-advance to next category when current is completed
-  useEffect(() => {
-    if (!storeMode || expandedCategories.size === 0) return;
-
-    // Check if all expanded categories are complete
-    const expandedArray = Array.from(expandedCategories);
-    const allExpandedComplete = expandedArray.every(cat => {
-      const items = groupedItems[cat];
-      return items?.every(item => item.is_checked);
-    });
-
-    if (allExpandedComplete) {
-      // Find next category with unchecked items
-      const nextWithUnchecked = sortedCategories.find(cat =>
-        !expandedCategories.has(cat) && groupedItems[cat]?.some(item => !item.is_checked)
-      );
-
-      if (nextWithUnchecked) {
-        triggerHaptic("success");
-        setExpandedCategories(new Set([nextWithUnchecked]));
-        toast.success(`Moving to ${nextWithUnchecked}`, { duration: 2000 });
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storeMode, groupedItems]);
+  // NOTE: Store mode logic (localStorage, toggle handler, auto-advance)
+  // is now provided by useStoreMode hook above.
 
   // Remove all items from a specific recipe
   const handleRemoveRecipeItems = async (recipeId: string, recipeTitle: string) => {

@@ -24,6 +24,10 @@ import { MobileBottomNav } from "./mobile-bottom-nav";
 import { CommandPalette } from "@/components/command-palette";
 import { TourProvider } from "@/contexts/tour-context";
 import { TourSpotlight } from "@/components/tour";
+import {
+  QuickCartProvider,
+  QuickCartHeaderIcon,
+} from "@/components/quick-cart";
 import type { FolderCategoryWithFolders } from "@/types/folder";
 import type { SystemSmartFolder } from "@/types/smart-folder";
 
@@ -163,46 +167,91 @@ function AppShellContent({
   // Mobile layout: just content with mobile sheet
   if (isMobile) {
     return (
-      <div className="flex flex-col min-h-screen bg-background">
-        <SkipLink />
-        {/* Mobile Header */}
-        <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex items-center justify-between h-14 px-4">
-            <div className="flex items-center gap-4">
-              <MobileSidebarTrigger />
-              <h1 className="font-semibold text-lg">MealPrep</h1>
+      <QuickCartProvider isMobile={true}>
+        <div className="flex flex-col min-h-screen bg-background">
+          <SkipLink />
+          {/* Mobile Header */}
+          <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex items-center justify-between h-14 px-4">
+              <div className="flex items-center gap-4">
+                <MobileSidebarTrigger />
+                <h1 className="font-semibold text-lg">MealPrep</h1>
+              </div>
+              <div className="flex items-center gap-1">
+                <QuickCartHeaderIcon />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent("keyboard:openSearch"));
+                  }}
+                  className="h-9 w-9"
+                  aria-label="Search"
+                >
+                  <Search className="h-5 w-5" />
+                </Button>
+              </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                window.dispatchEvent(new CustomEvent("keyboard:openSearch"));
-              }}
-              className="h-9 w-9"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5" />
-            </Button>
-          </div>
-        </header>
+          </header>
 
-        {/* Mobile Sheet */}
-        <MobileSidebarSheet
-          user={user}
-          logoutAction={logoutAction}
-          onSearchClick={handleSearchClick}
-          {...sidebarProps}
-        />
+          {/* Mobile Sheet */}
+          <MobileSidebarSheet
+            user={user}
+            logoutAction={logoutAction}
+            onSearchClick={handleSearchClick}
+            {...sidebarProps}
+          />
 
-        {/* Main Content - padding accounts for bottom nav height + safe area */}
-        <main id="main-content" className="flex-1 pb-[calc(56px+env(safe-area-inset-bottom,0px))]">
-          <div className="container mx-auto w-full px-4 py-8">
+          {/* Main Content - padding accounts for bottom nav height + safe area */}
+          <main id="main-content" className="flex-1 pb-[calc(56px+env(safe-area-inset-bottom,0px))]">
+            <div className="container mx-auto w-full px-4 py-8">
+              {children}
+            </div>
+          </main>
+
+          {/* Bottom Tab Navigation */}
+          <MobileBottomNav />
+
+          {/* Command Palette */}
+          <CommandPalette />
+
+          {/* Onboarding Tour */}
+          <TourSpotlight />
+        </div>
+      </QuickCartProvider>
+    );
+  }
+
+  // Desktop layout: sidebar + content (no header - search and profile are in sidebar)
+  // When collapsed, fully hide sidebar (width 0) and show floating expand button
+  return (
+    <QuickCartProvider isMobile={false}>
+      <div className="flex min-h-screen bg-[#FFFCF6]">
+        <SkipLink />
+        {/* Sidebar wrapper with collapse animation */}
+        <div
+          className={cn(
+            "shrink-0 overflow-hidden",
+            "transition-[width] duration-200 ease-out"
+          )}
+          style={{ width: isCollapsed ? 0 : sidebarWidth }}
+        >
+          <AppSidebar
+            user={user}
+            logoutAction={logoutAction}
+            {...sidebarProps}
+          />
+        </div>
+
+        {/* Floating expand button - appears when sidebar is fully collapsed */}
+        {isCollapsed && <SidebarExpandButton />}
+
+        {/* Main content area - no header, search and profile are in sidebar */}
+        <main id="main-content" className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <div className="flex-1 flex flex-col w-full px-4 md:px-6 pt-4 pb-4 min-h-0">
             {children}
           </div>
         </main>
-
-        {/* Bottom Tab Navigation */}
-        <MobileBottomNav />
 
         {/* Command Palette */}
         <CommandPalette />
@@ -210,44 +259,6 @@ function AppShellContent({
         {/* Onboarding Tour */}
         <TourSpotlight />
       </div>
-    );
-  }
-
-  // Desktop layout: sidebar + content (no header - search and profile are in sidebar)
-  // When collapsed, fully hide sidebar (width 0) and show floating expand button
-  return (
-    <div className="flex min-h-screen bg-[#FFFCF6]">
-      <SkipLink />
-      {/* Sidebar wrapper with collapse animation */}
-      <div
-        className={cn(
-          "shrink-0 overflow-hidden",
-          "transition-[width] duration-200 ease-out"
-        )}
-        style={{ width: isCollapsed ? 0 : sidebarWidth }}
-      >
-        <AppSidebar
-          user={user}
-          logoutAction={logoutAction}
-          {...sidebarProps}
-        />
-      </div>
-
-      {/* Floating expand button - appears when sidebar is fully collapsed */}
-      {isCollapsed && <SidebarExpandButton />}
-
-      {/* Main content area - no header, search and profile are in sidebar */}
-      <main id="main-content" className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <div className="flex-1 flex flex-col w-full px-4 md:px-6 pt-4 pb-4 min-h-0">
-          {children}
-        </div>
-      </main>
-
-      {/* Command Palette */}
-      <CommandPalette />
-
-      {/* Onboarding Tour */}
-      <TourSpotlight />
-    </div>
+    </QuickCartProvider>
   );
 }

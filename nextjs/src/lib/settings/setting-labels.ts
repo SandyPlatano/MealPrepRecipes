@@ -20,9 +20,7 @@ const SETTING_LABELS: Record<string, string> = {
   "settings.macro_goals": "Macro Goals",
   "settings.macro_goal_preset": "Macro Preset",
 
-  // Display Preferences
-  "preferencesV2.display.theme": "Theme",
-  "preferencesV2.display.accentColor": "Accent Color",
+  // Display Preferences (Date, Time & Ratings)
   "preferencesV2.display.weekStartDay": "Week Start Day",
   "preferencesV2.display.timeFormat": "Time Format",
   "preferencesV2.display.dateFormat": "Date Format",

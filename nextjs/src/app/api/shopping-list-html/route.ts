@@ -121,7 +121,7 @@ function generateInteractiveShoppingListHTML(data: ShoppingData): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="theme-color" content="#F97316">
+  <meta name="theme-color" content="#D9F99D">
   <title>Shopping List - ${data.weekRange}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

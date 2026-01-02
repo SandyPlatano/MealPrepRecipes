@@ -9,8 +9,8 @@ import {
 import { HelpCircle } from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// FAQ SECTION - Neo-Brutalist/Retro Style
-// Bold accordion with thick borders, retro shadows, and primary red accents
+// FAQ SECTION - Warm & Cozy Design System
+// Clean accordion with soft shadows and rounded corners
 // ═══════════════════════════════════════════════════════════════════════════
 
 const faqs = [
@@ -58,35 +58,35 @@ const faqs = [
 
 export function FAQ() {
   return (
-    <section id="faq" className="py-24 bg-card relative overflow-hidden">
+    <section className="py-24 bg-white relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <span className="bg-secondary border-2 border-black text-foreground text-xs font-bold px-3 py-1 rounded inline-flex items-center gap-2 mb-4">
-              <HelpCircle className="w-3.5 h-3.5" />
+            <span className="bg-[#D9F99D] text-[#1A1A1A] text-sm font-semibold px-4 py-2 rounded-full inline-flex items-center gap-2 mb-4">
+              <HelpCircle className="w-4 h-4" />
               FAQ
             </span>
-            <h2 className="font-display text-3xl md:text-4xl font-semibold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
               Questions & Answers
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-gray-600">
               Everything you need to know about meal planning.
             </p>
           </div>
 
-          {/* Accordion with retro styling */}
+          {/* Accordion with Warm & Cozy styling */}
           <Accordion type="single" collapsible className="w-full space-y-3">
             {faqs.map((faq, index) => (
               <AccordionItem
                 key={index}
                 value={`item-${index}`}
-                className="border-2 border-black bg-card rounded-xl hover: hover:translate-x-[1px] hover:translate-y-[1px] transition-all px-6 data-[state=open]:border-primary data-[state=open]:"
+                className="border border-gray-200 bg-white rounded-xl shadow-sm px-6 hover:shadow-md transition-shadow data-[state=open]:border-[#D9F99D] data-[state=open]:shadow-md"
               >
-                <AccordionTrigger className="text-left text-base font-semibold text-foreground hover:text-primary transition-colors py-5 [&[data-state=open]]:text-primary">
+                <AccordionTrigger className="text-left text-base font-semibold text-[#1A1A1A] hover:text-gray-700 transition-colors py-5 [&[data-state=open]]:text-[#1A1A1A]">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
+                <AccordionContent className="text-gray-600 pb-5 leading-relaxed">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

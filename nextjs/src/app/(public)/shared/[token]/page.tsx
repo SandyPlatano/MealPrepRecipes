@@ -31,13 +31,11 @@ import { getRecipeByShareToken, trackRecipeView } from "@/app/actions/sharing";
 import type { RecipeType } from "@/types/recipe";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { PixelBrandLogoCompact } from "@/components/landing/pixel-art";
 
 interface SharedRecipePageProps {
   params: Promise<{ token: string }>;
 }
 
-// Generate metadata for SEO
 export async function generateMetadata({
   params,
 }: SharedRecipePageProps): Promise<Metadata> {
@@ -61,7 +59,6 @@ export async function generateMetadata({
   };
 }
 
-// Get icon based on recipe type
 function getRecipeIcon(recipeType: RecipeType) {
   switch (recipeType) {
     case "Baking":
@@ -90,7 +87,6 @@ export default async function SharedRecipePage({
     notFound();
   }
 
-  // Track the view
   const headersList = await headers();
   const ip = headersList.get("x-forwarded-for")?.split(",")[0] || "unknown";
   const referrer = headersList.get("referer") || undefined;
@@ -99,21 +95,26 @@ export default async function SharedRecipePage({
   await trackRecipeView(recipe.id, ip, referrer, userAgent);
 
   return (
-    <div className="min-h-screen bg-[#111111]">
-      {/* Simple Header */}
-      <header className="border-b border-[#222222] sticky top-0 bg-[#111111]/95 backdrop-blur supports-[backdrop-filter]:bg-[#111111]/60 z-50">
+    <div className="min-h-screen bg-[#FFFCF6]">
+      {/* Header */}
+      <header className="border-b border-gray-200 sticky top-0 bg-[#FFFCF6]/95 backdrop-blur supports-[backdrop-filter]:bg-[#FFFCF6]/60 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="hover:opacity-80 transition-opacity">
-            <PixelBrandLogoCompact variant="inline" colorMode="dark" />
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <div className="w-8 h-8 bg-[#D9F99D] rounded-lg flex items-center justify-center">
+              <span className="text-[#1A1A1A] font-bold text-sm">B</span>
+            </div>
+            <span className="font-bold text-xl text-[#1A1A1A]">
+              babewfd<span className="text-[#D9F99D]">.</span>
+            </span>
           </Link>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" className="rounded-full" asChild>
               <Link href="/login">
                 <LogIn className="h-4 w-4 mr-2" />
                 Sign In
               </Link>
             </Button>
-            <Button className="bg-[#F97316] hover:bg-[#F97316]/90 text-white" size="sm" asChild>
+            <Button className="bg-[#1A1A1A] hover:bg-gray-800 text-white rounded-full" size="sm" asChild>
               <Link href="/signup">Get Started</Link>
             </Button>
           </div>
@@ -122,11 +123,9 @@ export default async function SharedRecipePage({
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Recipe Card */}
-        <Card>
+        <Card className="rounded-2xl border-gray-200 shadow-sm">
           <CardHeader>
             <div className="flex flex-col gap-3">
-              {/* Recipe Type & Category */}
               <div className="flex items-center gap-2 flex-wrap">
                 {getRecipeIcon(recipe.recipe_type)}
                 <Badge variant="secondary">{recipe.recipe_type}</Badge>
@@ -135,32 +134,28 @@ export default async function SharedRecipePage({
                 )}
               </div>
 
-              {/* Title */}
-              <CardTitle className="text-3xl font-mono">
+              <CardTitle className="text-3xl font-bold">
                 {recipe.title}
               </CardTitle>
 
-              {/* Protein Type */}
               {recipe.protein_type && (
                 <CardDescription className="text-base">
                   {recipe.protein_type}
                 </CardDescription>
               )}
 
-              {/* Author Info */}
               {recipe.author && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2 text-sm text-gray-500">
                   <User className="h-4 w-4" />
                   <span>
                     Shared by{" "}
-                    <span className="font-medium">@{recipe.author.username}</span>
+                    <span className="font-medium text-[#1A1A1A]">@{recipe.author.username}</span>
                   </span>
                 </div>
               )}
 
-              {/* View Count */}
               {recipe.view_count > 0 && (
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1 text-sm text-gray-500">
                   <Eye className="h-4 w-4" />
                   <span>{recipe.view_count} views</span>
                 </div>
@@ -170,7 +165,7 @@ export default async function SharedRecipePage({
 
           <CardContent className="flex flex-col gap-6">
             {/* Meta Info */}
-            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+            <div className="flex flex-wrap gap-4 text-sm text-gray-500">
               {recipe.prep_time && (
                 <div className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
@@ -205,15 +200,15 @@ export default async function SharedRecipePage({
             )}
 
             {/* CTA for guests */}
-            <div className="p-4 rounded-lg bg-[#1a1a1a] border border-[#F97316]/20">
+            <div className="p-4 rounded-xl bg-[#E4F8C9] border border-[#D9F99D]/50">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="text-center sm:text-left">
-                  <p className="font-medium text-[#FDFBF7]">Want to save this recipe?</p>
-                  <p className="text-sm text-[#888888]">
+                  <p className="font-medium text-[#1A1A1A]">Want to save this recipe?</p>
+                  <p className="text-sm text-gray-600">
                     Sign up free to save recipes to your collection
                   </p>
                 </div>
-                <Button className="bg-[#F97316] hover:bg-[#F97316]/90 text-white" asChild>
+                <Button className="bg-[#1A1A1A] hover:bg-gray-800 text-white rounded-full" asChild>
                   <Link href={`/signup?redirect=/shared/${token}`}>
                     <BookmarkPlus className="h-4 w-4 mr-2" />
                     Save Recipe
@@ -222,14 +217,13 @@ export default async function SharedRecipePage({
               </div>
             </div>
 
-            <div className="border-t" />
+            <div className="border-t border-gray-200" />
 
             {/* Ingredients & Instructions */}
             <div className="grid gap-8 md:grid-cols-2">
-              {/* Ingredients */}
               <div className="flex flex-col gap-4">
                 <div className="flex items-baseline gap-2">
-                  <h3 className="text-lg font-semibold">Ingredients</h3>
+                  <h3 className="text-lg font-semibold text-[#1A1A1A]">Ingredients</h3>
                   <Badge variant="secondary" className="text-xs">
                     {recipe.ingredients.length} items
                   </Badge>
@@ -237,29 +231,28 @@ export default async function SharedRecipePage({
 
                 <ul className="flex flex-col gap-2">
                   {recipe.ingredients.map((ingredient, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <span className="text-muted-foreground">•</span>
+                    <li key={index} className="flex items-start gap-2 text-gray-700">
+                      <span className="text-gray-400">•</span>
                       <span>{ingredient}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Instructions */}
               <div className="flex flex-col gap-3">
                 <div>
-                  <h3 className="text-lg font-semibold">Instructions</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="text-lg font-semibold text-[#1A1A1A]">Instructions</h3>
+                  <p className="text-sm text-gray-500">
                     {recipe.instructions.length} steps
                   </p>
                 </div>
                 <ol className="flex flex-col gap-4">
                   {recipe.instructions.map((instruction, index) => (
                     <li key={index} className="flex gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm flex items-center justify-center font-medium">
+                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#1A1A1A] text-white text-sm flex items-center justify-center font-medium">
                         {index + 1}
                       </span>
-                      <div className="prose prose-sm dark:prose-invert max-w-none flex-1">
+                      <div className="prose prose-sm max-w-none flex-1 text-gray-700">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                           {instruction}
                         </ReactMarkdown>
@@ -273,10 +266,10 @@ export default async function SharedRecipePage({
             {/* Notes */}
             {recipe.notes && (
               <>
-                <div className="border-t" />
+                <div className="border-t border-gray-200" />
                 <div className="flex flex-col gap-2">
-                  <h3 className="text-lg font-semibold">Notes</h3>
-                  <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
+                  <h3 className="text-lg font-semibold text-[#1A1A1A]">Notes</h3>
+                  <div className="prose prose-sm max-w-none text-gray-600">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {recipe.notes}
                     </ReactMarkdown>
@@ -288,14 +281,14 @@ export default async function SharedRecipePage({
             {/* Source URL */}
             {recipe.source_url && (
               <>
-                <div className="border-t" />
+                <div className="border-t border-gray-200" />
                 <div className="flex items-center gap-2">
-                  <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                  <ExternalLink className="h-4 w-4 text-gray-400" />
                   <a
                     href={recipe.source_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline"
+                    className="text-sm text-[#1A1A1A] hover:underline"
                   >
                     View Original Source
                   </a>
@@ -307,25 +300,25 @@ export default async function SharedRecipePage({
 
         {/* Bottom CTA */}
         <div className="mt-8 text-center flex flex-col gap-4">
-          <p className="text-[#888888]">
-            Discover more recipes and plan your meals with MealPrepRecipes
+          <p className="text-gray-500">
+            Discover more recipes and plan your meals with Babe, What&apos;s for Dinner?
           </p>
           <div className="flex items-center justify-center gap-4">
-            <Button variant="outline" asChild>
+            <Button variant="outline" className="rounded-full" asChild>
               <Link href="/login">Sign In</Link>
             </Button>
-            <Button className="bg-[#F97316] hover:bg-[#F97316]/90 text-white" asChild>
+            <Button className="bg-[#1A1A1A] hover:bg-gray-800 text-white rounded-full" asChild>
               <Link href="/signup">Create Free Account</Link>
             </Button>
           </div>
         </div>
       </main>
 
-      {/* Simple Footer */}
-      <footer className="border-t border-[#222222] mt-16 py-8">
-        <div className="container mx-auto px-4 text-center text-sm text-[#888888]">
+      {/* Footer */}
+      <footer className="border-t border-gray-200 mt-16 py-8 bg-[#1E293B]">
+        <div className="container mx-auto px-4 text-center text-sm text-[#94A3B8]">
           <p>
-            &copy; {new Date().getFullYear()} MealPrepRecipes. All rights
+            &copy; {new Date().getFullYear()} Babe, What&apos;s for Dinner? All rights
             reserved.
           </p>
         </div>

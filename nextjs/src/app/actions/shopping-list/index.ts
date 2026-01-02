@@ -16,3 +16,11 @@ export { clearCheckedItems, clearShoppingList, removeItemsByRecipeId } from "./b
 
 // Generation
 export { generateFromMealPlan, generateMultiWeekShoppingList } from "./generation";
+
+// Quick cart operations
+export {
+  quickAddItem,
+  addIngredientsFromRecipe,
+  checkExistingIngredients,
+  addSingleIngredientFromRecipe,
+} from "./quick-cart";

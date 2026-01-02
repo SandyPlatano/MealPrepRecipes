@@ -20,9 +20,7 @@ export default async function Image() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#111111",
-          backgroundImage:
-            "radial-gradient(circle at 10% 20%, rgba(255, 68, 0, 0.1) 0%, transparent 50%), radial-gradient(circle at 90% 80%, rgba(255, 68, 0, 0.1) 0%, transparent 50%)",
+          backgroundColor: "#FFFCF6",
         }}
       >
         {/* Top accent bar */}
@@ -33,7 +31,7 @@ export default async function Image() {
             left: 0,
             right: 0,
             height: 8,
-            background: "linear-gradient(90deg, #F97316, #cc3600)",
+            backgroundColor: "#D9F99D",
           }}
         />
 
@@ -46,7 +44,7 @@ export default async function Image() {
             width: 120,
             height: 120,
             borderRadius: 24,
-            backgroundColor: "#F97316",
+            backgroundColor: "#D9F99D",
             marginBottom: 32,
             fontSize: 64,
           }}
@@ -59,7 +57,7 @@ export default async function Image() {
           style={{
             fontSize: 72,
             fontStyle: "italic",
-            color: "#F97316",
+            color: "#1A1A1A",
             marginBottom: -8,
           }}
         >
@@ -71,8 +69,7 @@ export default async function Image() {
           style={{
             fontSize: 48,
             fontWeight: 700,
-            color: "#FDFBF7",
-            fontFamily: "monospace",
+            color: "#1A1A1A",
             marginBottom: 24,
           }}
         >
@@ -83,7 +80,7 @@ export default async function Image() {
         <div
           style={{
             fontSize: 28,
-            color: "#a3a3a3",
+            color: "#6B7280",
           }}
         >
           Finally, an answer. Meal planning made simple.
@@ -96,8 +93,7 @@ export default async function Image() {
             bottom: 40,
             fontSize: 20,
             fontWeight: 600,
-            color: "#F97316",
-            fontFamily: "monospace",
+            color: "#1A1A1A",
           }}
         >
           babewfd.com
@@ -111,7 +107,7 @@ export default async function Image() {
             left: 0,
             right: 0,
             height: 8,
-            background: "linear-gradient(90deg, #F97316, #cc3600)",
+            backgroundColor: "#D9F99D",
           }}
         />
       </div>

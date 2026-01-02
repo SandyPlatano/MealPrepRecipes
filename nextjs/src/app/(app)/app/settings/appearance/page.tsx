@@ -1,11 +1,8 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { useSettings } from "@/contexts/settings-context";
 import { SettingsHeader } from "@/components/settings/layout/settings-header";
 import { SettingRow, SettingSection } from "@/components/settings/shared/setting-row";
-import { AdvancedToggle } from "@/components/settings/shared/advanced-toggle";
-import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -13,10 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
-import { Sun, Moon, Monitor } from "lucide-react";
 import {
-  ACCENT_COLOR_PALETTE,
   DATE_FORMAT_OPTIONS,
   type WeekStartDay,
   type TimeFormat,
@@ -39,72 +33,15 @@ const WEEK_START_OPTIONS: { value: WeekStartDay; label: string }[] = [
 ];
 
 export default function AppearanceSettingsPage() {
-  const { theme, setTheme } = useTheme();
   const { preferencesV2, updateDisplayPrefs } = useSettings();
   const display = preferencesV2.display;
 
   return (
     <div className="flex flex-col gap-8">
       <SettingsHeader
-        title="Appearance"
-        description="Customize how the app looks and feels"
+        title="Date, Time & Ratings"
+        description="Customize date formats, time display, and rating preferences"
       />
-
-      {/* Theme */}
-      <SettingSection title="Theme">
-        <SettingRow
-          id="setting-theme-mode"
-          label="Theme Mode"
-          description="Choose system, light, or dark"
-        >
-          <div className="flex gap-2">
-            {[
-              { value: "system", icon: Monitor, label: "System" },
-              { value: "light", icon: Sun, label: "Light" },
-              { value: "dark", icon: Moon, label: "Dark" },
-            ].map(({ value, icon: Icon, label }) => (
-              <button
-                type="button"
-                key={value}
-                onClick={() => setTheme(value)}
-                className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-lg border transition-all",
-                  theme === value
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border hover:border-primary/50"
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                <span className="text-sm">{label}</span>
-              </button>
-            ))}
-          </div>
-        </SettingRow>
-
-        <SettingRow
-          id="setting-accent-color"
-          label="Accent Color"
-          description="Customize the primary accent color"
-        >
-          <div className="flex flex-wrap gap-2 max-w-xs">
-            {ACCENT_COLOR_PALETTE.map(({ key, color }) => (
-              <button
-                type="button"
-                key={key}
-                onClick={() => updateDisplayPrefs({ accentColor: color })}
-                className={cn(
-                  "w-8 h-8 rounded-full transition-all",
-                  display.accentColor === color
-                    ? "ring-2 ring-offset-2 ring-offset-background ring-primary scale-110"
-                    : "hover:scale-105"
-                )}
-                style={{ backgroundColor: color }}
-                title={key}
-              />
-            ))}
-          </div>
-        </SettingRow>
-      </SettingSection>
 
       {/* Date & Time */}
       <SettingSection title="Date & Time">
@@ -204,42 +141,6 @@ export default function AppearanceSettingsPage() {
           </Select>
         </SettingRow>
       </SettingSection>
-
-      {/* Advanced */}
-      <AdvancedToggle>
-        <SettingSection title="Advanced Appearance">
-          <SettingRow
-            id="setting-seasonal-themes"
-            label="Seasonal Themes"
-            description="Enable holiday and seasonal variations"
-          >
-            <Switch
-              id="setting-seasonal-themes-control"
-              checked={display.seasonalThemes}
-              onCheckedChange={(checked) =>
-                updateDisplayPrefs({ seasonalThemes: checked })
-              }
-            />
-          </SettingRow>
-
-          <SettingRow
-            id="setting-custom-rating-emojis"
-            label="Custom Rating Emojis"
-            description="Customize emojis for emoji rating scale"
-          >
-            <div className="flex gap-1">
-              {display.customRatingEmojis.map((emoji, i) => (
-                <span
-                  key={i}
-                  className="w-8 h-8 flex items-center justify-center bg-muted rounded text-lg"
-                >
-                  {emoji}
-                </span>
-              ))}
-            </div>
-          </SettingRow>
-        </SettingSection>
-      </AdvancedToggle>
     </div>
   );
 }

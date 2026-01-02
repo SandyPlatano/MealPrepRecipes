@@ -77,38 +77,8 @@ export const SETTINGS_SEARCH_INDEX: SearchableSetting[] = [
   },
 
   // ═══════════════════════════════════════════════════════════════════
-  // APPEARANCE
+  // DATE, TIME & RATINGS
   // ═══════════════════════════════════════════════════════════════════
-  {
-    id: "dark-mode",
-    label: "Dark Mode",
-    description: "Toggle dark theme",
-    keywords: ["theme", "light", "night", "appearance", "color", "display"],
-    category: "appearance",
-    path: "/app/settings/appearance",
-    componentId: "setting-dark-mode",
-    isAdvanced: false,
-  },
-  {
-    id: "theme-mode",
-    label: "Theme Mode",
-    description: "Choose system, light, or dark theme",
-    keywords: ["theme", "system", "auto", "appearance", "color scheme"],
-    category: "appearance",
-    path: "/app/settings/appearance",
-    componentId: "setting-theme-mode",
-    isAdvanced: false,
-  },
-  {
-    id: "accent-color",
-    label: "Accent Color",
-    description: "Customize the app's accent color",
-    keywords: ["color", "theme", "brand", "primary", "highlight", "tint"],
-    category: "appearance",
-    path: "/app/settings/appearance",
-    componentId: "setting-accent-color",
-    isAdvanced: false,
-  },
   {
     id: "rating-scale",
     label: "Rating Scale",

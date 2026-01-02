@@ -10,18 +10,19 @@ export function generateInvitationHTML(data: InvitationEmailData): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background-color: #111111; color: #FDFBF7; line-height: 1.6; -webkit-font-smoothing: antialiased;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #1a1a1a; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(255, 68, 0, 0.15);">
+<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background-color: #FFFCF6; color: #1A1A1A; line-height: 1.6; -webkit-font-smoothing: antialiased;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
 
     <!-- Header -->
-    <div style="background: linear-gradient(135deg, #111111 0%, #1a1a1a 100%); border-bottom: 2px solid #F97316; padding: 40px 24px 32px 24px; text-align: center;">
+    <div style="background: #FFFCF6; border-bottom: 2px solid #D9F99D; padding: 40px 24px 32px 24px; text-align: center;">
+      <div style="display: inline-block; width: 48px; height: 48px; background: #D9F99D; border-radius: 12px; margin-bottom: 16px; line-height: 48px; font-size: 24px;">🍽️</div>
       <h1 style="margin: 0 0 8px 0; line-height: 1.2;">
-        <span style="font-family: 'Caveat', cursive, system-ui; font-size: 36px; font-weight: 600; color: #F97316;">Babe,</span>
-        <span style="font-family: 'JetBrains Mono', Consolas, Monaco, monospace; font-size: 22px; font-weight: 700; color: #FDFBF7; letter-spacing: -0.02em;"> What's for Dinner?</span>
+        <span style="font-family: 'Inter', -apple-system, sans-serif; font-size: 28px; font-weight: 700; color: #1A1A1A; font-style: italic;">Babe,</span>
+        <span style="font-family: 'Inter', -apple-system, sans-serif; font-size: 22px; font-weight: 700; color: #1A1A1A;"> What's for Dinner?</span>
       </h1>
-      <p style="font-size: 14px; color: #a3a3a3; margin: 0; font-style: italic;">You've been invited to join the meal planning party!</p>
+      <p style="font-size: 14px; color: #6B7280; margin: 0; font-style: italic;">You've been invited to join the meal planning party!</p>
     </div>
 
     <!-- Content -->
@@ -29,11 +30,11 @@ export function generateInvitationHTML(data: InvitationEmailData): string {
 
       <!-- Invitation Message -->
       <div style="margin-bottom: 28px; text-align: center;">
-        <div style="display: inline-block; background-color: #262626; border: 2px solid #F97316; padding: 20px 28px; border-radius: 12px;">
-          <p style="margin: 0 0 8px 0; font-size: 16px; color: #FDFBF7;">
-            <strong style="color: #F97316;">${data.inviterName}</strong> has invited you to join their household!
+        <div style="display: inline-block; background-color: #E4F8C9; border: 1px solid #D9F99D; padding: 20px 28px; border-radius: 16px;">
+          <p style="margin: 0 0 8px 0; font-size: 16px; color: #1A1A1A;">
+            <strong>${data.inviterName}</strong> has invited you to join their household!
           </p>
-          <p style="margin: 0; font-size: 14px; color: #a3a3a3;">
+          <p style="margin: 0; font-size: 14px; color: #6B7280;">
             Plan meals together, share recipes, and never wonder what's for dinner again.
           </p>
         </div>
@@ -41,24 +42,24 @@ export function generateInvitationHTML(data: InvitationEmailData): string {
 
       <!-- Join Button -->
       <div style="text-align: center; margin: 32px 0;">
-        <a href="${data.inviteLink}" target="_blank" style="display: inline-block; background-color: #F97316; color: #FDFBF7; padding: 16px 40px; text-decoration: none; border-radius: 10px; font-weight: 700; font-family: 'Inter', sans-serif; font-size: 16px; box-shadow: 0 4px 12px rgba(255, 68, 0, 0.35);">
+        <a href="${data.inviteLink}" target="_blank" style="display: inline-block; background-color: #1A1A1A; color: #FFFFFF; padding: 16px 40px; text-decoration: none; border-radius: 100px; font-weight: 700; font-family: 'Inter', sans-serif; font-size: 16px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
           🏠 Join Household
         </a>
       </div>
 
       <!-- Expiration Notice -->
       <div style="text-align: center; margin-bottom: 24px;">
-        <p style="font-size: 13px; color: #a3a3a3; margin: 0;">
-          This invitation expires in <strong style="color: #F97316;">${data.expiresInDays} days</strong>
+        <p style="font-size: 13px; color: #6B7280; margin: 0;">
+          This invitation expires in <strong style="color: #1A1A1A;">${data.expiresInDays} days</strong>
         </p>
       </div>
 
       <!-- Alternate Link -->
-      <div style="background-color: #262626; padding: 16px; border-radius: 8px; margin-top: 24px;">
-        <p style="font-size: 12px; color: #a3a3a3; margin: 0 0 8px 0;">
+      <div style="background-color: #F9FAFB; padding: 16px; border-radius: 12px; margin-top: 24px; border: 1px solid #E5E7EB;">
+        <p style="font-size: 12px; color: #6B7280; margin: 0 0 8px 0;">
           If the button doesn't work, copy and paste this link into your browser:
         </p>
-        <p style="font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; color: #F97316; word-break: break-all; margin: 0;">
+        <p style="font-family: 'SF Mono', Consolas, monospace; font-size: 11px; color: #1A1A1A; word-break: break-all; margin: 0;">
           ${data.inviteLink}
         </p>
       </div>
@@ -66,13 +67,14 @@ export function generateInvitationHTML(data: InvitationEmailData): string {
     </div>
 
     <!-- Footer -->
-    <div style="background: linear-gradient(135deg, #F97316 0%, #cc3600 100%); padding: 32px 24px; text-align: center;">
+    <div style="background: #1A1A1A; padding: 32px 24px; text-align: center;">
+      <div style="display: inline-block; width: 32px; height: 32px; background: #D9F99D; border-radius: 8px; margin-bottom: 12px; line-height: 32px; font-size: 16px;">🍽️</div>
       <p style="margin: 0 0 8px 0; line-height: 1.2;">
-        <span style="font-family: 'Caveat', cursive, system-ui; font-size: 28px; font-weight: 600; color: #FDFBF7;">Babe,</span>
-        <span style="font-family: 'JetBrains Mono', Consolas, Monaco, monospace; font-size: 16px; font-weight: 700; color: #FDFBF7;"> What's for Dinner?</span>
+        <span style="font-family: 'Inter', -apple-system, sans-serif; font-size: 20px; font-weight: 700; color: #FFFFFF; font-style: italic;">Babe,</span>
+        <span style="font-family: 'Inter', -apple-system, sans-serif; font-size: 16px; font-weight: 700; color: #FFFFFF;"> What's for Dinner?</span>
       </p>
-      <p style="font-size: 13px; color: rgba(253, 251, 247, 0.85); margin: 8px 0; font-style: italic;">
-        Made with love (and mild guilt)
+      <p style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin: 8px 0; font-style: italic;">
+        Finally, an answer. 💕
       </p>
     </div>
   </div>
@@ -99,6 +101,6 @@ This invitation expires in ${data.expiresInDays} days.
 
 ${"=".repeat(50)}
 Babe, What's for Dinner?
-Made with love (and mild guilt)
+Finally, an answer.
 `;
 }

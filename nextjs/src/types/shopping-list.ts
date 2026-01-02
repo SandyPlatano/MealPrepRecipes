@@ -48,6 +48,13 @@ export interface GroupedShoppingItems {
   [category: string]: ShoppingListItem[];
 }
 
+// Source tracking for where items were added from
+export type ShoppingItemSource =
+  | "meal_plan"
+  | "quick_add"
+  | "recipe_direct"
+  | "manual";
+
 // For creating new items
 export interface NewShoppingListItem {
   ingredient: string;
@@ -56,6 +63,7 @@ export interface NewShoppingListItem {
   category?: string;
   recipe_id?: string;
   recipe_title?: string;
+  source?: ShoppingItemSource;
 }
 
 // Common ingredient categories

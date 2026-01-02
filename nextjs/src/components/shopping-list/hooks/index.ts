@@ -1,15 +1,38 @@
 /**
  * Shopping List Hooks
  *
- * Planned but not yet extracted from shopping-list-view.tsx.
- * The main component still handles this logic inline.
+ * Extracted from shopping-list-view.tsx for better composability,
+ * testability, and memoization of derived data.
  */
 
-// TODO: These hooks need to be created/extracted from shopping-list-view.tsx
-// export { useShoppingListState, type ShoppingListState, type ShoppingListStateOptions } from "./use-shopping-list-state";
-// export { useStoreMode } from "./use-store-mode";
-// export { useCategoryDnd } from "./use-category-dnd";
-// export { useShoppingListHandlers } from "./use-shopping-list-handlers";
+// Core state hook with memoized derived data
+export {
+  useShoppingListState,
+  type ShoppingListState,
+  type ShoppingListStateOptions,
+  type ShoppingListUIState,
+  type ShoppingListDerivedData,
+  type ShoppingListItemWithPantry,
+  type SubstitutionItem,
+} from "./use-shopping-list-state";
 
-// Currently empty - will export hooks once extracted
-export {};
+// Store mode with localStorage persistence and auto-advance
+export {
+  useStoreMode,
+  type StoreModeState,
+} from "./use-store-mode";
+
+// Category drag-and-drop for reordering
+export {
+  useCategoryDnd,
+  type CategoryDndState,
+} from "./use-category-dnd";
+
+// Action handlers (add, generate, copy, clear, etc.)
+export {
+  useShoppingListHandlers,
+  type ShoppingListHandlers,
+} from "./use-shopping-list-handlers";
+
+// Celebration (confetti) hook
+export { useCelebration, type UseCelebrationOptions } from "./use-celebration";

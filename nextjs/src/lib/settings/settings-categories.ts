@@ -68,9 +68,9 @@ export const SETTINGS_CATEGORIES: SettingsCategory[] = [
   },
   {
     id: "appearance",
-    label: "Appearance",
-    shortLabel: "Appearance",
-    description: "Theme, colors, and display preferences",
+    label: "Date, Time & Ratings",
+    shortLabel: "Date/Time",
+    description: "Date formats, time display, and rating preferences",
     icon: Palette,
     path: "/app/settings/appearance",
   },

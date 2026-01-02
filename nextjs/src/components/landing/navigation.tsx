@@ -23,6 +23,7 @@ const SCROLL_THRESHOLD = 50;
 
 const NAV_LINKS = [
   { label: 'Features', href: '#features' },
+  { label: 'About', href: '/about' },
   { label: 'Pricing', href: '#pricing' },
   { label: 'FAQ', href: '#faq' },
 ];

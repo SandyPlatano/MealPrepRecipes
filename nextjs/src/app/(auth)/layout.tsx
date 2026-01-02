@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { PixelBrandLogo } from "@/components/landing/pixel-art";
 
 export default function AuthLayout({
   children,
@@ -7,21 +6,26 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#111111]">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#FFFCF6]">
       <div className="w-full max-w-md flex flex-col gap-8">
         {/* Logo/Brand */}
         <div className="text-center flex flex-col gap-2">
-          <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
-            <PixelBrandLogo size="lg" colorMode="dark" />
+          <Link href="/" className="inline-flex items-center justify-center gap-2 hover:opacity-80 transition-opacity">
+            <div className="w-10 h-10 bg-[#D9F99D] rounded-xl flex items-center justify-center">
+              <span className="text-[#1A1A1A] font-bold text-lg">B</span>
+            </div>
+            <span className="font-bold text-2xl text-[#1A1A1A]">
+              babewfd<span className="text-[#D9F99D]">.</span>
+            </span>
           </Link>
-          <p className="text-sm text-[#888888]">Finally, an answer.</p>
+          <p className="text-sm text-gray-500">Finally, an answer.</p>
         </div>
 
         {/* Auth Form */}
         {children}
 
         {/* Footer */}
-        <p className="text-center text-xs text-[#888888]">
+        <p className="text-center text-xs text-gray-400">
           Made with love (and mild guilt)
         </p>
       </div>
