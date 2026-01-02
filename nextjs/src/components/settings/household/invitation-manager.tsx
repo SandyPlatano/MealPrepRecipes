@@ -178,7 +178,7 @@ export function InvitationManager({ isOwner }: InvitationManagerProps) {
             {pendingInvitations.map((invitation) => (
               <div
                 key={invitation.id}
-                className="flex items-center justify-between p-3 rounded-lg border bg-card"
+                className="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-white"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">

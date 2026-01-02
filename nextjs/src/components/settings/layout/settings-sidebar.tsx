@@ -29,9 +29,9 @@ export function SettingsSidebar() {
   }, []);
 
   return (
-    <aside className="hidden md:flex flex-col w-60 border-r bg-muted/30 h-full shrink-0">
-      <div className="p-4 border-b">
-        <h2 className="font-mono font-semibold text-lg">Settings</h2>
+    <aside className="hidden md:flex flex-col w-60 border-r border-gray-200 bg-[#FFFCF6] h-full shrink-0">
+      <div className="p-4 border-b border-gray-200">
+        <h2 className="font-mono font-semibold text-lg text-[#1A1A1A]">Settings</h2>
       </div>
       <ScrollArea className="flex-1">
         <nav className="p-3 flex flex-col gap-1">
@@ -48,10 +48,10 @@ export function SettingsSidebar() {
                   href={category.path}
                   className={cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
-                    "hover:bg-accent hover:text-accent-foreground",
+                    "hover:bg-white/80",
                     isActive
-                      ? "bg-primary/10 text-primary border-l-2 border-primary -ml-[2px] pl-[14px]"
-                      : "text-muted-foreground"
+                      ? "bg-[#D9F99D] text-[#1A1A1A] border-l-2 border-[#1A1A1A] -ml-[2px] pl-[14px]"
+                      : "text-gray-700"
                   )}
                 >
                   <Icon className="size-4 flex-shrink-0" />
@@ -60,7 +60,7 @@ export function SettingsSidebar() {
 
                 {/* Sub-sections for active category */}
                 {hasSubSections && (
-                  <div className="mt-1 ml-4 flex flex-col gap-0.5 border-l border-border/50 pl-3">
+                  <div className="mt-1 ml-4 flex flex-col gap-0.5 border-l border-gray-300 pl-3">
                     {category.subSections!.map((subSection) => (
                       <button
                         type="button"
@@ -68,10 +68,10 @@ export function SettingsSidebar() {
                         onClick={() => handleSubSectionClick(subSection)}
                         className={cn(
                           "flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-xs font-medium transition-all text-left",
-                          "hover:bg-accent hover:text-accent-foreground",
+                          "hover:bg-white/80",
                           activeSubSection === subSection.id
-                            ? "text-primary bg-primary/5"
-                            : "text-muted-foreground"
+                            ? "text-[#1A1A1A] bg-[#D9F99D]/30"
+                            : "text-gray-600"
                         )}
                       >
                         <ChevronRight className="size-3 flex-shrink-0" />

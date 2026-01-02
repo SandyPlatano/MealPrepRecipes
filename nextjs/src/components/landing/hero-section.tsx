@@ -2,58 +2,12 @@
 
 import Link from 'next/link';
 import { ArrowRight, Check, Sparkles, ShoppingCart, Users } from 'lucide-react';
-import { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HERO SECTION - Warm & Cozy Design System
-// Larger mockup focus with staggered entrance animations
+// Clean, brand-focused headline with app mockup
 // ═══════════════════════════════════════════════════════════════════════════
-
-const TYPING_SPEED = 100;
-const DELETING_SPEED = 50;
-const PAUSE_TIME = 2500;
-const TYPEWRITER_PHRASES = ['for Dinner?', 'to Prep?', 'to Buy?'] as const;
-
-// Typewriter effect
-const TypewriterText = memo(function TypewriterText() {
-  const [textIndex, setTextIndex] = useState(0);
-  const [displayText, setDisplayText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  const currentPhrase = useMemo(
-    () => TYPEWRITER_PHRASES[textIndex % TYPEWRITER_PHRASES.length],
-    [textIndex]
-  );
-
-  useEffect(() => {
-    const handleTyping = () => {
-      if (!isDeleting) {
-        if (displayText !== currentPhrase) {
-          setDisplayText(currentPhrase.slice(0, displayText.length + 1));
-        } else {
-          setTimeout(() => setIsDeleting(true), PAUSE_TIME);
-        }
-      } else {
-        if (displayText !== '') {
-          setDisplayText(currentPhrase.slice(0, displayText.length - 1));
-        } else {
-          setIsDeleting(false);
-          setTextIndex((prev) => prev + 1);
-        }
-      }
-    };
-
-    const timer = setTimeout(handleTyping, isDeleting ? DELETING_SPEED : TYPING_SPEED);
-    return () => clearTimeout(timer);
-  }, [displayText, isDeleting, currentPhrase]);
-
-  return (
-    <span className="text-[#D9F99D] relative">
-      {displayText}
-      <span className="animate-pulse ml-0.5">|</span>
-    </span>
-  );
-});
 
 // Feature check
 const FeatureCheck = memo(function FeatureCheck({
@@ -278,7 +232,7 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex flex-col justify-center pt-28 md:pt-32 pb-8 md:pb-12 overflow-hidden bg-[#FFFCF6]">
+    <section className="relative min-h-screen flex flex-col justify-center pt-32 md:pt-36 pb-8 md:pb-12 overflow-hidden bg-[#FFFCF6]">
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-[#D9F99D]/5 pointer-events-none" />
 
@@ -301,7 +255,7 @@ export function HeroSection() {
 
           {/* Headline */}
           <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-[#1A1A1A] mb-4 md:mb-5 leading-[1.05] tracking-tight">
-            Babe, What&apos;s <TypewriterText />
+            Meal Planning That Works<br className="sm:hidden" /> for Real Life
           </h1>
 
           {/* Subheadline */}

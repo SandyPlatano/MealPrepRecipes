@@ -57,25 +57,25 @@ export default async function StatsOverviewPage() {
           label="Streak"
           value={currentStreak > 0 ? `${currentStreak} week${currentStreak !== 1 ? "s" : ""}` : "Start now!"}
           icon={TrendingUp}
-          iconColor="text-primary"
+          iconColor="text-[#D9F99D]"
         />
         <QuickStatCard
           label="This Week"
           value={mealsPlanned > 0 ? `${mealsPlanned} meals` : "No meals"}
           icon={Flame}
-          iconColor="text-primary"
+          iconColor="text-[#D9F99D]"
         />
         <QuickStatCard
           label="Utilization"
           value={utilizationRate > 0 ? `${Math.round(utilizationRate)}%` : "—"}
           icon={Apple}
-          iconColor="text-sage-500"
+          iconColor="text-green-600"
         />
         <QuickStatCard
           label="Total Saved"
           value={totalSavedDollars > 0 ? `$${totalSavedDollars}` : "$0"}
           icon={DollarSign}
-          iconColor="text-primary"
+          iconColor="text-[#D9F99D]"
         />
       </div>
 
@@ -112,10 +112,12 @@ export default async function StatsOverviewPage() {
       </div>
 
       {/* Tips Section */}
-      <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
+      <Card className="bg-gradient-to-r from-[#D9F99D]/10 to-[#D9F99D]/20 border-[#D9F99D]/30">
         <CardContent className="py-6">
           <div className="flex items-start gap-4">
-            <IconBadge icon={TrendingUp} color="primary" size="lg" className="rounded-full" />
+            <div className="rounded-full bg-[#D9F99D]/20 p-3">
+              <TrendingUp className="h-5 w-5 text-[#1A1A1A]" />
+            </div>
             <div>
               <h3 className="font-semibold">Pro Tip</h3>
               <p className="text-sm text-muted-foreground mt-1">

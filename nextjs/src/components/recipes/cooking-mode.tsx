@@ -606,11 +606,11 @@ export function CookingMode({
           className={cn(
             "fixed bottom-8 right-6 z-40 lg:hidden",
             "h-16 w-16 rounded-full",
-            "bg-primary text-primary-foreground",
-            "shadow-xl shadow-primary/30",
+            "bg-[#D9F99D] text-[#1A1A1A]",
+            "shadow-xl shadow-lime-200/30",
             "flex items-center justify-center",
             "active:scale-95 transition-all duration-200",
-            "hover:shadow-2xl hover:shadow-primary/40"
+            "hover:shadow-2xl hover:shadow-lime-200/40"
           )}
           aria-label="View ingredients"
         >
@@ -630,7 +630,7 @@ export function CookingMode({
           className={cn(
             "fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full shadow-lg transition-all duration-300",
             isAwaitingCommand
-              ? "bg-primary text-primary-foreground animate-pulse"
+              ? "bg-[#D9F99D] text-[#1A1A1A] animate-pulse"
               : "bg-muted text-muted-foreground"
           )}
         >
@@ -750,9 +750,9 @@ export function CookingMode({
         {/* Enhanced Progress bar - thicker, more visible */}
         {settings.visibility.showProgress && (
           <div className="mt-4">
-            <div className="h-3 lg:h-4 bg-muted/50 rounded-full overflow-hidden">
+            <div className="h-3 lg:h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-500 ease-out"
+                className="h-full bg-[#D9F99D] transition-all duration-500 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -792,12 +792,12 @@ export function CookingMode({
                         "flex-shrink-0",
                         "w-16 h-16 lg:w-20 lg:h-20",
                         "rounded-2xl lg:rounded-3xl",
-                        "bg-gradient-to-br from-primary to-primary/80",
-                        "text-primary-foreground",
+                        "bg-[#D9F99D]",
+                        "text-[#1A1A1A]",
                         "flex items-center justify-center",
                         "text-2xl lg:text-3xl font-bold font-mono",
-                        "shadow-lg shadow-primary/25",
-                        currentStep === safeInstructions.length - 1 && "ring-4 ring-primary/30"
+                        "shadow-lg shadow-lime-200/30",
+                        currentStep === safeInstructions.length - 1 && "ring-4 ring-lime-300/40"
                       )}
                     >
                       {currentStep + 1}
@@ -877,7 +877,7 @@ export function CookingMode({
                   size="lg"
                   onClick={handlePrevStep}
                   disabled={currentStep === 0}
-                  className="flex-1 h-16 text-base rounded-xl border-2"
+                  className="flex-1 h-16 text-base rounded-xl border border-gray-200"
                 >
                   <ChevronLeft className="h-5 w-5 mr-2" />
                   Previous
@@ -886,7 +886,7 @@ export function CookingMode({
                   size="lg"
                   onClick={handleNextStep}
                   disabled={currentStep === safeInstructions.length - 1}
-                  className="flex-1 h-16 text-base rounded-xl shadow-lg shadow-primary/20 active:scale-[0.98] transition-all"
+                  className="flex-1 h-16 text-base rounded-xl bg-[#D9F99D] text-[#1A1A1A] hover:bg-[#D9F99D]/90 shadow-md active:scale-[0.98] transition-all"
                 >
                   Next
                   <ChevronRight className="h-5 w-5 ml-2" />
@@ -929,13 +929,13 @@ export function CookingMode({
               <Card className="p-8">
                 <div className="flex flex-col">
                   <div className="flex items-center gap-3">
-                    <Timer className="h-6 w-6 text-primary" />
+                    <Timer className="h-6 w-6 text-[#D9F99D]" />
                     <span className="text-lg font-semibold">Timer</span>
                   </div>
                   <div className="text-center">
                     <div className={cn(
                       "text-6xl font-mono font-bold tabular-nums",
-                      timerRunning && "text-primary"
+                      timerRunning && "text-[#D9F99D]"
                     )}>
                       {String(timerMinutes).padStart(2, "0")}:
                       {String(timerSeconds).padStart(2, "0")}
@@ -996,21 +996,21 @@ export function CookingMode({
                         key={index}
                         className={cn(
                           "flex items-start gap-4 rounded-lg p-3 -m-3 transition-colors",
-                          isHighlighted && !checkedIngredients[index] && "bg-primary/10 ring-1 ring-primary/20"
+                          isHighlighted && !checkedIngredients[index] && "bg-lime-50 dark:bg-lime-950/20 ring-1 ring-lime-200 dark:ring-lime-800"
                         )}
                       >
                         <Checkbox
                           id={`ingredient-${index}`}
                           checked={checkedIngredients[index]}
                           onCheckedChange={() => toggleIngredient(index)}
-                          className="mt-0.5 h-6 w-6"
+                          className="mt-0.5 h-6 w-6 data-[state=checked]:bg-[#D9F99D] data-[state=checked]:border-[#D9F99D] data-[state=checked]:text-[#1A1A1A]"
                         />
                         <label
                           htmlFor={`ingredient-${index}`}
                           className={cn(
                             "text-base leading-relaxed cursor-pointer flex-1",
                             checkedIngredients[index] && "line-through text-muted-foreground",
-                            isHighlighted && !checkedIngredients[index] && "font-medium text-primary"
+                            isHighlighted && !checkedIngredients[index] && "font-medium text-[#1A1A1A] dark:text-lime-300"
                           )}
                         >
                           {ingredient}

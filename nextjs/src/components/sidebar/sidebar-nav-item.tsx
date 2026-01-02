@@ -85,18 +85,22 @@ export function SidebarNavItem({
         "w-full justify-start gap-3 h-11 px-3 relative rounded-lg",
         "transition-all duration-150",
         isIconOnly && "justify-center px-0",
-        // Warm sidebar theme with lime accents
+        // Focus styles - ensure visible ring without affecting text
+        "focus-visible:ring-2 focus-visible:ring-[#1A1A1A] focus-visible:ring-offset-1",
+        // Warm sidebar theme with lime accents (light mode only)
         isActive && [
-          "bg-[#D9F99D]/20 dark:bg-[#D9F99D]/10",
-          "text-[#1A1A1A] dark:text-[#E2E8F0]",
+          "bg-[#D9F99D]/20",
+          "!text-[#1A1A1A]",
           "font-semibold",
           "border border-transparent",
+          "hover:!text-[#1A1A1A]",
         ],
         !isActive && [
-          "text-[var(--color-sidebar-text-muted)]",
-          "hover:text-[var(--color-sidebar-text)]",
-          "hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50",
+          "!text-[#4B5563]",
+          "hover:!text-[#1A1A1A]",
+          "hover:bg-gray-100",
           "border border-transparent",
+          "focus-visible:!text-[#1A1A1A]",
         ]
       )}
     >
@@ -211,12 +215,15 @@ export function SidebarActionItem({
       onClick={onClick}
       className={cn(
         "w-full justify-start gap-3 h-11 px-3 rounded-lg",
-        // Warm sidebar theme
-        "text-[var(--color-sidebar-text-muted)]",
-        "hover:text-[var(--color-sidebar-text)]",
-        "hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50",
+        // Focus styles
+        "focus-visible:ring-2 focus-visible:ring-[#1A1A1A] focus-visible:ring-offset-1",
+        // Warm sidebar theme (light mode only)
+        "!text-[#4B5563]",
+        "hover:!text-[#1A1A1A]",
+        "hover:bg-gray-100",
         "border border-transparent",
         "transition-all duration-150",
+        "focus-visible:!text-[#1A1A1A]",
         isIconOnly && "justify-center px-0"
       )}
     >

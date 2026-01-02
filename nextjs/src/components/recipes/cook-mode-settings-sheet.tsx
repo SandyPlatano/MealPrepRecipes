@@ -243,7 +243,7 @@ export function CookModeSettingsSheet({
         {/* Header */}
         <div className="flex items-center justify-between px-4 pb-4">
           <div className="flex items-center gap-2">
-            <Settings2 className="h-5 w-5 text-primary" />
+            <Settings2 className="h-5 w-5 text-[#D9F99D]" />
             <span className="text-lg font-semibold">Cook Mode Settings</span>
             {isSaving && (
               <span className="text-xs text-muted-foreground animate-pulse">

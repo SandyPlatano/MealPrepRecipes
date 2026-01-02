@@ -111,7 +111,7 @@ export function StepNavigation({
           size="lg"
           onClick={onNext}
           disabled={isLastStep || isLoading}
-          className="h-14 text-base"
+          className="h-14 text-base bg-[#D9F99D] text-[#1A1A1A] hover:bg-[#D9F99D]/90"
         >
           Next
           <ChevronRight className="ml-2 h-5 w-5" />

@@ -495,16 +495,16 @@ export function getProgressBgColor(color: MacroProgress['color']): string {
 
 /**
  * Get stroke color for progress ring
- * Uses soft brand colors
+ * Uses warm design system colors
  */
 export function getProgressRingColor(color: MacroProgress['color']): string {
   switch (color) {
     case 'sage':
-      return 'stroke-brand-sage';
+      return 'stroke-[#D9F99D]';
     case 'muted':
-      return 'stroke-muted-foreground/60';
+      return 'stroke-gray-300';
     case 'coral':
-      return 'stroke-brand-coral/80';
+      return 'stroke-amber-400';
   }
 }
 

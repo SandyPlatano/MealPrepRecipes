@@ -110,7 +110,7 @@ export function PlannerFab({ weekStartDate, onSelectDay }: PlannerFabProps) {
               className="font-medium text-primary"
             >
               <span className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                <span className="h-2 w-2 rounded-full bg-[#D9F99D] animate-pulse" />
                 Today ({DAY_LABELS[DAYS_OF_WEEK[todayIndex]]})
               </span>
             </DropdownMenuItem>

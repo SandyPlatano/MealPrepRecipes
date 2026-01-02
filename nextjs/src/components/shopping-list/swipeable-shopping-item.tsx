@@ -90,15 +90,15 @@ export function SwipeableShoppingItem({
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchEnd}
     >
-      {/* Green background that reveals on swipe */}
+      {/* Lime green background that reveals on swipe */}
       <div
-        className={`absolute inset-y-0 left-0 flex items-center justify-center bg-green-500 transition-opacity ${
+        className={`absolute inset-y-0 left-0 flex items-center justify-center bg-[#D9F99D] transition-opacity ${
           isSwiping && !swipeDisabled ? "opacity-100" : "opacity-0"
         }`}
         style={{ width: Math.max(swipeOffset, 0) }}
       >
         <Check
-          className={`h-6 w-6 text-white transition-transform ${
+          className={`h-6 w-6 text-gray-700 transition-transform ${
             swipeOffset >= SWIPE_THRESHOLD ? "scale-125" : "scale-100"
           }`}
         />

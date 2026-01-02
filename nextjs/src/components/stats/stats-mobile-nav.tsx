@@ -24,7 +24,7 @@ export function StatsMobileNav() {
               className={cn(
                 "flex flex-col items-center gap-0.5 px-2 py-1.5 min-h-[56px] min-w-[56px] rounded-lg transition-all active:scale-95",
                 isActive
-                  ? "text-primary bg-primary/5"
+                  ? "text-[#1A1A1A] bg-[#D9F99D]/20"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >

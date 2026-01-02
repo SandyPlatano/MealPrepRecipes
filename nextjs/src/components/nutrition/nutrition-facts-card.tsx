@@ -360,22 +360,22 @@ function ConfidenceBadge({
 }) {
   if (level === "unknown") return null;
 
-  // Soft brand colors for confidence indicators
+  // Warm design system confidence indicators
   const config = {
     high: {
       label: "High Confidence",
       variant: "default" as const,
-      className: "bg-brand-sage/20 text-brand-sage border-brand-sage/30",
+      className: "bg-[#D9F99D]/20 text-green-700 border-[#D9F99D]/40",
     },
     medium: {
       label: "Medium Confidence",
       variant: "secondary" as const,
-      className: "bg-muted text-muted-foreground",
+      className: "bg-gray-100 text-gray-700 border-gray-200",
     },
     low: {
       label: "Low Confidence",
       variant: "secondary" as const,
-      className: "bg-brand-coral/10 text-brand-coral/80 border-brand-coral/30",
+      className: "bg-amber-50 text-amber-700 border-amber-200",
     },
   };
 

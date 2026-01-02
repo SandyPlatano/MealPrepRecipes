@@ -117,7 +117,7 @@ export default async function SettingsLayout({
 
   return (
     <SettingsProvider initialData={initialData}>
-      <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
+      <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-[#FFFCF6]">
         {/* Desktop sidebar */}
         <SettingsSidebar />
 

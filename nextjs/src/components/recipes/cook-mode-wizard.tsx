@@ -149,8 +149,8 @@ export function CookModeWizard({
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <ChefHat className="h-5 w-5 text-primary" />
+          <div className="h-10 w-10 rounded-full bg-lime-100 dark:bg-lime-900/30 flex items-center justify-center">
+            <ChefHat className="h-5 w-5 text-[#1A1A1A] dark:text-lime-300" />
           </div>
           <div>
             <h1 className="font-semibold">Set Up Cook Mode</h1>
@@ -431,8 +431,8 @@ function WizardToggle({
       className={cn(
         "flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-colors text-left w-full",
         "hover:bg-muted/50",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-        checked && "bg-primary/5 border-primary/50"
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:ring-offset-2",
+        checked && "bg-lime-50 dark:bg-lime-950/20 border-lime-200 dark:border-lime-800"
       )}
     >
       <div className="flex-1 pr-4">

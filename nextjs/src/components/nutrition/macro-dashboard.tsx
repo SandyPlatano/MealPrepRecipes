@@ -199,7 +199,7 @@ function DayRow({
     <div
       className={cn(
         "rounded-lg border p-4",
-        isToday && "border-primary bg-primary/5"
+        isToday && "border-[#D9F99D] bg-[#D9F99D]/5"
       )}
     >
       <div className="mb-3 flex items-center justify-between">
@@ -292,9 +292,9 @@ function MacroStat({ label, actual, target, progress, unit = "kcal", showRemaini
 
   const statusColor =
     progress.status === "achieved"
-      ? "text-brand-sage"
+      ? "text-green-600"
       : progress.status === "exceeded"
-      ? "text-brand-coral/80"
+      ? "text-amber-600"
       : "text-muted-foreground";
 
   return (
@@ -325,13 +325,13 @@ function MacroStat({ label, actual, target, progress, unit = "kcal", showRemaini
           </>
         )}
       </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
         <div
           className={cn(
             "h-full transition-all",
-            progress.color === "sage" && "bg-brand-sage",
-            progress.color === "coral" && "bg-brand-coral/60",
-            progress.color === "muted" && "bg-muted-foreground/40"
+            progress.color === "sage" && "bg-[#D9F99D]",
+            progress.color === "coral" && "bg-amber-400",
+            progress.color === "muted" && "bg-gray-300"
           )}
           style={{ width: `${Math.min(progress.percentage, 100)}%` }}
         />
@@ -467,28 +467,28 @@ function WeeklyProgressIndicator({ days }: { days: DailyMacroSummary[] }) {
 function DayDot({ status }: { status: DayStatus }) {
   switch (status) {
     case "all-target":
-      // Filled circle - brand coral
+      // Filled circle - lime accent
       return (
-        <div className="h-4 w-4 rounded-full bg-brand-coral" />
+        <div className="h-4 w-4 rounded-full bg-[#D9F99D]" />
       );
     case "most-target":
       // Half-filled circle
       return (
-        <div className="relative h-4 w-4 rounded-full border-2 border-brand-coral overflow-hidden">
-          <div className="absolute inset-0 w-1/2 bg-brand-coral" />
+        <div className="relative h-4 w-4 rounded-full border-2 border-[#D9F99D] overflow-hidden">
+          <div className="absolute inset-0 w-1/2 bg-[#D9F99D]" />
         </div>
       );
     case "few-target":
       // Hollow circle
       return (
-        <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/50" />
+        <div className="h-4 w-4 rounded-full border-2 border-gray-300" />
       );
     case "future":
     case "no-meals":
     default:
       // Dim dot
       return (
-        <div className="h-4 w-4 rounded-full bg-muted" />
+        <div className="h-4 w-4 rounded-full bg-gray-200" />
       );
   }
 }
@@ -553,7 +553,7 @@ function MacroStatusLine({
   isAchieved: boolean;
 }) {
   return (
-    <span className={cn(isAchieved ? "text-brand-sage" : "text-muted-foreground")}>
+    <span className={cn(isAchieved ? "text-green-600" : "text-muted-foreground")}>
       {isAchieved ? "✓" : "○"} {label}
     </span>
   );
@@ -583,19 +583,19 @@ function StreakCounter({ streak }: { streak: number }) {
       className={cn(
         "flex items-center gap-2 rounded-lg border px-3 py-2",
         isMilestone
-          ? "border-brand-coral/50 bg-brand-coral/10"
-          : "border-border bg-muted/30"
+          ? "border-[#D9F99D]/50 bg-[#D9F99D]/10"
+          : "border-gray-200 bg-gray-50"
       )}
     >
       <Flame
         className={cn(
           "h-5 w-5",
-          streak >= 7 ? "text-brand-coral" : "text-orange-500"
+          streak >= 7 ? "text-orange-500" : "text-orange-400"
         )}
       />
       <div>
         <div className="flex items-baseline gap-1">
-          <span className="text-lg font-bold tabular-nums">{streak}</span>
+          <span className="text-lg font-bold tabular-nums text-[#1A1A1A]">{streak}</span>
           <span className="text-sm text-muted-foreground">Day Streak</span>
         </div>
         <p className="text-xs text-muted-foreground">{getMessage()}</p>

@@ -213,19 +213,19 @@ export function TimerPanel({
             key={timer.id}
             className={cn(
               "flex items-center justify-between p-3 rounded-lg border",
-              timer.isComplete && "bg-primary/10 border-primary"
+              timer.isComplete && "bg-lime-50 dark:bg-lime-950/20 border-lime-300 dark:border-lime-700"
             )}
           >
             <div className="flex items-center gap-3 flex-1">
               {timer.isComplete && (
-                <Bell className="h-5 w-5 text-primary animate-pulse" />
+                <Bell className="h-5 w-5 text-[#D9F99D] dark:text-lime-300 animate-pulse" />
               )}
               <div className="flex-1">
                 <p className="font-medium">{timer.label}</p>
                 <p
                   className={cn(
                     "text-2xl font-mono font-bold",
-                    timer.isComplete && "text-primary"
+                    timer.isComplete && "text-[#D9F99D] dark:text-lime-300"
                   )}
                 >
                   {formatTime(timer.remainingSeconds)}

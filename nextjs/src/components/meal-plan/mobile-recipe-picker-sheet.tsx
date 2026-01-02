@@ -309,7 +309,7 @@ export function MobileRecipePickerSheet({
                   <div
                     className={cn(
                       "h-10 w-10 rounded-full flex items-center justify-center shrink-0",
-                      "bg-primary/10 text-primary",
+                      "bg-[#D9F99D]/20 text-[#1A1A1A]",
                       isAdding === recipe.id && "animate-pulse"
                     )}
                   >

@@ -30,7 +30,7 @@ export function StatsSidebar() {
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
                   "hover:bg-accent hover:text-accent-foreground",
                   isActive
-                    ? "bg-primary/10 text-primary border-l-2 border-primary -ml-[2px] pl-[14px]"
+                    ? "bg-[#D9F99D]/20 text-[#1A1A1A] border-l-2 border-[#D9F99D] -ml-[2px] pl-[14px]"
                     : "text-muted-foreground"
                 )}
               >

@@ -821,7 +821,7 @@ export function RecipeDetail({
         // Render single full-width section
         sections.push(
           <div key={sectionId}>
-            <div className="border-t" />
+            <div className="border-t border-gray-200 dark:border-gray-700" />
             <div className="pt-6">{sectionRenderers[sectionId]()}</div>
           </div>
         );
@@ -1042,7 +1042,7 @@ export function RecipeDetail({
             return displayTags.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {displayTags.map((tag) => (
-                  <Badge key={tag} variant="secondary">
+                  <Badge key={tag} className="bg-gray-100 text-gray-700 rounded-full px-3 py-1 dark:bg-gray-700 dark:text-gray-200">
                     {tag}
                   </Badge>
                 ))}

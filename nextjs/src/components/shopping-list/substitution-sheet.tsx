@@ -141,8 +141,8 @@ export function SubstitutionSheet({
     <Sheet open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
+          <SheetTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
+            <Sparkles className="h-5 w-5 text-[#D9F99D]" />
             Find Substitutes
           </SheetTitle>
           <SheetDescription>
@@ -165,7 +165,7 @@ export function SubstitutionSheet({
           {/* Reason Selection */}
           {!hasFetched && (
             <div className="flex flex-col gap-3">
-              <Label className="text-sm font-medium">Why do you need a substitute?</Label>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Why do you need a substitute?</Label>
               <RadioGroup
                 value={reason}
                 onValueChange={(v) => setReason(v as SubstitutionReason)}
@@ -199,7 +199,7 @@ export function SubstitutionSheet({
               </RadioGroup>
 
               <Button
-                className="w-full mt-4"
+                className="w-full mt-4 bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-white rounded-full"
                 onClick={handleFetchSuggestions}
                 disabled={isLoading || !item}
               >
@@ -220,11 +220,11 @@ export function SubstitutionSheet({
 
           {/* Error State */}
           {error && (
-            <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
+            <div className="p-4 rounded-lg bg-red-50 border border-red-200 dark:bg-red-950/20 dark:border-red-800">
               <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-destructive">
+                  <p className="font-medium text-red-700 dark:text-red-400">
                     {SUBSTITUTION_ERROR_MESSAGES[error.type] || error.message}
                   </p>
                   {error.reset_at && (
@@ -247,25 +247,25 @@ export function SubstitutionSheet({
             <div className="flex flex-col gap-4">
               {/* Action Selection */}
               <div className="flex flex-col gap-2">
-                <Label className="text-sm font-medium">What should we do?</Label>
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">What should we do?</Label>
                 <RadioGroup
                   value={selectedAction}
                   onValueChange={(v) => setSelectedAction(v as ActionType)}
                   className="grid grid-cols-1 gap-2"
                 >
-                  <div className="flex items-center gap-2 p-2 rounded-lg border hover:bg-muted/50">
+                  <div className="flex items-center gap-2 p-2 rounded-lg border border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50">
                     <RadioGroupItem value="replace" id="replace" />
                     <Label htmlFor="replace" className="flex-1 cursor-pointer text-sm">
                       Replace the original item
                     </Label>
                   </div>
-                  <div className="flex items-center gap-2 p-2 rounded-lg border hover:bg-muted/50">
+                  <div className="flex items-center gap-2 p-2 rounded-lg border border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50">
                     <RadioGroupItem value="add_new" id="add_new" />
                     <Label htmlFor="add_new" className="flex-1 cursor-pointer text-sm">
                       Add substitute, keep original
                     </Label>
                   </div>
-                  <div className="flex items-center gap-2 p-2 rounded-lg border hover:bg-muted/50">
+                  <div className="flex items-center gap-2 p-2 rounded-lg border border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50">
                     <RadioGroupItem value="mark_unavailable" id="mark_unavailable" />
                     <Label htmlFor="mark_unavailable" className="flex-1 cursor-pointer text-sm">
                       Mark original as unavailable
@@ -296,7 +296,7 @@ export function SubstitutionSheet({
               {/* Try Again */}
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"
                 onClick={() => {
                   setHasFetched(false);
                   setSuggestions([]);
@@ -311,8 +311,8 @@ export function SubstitutionSheet({
           {/* Loading State */}
           {isLoading && (
             <div className="flex flex-col items-center justify-center py-8 gap-3">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-sm text-muted-foreground">
+              <Loader2 className="h-8 w-8 animate-spin text-[#D9F99D]" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Finding the best substitutes...
               </p>
             </div>
@@ -336,11 +336,11 @@ function ReasonOption({
   description: string;
 }) {
   return (
-    <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer">
+    <div className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer dark:border-gray-700 dark:hover:bg-gray-800/50">
       <RadioGroupItem value={value} id={value} className="mt-0.5" />
       <Label htmlFor={value} className="flex-1 cursor-pointer">
-        <span className="font-medium block">{label}</span>
-        <span className="text-xs text-muted-foreground">{description}</span>
+        <span className="font-medium block text-gray-900 dark:text-gray-100">{label}</span>
+        <span className="text-xs text-gray-600 dark:text-gray-400">{description}</span>
       </Label>
     </div>
   );

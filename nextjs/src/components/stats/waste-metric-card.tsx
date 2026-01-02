@@ -26,28 +26,28 @@ export function WasteMetricCard({
   value,
   subtitle,
   icon: Icon,
-  iconColor = "text-primary",
+  iconColor = "text-[#D9F99D]",
   trend,
   className,
 }: WasteMetricCardProps) {
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card className={cn("overflow-hidden bg-white border-gray-200 shadow-sm", className)}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
           <div className="flex flex-col gap-1">
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-2xl font-bold tracking-tight">{value}</p>
+            <p className="text-2xl font-bold tracking-tight text-[#1A1A1A]">{value}</p>
             {subtitle && (
               <p className="text-xs text-muted-foreground">{subtitle}</p>
             )}
           </div>
           <div
             className={cn(
-              "rounded-full p-2.5 bg-primary/10",
-              iconColor.includes("green") && "bg-green-500/10",
-              iconColor.includes("blue") && "bg-blue-500/10",
-              iconColor.includes("amber") && "bg-amber-500/10",
-              iconColor.includes("purple") && "bg-purple-500/10"
+              "rounded-full p-2.5 bg-[#D9F99D]/20",
+              iconColor.includes("green") && "bg-green-100",
+              iconColor.includes("blue") && "bg-blue-100",
+              iconColor.includes("amber") && "bg-amber-100",
+              iconColor.includes("purple") && "bg-purple-100"
             )}
           >
             <Icon className={cn("h-5 w-5", iconColor)} />

@@ -144,12 +144,12 @@ export function PlannerDayColumn({
           <button
             type="button"
             onClick={() => setPickerOpen(true)}
-            className="flex-1 flex flex-col items-center justify-center gap-2 py-6 rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group"
+            className="flex-1 flex flex-col items-center justify-center gap-2 py-6 rounded-lg border-2 border-dashed border-gray-300 hover:border-[#D9F99D] hover:bg-[#D9F99D]/10 transition-all cursor-pointer group"
           >
-            <div className="size-8 rounded-full bg-muted/50 group-hover:bg-primary/10 flex items-center justify-center transition-colors">
-              <Plus className="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
+            <div className="size-8 rounded-full bg-gray-100 group-hover:bg-[#D9F99D]/20 flex items-center justify-center transition-colors">
+              <Plus className="size-4 text-gray-600 group-hover:text-[#1A1A1A] transition-colors" />
             </div>
-            <span className="text-sm text-muted-foreground group-hover:text-primary transition-colors">
+            <span className="text-sm text-gray-600 group-hover:text-[#1A1A1A] transition-colors">
               Add a meal
             </span>
           </button>
@@ -163,9 +163,9 @@ export function PlannerDayColumn({
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  "w-full h-9 border-2 border-dashed",
-                  "hover:border-primary hover:bg-primary/5",
-                  pickerOpen && "border-primary bg-primary/5"
+                  "w-full h-9 border-2 border-dashed border-gray-300",
+                  "hover:border-[#D9F99D] hover:bg-[#D9F99D]/10",
+                  pickerOpen && "border-[#D9F99D] bg-[#D9F99D]/10"
                 )}
               >
                 <Plus className="h-4 w-4 mr-1" />

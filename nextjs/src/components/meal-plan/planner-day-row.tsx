@@ -949,7 +949,7 @@ function EmptyDayAddMeal({
                 onClick={(e) => e.stopPropagation()}
                 className={cn(
                   "h-8 px-2 gap-1 text-xs rounded-md",
-                  "hover:bg-primary/10 hover:text-primary transition-colors",
+                  "hover:bg-[#D9F99D]/20 hover:text-[#1A1A1A] transition-colors",
                   "opacity-60 group-hover/empty:opacity-100"
                 )}
               >

@@ -117,7 +117,7 @@ export function StepDisplay({
             key={index}
             className={cn(
               part.isIngredient &&
-                "text-primary font-semibold underline decoration-primary/30"
+                "text-[#D9F99D] dark:text-lime-300 font-semibold underline decoration-lime-300/30"
             )}
           >
             {part.text}

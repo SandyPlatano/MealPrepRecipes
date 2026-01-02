@@ -46,25 +46,25 @@ export function SubstitutionSuggestionCard({
     <div
       className={`p-4 rounded-lg border transition-all ${
         in_pantry
-          ? "border-green-500/50 bg-green-50/50 dark:bg-green-950/20"
-          : "border-border hover:border-primary/50"
+          ? "border-green-500/50 bg-green-50 dark:bg-green-950/20 dark:border-green-800"
+          : "border-gray-200 hover:border-[#D9F99D] dark:border-gray-700"
       }`}
     >
       {/* Header: Name and Score */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h4 className="font-medium text-base truncate">
+            <h4 className="font-medium text-base truncate text-gray-900 dark:text-gray-100">
               {quantity} {unit && `${unit} `}{substitute}
             </h4>
             {in_pantry && (
-              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 border-green-200 dark:border-green-800">
                 <Package className="h-3 w-3 mr-1" />
                 In Pantry
               </Badge>
             )}
           </div>
-          <p className="text-sm text-muted-foreground mt-1">{reason}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{reason}</p>
         </div>
 
         {/* Match Score Badge */}
@@ -77,8 +77,8 @@ export function SubstitutionSuggestionCard({
 
       {/* Preparation Note */}
       {preparation_note && (
-        <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 italic">
-          💡 {preparation_note}
+        <p className="text-xs text-amber-700 dark:text-amber-400 mt-2 italic">
+          {preparation_note}
         </p>
       )}
 
@@ -115,14 +115,14 @@ export function SubstitutionSuggestionCard({
 
       {/* Nutritional Note */}
       {nutritional_note && (
-        <p className="text-xs text-muted-foreground mt-2">
+        <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
           {nutritional_note}
         </p>
       )}
 
       {/* Select Button */}
       <Button
-        className="w-full mt-3"
+        className={`w-full mt-3 rounded-full ${in_pantry ? "bg-[#1A1A1A] hover:bg-[#1A1A1A]/90" : "border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"}`}
         size="sm"
         variant={in_pantry ? "default" : "outline"}
         onClick={() => onSelect(suggestion)}

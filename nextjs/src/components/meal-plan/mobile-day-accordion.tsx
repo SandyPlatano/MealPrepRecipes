@@ -232,7 +232,7 @@ export function MobileDayAccordion({
               <Button
                 variant="ghost"
                 size="lg"
-                className="w-full border-2 border-dashed h-12 text-base hover:border-primary hover:bg-primary/5"
+                className="w-full border-2 border-dashed border-gray-300 h-12 text-base hover:border-[#D9F99D] hover:bg-[#D9F99D]/10"
                 onClick={() => setPickerOpen(true)}
               >
                 <Plus className="size-5 mr-2" />

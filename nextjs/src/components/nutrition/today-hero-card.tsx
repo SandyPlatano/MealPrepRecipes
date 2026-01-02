@@ -80,7 +80,7 @@ export function TodayHeroCard({
             )}
           </div>
           {allAchieved && (
-            <Badge className="bg-brand-sage text-white">
+            <Badge className="bg-[#D9F99D] text-[#1A1A1A] hover:bg-[#D9F99D]">
               <Check className="mr-1 h-3 w-3" />
               All Goals Met
             </Badge>
@@ -107,11 +107,11 @@ export function TodayHeroCard({
                 <span>Daily Progress</span>
                 <span className="tabular-nums">{overallPercentage}%</span>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
                 <div
                   className={cn(
                     "h-full transition-all duration-500 ease-out",
-                    allAchieved ? "bg-brand-sage" : "bg-brand-coral/70"
+                    allAchieved ? "bg-[#D9F99D]" : "bg-amber-400"
                   )}
                   style={{ width: `${overallPercentage}%` }}
                 />
@@ -159,9 +159,9 @@ function CalorieHero({ progress }: { progress: MacroProgress }) {
     : "calories remaining";
 
   const statusColor = isAchieved
-    ? "text-brand-sage"
+    ? "text-green-600"
     : isExceeded
-    ? "text-brand-coral/80"
+    ? "text-amber-600"
     : "text-foreground";
 
   return (
@@ -171,7 +171,7 @@ function CalorieHero({ progress }: { progress: MacroProgress }) {
         <div className={cn("text-center", statusColor)}>
           <span className="text-5xl font-bold tabular-nums sm:text-6xl">
             {isAchieved ? (
-              <Check className="mx-auto h-14 w-14 text-brand-sage" />
+              <Check className="mx-auto h-14 w-14 text-green-600" />
             ) : (
               displayValue
             )}
@@ -210,15 +210,15 @@ function MacroPill({
     : progress.remaining;
 
   const bgColor = isAchieved
-    ? "bg-brand-sage/10 border-brand-sage/30"
+    ? "bg-[#D9F99D]/20 border-[#D9F99D]/40"
     : isExceeded
-    ? "bg-brand-coral/10 border-brand-coral/30"
-    : "bg-muted border-muted-foreground/20";
+    ? "bg-amber-50 border-amber-200"
+    : "bg-gray-100 border-gray-200";
 
   const textColor = isAchieved
-    ? "text-brand-sage"
+    ? "text-green-600"
     : isExceeded
-    ? "text-brand-coral/80"
+    ? "text-amber-600"
     : "text-foreground";
 
   return (
@@ -326,7 +326,7 @@ function CompactMacroBadge({
       variant={isAchieved ? "default" : "secondary"}
       className={cn(
         "text-xs",
-        isAchieved && "bg-brand-sage hover:bg-brand-sage"
+        isAchieved && "bg-[#D9F99D] text-[#1A1A1A] hover:bg-[#D9F99D]"
       )}
     >
       {label}: {isAchieved ? "✓" : `${progress.remaining}${unit}`}

@@ -35,13 +35,13 @@ export function RecipePickerCard({
       className={cn(
         "cursor-pointer transition-all hover:shadow-md hover:border-primary",
         "relative overflow-hidden",
-        isSelected && "ring-2 ring-primary border-primary bg-primary/5"
+        isSelected && "ring-2 ring-[#D9F99D] border-[#D9F99D] bg-[#D9F99D]/10"
       )}
       onClick={onToggle}
     >
       {/* Selection Indicator */}
       {isSelected && (
-        <div className="absolute top-2 right-2 z-10 bg-primary text-primary-foreground rounded-full p-1">
+        <div className="absolute top-2 right-2 z-10 bg-[#D9F99D] text-[#1A1A1A] rounded-full p-1">
           <Check className="size-4" />
         </div>
       )}

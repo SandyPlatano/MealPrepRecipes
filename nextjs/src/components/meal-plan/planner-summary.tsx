@@ -162,9 +162,9 @@ function DayProgressCircles({ daysWithMeals }: DayProgressCirclesProps) {
                     "relative w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center",
                     "text-xs font-mono font-bold transition-all duration-300 cursor-default",
                     hasPlanned
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "bg-muted text-muted-foreground",
-                    isToday && "ring-2 ring-primary ring-offset-2 ring-offset-background",
+                      ? "bg-[#D9F99D] text-[#1A1A1A] shadow-sm"
+                      : "bg-gray-100 text-gray-600",
+                    isToday && "ring-2 ring-[#D9F99D] ring-offset-2 ring-offset-background",
                     hasPlanned && "hover:scale-110 hover:shadow-lg"
                   )}
                 >

@@ -83,10 +83,10 @@ export function ContributionDashboard({
 
   return (
     <div className={className}>
-      <Card>
+      <Card className="bg-white rounded-xl border border-gray-200 shadow-sm">
         <CardHeader>
-          <CardTitle>Household Contributions</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-base text-[#1A1A1A]">Household Contributions</CardTitle>
+          <CardDescription className="text-gray-600">
             See who&apos;s been active in meal planning this week
           </CardDescription>
         </CardHeader>
@@ -110,7 +110,7 @@ export function ContributionDashboard({
             {contributions.map((member) => (
               <div
                 key={member.user_id}
-                className="flex items-center gap-4 p-3 rounded-lg border"
+                className="flex items-center gap-4 p-3 rounded-lg border border-gray-200"
               >
                 <Avatar className="size-10">
                   <AvatarFallback>
@@ -150,7 +150,7 @@ export function ContributionDashboard({
 
           {/* Legend */}
           {contributions.length > 0 && (
-            <div className="flex items-center justify-center gap-6 pt-2 text-xs text-muted-foreground border-t">
+            <div className="flex items-center justify-center gap-6 pt-2 text-xs text-muted-foreground border-t border-gray-200">
               <div className="flex items-center gap-1.5">
                 <Calendar className="size-3.5" />
                 <span>Planned</span>

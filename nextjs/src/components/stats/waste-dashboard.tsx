@@ -81,8 +81,8 @@ export function WasteDashboard({ className }: WasteDashboardProps) {
   return (
     <div className={className}>
       {/* Motivational Header */}
-      <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20">
-        <p className="text-sm font-medium text-green-700 dark:text-green-400">
+      <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-[#D9F99D]/10 to-green-100/10 border border-[#D9F99D]/30">
+        <p className="text-sm font-medium text-green-700">
           {motivationalMessage}
         </p>
       </div>

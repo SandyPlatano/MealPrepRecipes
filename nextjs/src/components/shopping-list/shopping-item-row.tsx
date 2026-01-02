@@ -140,17 +140,17 @@ export const ShoppingItemRow = memo(function ShoppingItemRow({
           />
           <span
             className={`flex-1 text-sm flex items-center gap-2 flex-wrap ${
-              item.is_checked ? "line-through text-muted-foreground" : ""
+              item.is_checked ? "line-through text-gray-400 dark:text-gray-500" : "text-gray-700 dark:text-gray-300"
             }`}
           >
             {/* Quantity - prominent display */}
             {convertedQuantity && (
-              <span className="min-w-[60px] tabular-nums">
+              <span className={`min-w-[60px] tabular-nums font-medium ${item.is_checked ? "" : "text-gray-900 dark:text-gray-100"}`}>
                 {convertedQuantity}
               </span>
             )}
             {/* Ingredient name - secondary */}
-            <span className={convertedQuantity ? "text-muted-foreground" : ""}>
+            <span className={convertedQuantity && !item.is_checked ? "text-gray-600 dark:text-gray-400" : ""}>
               {item.ingredient}
             </span>
 
@@ -202,10 +202,10 @@ export const ShoppingItemRow = memo(function ShoppingItemRow({
 
 
             {item.is_in_pantry && (
-              <span className="text-xs">(in pantry)</span>
+              <span className="text-xs text-green-600 dark:text-green-400">(in pantry)</span>
             )}
             {item.substituted_from && (
-              <span className="text-xs">(was: {item.substituted_from})</span>
+              <span className="text-xs text-blue-600 dark:text-blue-400">(was: {item.substituted_from})</span>
             )}
           </span>
           <SubstitutionButton

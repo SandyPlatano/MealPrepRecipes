@@ -512,12 +512,20 @@ function FolderButton({ href, icon, label, count, isActive, onClick }: FolderBut
       className={cn(
         "w-full justify-start gap-3 h-10 px-3 relative",
         "transition-all duration-150",
+        // Focus styles for accessibility
+        "focus-visible:ring-2 focus-visible:ring-[#1A1A1A] focus-visible:ring-offset-1",
         isActive && [
-          "bg-[#D9F99D]/20 dark:bg-[#D9F99D]/10 text-[#1A1A1A] dark:text-[#E2E8F0] font-semibold",
+          "bg-[#D9F99D]/20 !text-[#1A1A1A] font-semibold",
           "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
           "before:h-6 before:w-1 before:bg-[#D9F99D] before:rounded-r",
+          "hover:!text-[#1A1A1A]",
         ],
-        !isActive && "text-[var(--color-sidebar-text-muted)] hover:text-[var(--color-sidebar-text)] hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50"
+        !isActive && [
+          "!text-[#4B5563]",
+          "hover:!text-[#1A1A1A]",
+          "hover:bg-gray-100",
+          "focus-visible:!text-[#1A1A1A]",
+        ]
       )}
     >
       <Link href={href} onClick={onClick}>
@@ -556,12 +564,18 @@ function SmartFolderItem({ folder, isActive, onClick, onEdit, onDelete }: SmartF
           className={cn(
             "group flex items-center gap-1 h-10 px-3 relative rounded-md",
             "transition-all duration-150",
+            // Focus styles for accessibility
+            "focus-within:ring-2 focus-within:ring-[#1A1A1A] focus-within:ring-offset-1",
             isActive && [
-              "bg-[#D9F99D]/20 dark:bg-[#D9F99D]/10 text-[#1A1A1A] dark:text-[#E2E8F0] font-semibold",
+              "bg-[#D9F99D]/20 !text-[#1A1A1A] font-semibold",
               "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
               "before:h-6 before:w-1 before:bg-[#D9F99D] before:rounded-r",
             ],
-            !isActive && "text-[var(--color-sidebar-text-muted)] hover:text-[var(--color-sidebar-text)] hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50"
+            !isActive && [
+              "text-[#4B5563]",
+              "hover:text-[#1A1A1A]",
+              "hover:bg-gray-100",
+            ]
           )}
         >
           <Link
@@ -663,12 +677,18 @@ function UserFolderItem({ folder, isActive, onClick, onDelete }: UserFolderItemP
           className={cn(
             "group flex items-center gap-1 h-10 px-3 relative rounded-md",
             "transition-all duration-150",
+            // Focus styles for accessibility
+            "focus-within:ring-2 focus-within:ring-[#1A1A1A] focus-within:ring-offset-1",
             isActive && [
-              "bg-[#D9F99D]/20 dark:bg-[#D9F99D]/10 text-[#1A1A1A] dark:text-[#E2E8F0] font-semibold",
+              "bg-[#D9F99D]/20 !text-[#1A1A1A] font-semibold",
               "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
               "before:h-6 before:w-1 before:bg-[#D9F99D] before:rounded-r",
             ],
-            !isActive && "text-[var(--color-sidebar-text-muted)] hover:text-[var(--color-sidebar-text)] hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50"
+            !isActive && [
+              "text-[#4B5563]",
+              "hover:text-[#1A1A1A]",
+              "hover:bg-gray-100",
+            ]
           )}
         >
           <Link

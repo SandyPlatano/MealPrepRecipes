@@ -63,10 +63,13 @@ function BottomNavItem({ href, icon: Icon, label, isIconOnly }: BottomNavItemPro
       asChild
       className={cn(
         "w-full justify-start gap-3 h-10 px-3 rounded-lg",
-        "text-[var(--color-sidebar-text-muted)]",
-        "hover:text-[var(--color-sidebar-text)]",
-        "hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50",
+        // Focus styles for accessibility
+        "focus-visible:ring-2 focus-visible:ring-[#1A1A1A] focus-visible:ring-offset-1",
+        "!text-[#4B5563]",
+        "hover:!text-[#1A1A1A]",
+        "hover:bg-gray-100",
         "transition-all duration-150",
+        "focus-visible:!text-[#1A1A1A]",
         isIconOnly && "justify-center px-0"
       )}
     >
@@ -110,10 +113,13 @@ function BottomNavAction({ icon: Icon, label, onClick, isIconOnly }: BottomNavAc
       onClick={onClick}
       className={cn(
         "w-full justify-start gap-3 h-10 px-3 rounded-lg",
-        "text-[var(--color-sidebar-text-muted)]",
-        "hover:text-[var(--color-sidebar-text)]",
-        "hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50",
+        // Focus styles for accessibility
+        "focus-visible:ring-2 focus-visible:ring-[#1A1A1A] focus-visible:ring-offset-1",
+        "!text-[#4B5563]",
+        "hover:!text-[#1A1A1A]",
+        "hover:bg-gray-100",
         "transition-all duration-150",
+        "focus-visible:!text-[#1A1A1A]",
         isIconOnly && "justify-center px-0"
       )}
     >

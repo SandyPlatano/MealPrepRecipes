@@ -106,8 +106,8 @@ export function CookModeIngredientsSheet({
         {/* Header */}
         <div className="flex items-center justify-between px-6 pb-4">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <UtensilsCrossed className="h-5 w-5 text-primary" />
+            <div className="h-10 w-10 rounded-xl bg-lime-100 dark:bg-lime-900/30 flex items-center justify-center">
+              <UtensilsCrossed className="h-5 w-5 text-[#1A1A1A] dark:text-lime-300" />
             </div>
             <div>
               <span className="text-lg font-semibold block">Ingredients</span>
@@ -151,7 +151,7 @@ export function CookModeIngredientsSheet({
                     className={cn(
                       "flex items-start gap-4 rounded-xl p-4 transition-colors",
                       !checkedIngredients[index]
-                        ? "bg-primary/10 ring-2 ring-primary/30"
+                        ? "bg-lime-50 dark:bg-lime-950/20 ring-2 ring-lime-200 dark:ring-lime-800"
                         : "bg-muted/50"
                     )}
                   >
@@ -159,7 +159,7 @@ export function CookModeIngredientsSheet({
                       id={`sheet-ingredient-${index}`}
                       checked={checkedIngredients[index]}
                       onCheckedChange={() => onToggleIngredient(index)}
-                      className="mt-1 h-6 w-6"
+                      className="mt-1 h-6 w-6 data-[state=checked]:bg-[#D9F99D] data-[state=checked]:border-[#D9F99D] data-[state=checked]:text-[#1A1A1A]"
                     />
                     <label
                       htmlFor={`sheet-ingredient-${index}`}
@@ -198,7 +198,7 @@ export function CookModeIngredientsSheet({
                       id={`sheet-ingredient-other-${index}`}
                       checked={checkedIngredients[index]}
                       onCheckedChange={() => onToggleIngredient(index)}
-                      className="mt-0.5 h-5 w-5"
+                      className="mt-0.5 h-5 w-5 data-[state=checked]:bg-[#D9F99D] data-[state=checked]:border-[#D9F99D] data-[state=checked]:text-[#1A1A1A]"
                     />
                     <label
                       htmlFor={`sheet-ingredient-other-${index}`}

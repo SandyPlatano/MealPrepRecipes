@@ -376,10 +376,10 @@ function WeeklySummaryRow({ week, isRecent }: WeeklySummaryRowProps) {
   const daysOnTarget = week.days_on_target || 0;
   const statusColor =
     daysOnTarget >= 5
-      ? "text-brand-sage"
+      ? "text-green-600"
       : daysOnTarget >= 3
       ? "text-muted-foreground"
-      : "text-brand-coral/80";
+      : "text-amber-600";
 
   return (
     <div className="flex items-center justify-between rounded-lg border p-3">

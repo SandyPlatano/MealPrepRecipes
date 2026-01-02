@@ -68,7 +68,7 @@ export function QuickAddDropdown({
         disabled={disabled}
         className={cn(
           "w-full h-12 md:h-11 text-sm md:text-base border-2 border-dashed rounded-lg",
-          "hover:border-primary hover:bg-primary/5 transition-colors"
+          "hover:border-[#D9F99D] hover:bg-[#D9F99D]/10 transition-colors"
         )}
       >
         <Plus className="size-5 mr-2" />
@@ -87,7 +87,7 @@ export function QuickAddDropdown({
         disabled={disabled}
         className={cn(
           "flex-1 h-12 md:h-11 text-sm md:text-base border-2 border-dashed rounded-lg rounded-r-none",
-          "hover:border-primary hover:bg-primary/5 transition-colors"
+          "hover:border-[#D9F99D] hover:bg-[#D9F99D]/10 transition-colors"
         )}
       >
         <Plus className="size-5 mr-2" />
@@ -103,7 +103,7 @@ export function QuickAddDropdown({
             disabled={disabled}
             className={cn(
               "h-12 md:h-11 px-3 border-2 border-dashed rounded-lg rounded-l-none border-l-0",
-              "hover:border-primary hover:bg-primary/5 transition-colors",
+              "hover:border-[#D9F99D] hover:bg-[#D9F99D]/10 transition-colors",
               "flex items-center gap-1"
             )}
           >

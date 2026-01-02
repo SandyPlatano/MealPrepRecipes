@@ -157,19 +157,19 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
   return (
     <div className="flex flex-col gap-6">
       {/* Cover Image Section */}
-      <Card>
+      <Card className="bg-white rounded-xl border border-gray-200 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-              <ImageIcon className="h-4 w-4 text-primary" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#D9F99D]/20">
+              <ImageIcon className="h-4 w-4 text-[#1A1A1A]" />
             </div>
-            <CardTitle className="text-base">Cover Image</CardTitle>
+            <CardTitle className="text-base text-[#1A1A1A]">Cover Image</CardTitle>
           </div>
-          <CardDescription className="mt-2 ml-11">
+          <CardDescription className="mt-2 ml-11 text-gray-600">
             Add a cover image to personalize your profile
           </CardDescription>
         </CardHeader>
-        <Separator className="mb-0" />
+        <Separator className="mb-0 bg-gray-200" />
         <CardContent className="pt-6">
           <div className="flex flex-col gap-4">
             {coverImageUrl && (
@@ -217,19 +217,19 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
       </Card>
 
       {/* Basic Info Section */}
-      <Card>
+      <Card className="bg-white rounded-xl border border-gray-200 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-              <User className="h-4 w-4 text-primary" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#D9F99D]/20">
+              <User className="h-4 w-4 text-[#1A1A1A]" />
             </div>
-            <CardTitle className="text-base">Basic Information</CardTitle>
+            <CardTitle className="text-base text-[#1A1A1A]">Basic Information</CardTitle>
           </div>
-          <CardDescription className="mt-2 ml-11">
+          <CardDescription className="mt-2 ml-11 text-gray-600">
             Tell others about yourself and your cooking journey
           </CardDescription>
         </CardHeader>
-        <Separator className="mb-0" />
+        <Separator className="mb-0 bg-gray-200" />
         <CardContent className="pt-6 flex flex-col gap-6">
           <AvatarUpload
             currentUrl={profile.avatar_url}
@@ -275,19 +275,19 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
       </Card>
 
       {/* Fun Stuff Section */}
-      <Card>
+      <Card className="bg-white rounded-xl border border-gray-200 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-              <Sparkles className="h-4 w-4 text-primary" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#D9F99D]/20">
+              <Sparkles className="h-4 w-4 text-[#1A1A1A]" />
             </div>
-            <CardTitle className="text-base">Fun Stuff</CardTitle>
+            <CardTitle className="text-base text-[#1A1A1A]">Fun Stuff</CardTitle>
           </div>
-          <CardDescription className="mt-2 ml-11">
+          <CardDescription className="mt-2 ml-11 text-gray-600">
             Add some personality to your profile - because food is fun
           </CardDescription>
         </CardHeader>
-        <Separator className="mb-0" />
+        <Separator className="mb-0 bg-gray-200" />
         <CardContent className="pt-6 flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">Profile Emoji</label>
@@ -359,19 +359,19 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
       </Card>
 
       {/* Links Section */}
-      <Card>
+      <Card className="bg-white rounded-xl border border-gray-200 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-              <Globe className="h-4 w-4 text-primary" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#D9F99D]/20">
+              <Globe className="h-4 w-4 text-[#1A1A1A]" />
             </div>
-            <CardTitle className="text-base">Links & Location</CardTitle>
+            <CardTitle className="text-base text-[#1A1A1A]">Links & Location</CardTitle>
           </div>
-          <CardDescription className="mt-2 ml-11">
+          <CardDescription className="mt-2 ml-11 text-gray-600">
             Help others find and connect with you
           </CardDescription>
         </CardHeader>
-        <Separator className="mb-0" />
+        <Separator className="mb-0 bg-gray-200" />
         <CardContent className="pt-6 flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <label htmlFor="location" className="text-sm font-medium flex items-center gap-2">
@@ -404,38 +404,38 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
       </Card>
 
       {/* Privacy Section */}
-      <Card>
+      <Card className="bg-white rounded-xl border border-gray-200 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-              <Shield className="h-4 w-4 text-primary" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#D9F99D]/20">
+              <Shield className="h-4 w-4 text-[#1A1A1A]" />
             </div>
-            <CardTitle className="text-base">Privacy Controls</CardTitle>
+            <CardTitle className="text-base text-[#1A1A1A]">Privacy Controls</CardTitle>
           </div>
-          <CardDescription className="mt-2 ml-11">
+          <CardDescription className="mt-2 ml-11 text-gray-600">
             Control what others can see on your profile
           </CardDescription>
         </CardHeader>
-        <Separator className="mb-0" />
+        <Separator className="mb-0 bg-gray-200" />
         <CardContent className="pt-6">
           <PrivacyToggles settings={privacySettings} onChange={handlePrivacyChange} />
         </CardContent>
       </Card>
 
       {/* Profile Theme Section */}
-      <Card>
+      <Card className="bg-white rounded-xl border border-gray-200 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-              <Palette className="h-4 w-4 text-primary" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#D9F99D]/20">
+              <Palette className="h-4 w-4 text-[#1A1A1A]" />
             </div>
-            <CardTitle className="text-base">Profile Theme</CardTitle>
+            <CardTitle className="text-base text-[#1A1A1A]">Profile Theme</CardTitle>
           </div>
-          <CardDescription className="mt-2 ml-11">
+          <CardDescription className="mt-2 ml-11 text-gray-600">
             Customize the accent color for your profile
           </CardDescription>
         </CardHeader>
-        <Separator className="mb-0" />
+        <Separator className="mb-0 bg-gray-200" />
         <CardContent className="pt-6 flex flex-col gap-4">
           <div className="flex items-center gap-4">
             <div className="flex flex-col gap-2 flex-1">

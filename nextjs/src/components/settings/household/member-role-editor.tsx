@@ -83,7 +83,7 @@ export function MemberRoleEditor({
           return (
             <div
               key={member.user_id}
-              className="flex items-center gap-3 p-3 rounded-lg border"
+              className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 bg-white"
             >
               <Avatar className="size-8">
                 <AvatarFallback className="text-sm">

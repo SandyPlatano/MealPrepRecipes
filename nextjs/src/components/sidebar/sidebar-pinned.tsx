@@ -136,13 +136,21 @@ function PinnedItemRow({ item, onUnpin }: PinnedItemRowProps) {
       className={cn(
         "w-full justify-start gap-3 h-9 px-3 relative group",
         "transition-all duration-150",
+        // Focus styles for accessibility
+        "focus-visible:ring-2 focus-visible:ring-[#1A1A1A] focus-visible:ring-offset-1",
         isIconOnly && "justify-center px-0",
         isActive && [
-          "bg-[#D9F99D]/20 dark:bg-[#D9F99D]/10 text-[#1A1A1A] dark:text-[#E2E8F0]",
+          "bg-[#D9F99D]/20 !text-[#1A1A1A]",
           "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
           "before:h-4 before:w-0.5 before:bg-[#D9F99D] before:rounded-r",
+          "hover:!text-[#1A1A1A]",
         ],
-        !isActive && "text-[var(--color-sidebar-text-muted)] hover:text-[var(--color-sidebar-text)] hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50"
+        !isActive && [
+          "!text-[#4B5563]",
+          "hover:!text-[#1A1A1A]",
+          "hover:bg-gray-100",
+          "focus-visible:!text-[#1A1A1A]",
+        ]
       )}
     >
       <Link

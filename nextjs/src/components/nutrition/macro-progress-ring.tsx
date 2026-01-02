@@ -148,12 +148,12 @@ export function MacroProgressBar({
 }: MacroProgressBarProps) {
   const cappedPercentage = Math.min(progress.percentage, 100);
 
-  // Get soft brand color classes
+  // Get warm design system color classes
   const bgColor = progress.color === "sage"
-    ? "bg-brand-sage"
+    ? "bg-[#D9F99D]"
     : progress.color === "coral"
-    ? "bg-brand-coral/60"
-    : "bg-muted-foreground/40";
+    ? "bg-amber-400"
+    : "bg-gray-300";
 
   return (
     <div className={cn("flex flex-col gap-1", className)}>
@@ -170,7 +170,7 @@ export function MacroProgressBar({
       </div>
 
       {/* Progress bar */}
-      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
         <div
           className={cn("h-full transition-all duration-500 ease-out", bgColor)}
           style={{ width: `${cappedPercentage}%` }}

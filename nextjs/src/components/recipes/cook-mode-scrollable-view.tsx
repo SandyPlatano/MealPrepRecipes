@@ -123,7 +123,7 @@ export function CookModeScrollableView({
             className={cn(
               "p-6 cursor-pointer transition-all duration-200",
               isCurrentStep &&
-                "ring-2 ring-primary shadow-lg bg-primary/5",
+                "ring-2 ring-lime-300 dark:ring-lime-700 shadow-lg bg-lime-50 dark:bg-lime-950/20",
               isCompleted && "opacity-60 bg-muted/50",
               !isCurrentStep && !isCompleted && "hover:bg-muted/30"
             )}
@@ -136,7 +136,7 @@ export function CookModeScrollableView({
                   <div
                     className={cn(
                       "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold",
-                      isCurrentStep && "bg-primary text-primary-foreground",
+                      isCurrentStep && "bg-[#D9F99D] text-[#1A1A1A]",
                       isCompleted &&
                         "bg-green-500 text-white",
                       !isCurrentStep && !isCompleted && "bg-muted text-muted-foreground"
@@ -151,7 +151,7 @@ export function CookModeScrollableView({
                   <span
                     className={cn(
                       "text-sm font-medium",
-                      isCurrentStep && "text-primary",
+                      isCurrentStep && "text-[#1A1A1A] dark:text-lime-300",
                       isCompleted && "text-muted-foreground"
                     )}
                   >
