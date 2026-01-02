@@ -11,5 +11,3 @@ export {
   type DietaryWarning,
   type WarningLevel,
 } from "./dietary-warning-badge";
-export { CookAvatar } from "./cook-avatar";
-export { CustomCooksManager } from "./custom-cooks-manager";

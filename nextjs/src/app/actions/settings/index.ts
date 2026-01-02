@@ -81,13 +81,3 @@ export {
   setDefaultCookForDay,
   resetDefaultCooksByDay,
 } from "./cooks";
-
-// Household cooks (custom cooks with avatars)
-export {
-  getHouseholdCooks,
-  createCustomCook,
-  updateCustomCook,
-  deleteCustomCook,
-  uploadCookAvatar,
-  reorderCooks,
-} from "./household-cooks";
