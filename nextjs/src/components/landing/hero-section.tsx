@@ -1,30 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Check, Sparkles, Calendar, ShoppingCart, ChefHat } from 'lucide-react';
+import { ArrowRight, Check, Sparkles, ShoppingCart, Users } from 'lucide-react';
 import { memo, useEffect, useMemo, useState } from 'react';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// HERO SECTION - Warm & Cozy Design System (Pass 3 Micro Polish)
-// Focus states, active states, refined animation timing, accessibility
+// HERO SECTION - Warm & Cozy Design System
+// Larger mockup focus with staggered entrance animations
 // ═══════════════════════════════════════════════════════════════════════════
 
 const TYPING_SPEED = 100;
 const DELETING_SPEED = 50;
 const PAUSE_TIME = 2500;
 const TYPEWRITER_PHRASES = ['for Dinner?', 'to Prep?', 'to Buy?'] as const;
-
-// Decorative star SVG
-function StarDecoration({ className }: { className?: string }) {
-  return (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className={className}>
-      <path
-        d="M20 0L24.49 15.51L40 20L24.49 24.49L20 40L15.51 24.49L0 20L15.51 15.51L20 0Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
 
 // Typewriter effect
 const TypewriterText = memo(function TypewriterText() {
@@ -98,75 +86,180 @@ const FeatureCheck = memo(function FeatureCheck({
   );
 });
 
-// App Mockup Component
-function AppMockup() {
+// Meal data for the week
+const WEEK_MEALS = [
+  { day: 'Mon', meal: 'Pasta', emoji: '🍝', cook: 'sarah', color: 'bg-[#FFF6D8]' },
+  { day: 'Tue', meal: 'Salad', emoji: '🥗', cook: 'mike', color: 'bg-[#DCFCE7]' },
+  { day: 'Wed', meal: 'Tacos', emoji: '🌮', cook: 'sarah', color: 'bg-[#FFF0E6]' },
+  { day: 'Thu', meal: 'Curry', emoji: '🍛', cook: 'mike', color: 'bg-[#EDE9FE]' },
+  { day: 'Fri', meal: 'Pizza', emoji: '🍕', cook: 'out', color: 'bg-gray-100' },
+] as const;
+
+// Avatar component for cook assignment
+function CookAvatar({ cook, size = 'sm' }: { cook: 'sarah' | 'mike' | 'out'; size?: 'sm' | 'md' }) {
+  const sizeClasses = size === 'sm' ? 'w-6 h-6 text-[10px]' : 'w-8 h-8 text-xs';
+
+  if (cook === 'out') {
+    return (
+      <div className={`${sizeClasses} rounded-full bg-gray-200 flex items-center justify-center`}>
+        <span>🍽️</span>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-2xl overflow-hidden">
+    <div
+      className={`
+        ${sizeClasses} rounded-full flex items-center justify-center font-semibold text-white
+        ${cook === 'sarah' ? 'bg-pink-400' : 'bg-blue-400'}
+      `}
+    >
+      {cook === 'sarah' ? 'S' : 'M'}
+    </div>
+  );
+}
+
+// App Mockup Component - "Who's Cooking Tonight?" design
+function AppMockup() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const sarahMeals = WEEK_MEALS.filter(m => m.cook === 'sarah').length;
+  const mikeMeals = WEEK_MEALS.filter(m => m.cook === 'mike').length;
+
+  return (
+    <div
+      className={`
+        bg-white rounded-3xl border border-gray-200/80 shadow-2xl overflow-hidden
+        transition-all duration-700 ease-out
+        ${isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-[0.98]'}
+      `}
+      style={{
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05)'
+      }}
+    >
       {/* Browser Chrome */}
-      <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-100">
-        <div className="flex gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-          <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-          <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+      <div className="flex items-center gap-2 px-5 py-3.5 bg-gray-50/80 border-b border-gray-100">
+        <div className="flex gap-2">
+          <div className="w-3 h-3 rounded-full bg-[#FF5F57] shadow-inner" />
+          <div className="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-inner" />
+          <div className="w-3 h-3 rounded-full bg-[#28C840] shadow-inner" />
         </div>
-        <div className="flex-1 mx-4">
-          <div className="bg-white rounded-full py-1 px-3 text-xs text-gray-400 max-w-[200px] mx-auto border border-gray-200">
+        <div className="flex-1 mx-8">
+          <div className="bg-white rounded-full py-1.5 px-4 text-sm text-gray-500 max-w-[260px] mx-auto border border-gray-200 flex items-center justify-center gap-2">
+            <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
             babewfd.com
           </div>
         </div>
       </div>
 
       {/* App Content */}
-      <div className="p-4 bg-[#FFFCF6]">
-        {/* Mini Sidebar + Content */}
-        <div className="flex gap-3">
-          {/* Mini Sidebar */}
-          <div className="w-12 bg-[#0D1117] rounded-lg p-2 space-y-2">
-            <div className="w-8 h-8 bg-[#D9F99D] rounded-md flex items-center justify-center">
-              <span className="text-[#1A1A1A] font-bold text-[10px]">B</span>
+      <div className="p-5 md:p-8 bg-[#FFFCF6]">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-5 md:mb-6">
+          <div>
+            <h3 className="text-lg md:text-xl font-bold text-[#1A1A1A]">This Week</h3>
+            <p className="text-xs md:text-sm text-gray-500">Jan 6 - Jan 10</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex -space-x-2">
+              <CookAvatar cook="sarah" size="md" />
+              <CookAvatar cook="mike" size="md" />
             </div>
-            <div className="w-8 h-8 bg-gray-800 rounded-md" />
-            <div className="w-8 h-8 bg-gray-800 rounded-md" />
-            <div className="w-8 h-8 bg-gray-800 rounded-md" />
+            <span className="text-xs md:text-sm text-gray-500 hidden sm:inline">2 cooks</span>
+          </div>
+        </div>
+
+        {/* Week Meal Grid - Main Focus */}
+        <div className="grid grid-cols-5 gap-2 md:gap-3 mb-5 md:mb-6">
+          {WEEK_MEALS.map((item, i) => (
+            <div
+              key={item.day}
+              className={`
+                ${item.color} rounded-xl p-3 md:p-4 text-center
+                transition-all duration-300 hover:scale-[1.02] hover:shadow-md
+                ${i === 0 ? 'ring-2 ring-[#1A1A1A] ring-offset-2' : ''}
+              `}
+            >
+              {/* Day */}
+              <div className={`text-[10px] md:text-xs font-semibold mb-2 ${i === 0 ? 'text-[#1A1A1A]' : 'text-gray-500'}`}>
+                {item.day}
+              </div>
+
+              {/* Emoji */}
+              <div className="text-2xl md:text-4xl mb-2">
+                {item.emoji}
+              </div>
+
+              {/* Meal Name */}
+              <div className="text-xs md:text-sm font-medium text-[#1A1A1A] mb-2 truncate">
+                {item.meal}
+              </div>
+
+              {/* Cook Avatar */}
+              <div className="flex justify-center">
+                <CookAvatar cook={item.cook} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom Stats Row */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {/* Shopping List */}
+          <div className="bg-[#D9F99D] rounded-xl p-4 md:col-span-1">
+            <div className="flex items-center gap-2 mb-2">
+              <ShoppingCart className="w-4 h-4 text-[#1A1A1A]" />
+              <span className="text-xs font-medium text-[#1A1A1A]">Shopping List</span>
+            </div>
+            <div className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">23</div>
+            <div className="text-xs text-[#1A1A1A]/60">items · ~$85</div>
           </div>
 
-          {/* Main Content */}
-          <div className="flex-1 space-y-3">
-            {/* Week View Header */}
-            <div className="flex items-center justify-between">
-              <div className="text-xs font-semibold text-gray-700">This Week</div>
-              <div className="flex gap-1">
-                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((day) => (
-                  <div
-                    key={day}
-                    className="w-8 h-6 bg-white rounded text-[8px] text-gray-500 flex items-center justify-center border border-gray-100"
-                  >
-                    {day}
-                  </div>
-                ))}
-              </div>
+          {/* Who's Cooking Stats */}
+          <div className="bg-white rounded-xl p-4 border border-gray-100 md:col-span-2">
+            <div className="flex items-center gap-2 mb-3">
+              <Users className="w-4 h-4 text-gray-400" />
+              <span className="text-xs font-medium text-gray-600">Who&apos;s Cooking</span>
             </div>
-
-            {/* Recipe Cards */}
-            <div className="grid grid-cols-3 gap-2">
-              <MiniRecipeCard color="bg-[#FFF6D8]" icon={Calendar} />
-              <MiniRecipeCard color="bg-[#EDE9FE]" icon={ShoppingCart} />
-              <MiniRecipeCard color="bg-[#FFF0E6]" icon={ChefHat} />
-            </div>
-
-            {/* Stats Row */}
-            <div className="flex gap-2">
-              <div className="flex-1 bg-white rounded-lg p-2 border border-gray-100">
-                <div className="text-[10px] text-gray-400">Recipes</div>
-                <div className="text-sm font-bold text-[#1A1A1A]">12</div>
+            <div className="flex items-center gap-4 md:gap-6">
+              {/* Sarah */}
+              <div className="flex items-center gap-2">
+                <CookAvatar cook="sarah" size="md" />
+                <div>
+                  <div className="text-sm font-semibold text-[#1A1A1A]">Sarah</div>
+                  <div className="text-xs text-gray-500">{sarahMeals} meals</div>
+                </div>
               </div>
-              <div className="flex-1 bg-white rounded-lg p-2 border border-gray-100">
-                <div className="text-[10px] text-gray-400">Planned</div>
-                <div className="text-sm font-bold text-[#1A1A1A]">5</div>
+
+              {/* Divider */}
+              <div className="h-8 w-px bg-gray-200 hidden md:block" />
+
+              {/* Mike */}
+              <div className="flex items-center gap-2">
+                <CookAvatar cook="mike" size="md" />
+                <div>
+                  <div className="text-sm font-semibold text-[#1A1A1A]">Mike</div>
+                  <div className="text-xs text-gray-500">{mikeMeals} meals</div>
+                </div>
               </div>
-              <div className="flex-1 bg-[#D9F99D] rounded-lg p-2">
-                <div className="text-[10px] text-gray-600">Shopping</div>
-                <div className="text-sm font-bold text-[#1A1A1A]">23 items</div>
+
+              {/* Divider */}
+              <div className="h-8 w-px bg-gray-200 hidden md:block" />
+
+              {/* Dining Out */}
+              <div className="flex items-center gap-2 hidden md:flex">
+                <CookAvatar cook="out" size="md" />
+                <div>
+                  <div className="text-sm font-semibold text-[#1A1A1A]">Out</div>
+                  <div className="text-xs text-gray-500">1 night</div>
+                </div>
               </div>
             </div>
           </div>
@@ -176,69 +269,62 @@ function AppMockup() {
   );
 }
 
-function MiniRecipeCard({ color, icon: Icon }: { color: string; icon: React.ElementType }) {
-  return (
-    <div className={`${color} rounded-lg p-2 space-y-1`}>
-      <div className="w-full h-8 bg-white/60 rounded" />
-      <div className="flex items-center gap-1">
-        <Icon className="w-3 h-3 text-gray-500" />
-        <div className="h-2 bg-gray-300/50 rounded flex-1" />
-      </div>
-    </div>
-  );
-}
-
 export function HeroSection() {
+  const [contentVisible, setContentVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setContentVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <section className="relative min-h-screen flex flex-col justify-center pt-20 pb-12 overflow-hidden bg-[#FFFCF6]">
-      {/* Decorative stars */}
-      <div className="absolute top-32 left-[8%] opacity-10 hidden lg:block">
-        <StarDecoration className="text-[#1A1A1A] w-6 h-6" />
-      </div>
-      <div className="absolute top-48 right-[12%] opacity-10 hidden lg:block">
-        <StarDecoration className="text-[#1A1A1A] w-10 h-10" />
-      </div>
-      <div className="absolute bottom-40 left-[15%] opacity-10 hidden lg:block">
-        <StarDecoration className="text-[#1A1A1A] w-8 h-8" />
-      </div>
+    <section className="relative min-h-screen flex flex-col justify-center pt-28 md:pt-32 pb-8 md:pb-12 overflow-hidden bg-[#FFFCF6]">
+      {/* Subtle gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-[#D9F99D]/5 pointer-events-none" />
 
       {/* Main content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
+        <div
+          className={`
+            max-w-3xl mx-auto text-center
+            transition-all duration-700 ease-out
+            ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+          `}
+        >
           {/* Badge */}
-          <div className="mb-6">
-            <span className="bg-white border border-gray-200 text-[#1A1A1A] text-xs font-medium px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-[#D9F99D]" />
+          <div className="mb-5 md:mb-6">
+            <span className="bg-white border border-gray-200 text-[#1A1A1A] text-xs font-medium px-4 py-2 rounded-full inline-flex items-center gap-2 shadow-sm">
+              <Sparkles className="w-4 h-4 text-[#84CC16]" />
               AI-Powered Meal Planning
             </span>
           </div>
 
           {/* Headline */}
-          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-[#1A1A1A] mb-5 leading-[1.1] tracking-tight">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-[#1A1A1A] mb-4 md:mb-5 leading-[1.05] tracking-tight">
             Babe, What&apos;s <TypewriterText />
           </h1>
 
           {/* Subheadline */}
-          <p className="text-base sm:text-lg text-gray-600 max-w-xl mx-auto mb-8 leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-6 md:mb-8 leading-relaxed">
             Import any recipe. Plan your week. Generate shopping lists.
-            Cook step-by-step. All in one place.
+            <span className="hidden sm:inline"> Cook step-by-step.</span> All in one place.
           </p>
 
-          {/* CTA Buttons - Happy Medium Size with micro interactions */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
             <Link href="/signup">
               <button
                 type="button"
-                className="bg-[#1A1A1A] text-white px-5 py-2.5 rounded-full font-semibold text-sm hover:bg-gray-800 transition-all duration-150 flex items-center gap-2 group shadow-md hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 active:scale-[0.98]"
+                className="bg-[#1A1A1A] text-white px-6 py-3 rounded-full font-semibold text-sm md:text-base hover:bg-gray-800 transition-all duration-150 flex items-center gap-2 group shadow-lg hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 active:scale-[0.98]"
               >
                 Get started free
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-150" />
+                <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-0.5 transition-transform duration-150" />
               </button>
             </Link>
             <Link href="#features">
               <button
                 type="button"
-                className="bg-white text-[#1A1A1A] px-5 py-2.5 rounded-full font-medium text-sm hover:bg-gray-50 transition-all duration-150 border border-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 active:scale-[0.98]"
+                className="bg-white text-[#1A1A1A] px-6 py-3 rounded-full font-medium text-sm md:text-base hover:bg-gray-50 transition-all duration-150 border border-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 active:scale-[0.98]"
               >
                 See how it works
               </button>
@@ -246,15 +332,15 @@ export function HeroSection() {
           </div>
 
           {/* Feature checks */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          <div className="flex flex-wrap items-center justify-center gap-x-5 md:gap-x-6 gap-y-2">
             <FeatureCheck delay={0}>AI Recipe Import</FeatureCheck>
             <FeatureCheck delay={150}>Smart Shopping Lists</FeatureCheck>
             <FeatureCheck delay={300}>No Credit Card</FeatureCheck>
           </div>
         </div>
 
-        {/* App Mockup */}
-        <div className="mt-12 max-w-3xl mx-auto">
+        {/* App Mockup - Larger */}
+        <div className="mt-10 md:mt-14 max-w-4xl lg:max-w-5xl mx-auto px-2">
           <AppMockup />
         </div>
       </div>

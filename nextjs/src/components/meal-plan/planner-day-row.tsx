@@ -177,7 +177,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
           isToday && "ring-2 ring-primary",
           isPast && "opacity-60",
           isFocused && !isToday && "ring-2 ring-primary/50",
-          isSelectionMode && isSelected && "ring-2 ring-primary bg-primary/5",
+          isSelectionMode && isSelected && "ring-2 ring-[#D9F99D] bg-[#D9F99D]/10",
           isPending && "opacity-50"
         )}
         onClick={isSelectionMode ? onToggleSelection : undefined}
@@ -203,8 +203,8 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                 className={cn(
                   "size-5 rounded border-2 flex items-center justify-center transition-all flex-shrink-0",
                   isSelected
-                    ? "bg-primary border-primary text-primary-foreground"
-                    : "border-muted-foreground/30 hover:border-primary/50"
+                    ? "bg-[#D9F99D] border-[#D9F99D] text-[#1A1A1A]"
+                    : "border-gray-300 hover:border-[#D9F99D]"
                 )}
                 aria-label={isSelected ? "Deselect day" : "Select day"}
               >
@@ -243,9 +243,9 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                   onClick={() => setModalOpen(true)}
                   disabled={isPending}
                   className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded-md border border-dashed border-muted-foreground/30",
-                    "hover:border-primary/50 hover:bg-primary/5 transition-all text-sm text-muted-foreground",
-                    "hover:text-primary"
+                    "flex items-center gap-2 px-3 py-1.5 rounded-md border border-dashed border-gray-300",
+                    "hover:border-[#D9F99D] hover:bg-[#D9F99D]/10 transition-all text-sm text-gray-600",
+                    "hover:text-[#1A1A1A]"
                   )}
                 >
                   <Plus className="size-4" />
@@ -392,7 +392,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
         isToday && "ring-2 ring-primary",
         isPast && "opacity-70",
         isFocused && !isToday && "ring-2 ring-primary/50 shadow-md",
-        isSelectionMode && isSelected && "ring-2 ring-primary bg-primary/5",
+        isSelectionMode && isSelected && "ring-2 ring-[#D9F99D] bg-[#D9F99D]/10",
         isPending && "opacity-60"
       )}
       onClick={isSelectionMode ? onToggleSelection : undefined}
@@ -417,8 +417,8 @@ export const PlannerDayRow = memo(function PlannerDayRow({
             className={cn(
               "size-6 rounded-md border-2 flex items-center justify-center transition-all mb-1",
               isSelected
-                ? "bg-primary border-primary text-primary-foreground"
-                : "border-muted-foreground/30 hover:border-primary/50"
+                ? "bg-[#D9F99D] border-[#D9F99D] text-[#1A1A1A]"
+                : "border-gray-300 hover:border-[#D9F99D]"
             )}
             aria-label={isSelected ? "Deselect day" : "Select day"}
           >
@@ -446,8 +446,8 @@ export const PlannerDayRow = memo(function PlannerDayRow({
           className={cn(
             "hidden md:flex items-center justify-center mt-1 text-[9px] font-mono px-1 py-0.5 rounded transition-all",
             isFocused
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground opacity-0 group-hover:opacity-100"
+              ? "bg-[#D9F99D] text-[#1A1A1A]"
+              : "bg-gray-100 text-gray-600 opacity-0 group-hover:opacity-100"
           )}
           title={`Press ${keyboardNumber} to focus, then A to add`}
         >
@@ -917,7 +917,7 @@ function EmptyDayAddMeal({
   return (
     <div
       className={cn(
-        "relative w-full flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 hover:bg-primary/5 transition-all group/empty flex-1 min-h-0",
+        "relative w-full flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-gray-300 hover:border-[#D9F99D] hover:bg-[#D9F99D]/10 transition-all group/empty flex-1 min-h-0",
         density === "compact" ? "py-2 md:py-3" : "py-3 md:py-4",
         disabled && "opacity-50 cursor-not-allowed"
       )}
@@ -929,10 +929,10 @@ function EmptyDayAddMeal({
         disabled={disabled}
         className="flex flex-col items-center justify-center gap-1 cursor-pointer w-full"
       >
-        <div className="size-8 rounded-full bg-muted/50 group-hover/empty:bg-primary/10 flex items-center justify-center transition-colors">
-          <Plus className="size-4 text-muted-foreground group-hover/empty:text-primary transition-colors" />
+        <div className="size-8 rounded-full bg-gray-100 group-hover/empty:bg-[#D9F99D]/20 flex items-center justify-center transition-colors">
+          <Plus className="size-4 text-gray-600 group-hover/empty:text-[#1A1A1A] transition-colors" />
         </div>
-        <span className="text-xs text-muted-foreground group-hover/empty:text-primary transition-colors">
+        <span className="text-xs text-gray-600 group-hover/empty:text-[#1A1A1A] transition-colors">
           Add meal
         </span>
       </button>

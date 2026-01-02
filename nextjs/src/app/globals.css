@@ -109,12 +109,12 @@
   /* Borders */
   --color-brand-border: #E5E7EB;
 
-  /* Sidebar Colors (Always Dark - app navigation) */
-  --color-sidebar-bg: #0D1117;
-  --color-sidebar-surface: #161B22;
-  --color-sidebar-border: #30363D;
-  --color-sidebar-text: #F0F6FC;
-  --color-sidebar-text-muted: #8B949E;
+  /* Sidebar Colors (Warm Light theme with dark mode support) */
+  --color-sidebar-bg: #FFFCF6;
+  --color-sidebar-surface: #F5F5F0;
+  --color-sidebar-border: #E5E7EB;
+  --color-sidebar-text: #1F2937;
+  --color-sidebar-text-muted: #6B7280;
 
   /* Footer (Dark) */
   --color-footer-bg: #0D1117;
@@ -242,6 +242,13 @@
   --border: 217 33% 17%;
   --input: 217 33% 17%;
   --ring: 75 91% 80%;                  /* Lime ring */
+
+  /* Sidebar Colors - Dark mode (warm dark, not pure black) */
+  --color-sidebar-bg: #1E293B;
+  --color-sidebar-surface: #334155;
+  --color-sidebar-border: #475569;
+  --color-sidebar-text: #E2E8F0;
+  --color-sidebar-text-muted: #94A3B8;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════

@@ -44,19 +44,20 @@ export function ProfilePill({
     <div
       className={cn(
         "flex items-center gap-1.5 px-2 py-1.5 rounded-full",
-        "bg-[var(--color-brand-ink)] border-2 border-black",
+        "bg-white border border-gray-200",
+        "hover:bg-gray-50 transition-colors",
         className
       )}
     >
       {/* Notifications */}
       <button
         onClick={handleNotificationClick}
-        className="relative p-1.5 rounded-full hover:bg-white/10 transition-colors"
+        className="relative p-1.5 rounded-full hover:bg-gray-100 transition-colors"
         aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ""}`}
       >
-        <Bell className="size-4 text-white" />
+        <Bell className="size-4 text-gray-600" />
         {notificationCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 flex items-center justify-center text-[10px] font-bold bg-[var(--color-brand-primary)] text-black rounded-full">
+          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 flex items-center justify-center text-[10px] font-bold bg-[#D9F99D] text-[#1A1A1A] rounded-full">
             {notificationCount > 99 ? "99+" : notificationCount}
           </span>
         )}
@@ -65,16 +66,16 @@ export function ProfilePill({
       {/* Settings */}
       <button
         onClick={handleSettingsClick}
-        className="p-1.5 rounded-full hover:bg-white/10 transition-colors"
+        className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
         aria-label="Settings"
       >
-        <Settings className="size-4 text-white" />
+        <Settings className="size-4 text-gray-600" />
       </button>
 
-      {/* Avatar with yellow ring */}
-      <Avatar className="h-7 w-7 ring-2 ring-[var(--color-brand-primary)] ring-offset-1 ring-offset-[var(--color-brand-ink)]">
+      {/* Avatar with lime ring */}
+      <Avatar className="h-7 w-7 ring-2 ring-[#D9F99D] ring-offset-1 ring-offset-white">
         <AvatarImage src={avatarUrl} alt={displayName} />
-        <AvatarFallback className="text-xs font-bold bg-[var(--color-brand-primary)] text-black">
+        <AvatarFallback className="text-xs font-bold bg-[#D9F99D] text-[#1A1A1A]">
           {initials}
         </AvatarFallback>
       </Avatar>

@@ -194,7 +194,7 @@ function AppShellContent({
   // Desktop layout: sidebar + header + content
   // When collapsed, fully hide sidebar (width 0) and show floating expand button
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-[#FFFCF6]">
       <SkipLink />
       {/* Sidebar wrapper with collapse animation */}
       <div
@@ -221,8 +221,8 @@ function AppShellContent({
           className={cn(
             "sticky top-0 z-40 h-16 px-6",
             "flex items-center justify-between",
-            "bg-background/95 backdrop-blur",
-            "border-b-2 border-black"
+            "bg-white/95 backdrop-blur",
+            "border-b border-gray-200"
           )}
         >
           {/* Search bar */}

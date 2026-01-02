@@ -400,7 +400,7 @@ export function MealPlannerGrid({
     <TooltipProvider>
         {/* Loading Indicator */}
         {isPending && (
-          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#D9F99D] text-[#1A1A1A] px-4 py-2 rounded-full shadow-md flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
             <Loader2 className="h-4 w-4 animate-spin" />
             <span className="text-sm font-medium">Updating...</span>
           </div>

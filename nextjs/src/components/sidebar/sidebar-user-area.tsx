@@ -128,7 +128,7 @@ export function SidebarUserArea({ user, logoutAction }: SidebarUserAreaProps) {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="flex-1 justify-start gap-2 h-10 px-2 hover:bg-accent"
+              className="flex-1 justify-start gap-2 h-10 px-2 hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50"
             >
               {avatar}
               <div className="flex-1 text-left min-w-0">

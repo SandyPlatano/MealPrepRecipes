@@ -95,12 +95,12 @@ export function MobileMenu({ navItems, settingsItem, logoutAction }: MobileMenuP
           <SheetClose asChild>
             <Button
               variant="ghost"
-              className="w-full justify-start text-base hover:bg-primary/5"
+              className="w-full justify-start text-base text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               onClick={openSearch}
             >
               <Search className="mr-3 h-4 w-4" />
               Search
-              <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+              <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-gray-300 bg-gray-100 px-1.5 font-mono text-[10px] font-medium text-gray-600">
                 /
               </kbd>
             </Button>
@@ -119,13 +119,13 @@ export function MobileMenu({ navItems, settingsItem, logoutAction }: MobileMenuP
                     className={cn(
                       "w-full justify-start text-base",
                       active
-                        ? "bg-primary/10 text-primary hover:bg-primary/15"
-                        : "hover:bg-primary/5"
+                        ? "bg-[#D9F99D]/10 text-[#1A1A1A] hover:bg-[#D9F99D]/20"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     )}
                   >
                     <Icon className={cn(
                       "mr-3 h-4 w-4",
-                      active && "text-primary"
+                      active && "stroke-[2.5]"
                     )} />
                     {item.label}
                   </Button>
@@ -142,13 +142,13 @@ export function MobileMenu({ navItems, settingsItem, logoutAction }: MobileMenuP
                 className={cn(
                   "w-full justify-start text-base",
                   isActive(settingsItem.href)
-                    ? "bg-primary/10 text-primary hover:bg-primary/15"
-                    : "hover:bg-primary/5"
+                    ? "bg-[#D9F99D]/10 text-[#1A1A1A] hover:bg-[#D9F99D]/20"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 )}
               >
                 <Settings className={cn(
                   "mr-3 h-4 w-4",
-                  isActive(settingsItem.href) && "text-primary"
+                  isActive(settingsItem.href) && "stroke-[2.5]"
                 )} />
                 Settings
               </Button>

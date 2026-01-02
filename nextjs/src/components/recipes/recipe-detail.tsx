@@ -455,7 +455,7 @@ export function RecipeDetail({
     <div className="flex flex-col gap-4">
       {/* Title Row */}
       <div className="flex items-baseline gap-2">
-        <h3 className="text-lg font-semibold">Ingredients</h3>
+        <h3 className="text-lg font-semibold text-[#1A1A1A] dark:text-white">Ingredients</h3>
         <Badge variant="secondary" className="text-xs">
           {recipe.ingredients.length} items
         </Badge>
@@ -583,7 +583,7 @@ export function RecipeDetail({
   const renderInstructionsSection = () => (
     <div className="flex flex-col">
       <div className="mb-2">
-        <h3 className="text-lg font-semibold">Instructions</h3>
+        <h3 className="text-lg font-semibold text-[#1A1A1A] dark:text-white">Instructions</h3>
         <p className="text-sm text-muted-foreground">
           {recipe.instructions.length} steps
         </p>
@@ -656,7 +656,7 @@ export function RecipeDetail({
     if (!recipe.notes) return null;
     return (
       <div className="flex flex-col">
-        <h3 className="text-lg font-semibold">Notes</h3>
+        <h3 className="text-lg font-semibold text-[#1A1A1A] dark:text-white">Notes</h3>
         <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {recipe.notes}
@@ -671,7 +671,7 @@ export function RecipeDetail({
     return (
       <div className="flex flex-col">
         <div>
-          <h3 className="text-lg font-semibold">Cooking History</h3>
+          <h3 className="text-lg font-semibold text-[#1A1A1A] dark:text-white">Cooking History</h3>
           <p className="text-sm text-muted-foreground">
             Made {localHistory.length} time
             {localHistory.length !== 1 ? "s" : ""}
@@ -809,7 +809,7 @@ export function RecipeDetail({
         // Render two half-width sections side-by-side
         sections.push(
           <div key={`${sectionId}-${nextSectionId}`}>
-            <div className="border-t" />
+            <div className="border-t border-gray-200 dark:border-gray-700" />
             <div className="grid gap-8 md:grid-cols-2 pt-6">
               <div>{sectionRenderers[sectionId]()}</div>
               <div>{sectionRenderers[nextSectionId]()}</div>
@@ -835,7 +835,7 @@ export function RecipeDetail({
   return (
     <>
       {/* Single Card with All Recipe Info */}
-      <Card>
+      <Card className="bg-white rounded-xl border border-gray-200 shadow-sm dark:bg-slate-800 dark:border-gray-700">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex flex-col">
@@ -846,7 +846,7 @@ export function RecipeDetail({
                   <Badge variant="outline">{recipe.category}</Badge>
                 )}
               </div>
-              <CardTitle className="text-3xl font-mono">
+              <CardTitle className="text-3xl font-semibold text-[#1A1A1A] dark:text-white">
                 {recipe.title}
               </CardTitle>
               {recipe.protein_type && (
@@ -1062,18 +1062,18 @@ export function RecipeDetail({
                 Cooked Today
               </Button>
             ) : (
-              <Button onClick={() => setShowCookedDialog(true)}>
+              <Button onClick={() => setShowCookedDialog(true)} className="bg-[#D9F99D] hover:bg-[#D9F99D]/90 text-[#1A1A1A]">
                 <ChefHat className="mr-2 size-4" />
                 I Made This!
               </Button>
             )}
-            <Button variant="default" asChild>
+            <Button variant="default" asChild className="bg-[#D9F99D] hover:bg-[#D9F99D]/90 text-[#1A1A1A]">
               <Link href={`/app/recipes/${recipe.id}/cook`}>
                 <Play className="mr-2 size-4" />
                 Start Cooking Mode
               </Link>
             </Button>
-            <Button variant="default" onClick={() => setShowShareDialog(true)}>
+            <Button variant="default" onClick={() => setShowShareDialog(true)} className="bg-[#D9F99D] hover:bg-[#D9F99D]/90 text-[#1A1A1A]">
               <Share2 className="mr-2 size-4" />
               Share
             </Button>

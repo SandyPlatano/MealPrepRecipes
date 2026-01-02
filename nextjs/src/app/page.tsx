@@ -1,5 +1,4 @@
 import { HeroSection } from '@/components/landing/hero-section';
-import { TrustStrip } from '@/components/landing/trust-strip';
 import { FeaturesTimeline } from '@/components/landing/features-timeline';
 import { PricingSection } from '@/components/landing/pricing-section';
 import { FAQ } from '@/components/landing/faq';
@@ -20,9 +19,6 @@ export default function Home() {
 
       {/* Hero - Warm off-white background */}
       <HeroSection />
-
-      {/* Trust Strip - Lime green background */}
-      <TrustStrip />
 
       {/* Features Timeline - Alternating colored cards */}
       <div id="features">

@@ -248,7 +248,7 @@ export function SidebarCollections({
               asChild
               className={cn(
                 "h-10 w-10",
-                isFilterActive("all") && "bg-primary/10 text-primary"
+                isFilterActive("all") && "bg-[#D9F99D]/20 dark:bg-[#D9F99D]/10 text-[#1A1A1A] dark:text-[#E2E8F0]"
               )}
             >
               <Link href="/app/recipes" onClick={handleClick}>
@@ -513,11 +513,11 @@ function FolderButton({ href, icon, label, count, isActive, onClick }: FolderBut
         "w-full justify-start gap-3 h-10 px-3 relative",
         "transition-all duration-150",
         isActive && [
-          "bg-primary/15 text-primary font-semibold",
+          "bg-[#D9F99D]/20 dark:bg-[#D9F99D]/10 text-[#1A1A1A] dark:text-[#E2E8F0] font-semibold",
           "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
-          "before:h-6 before:w-1 before:bg-primary before:rounded-r",
+          "before:h-6 before:w-1 before:bg-[#D9F99D] before:rounded-r",
         ],
-        !isActive && "text-muted-foreground hover:text-foreground hover:bg-accent"
+        !isActive && "text-[var(--color-sidebar-text-muted)] hover:text-[var(--color-sidebar-text)] hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50"
       )}
     >
       <Link href={href} onClick={onClick}>
@@ -557,11 +557,11 @@ function SmartFolderItem({ folder, isActive, onClick, onEdit, onDelete }: SmartF
             "group flex items-center gap-1 h-10 px-3 relative rounded-md",
             "transition-all duration-150",
             isActive && [
-              "bg-primary/15 text-primary font-semibold",
+              "bg-[#D9F99D]/20 dark:bg-[#D9F99D]/10 text-[#1A1A1A] dark:text-[#E2E8F0] font-semibold",
               "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
-              "before:h-6 before:w-1 before:bg-primary before:rounded-r",
+              "before:h-6 before:w-1 before:bg-[#D9F99D] before:rounded-r",
             ],
-            !isActive && "text-muted-foreground hover:text-foreground hover:bg-accent"
+            !isActive && "text-[var(--color-sidebar-text-muted)] hover:text-[var(--color-sidebar-text)] hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50"
           )}
         >
           <Link
@@ -664,11 +664,11 @@ function UserFolderItem({ folder, isActive, onClick, onDelete }: UserFolderItemP
             "group flex items-center gap-1 h-10 px-3 relative rounded-md",
             "transition-all duration-150",
             isActive && [
-              "bg-primary/15 text-primary font-semibold",
+              "bg-[#D9F99D]/20 dark:bg-[#D9F99D]/10 text-[#1A1A1A] dark:text-[#E2E8F0] font-semibold",
               "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
-              "before:h-6 before:w-1 before:bg-primary before:rounded-r",
+              "before:h-6 before:w-1 before:bg-[#D9F99D] before:rounded-r",
             ],
-            !isActive && "text-muted-foreground hover:text-foreground hover:bg-accent"
+            !isActive && "text-[var(--color-sidebar-text-muted)] hover:text-[var(--color-sidebar-text)] hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50"
           )}
         >
           <Link

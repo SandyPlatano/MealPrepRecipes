@@ -85,16 +85,17 @@ export function SidebarNavItem({
         "w-full justify-start gap-3 h-11 px-3 relative rounded-lg",
         "transition-all duration-150",
         isIconOnly && "justify-center px-0",
-        // Dark sidebar theme - always dark regardless of app theme
+        // Warm sidebar theme with lime accents
         isActive && [
-          "bg-[var(--color-sidebar-surface)]",
-          "border border-[var(--color-sidebar-border)]",
-          "text-[var(--color-sidebar-text)] font-semibold",
+          "bg-[#D9F99D]/20 dark:bg-[#D9F99D]/10",
+          "text-[#1A1A1A] dark:text-[#E2E8F0]",
+          "font-semibold",
+          "border border-transparent",
         ],
         !isActive && [
           "text-[var(--color-sidebar-text-muted)]",
           "hover:text-[var(--color-sidebar-text)]",
-          "hover:bg-[var(--color-sidebar-surface)]/50",
+          "hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50",
           "border border-transparent",
         ]
       )}
@@ -119,7 +120,7 @@ export function SidebarNavItem({
               <span
                 className={cn(
                   "ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full",
-                  "bg-[var(--color-brand-primary)] text-black"
+                  "bg-[#D9F99D] text-[#1A1A1A]"
                 )}
               >
                 {badge}
@@ -171,7 +172,7 @@ export function SidebarNavItem({
         >
           <span>{label}</span>
           {badge !== undefined && (
-            <span className="text-xs font-bold bg-[var(--color-brand-primary)] text-black px-1.5 py-0.5 rounded-full">
+            <span className="text-xs font-bold bg-[#D9F99D] text-[#1A1A1A] px-1.5 py-0.5 rounded-full">
               {badge}
             </span>
           )}
@@ -210,10 +211,10 @@ export function SidebarActionItem({
       onClick={onClick}
       className={cn(
         "w-full justify-start gap-3 h-11 px-3 rounded-lg",
-        // Dark sidebar theme
+        // Warm sidebar theme
         "text-[var(--color-sidebar-text-muted)]",
         "hover:text-[var(--color-sidebar-text)]",
-        "hover:bg-[var(--color-sidebar-surface)]/50",
+        "hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50",
         "border border-transparent",
         "transition-all duration-150",
         isIconOnly && "justify-center px-0"

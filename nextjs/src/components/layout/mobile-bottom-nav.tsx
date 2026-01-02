@@ -30,22 +30,22 @@ function NavTabItem({ tab, isActive }: { tab: NavTab; isActive: boolean }) {
         "min-h-[56px] min-w-[64px]",
         "touch-none-highlight touch-press",
         "transition-all duration-200",
-        isActive ? "text-primary" : "text-muted-foreground hover:text-foreground/80"
+        isActive ? "text-[#1A1A1A]" : "text-gray-400 hover:text-gray-600"
       )}
       aria-current={isActive ? "page" : undefined}
     >
-      {/* Icon container with glow effect when active */}
+      {/* Icon container */}
       <div className="relative">
         <tab.icon
           className={cn(
             "h-5 w-5 transition-all duration-200",
-            isActive && "stroke-[2.5] drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]"
+            isActive && "stroke-[2.5]"
           )}
         />
 
         {/* Badge for counts */}
         {tab.badge && tab.badge > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 flex items-center justify-center text-[10px] font-bold bg-primary text-primary-foreground rounded-full">
+          <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 flex items-center justify-center text-[10px] font-bold bg-[#D9F99D] text-[#1A1A1A] rounded-full">
             {tab.badge > 99 ? "99+" : tab.badge}
           </span>
         )}
@@ -61,9 +61,9 @@ function NavTabItem({ tab, isActive }: { tab: NavTab; isActive: boolean }) {
         {tab.label}
       </span>
 
-      {/* Active indicator dot */}
+      {/* Active indicator - lime accent */}
       {isActive && (
-        <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary animate-pulse" />
+        <span className="absolute bottom-1 w-8 h-0.5 rounded-full bg-[#D9F99D]" />
       )}
     </Link>
   );
@@ -77,8 +77,8 @@ export function MobileBottomNav() {
     <nav
       className={cn(
         "fixed bottom-0 left-0 right-0 z-50",
-        "bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80",
-        "border-t border-border/50",
+        "bg-white/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80",
+        "border-t border-gray-200",
         "pb-safe"
       )}
       aria-label="Main navigation"

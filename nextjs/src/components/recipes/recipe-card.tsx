@@ -381,11 +381,11 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
         onFocus={handlePrefetch}
       >
         <Card
-          className="group h-full hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 hover:border-primary/50 transition-all duration-300 ease-out flex flex-col cursor-pointer overflow-hidden hover:ring-2 hover:ring-primary/20 animate-slide-up-fade relative"
+          className="group h-full bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-300 ease-out flex flex-col cursor-pointer overflow-hidden animate-slide-up-fade relative dark:bg-slate-800 dark:border-gray-700"
           style={animationIndex !== undefined ? { animationDelay: `${animationIndex * 50}ms`, animationFillMode: 'backwards' } : undefined}
         >
           {/* Image Section - ALWAYS present for consistent card height */}
-          <div className="relative w-full h-40 overflow-hidden bg-muted">
+          <div className="relative w-full h-40 rounded-t-xl overflow-hidden bg-muted">
             {recipe.image_url ? (
               <Image
                 src={recipe.image_url}
@@ -411,7 +411,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                 <div className="absolute top-2 left-2 z-10">
                   <Badge
                     variant="default"
-                    className="bg-emerald-500 hover:bg-emerald-500 text-white text-[10px] px-1.5 py-0.5 font-semibold shadow-md"
+                    className="bg-[#D9F99D] hover:bg-[#D9F99D] text-[#1A1A1A] text-[10px] px-1.5 py-0.5 font-semibold shadow-sm"
                   >
                     NEW
                   </Badge>
@@ -577,9 +577,9 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
           </div>
 
           {/* Title Section - with rating - fixed height for consistency */}
-          <div className="px-4 py-3 border-b border-border shrink-0 min-h-[60px] flex items-center">
+          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 shrink-0 min-h-[60px] flex items-center">
             <div className="flex items-start justify-between gap-2 w-full">
-              <CardTitle className="text-base leading-snug line-clamp-2 flex-1">
+              <CardTitle className="text-base leading-snug line-clamp-2 flex-1 text-[#1A1A1A] dark:text-white">
                 <HighlightText text={recipe.title} searchTerm={searchTerm} />
               </CardTitle>
               {/* Rating - clickable to open cooking history */}
@@ -606,7 +606,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
           </div>
 
           {/* Badge + Metadata Row - shrink-0 for consistent height */}
-          <div className="px-4 py-2 border-b border-border flex items-center gap-2 flex-wrap shrink-0">
+          <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 flex-wrap shrink-0">
             {/* Recipe Type Badge - Smaller */}
             <div
               className={cn(
@@ -700,13 +700,13 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
             )}
 
             {/* Footer: Add to Plan + Favorite */}
-            <div className={cn("pt-3 mt-auto flex items-center gap-2", !isMobile && "border-t border-border")}>
+            <div className={cn("pt-3 mt-auto flex items-center gap-2", !isMobile && "border-t border-gray-200 dark:border-gray-700")}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="default"
                     className={cn(
-                      "flex-1 hover:scale-105 transition-transform",
+                      "flex-1 hover:scale-105 transition-transform bg-[#D9F99D] hover:bg-[#D9F99D]/90 text-[#1A1A1A]",
                       isMobile && "h-12 text-base" // Larger touch target on mobile
                     )}
                     onClick={handleAddToCart}

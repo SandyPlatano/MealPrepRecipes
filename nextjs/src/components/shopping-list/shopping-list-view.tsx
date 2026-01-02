@@ -601,7 +601,7 @@ export function ShoppingListView({
 
       {/* Offline indicator */}
       {isOffline && (
-        <div className="flex items-center gap-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-yellow-600 dark:text-yellow-400">
+        <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-700 dark:bg-yellow-950/20 dark:border-yellow-800 dark:text-yellow-400">
           <WifiOff className="h-4 w-4" />
           <span className="text-sm font-medium">
             You&apos;re offline. Changes will sync when you reconnect.
@@ -617,8 +617,8 @@ export function ShoppingListView({
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-2">
-                    <CalendarDays className="h-5 w-5 text-primary" />
-                    <CardTitle className="text-lg">
+                    <CalendarDays className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                    <CardTitle className="text-lg text-gray-900 dark:text-gray-100">
                       {plannedRecipes.length} Recipe{plannedRecipes.length !== 1 ? "s" : ""} This Week
                     </CardTitle>
                   </div>
@@ -640,7 +640,7 @@ export function ShoppingListView({
                     return (
                       <div
                         key={index}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                        className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors dark:border-gray-800 dark:hover:bg-gray-800/50"
                       >
                         <div className="min-w-[100px]">
                           <span className="font-medium text-primary text-sm block">
@@ -699,7 +699,7 @@ export function ShoppingListView({
       {/* Add Item Form */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Add Item</CardTitle>
+          <CardTitle className="text-lg text-gray-900 dark:text-gray-100">Add Item</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAddItem} className="flex gap-2">
@@ -707,7 +707,7 @@ export function ShoppingListView({
               placeholder="Add ingredient..."
               value={newItem}
               onChange={(e) => setNewItem(e.target.value)}
-              className="flex-1"
+              className="flex-1 border-gray-200 focus:border-[#D9F99D] focus:ring-1 focus:ring-[#D9F99D] dark:border-gray-700"
             />
             <Select value={newCategory} onValueChange={setNewCategory}>
               <SelectTrigger className="w-[140px]">
@@ -721,7 +721,7 @@ export function ShoppingListView({
                 ))}
               </SelectContent>
             </Select>
-            <Button type="submit" disabled={isAdding || !newItem.trim()}>
+            <Button type="submit" disabled={isAdding || !newItem.trim()} className="bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-white rounded-full">
               <Plus className="h-4 w-4" />
             </Button>
           </form>
@@ -735,7 +735,7 @@ export function ShoppingListView({
           <div className="flex gap-2 flex-1">
             {/* Email Meal Plan - Primary */}
             {plannedRecipes.length > 0 && (
-              <Button variant="outline" className="flex-1" onClick={handleSendPlan} disabled={isSendingPlan}>
+              <Button variant="outline" className="flex-1 rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300" onClick={handleSendPlan} disabled={isSendingPlan}>
                 <Mail className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">{isSendingPlan ? "Emailing..." : "Email Meal Plan"}</span>
                 <span className="sm:hidden">{isSendingPlan ? "..." : "Email"}</span>
@@ -746,7 +746,7 @@ export function ShoppingListView({
             {pantryCount > 0 && (
               <Button
                 variant={showPantryItems ? "default" : "outline"}
-                className="flex-1"
+                className={`flex-1 rounded-full ${showPantryItems ? "bg-[#1A1A1A] hover:bg-[#1A1A1A]/90" : "border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"}`}
                 onClick={() => setShowPantryItems(!showPantryItems)}
               >
                 <Cookie className="h-4 w-4 mr-2" />
@@ -760,9 +760,9 @@ export function ShoppingListView({
             )}
 
             {/* Show Recipe Sources Toggle */}
-            <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-border bg-background">
-              <BookOpen className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm hidden sm:inline">Sources</span>
+            <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+              <BookOpen className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+              <span className="text-sm hidden sm:inline text-gray-700 dark:text-gray-300">Sources</span>
               <Switch
                 checked={showRecipeSources}
                 onCheckedChange={handleToggleRecipeSources}
@@ -773,7 +773,7 @@ export function ShoppingListView({
             {/* Store Mode Toggle */}
             <Button
               variant={storeMode ? "default" : "outline"}
-              className="flex-1"
+              className={`flex-1 rounded-full ${storeMode ? "bg-[#1A1A1A] hover:bg-[#1A1A1A]/90" : "border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"}`}
               onClick={handleToggleStoreMode}
             >
               <Store className="h-4 w-4 mr-2" />
@@ -787,8 +787,8 @@ export function ShoppingListView({
 
             {/* Clear All Items */}
             <Button
-              variant="destructive-outline"
-              className="flex-1"
+              variant="outline"
+              className="flex-1 rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"
               onClick={() => setClearAllDialogOpen(true)}
             >
               <Trash2 className="h-4 w-4 mr-2" />
@@ -919,21 +919,21 @@ export function ShoppingListView({
 
       {/* Sticky Progress Bar - Bottom anchored on mobile */}
       {totalCount > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 sm:relative sm:mt-6 bg-background/95 backdrop-blur-sm border-t sm:border-t-0 sm:border sm:rounded-lg p-4 sm:p-4 shadow-lg sm:shadow-none z-40 safe-area-bottom">
+        <div className="fixed bottom-0 left-0 right-0 sm:relative sm:mt-6 bg-white/95 backdrop-blur-sm border-t border-gray-200 sm:border sm:rounded-lg p-4 sm:p-4 shadow-lg sm:shadow-sm z-40 safe-area-bottom dark:bg-gray-900/95 dark:border-gray-700">
           <div className="max-w-4xl mx-auto flex flex-col gap-2">
-            <div className="h-3 sm:h-2 bg-muted rounded-full overflow-hidden">
+            <div className="h-3 sm:h-2 bg-gray-100 rounded-full overflow-hidden dark:bg-gray-800">
               <div
-                className="h-full bg-primary transition-all duration-500 ease-out"
+                className="h-full bg-[#D9F99D] transition-all duration-500 ease-out"
                 style={{ width: `${(checkedCount / totalCount) * 100}%` }}
               />
             </div>
-            <div className="text-sm text-muted-foreground flex items-center justify-between">
+            <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-between">
               <span className="font-medium">
                 {checkedCount} of {totalCount} items
               </span>
               {checkedCount === totalCount && totalCount > 0 && (
-                <span className="text-green-600 font-medium">
-                  🎉 Shopping done!
+                <span className="text-green-600 dark:text-green-400 font-medium">
+                  Shopping done!
                 </span>
               )}
             </div>

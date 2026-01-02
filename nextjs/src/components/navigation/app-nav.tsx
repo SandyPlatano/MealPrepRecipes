@@ -111,7 +111,7 @@ export function AppNav({
       ? [...items, settingsItem]
       : items;
     return (
-      <nav className="fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 md:hidden shadow-lg shadow-background/50 pb-safe transition-all duration-200">
+      <nav className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 z-50 md:hidden shadow-sm pb-safe transition-all duration-200">
         <div className="flex items-center justify-around py-1 px-2">
           {mobileItems.map((item) => {
             const active = isActive(item.href);
@@ -123,19 +123,19 @@ export function AppNav({
                 className={cn(
                   "flex flex-col items-center gap-0.5 px-3 py-2 min-h-[48px] min-w-[48px] transition-all rounded-lg active:scale-95",
                   active
-                    ? "text-primary bg-primary/5"
-                    : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                    ? "text-[#1A1A1A] bg-gray-50"
+                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
                 )}
               >
                 <Icon
                   className={cn(
                     "h-6 w-6 transition-all",
-                    active && "drop-shadow-[0_4px_16px_rgba(99,102,241,0.45)]"
+                    active && "stroke-[2.5]"
                   )}
                 />
                 <span className="text-[10px] font-medium leading-tight text-center">{item.label}</span>
                 {active && (
-                  <span className="h-1 w-5 rounded-full bg-primary/80 animate-[pulse_1.6s_ease-in-out_infinite] mt-0.5" />
+                  <span className="h-0.5 w-5 rounded-full bg-[#D9F99D] mt-0.5" />
                 )}
               </Link>
             );
@@ -154,17 +154,17 @@ export function AppNav({
           <Link key={item.href} href={item.href}>
             <span
               className={cn(
-                "inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm font-medium border transition-all duration-200",
-                "hover:border-primary/40 hover:text-foreground hover:shadow-[0_8px_30px_-15px_rgba(99,102,241,0.45)] hover:bg-primary/5 active:scale-95",
+                "inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-medium border transition-all duration-200",
+                "hover:bg-gray-50 hover:border-gray-300 active:scale-95",
                 active
-                  ? "border-primary/50 bg-primary/10 text-primary shadow-sm"
-                  : "border-transparent text-muted-foreground"
+                  ? "border-[#D9F99D] bg-[#D9F99D]/10 text-[#1A1A1A]"
+                  : "border-transparent text-gray-600 hover:text-gray-900"
               )}
             >
               <Icon
                 className={cn(
                   "h-4 w-4 transition-all",
-                  active && "drop-shadow-[0_6px_24px_rgba(99,102,241,0.45)]"
+                  active && "stroke-[2.5]"
                 )}
               />
               {item.label}

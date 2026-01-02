@@ -65,7 +65,7 @@ function BottomNavItem({ href, icon: Icon, label, isIconOnly }: BottomNavItemPro
         "w-full justify-start gap-3 h-10 px-3 rounded-lg",
         "text-[var(--color-sidebar-text-muted)]",
         "hover:text-[var(--color-sidebar-text)]",
-        "hover:bg-[var(--color-sidebar-surface)]/50",
+        "hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50",
         "transition-all duration-150",
         isIconOnly && "justify-center px-0"
       )}
@@ -112,7 +112,7 @@ function BottomNavAction({ icon: Icon, label, onClick, isIconOnly }: BottomNavAc
         "w-full justify-start gap-3 h-10 px-3 rounded-lg",
         "text-[var(--color-sidebar-text-muted)]",
         "hover:text-[var(--color-sidebar-text)]",
-        "hover:bg-[var(--color-sidebar-surface)]/50",
+        "hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50",
         "transition-all duration-150",
         isIconOnly && "justify-center px-0"
       )}

@@ -116,10 +116,10 @@ export const ShoppingItemRow = memo(function ShoppingItemRow({
     >
       <TooltipProvider>
         <li
-          className={`flex items-center gap-3 group cursor-pointer rounded-md hover:bg-muted/50 -mx-2 px-2 transition-colors ${
+          className={`flex items-center gap-3 group cursor-pointer hover:bg-gray-50 px-3 py-2 transition-colors dark:hover:bg-gray-800/30 ${
             storeMode
               ? "min-h-[56px] py-3" // Larger targets in store mode
-              : "min-h-[48px] py-2 sm:py-1 sm:min-h-0"
+              : "min-h-[48px]"
           } ${item.is_in_pantry ? "opacity-50" : ""}`}
           onClick={handleToggle}
           role="button"
@@ -136,7 +136,7 @@ export const ShoppingItemRow = memo(function ShoppingItemRow({
             checked={item.is_checked}
             onCheckedChange={handleToggle}
             onClick={(e) => e.stopPropagation()}
-            className="h-6 w-6 sm:h-5 sm:w-5 pointer-events-auto"
+            className="h-6 w-6 sm:h-5 sm:w-5 pointer-events-auto data-[state=checked]:bg-[#D9F99D] data-[state=checked]:border-[#D9F99D] border-2 border-gray-300 dark:border-gray-600"
           />
           <span
             className={`flex-1 text-sm flex items-center gap-2 flex-wrap ${

@@ -70,40 +70,40 @@ export const SortableCategorySection = memo(function SortableCategorySection({
       <Card
         ref={setNodeRef}
         style={style}
-        className={`${allChecked ? "opacity-60" : ""} ${
-          isDragging ? "opacity-50 shadow-lg ring-2 ring-primary z-50" : ""
+        className={`border-gray-200 dark:border-gray-700 ${allChecked ? "opacity-60" : ""} ${
+          isDragging ? "opacity-50 shadow-lg ring-2 ring-[#D9F99D] z-50" : ""
         }`}
       >
         <CollapsibleTrigger className="w-full">
-          <CardHeader className="cursor-pointer">
-            <CardTitle className="text-sm flex items-center justify-between">
-              <span className="flex items-center">
+          <CardHeader className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors border-l-2 border-[#D9F99D] rounded-tl-lg">
+            <CardTitle className="text-sm font-semibold uppercase tracking-wide flex items-center justify-between text-gray-700 dark:text-gray-300">
+              <span className="flex items-center gap-2">
                 <div
                   {...attributes}
                   {...listeners}
-                  className="cursor-grab active:cursor-grabbing touch-none -ml-2 rounded"
+                  className="cursor-grab active:cursor-grabbing touch-none -ml-2 rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <GripVertical className="h-5 w-5" />
+                  <GripVertical className="h-5 w-5 text-gray-400" />
                 </div>
                 {category}
               </span>
-              <span className="flex items-center">
-                <span className="text-xs">
+              <span className="flex items-center gap-2">
+                <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
                   {checkedCount}/{items.length}
                 </span>
                 {isExpanded ? (
-                  <ChevronUp className="h-4 w-4" />
+                  <ChevronUp className="h-4 w-4 text-gray-400" />
                 ) : (
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-4 w-4 text-gray-400" />
                 )}
               </span>
             </CardTitle>
           </CardHeader>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <CardContent >
-            <ul className="flex flex-col">
+          <CardContent className="pt-0">
+            <ul className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800">
               {items.map((item) => (
                 <ShoppingItemRow
                   key={item.id}
@@ -136,14 +136,14 @@ export function CategoryCardOverlay({
   const checkedCount = items.filter((i) => i.is_checked).length;
 
   return (
-    <Card className="border-2">
-      <CardHeader >
-        <CardTitle className="text-sm flex items-center justify-between">
-          <span className="flex items-center">
-            <GripVertical className="h-4 w-4" />
+    <Card className="border-2 border-[#D9F99D] shadow-xl">
+      <CardHeader className="border-l-2 border-[#D9F99D]">
+        <CardTitle className="text-sm font-semibold uppercase tracking-wide flex items-center justify-between text-gray-700 dark:text-gray-300">
+          <span className="flex items-center gap-2">
+            <GripVertical className="h-4 w-4 text-gray-400" />
             {category}
           </span>
-          <span className="text-xs">
+          <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
             {checkedCount}/{items.length}
           </span>
         </CardTitle>

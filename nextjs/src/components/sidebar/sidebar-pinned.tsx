@@ -138,11 +138,11 @@ function PinnedItemRow({ item, onUnpin }: PinnedItemRowProps) {
         "transition-all duration-150",
         isIconOnly && "justify-center px-0",
         isActive && [
-          "bg-primary/10 text-primary",
+          "bg-[#D9F99D]/20 dark:bg-[#D9F99D]/10 text-[#1A1A1A] dark:text-[#E2E8F0]",
           "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
-          "before:h-4 before:w-0.5 before:bg-primary before:rounded-r",
+          "before:h-4 before:w-0.5 before:bg-[#D9F99D] before:rounded-r",
         ],
-        !isActive && "text-muted-foreground hover:text-foreground hover:bg-accent"
+        !isActive && "text-[var(--color-sidebar-text-muted)] hover:text-[var(--color-sidebar-text)] hover:bg-gray-100 dark:hover:bg-[var(--color-sidebar-surface)]/50"
       )}
     >
       <Link

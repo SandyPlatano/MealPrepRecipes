@@ -69,7 +69,7 @@ export function BulkSelectionToolbar({
   return (
     <div
       className={cn(
-        "bg-primary text-primary-foreground rounded-lg p-3 md:p-4 shadow-lg",
+        "bg-[#D9F99D] text-[#1A1A1A] rounded-lg p-3 md:p-4 shadow-md",
         "animate-in slide-in-from-top-2 fade-in-0 duration-200",
         isPending && "opacity-70 pointer-events-none"
       )}
@@ -77,11 +77,11 @@ export function BulkSelectionToolbar({
       <div className="flex items-center justify-between gap-4 flex-wrap">
         {/* Selection info */}
         <div className="flex items-center gap-3">
-          <Badge variant="secondary" className="bg-primary-foreground/20 text-primary-foreground">
+          <Badge variant="secondary" className="bg-white/60 text-[#1A1A1A]">
             {selectedDays.size} day{selectedDays.size !== 1 ? "s" : ""} selected
           </Badge>
           {totalMeals > 0 && (
-            <span className="text-sm text-primary-foreground/80">
+            <span className="text-sm text-[#1A1A1A]/70">
               ({totalMeals} meal{totalMeals !== 1 ? "s" : ""})
             </span>
           )}
@@ -94,7 +94,7 @@ export function BulkSelectionToolbar({
               variant="ghost"
               size="sm"
               onClick={onSelectAll}
-              className="text-primary-foreground hover:bg-primary-foreground/20"
+              className="text-[#1A1A1A] hover:bg-white/30"
             >
               <CheckSquare className="size-4 mr-1.5" />
               Select All
@@ -108,7 +108,7 @@ export function BulkSelectionToolbar({
                 size="sm"
                 onClick={handleCopyToNextWeek}
                 disabled={isPending || totalMeals === 0}
-                className="text-primary-foreground hover:bg-primary-foreground/20"
+                className="text-[#1A1A1A] hover:bg-white/30"
               >
                 <Copy className="size-4 mr-1.5" />
                 Copy to Next Week
@@ -119,7 +119,7 @@ export function BulkSelectionToolbar({
                 size="sm"
                 onClick={handleClearSelected}
                 disabled={isPending || totalMeals === 0}
-                className="text-primary-foreground hover:bg-destructive/80"
+                className="text-[#1A1A1A] hover:bg-red-400/40"
               >
                 <Trash2 className="size-4 mr-1.5" />
                 Clear Meals
@@ -131,7 +131,7 @@ export function BulkSelectionToolbar({
             variant="ghost"
             size="icon"
             onClick={onCancel}
-            className="text-primary-foreground hover:bg-primary-foreground/20"
+            className="text-[#1A1A1A] hover:bg-white/30"
           >
             <X className="size-4" />
           </Button>
