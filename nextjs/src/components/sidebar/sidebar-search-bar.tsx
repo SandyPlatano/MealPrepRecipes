@@ -32,6 +32,7 @@ export function SidebarSearchBar({ isIconOnly }: SidebarSearchBarProps) {
                 "hover:text-[var(--color-sidebar-text)] hover:bg-[var(--color-sidebar-surface)]"
               )}
               aria-label="Search (Press / to open)"
+              data-tour="command-trigger"
             >
               <Search className="h-4 w-4" />
             </Button>
@@ -60,6 +61,7 @@ export function SidebarSearchBar({ isIconOnly }: SidebarSearchBarProps) {
           "text-[var(--color-sidebar-text-muted)]"
         )}
         aria-label="Open search (Press / to open)"
+        data-tour="command-trigger"
       >
         <Search className="size-4 shrink-0" />
         <span className="flex-1 text-left text-sm">Search...</span>

@@ -8,7 +8,7 @@ interface UndoToastOptions {
   /** Duration in ms before toast auto-dismisses (default: 5000) */
   duration?: number;
   /** Haptic feedback type on undo (default: "light") */
-  hapticOnUndo?: "light" | "medium" | "heavy" | "selection" | "success" | "error" | "warning";
+  hapticOnUndo?: "light" | "medium" | "heavy" | "selection" | "success" | "error";
 }
 
 /**

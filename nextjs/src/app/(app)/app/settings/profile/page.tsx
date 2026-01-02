@@ -24,12 +24,14 @@ import { logout } from "@/app/actions/auth";
 import { checkUsernameAvailable, setUsername } from "@/app/actions/sharing";
 import { useDebounce } from "@/lib/use-debounce";
 import { toast } from "sonner";
-import { LogOut, Trash2, AtSign, Check, X, Loader2, Sparkles, Globe } from "lucide-react";
+import { LogOut, Trash2, AtSign, Check, X, Loader2, Sparkles, Globe, Compass } from "lucide-react";
+import { useTour } from "@/contexts/tour-context";
 
 export default function ProfileSettingsPage() {
   const { profile } = useSettings();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const { startTour } = useTour();
 
   // Profile name state
   const [firstName, setFirstName] = useState(profile.first_name || "");
@@ -333,6 +335,23 @@ export default function ProfileSettingsPage() {
 
       {/* Account Actions */}
       <SettingSection title="Account Actions">
+        <SettingRow
+          id="setting-restart-tour"
+          label="Restart Tour"
+          description="Take the guided tour of the app again"
+        >
+          <Button
+            variant="outline"
+            onClick={() => {
+              startTour();
+              router.push("/app/recipes");
+            }}
+          >
+            <Compass className="h-4 w-4 mr-2" />
+            Start Tour
+          </Button>
+        </SettingRow>
+
         <SettingRow
           id="setting-sign-out"
           label="Sign Out"

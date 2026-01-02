@@ -133,13 +133,7 @@ export function CustomCooksManager({ initialCooks }: CustomCooksManagerProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">Custom Cooks</h3>
-          <p className="text-sm text-muted-foreground">
-            Family members who don&apos;t have accounts
-          </p>
-        </div>
+      <div className="flex items-center justify-end">
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm" onClick={() => resetForm()}>

@@ -29,25 +29,28 @@ import {
 // Built-in item metadata
 const BUILTIN_ITEMS: Record<
   string,
-  { label: string; href: string; defaultIcon: LucideIcon; pinnableId: string }
+  { label: string; href: string; defaultIcon: LucideIcon; pinnableId: string; dataTour?: string }
 > = {
   plan: {
     label: "Plan",
     href: "/app/plan",
     defaultIcon: Calendar,
     pinnableId: "page-plan",
+    dataTour: "planner-nav",
   },
   "shopping-list": {
     label: "Shopping List",
     href: "/app/shop",
     defaultIcon: ShoppingCart,
     pinnableId: "page-shop",
+    dataTour: "shopping-nav",
   },
   recipes: {
     label: "Recipes",
     href: "/app/recipes",
     defaultIcon: BookOpen,
     pinnableId: "page-recipes",
+    dataTour: "recipes-nav",
   },
   favorites: {
     label: "Favorites",
@@ -140,6 +143,7 @@ export function SidebarMealPlan({
                 badge={badge}
                 pinnableType="page"
                 pinnableId={builtinMeta.pinnableId}
+                dataTour={builtinMeta.dataTour}
               />
             );
           } else {
@@ -209,6 +213,7 @@ function StaticMealPlan({
           label="Plan"
           pinnableType="page"
           pinnableId="page-plan"
+          dataTour="planner-nav"
         />
         <SidebarNavItem
           href="/app/shop"
@@ -217,6 +222,7 @@ function StaticMealPlan({
           badge={shoppingListCount}
           pinnableType="page"
           pinnableId="page-shop"
+          dataTour="shopping-nav"
         />
         <SidebarNavItem
           href="/app/recipes"
@@ -224,6 +230,7 @@ function StaticMealPlan({
           label="Recipes"
           pinnableType="page"
           pinnableId="page-recipes"
+          dataTour="recipes-nav"
         />
         <SidebarNavItem
           href="/app/history"

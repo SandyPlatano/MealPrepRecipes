@@ -22,6 +22,8 @@ import {
 } from "@/components/sidebar";
 import { MobileBottomNav } from "./mobile-bottom-nav";
 import { CommandPalette } from "@/components/command-palette";
+import { TourProvider } from "@/contexts/tour-context";
+import { TourSpotlight } from "@/components/tour";
 import type { FolderCategoryWithFolders } from "@/types/folder";
 import type { SystemSmartFolder } from "@/types/smart-folder";
 
@@ -87,9 +89,11 @@ function SidebarExpandButton() {
 
 export function AppShell(props: AppShellProps) {
   return (
-    <SidebarProvider>
-      <AppShellContent {...props} />
-    </SidebarProvider>
+    <TourProvider>
+      <SidebarProvider>
+        <AppShellContent {...props} />
+      </SidebarProvider>
+    </TourProvider>
   );
 }
 
@@ -202,6 +206,9 @@ function AppShellContent({
 
         {/* Command Palette */}
         <CommandPalette />
+
+        {/* Onboarding Tour */}
+        <TourSpotlight />
       </div>
     );
   }
@@ -238,6 +245,9 @@ function AppShellContent({
 
       {/* Command Palette */}
       <CommandPalette />
+
+      {/* Onboarding Tour */}
+      <TourSpotlight />
     </div>
   );
 }

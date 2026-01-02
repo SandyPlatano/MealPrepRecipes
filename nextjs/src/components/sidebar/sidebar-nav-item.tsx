@@ -34,6 +34,8 @@ interface SidebarNavItemProps {
   // For pinning support
   pinnableType?: PinnableItemType;
   pinnableId?: string;
+  /** Data attribute for onboarding tour targeting */
+  dataTour?: string;
 }
 
 export function SidebarNavItem({
@@ -47,6 +49,7 @@ export function SidebarNavItem({
   emoji,
   pinnableType,
   pinnableId,
+  dataTour,
 }: SidebarNavItemProps) {
   const pathname = usePathname();
   const { isIconOnly, closeMobile, isMobile, isPinned, pinItem, unpinItem } = useSidebar();
@@ -104,7 +107,7 @@ export function SidebarNavItem({
         ]
       )}
     >
-      <Link href={href} onClick={handleClick}>
+      <Link href={href} onClick={handleClick} data-tour={dataTour}>
         {emoji ? (
           <span className="text-base shrink-0 size-4 flex items-center justify-center">
             {emoji}

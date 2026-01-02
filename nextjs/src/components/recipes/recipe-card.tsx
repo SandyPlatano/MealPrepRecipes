@@ -49,7 +49,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { toggleFavorite, deleteRecipe, getRecipe } from "@/app/actions/recipes";
+import { toggleFavorite, deleteRecipe, getRecipe, createRecipe } from "@/app/actions/recipes";
+import { useUndoToast } from "@/hooks/use-undo-toast";
+import type { RecipeFormData } from "@/types/recipe";
 import { useQueryClient } from "@tanstack/react-query";
 import { recipeKeys } from "@/hooks/queries/use-recipes-query";
 import { RatingBadge } from "@/components/ui/rating-badge";
@@ -184,6 +186,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
   const [showAddToPlanSheet, setShowAddToPlanSheet] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { showUndoToast } = useUndoToast();
 
   // Prefetch recipe data and route on hover for instant navigation
   const handlePrefetch = useCallback(() => {
@@ -333,6 +336,28 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
 
   const handleDelete = async () => {
     setIsDeleting(true);
+
+    // Capture recipe data for potential undo before deletion
+    const recipeData: RecipeFormData = {
+      title: recipe.title,
+      recipe_type: recipe.recipe_type,
+      category: recipe.category ?? undefined,
+      protein_type: recipe.protein_type ?? undefined,
+      prep_time: recipe.prep_time ?? undefined,
+      cook_time: recipe.cook_time ?? undefined,
+      servings: recipe.servings ?? undefined,
+      base_servings: recipe.base_servings ?? undefined,
+      ingredients: recipe.ingredients ?? [],
+      instructions: recipe.instructions ?? [],
+      tags: recipe.tags ?? [],
+      notes: recipe.notes ?? undefined,
+      source_url: recipe.source_url ?? undefined,
+      image_url: recipe.image_url ?? undefined,
+      allergen_tags: recipe.allergen_tags ?? undefined,
+      is_shared_with_household: recipe.is_shared_with_household,
+      is_public: recipe.is_public,
+    };
+
     startTransition(async () => {
       const result = await deleteRecipe(recipe.id);
       if (result.error) {
@@ -340,7 +365,15 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
         toast.error("Failed to delete recipe");
         setIsDeleting(false);
       } else {
-        toast.success("Recipe deleted");
+        // Show undo toast instead of simple success
+        showUndoToast(`Deleted "${recipe.title}"`, async () => {
+          const restoreResult = await createRecipe(recipeData);
+          if (restoreResult.error) {
+            throw new Error(restoreResult.error);
+          }
+          // Refresh the page to show the restored recipe
+          router.refresh();
+        });
       }
       setDeleteDialogOpen(false);
     });
