@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
+import { Menu, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,11 +15,17 @@ import {
 } from '@/components/ui/sheet';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// NAVIGATION - Neo-Brutalist/Retro Style
-// Bold navigation with retro borders and shadows on scroll
+// NAVIGATION - Warm & Cozy Design System (Pass 3 Micro Polish)
+// Clean, minimal navigation with smooth scroll, focus states, accessibility
 // ═══════════════════════════════════════════════════════════════════════════
 
 const SCROLL_THRESHOLD = 50;
+
+const NAV_LINKS = [
+  { label: 'Features', href: '#features' },
+  { label: 'Pricing', href: '#pricing' },
+  { label: 'FAQ', href: '#faq' },
+];
 
 export function Navigation() {
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -39,41 +45,61 @@ export function Navigation() {
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         hasScrolled
-          ? 'bg-background/95 backdrop-blur-md border-b-2 border-black'
-          : 'bg-background/80 backdrop-blur-sm'
+          ? 'bg-[#FFFCF6]/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm py-3'
+          : 'bg-transparent py-4'
       )}
     >
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="hover:opacity-80 transition-opacity">
-          <span className="font-display text-xl font-bold text-foreground">
-            Babe, WFD?
+        <Link
+          href="/"
+          aria-label="Babe, What's for Dinner? - Home"
+          className="hover:opacity-80 transition-opacity flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 rounded-lg"
+        >
+          <div className="w-8 h-8 bg-[#D9F99D] rounded-lg flex items-center justify-center transition-transform duration-150 group-hover:scale-105">
+            <span className="text-[#1A1A1A] font-bold text-sm">B</span>
+          </div>
+          <span className="font-display text-xl font-bold text-[#1A1A1A] hidden sm:inline">
+            babewfd<span className="text-[#D9F99D]">.</span>
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-8">
-          <NavLink href="#features">Features</NavLink>
-          <NavLink href="#pricing">Pricing</NavLink>
-          <NavLink href="#faq">FAQ</NavLink>
+        <div className="hidden md:flex items-center gap-1">
+          {NAV_LINKS.map((link) => (
+            <NavLink key={link.label} href={link.href}>
+              {link.label}
+            </NavLink>
+          ))}
+        </div>
+
+        {/* Desktop Auth */}
+        <div className="hidden md:flex items-center gap-4">
           <Link
             href="/login"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm font-medium text-gray-600 hover:text-[#1A1A1A] transition-colors px-3 py-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2"
           >
             Log in
           </Link>
           <Link href="/signup">
-            <button type="button" className="btn-primary text-sm">
-              Start Free ✨
+            <button
+              type="button"
+              className="bg-[#1A1A1A] text-white px-5 py-2.5 rounded-full font-semibold text-sm hover:bg-gray-800 transition-all duration-200 flex items-center gap-2 group shadow-sm hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 active:scale-[0.98]"
+            >
+              Get started
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-150" />
             </button>
           </Link>
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden flex items-center gap-3">
+        <div className="md:hidden flex items-center gap-2">
           <Link href="/signup">
-            <button type="button" className="btn-primary text-sm py-2 px-4">
-              Start Free
+            <button
+              type="button"
+              className="bg-[#1A1A1A] text-white px-4 py-2 rounded-full font-semibold text-sm shadow-sm"
+            >
+              Start
             </button>
           </Link>
           <Sheet>
@@ -81,30 +107,40 @@ export function Navigation() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-foreground hover:text-foreground hover:bg-muted"
+                aria-label="Open navigation menu"
+                className="text-[#1A1A1A] hover:bg-gray-100 rounded-full focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2"
               >
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="w-[280px] bg-background border-l-2 border-black"
+              className="w-[300px] bg-[#FFFCF6] border-l border-gray-200"
             >
               <SheetHeader>
-                <SheetTitle className="text-left text-foreground font-display">
+                <SheetTitle className="text-left text-[#1A1A1A] font-display flex items-center gap-2">
+                  <div className="w-6 h-6 bg-[#D9F99D] rounded-md flex items-center justify-center">
+                    <span className="text-[#1A1A1A] font-bold text-xs">B</span>
+                  </div>
                   Menu
                 </SheetTitle>
               </SheetHeader>
-              <div className="flex flex-col gap-1 mt-6">
-                <MobileNavLink href="#features">Features</MobileNavLink>
-                <MobileNavLink href="#pricing">Pricing</MobileNavLink>
-                <MobileNavLink href="#faq">FAQ</MobileNavLink>
-                <div className="h-px bg-border my-3" />
+              <div className="flex flex-col gap-1 mt-8">
+                {NAV_LINKS.map((link) => (
+                  <MobileNavLink key={link.label} href={link.href}>
+                    {link.label}
+                  </MobileNavLink>
+                ))}
+                <div className="h-px bg-gray-200 my-4" />
                 <MobileNavLink href="/login">Log in</MobileNavLink>
                 <SheetClose asChild>
-                  <Link href="/signup" className="mt-2">
-                    <button type="button" className="btn-primary text-sm w-full">
-                      Start Free ✨
+                  <Link href="/signup" className="mt-4">
+                    <button
+                      type="button"
+                      className="bg-[#1A1A1A] text-white px-6 py-3 rounded-full font-semibold text-sm w-full flex items-center justify-center gap-2 shadow-md"
+                    >
+                      Get started free
+                      <ArrowRight className="w-4 h-4" />
                     </button>
                   </Link>
                 </SheetClose>
@@ -121,7 +157,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   return (
     <Link
       href={href}
-      className="text-sm font-medium text-muted-foreground hover:text-foreground focus-visible:text-foreground focus-visible:outline-none transition-colors"
+      className="text-sm font-medium text-gray-600 hover:text-[#1A1A1A] transition-all duration-150 px-4 py-2 rounded-full hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2"
     >
       {children}
     </Link>
@@ -134,7 +170,7 @@ function MobileNavLink({ href, children }: { href: string; children: React.React
       <Link href={href}>
         <Button
           variant="ghost"
-          className="w-full justify-start text-base text-muted-foreground hover:text-foreground hover:bg-muted"
+          className="w-full justify-start text-base text-gray-600 hover:text-[#1A1A1A] hover:bg-gray-100 rounded-xl h-12"
         >
           {children}
         </Button>

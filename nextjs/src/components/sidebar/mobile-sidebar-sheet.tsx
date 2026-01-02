@@ -17,7 +17,7 @@ import { SidebarNavItem } from "./sidebar-nav-item";
 import { SidebarQuickNav } from "./sidebar-quick-nav";
 import { SidebarCollections } from "./sidebar-collections";
 import { SidebarBottomNav } from "./sidebar-bottom-nav";
-import { RetroLogo } from "@/components/branding/retro-logo";
+import { Logo } from "@/components/branding/logo";
 import type { FolderCategoryWithFolders } from "@/types/folder";
 import type { SystemSmartFolder } from "@/types/smart-folder";
 
@@ -63,7 +63,7 @@ export function MobileSidebarSheet({
         <TooltipProvider delayDuration={0}>
           {/* Logo Area - Top */}
           <div className="flex items-center justify-between px-4 h-16 border-b border-[var(--color-sidebar-border)]">
-            <RetroLogo size="md" />
+            <Logo size="md" />
             <div className="w-3 h-3 bg-[var(--color-brand-primary)] rounded-full border border-[var(--color-sidebar-text)]" />
           </div>
 

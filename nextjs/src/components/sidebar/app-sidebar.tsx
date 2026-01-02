@@ -14,7 +14,7 @@ import { SidebarMealPlan } from "./sidebar-meal-plan";
 import { SidebarCollections } from "./sidebar-collections";
 import { SidebarBottomNav } from "./sidebar-bottom-nav";
 import { SidebarResizeHandle } from "./sidebar-resize-handle";
-import { RetroLogo } from "@/components/branding/retro-logo";
+import { Logo } from "@/components/branding/logo";
 import { MaterialIcon } from "@/components/ui/material-icon";
 import type {
   FolderCategoryWithFolders,
@@ -122,7 +122,7 @@ export function AppSidebar({
         {/* Logo Area - Top */}
         <div className="flex items-center justify-between px-4 h-16 border-b border-[var(--color-sidebar-border)]">
           {!isIconOnly ? (
-            <RetroLogo size="md" />
+            <Logo size="md" />
           ) : (
             <div className="w-full flex justify-center">
               <span className="text-[var(--color-brand-primary)] text-xl font-bold">●</span>

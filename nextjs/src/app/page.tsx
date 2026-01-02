@@ -1,5 +1,6 @@
 import { HeroSection } from '@/components/landing/hero-section';
-import { JourneySection } from '@/components/landing/journey-section';
+import { TrustStrip } from '@/components/landing/trust-strip';
+import { FeaturesTimeline } from '@/components/landing/features-timeline';
 import { PricingSection } from '@/components/landing/pricing-section';
 import { FAQ } from '@/components/landing/faq';
 import { CTASection } from '@/components/landing/cta-section';
@@ -8,21 +9,24 @@ import { Footer } from '@/components/landing/footer';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LANDING PAGE
-// Neo-Brutalist/Retro design - bold borders, hard shadows, warm colors
+// Warm & Cozy design system - clean, inviting, family-friendly
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-[#FFFCF6]">
       {/* Navigation */}
       <Navigation />
 
-      {/* Hero - Cream background */}
+      {/* Hero - Warm off-white background */}
       <HeroSection />
 
-      {/* Journey Section - Progressive user flow: Import → Plan → Shop → Cook */}
+      {/* Trust Strip - Lime green background */}
+      <TrustStrip />
+
+      {/* Features Timeline - Alternating colored cards */}
       <div id="features">
-        <JourneySection />
+        <FeaturesTimeline />
       </div>
 
       {/* Pricing */}
@@ -35,10 +39,10 @@ export default function Home() {
         <FAQ />
       </div>
 
-      {/* CTA */}
+      {/* CTA - Lime green background */}
       <CTASection />
 
-      {/* Footer */}
+      {/* Footer - Dark background */}
       <Footer />
     </main>
   );

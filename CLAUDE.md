@@ -92,6 +92,7 @@ research/                    # UX/product research archives
 - Tailwind CSS with `cn()` utility for conditional classes
 - shadcn/ui components in `components/ui/`
 - CSS variables for theming
+- **Design System**: See `src/lib/brand/design-system.md` for complete styling guidelines
 
 ---
 
@@ -227,5 +228,39 @@ See `/docs/README.md` for full navigation.
 | `app/actions/settings/index.ts` | Barrel export pattern (follow this) |
 | `lib/cache/redis.ts` | Redis caching utilities |
 | `lib/supabase/server.ts` | Server-side Supabase client |
+| `lib/brand/design-system.md` | **Design system** - colors, typography, components |
+| `lib/brand/colors.ts` | Color constants and utility functions |
 | `types/settings.ts` | Complex settings type definitions |
 | `contexts/settings-context.tsx` | Global settings state |
+
+---
+
+## Design System (Warm & Cozy)
+
+**Always reference `src/lib/brand/design-system.md` when building UI.**
+
+### Quick Reference
+
+| Element | Pattern |
+|---------|---------|
+| Background | `bg-background` (#FFFCF6 warm off-white) |
+| Primary Button | `bg-[#1A1A1A] text-white rounded-full` |
+| Accent | `bg-[#D9F99D]` (lime green) |
+| Card | `bg-white rounded-xl border shadow-sm` |
+| Heading | `text-3xl md:text-4xl font-bold` |
+
+### Brand Colors
+
+- **Primary**: `#1A1A1A` (dark, for buttons/text)
+- **Lime**: `#D9F99D` (accent, CTAs, highlights)
+- **Yellow**: `#FDE047` (charts, secondary)
+- **Purple**: `#EDE9FE` (feature cards)
+- **Orange**: `#FFF0E6` (feature cards)
+
+### Key Rules
+
+1. Buttons are pill-shaped (`rounded-full`)
+2. Sidebar/footer are always dark (`#0D1117`)
+3. Use Plus Jakarta Sans font family
+4. Soft shadows, rounded corners (xl, 2xl)
+5. Lime green for trust sections and CTAs

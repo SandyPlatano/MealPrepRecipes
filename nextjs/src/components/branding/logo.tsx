@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils"
 
-interface RetroLogoProps {
+interface LogoProps {
   className?: string
   size?: "sm" | "md" | "lg"
 }
@@ -11,11 +11,11 @@ const sizeClasses = {
   lg: "text-2xl",
 }
 
-export function RetroLogo({ className, size = "md" }: RetroLogoProps) {
+export function Logo({ className, size = "md" }: LogoProps) {
   return (
     <span
       className={cn(
-        "font-mono font-bold tracking-tight",
+        "font-display font-bold tracking-tight",
         sizeClasses[size],
         className
       )}
