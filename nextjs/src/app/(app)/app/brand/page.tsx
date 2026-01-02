@@ -31,7 +31,7 @@ export default function BrandPage() {
           <p className="text-xl text-muted-foreground font-body">
             "Babe, What's for Dinner?" — Retro Design System v2
           </p>
-          <div className="inline-flex items-center gap-2 badge-new">
+          <div className="inline-flex items-center gap-2">
             <Zap className="w-4 h-4" />
             Neo-Brutalist Theme
           </div>
@@ -235,15 +235,15 @@ export default function BrandPage() {
               <h3 className="label-retro text-muted-foreground">Hard Shadows (No Blur)</h3>
               <div className="space-y-4">
                 <div className="p-4 bg-white border-2 border-black rounded-lg" style={{ boxShadow: '2px 2px 0 0 #000' }}>
-                  <p className="font-mono text-sm">--shadow-retro: 2px 2px 0px 0px #000</p>
+                  <p className="font-mono text-sm">--: 2px 2px 0px 0px #000</p>
                   <p className="text-sm text-muted-foreground">Default state</p>
                 </div>
                 <div className="p-4 bg-white border-2 border-black rounded-lg" style={{ boxShadow: '1px 1px 0 0 #000' }}>
-                  <p className="font-mono text-sm">--shadow-retro-hover: 1px 1px 0px 0px #000</p>
+                  <p className="font-mono text-sm">--: 1px 1px 0px 0px #000</p>
                   <p className="text-sm text-muted-foreground">Hover state</p>
                 </div>
                 <div className="p-4 bg-white border-2 border-black rounded-lg" style={{ boxShadow: '0px 0px 0 0 #000' }}>
-                  <p className="font-mono text-sm">--shadow-retro-active: 0px 0px 0px 0px #000</p>
+                  <p className="font-mono text-sm">---active: 0px 0px 0px 0px #000</p>
                   <p className="text-sm text-muted-foreground">Active/pressed state</p>
                 </div>
               </div>
@@ -368,7 +368,7 @@ export default function BrandPage() {
               </p>
               <div className="flex gap-2">
                 <span className="badge-retro bg-primary text-white">bg-card</span>
-                <span className="badge-retro bg-gray-100">shadow-retro</span>
+                <span className="badge-retro bg-gray-100"></span>
               </div>
             </div>
             <div className="card-accent">
@@ -378,7 +378,7 @@ export default function BrandPage() {
               </p>
               <div className="flex gap-2">
                 <span className="badge-retro bg-white">bg-secondary</span>
-                <span className="badge-retro bg-white">shadow-retro</span>
+                <span className="badge-retro bg-white"></span>
               </div>
             </div>
           </div>

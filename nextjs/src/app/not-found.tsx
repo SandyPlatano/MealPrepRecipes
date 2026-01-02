@@ -5,7 +5,7 @@ export default function NotFound() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="text-center max-w-md">
         {/* Retro-styled 404 icon */}
-        <div className="inline-flex items-center justify-center w-24 h-24 bg-secondary border-2 border-black rounded-xl shadow-retro mb-6">
+        <div className="inline-flex items-center justify-center w-24 h-24 bg-secondary border-2 border-black rounded-xl mb-6">
           <span className="text-5xl">🍽️</span>
         </div>
 

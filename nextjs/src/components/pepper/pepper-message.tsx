@@ -57,8 +57,8 @@ export function PepperMessage({ message }: PepperMessageProps) {
           "max-w-[85%] rounded-lg px-3 py-2",
           "border-2 border-black dark:border-white",
           isUser
-            ? "bg-primary text-primary-foreground shadow-retro-sm"
-            : "bg-card text-card-foreground shadow-retro-sm"
+            ? "bg-primary text-primary-foreground-sm"
+            : "bg-card text-card-foreground-sm"
         )}
       >
         {/* Message content with basic markdown */}
@@ -97,7 +97,7 @@ export function PepperTyping() {
         className={cn(
           "rounded-lg px-4 py-3",
           "border-2 border-black dark:border-white",
-          "bg-card text-card-foreground shadow-retro-sm"
+          "bg-card text-card-foreground-sm"
         )}
       >
         <div className="flex items-center gap-1">

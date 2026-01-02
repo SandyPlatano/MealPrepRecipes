@@ -406,7 +406,7 @@ export function MealPlannerGrid({
           </div>
         )}
 
-        <div className="flex flex-col gap-3 md:gap-4 flex-1 min-h-0">
+        <div className="flex flex-col gap-2 md:gap-3 flex-1 min-h-0 h-full">
           {/* Header */}
           <div className={`flex-shrink-0 ${isPending ? "opacity-75 pointer-events-none" : ""}`}>
             <PlannerHeader
@@ -447,7 +447,7 @@ export function MealPlannerGrid({
           <PlannerDndContext assignments={assignmentsWithOptimisticCooks}>
             <div
               ref={swipeRef}
-              className={`grid grid-rows-7 gap-1 md:gap-1.5 flex-1 min-h-0 transition-opacity ${isPending ? "opacity-60" : ""} ${isSwiping ? "select-none" : ""}`}
+              className={`grid grid-rows-7 gap-1 flex-1 min-h-0 h-full transition-opacity ${isPending ? "opacity-60" : ""} ${isSwiping ? "select-none" : ""}`}
             >
               {DAYS_OF_WEEK.map((day, index) => {
                 const dayDate = new Date(weekStartDate);

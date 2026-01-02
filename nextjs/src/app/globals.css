@@ -116,10 +116,10 @@
   --color-sidebar-text: #1F2937;
   --color-sidebar-text-muted: #6B7280;
 
-  /* Footer (Dark) */
-  --color-footer-bg: #0D1117;
-  --color-footer-text: #9CA3AF;
-  --color-footer-title: #FFFFFF;
+  /* Footer (Warm Dark) */
+  --color-footer-bg: #1E293B;
+  --color-footer-text: #94A3B8;
+  --color-footer-title: #F1F5F9;
 
   /* Semantic Colors */
   --color-brand-success: #10B981;
@@ -482,7 +482,7 @@
      Footer - Dark
      ───────────────────────────────────────────────────────────────────────────── */
   .footer {
-    @apply bg-[#0D1117] text-[#9CA3AF];
+    @apply bg-[#1E293B] text-[#94A3B8];
     @apply pt-20 pb-8;
   }
 

@@ -29,7 +29,7 @@ export function PepperBubble({
             "size-14 rounded-full",
             "bg-primary text-primary-foreground",
             "border-2 border-black dark:border-white",
-            "shadow-retro hover:shadow-retro-hover",
+            " hover:",
             "hover:translate-x-[2px] hover:translate-y-[2px]",
             "transition-all duration-200",
             "flex items-center justify-center",

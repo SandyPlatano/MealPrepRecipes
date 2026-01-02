@@ -48,7 +48,7 @@ export function HowItWorks() {
       <div className="container mx-auto px-4">
         {/* Section header */}
         <div className="text-center mb-16">
-          <div className="inline-block badge-new mb-4">
+          <div className="inline-block mb-4">
             How It Works
           </div>
           <h2 className="font-mono text-3xl md:text-4xl font-bold text-[#111111] mb-4">

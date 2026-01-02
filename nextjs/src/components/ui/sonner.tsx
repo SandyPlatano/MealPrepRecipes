@@ -35,13 +35,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-2 group-[.toaster]:border-black dark:group-[.toaster]:border-white group-[.toaster]:shadow-retro group-[.toaster]:font-mono group-[.toaster]:rounded-md group-[.toaster]:text-sm",
+            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border group-[.toaster]:border-gray-200 dark:group-[.toaster]:border-gray-700 group-[.toaster]:shadow-md group-[.toaster]:rounded-xl group-[.toaster]:text-sm",
           description:
-            "group-[.toast]:text-muted-foreground group-[.toast]:font-mono group-[.toast]:text-xs",
+            "group-[.toast]:text-muted-foreground group-[.toast]:text-xs",
           actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground group-[.toast]:font-mono group-[.toast]:border-2 group-[.toast]:border-primary/60 group-[.toast]:rounded-md group-[.toast]:hover:bg-primary/95",
+            "group-[.toast]:bg-[#D9F99D] group-[.toast]:text-[#1A1A1A] group-[.toast]:border group-[.toast]:border-[#D9F99D] group-[.toast]:rounded-full group-[.toast]:hover:bg-[#D9F99D]/90",
           cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground group-[.toast]:font-mono group-[.toast]:rounded-md",
+            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground group-[.toast]:rounded-full",
         },
       }}
       {...props}

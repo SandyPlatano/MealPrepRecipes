@@ -35,7 +35,7 @@ function FloatingStat({
     <div
       className={`
         absolute ${position}
-        bg-card border-2 border-black px-3 py-2 rounded-xl shadow-retro
+        bg-card border-2 border-black px-3 py-2 rounded-xl
         transition-all duration-700 ease-out
         ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}
         hidden xl:block
@@ -120,8 +120,8 @@ function PricingCard({ tier }: { tier: PricingTier }) {
       className={cn(
         'relative p-6 transition-all duration-300 rounded-xl',
         tier.highlighted
-          ? 'border-2 border-black shadow-retro bg-secondary md:scale-105 z-10'
-          : 'bg-card border-2 border-black shadow-retro hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px]'
+          ? 'border-2 border-black bg-secondary md:scale-105 z-10'
+          : 'bg-card border-2 border-black hover: hover:translate-x-[2px] hover:translate-y-[2px]'
       )}
     >
       {/* Badge */}

@@ -33,7 +33,7 @@ const SOCIAL_LINKS = [
 
 export function Footer() {
   return (
-    <footer className="bg-[#0D1117] text-gray-400 pt-16 pb-8 border-t border-gray-800">
+    <footer className="bg-[#1E293B] text-[#94A3B8] pt-16 pb-8 border-t border-slate-700">
       <div className="container mx-auto px-4 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
           {/* Logo & Description */}
@@ -41,7 +41,7 @@ export function Footer() {
             <Link
               href="/"
               aria-label="Babe, What's for Dinner? - Home"
-              className="flex items-center gap-2 mb-5 text-white text-xl font-bold rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D1117] transition-opacity hover:opacity-80"
+              className="flex items-center gap-2 mb-5 text-white text-xl font-bold rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1E293B] transition-opacity hover:opacity-80"
             >
               <div className="w-7 h-7 bg-[#D9F99D] rounded-md flex items-center justify-center">
                 <span className="text-[#1A1A1A] font-bold text-xs">B</span>
@@ -59,7 +59,7 @@ export function Footer() {
                   key={social.label}
                   href={social.href}
                   aria-label={social.label}
-                  className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-700 hover:border-white hover:text-white transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D1117]"
+                  className="w-8 h-8 flex items-center justify-center rounded-full border border-slate-600 hover:border-white hover:text-white transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1E293B]"
                 >
                   <SocialIcon icon={social.icon} />
                 </a>
@@ -77,7 +77,7 @@ export function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="hover:text-white transition-colors duration-150 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D1117]"
+                    className="hover:text-white transition-colors duration-150 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1E293B]"
                   >
                     {link.label}
                   </Link>
@@ -96,7 +96,7 @@ export function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="hover:text-white transition-colors duration-150 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D1117]"
+                    className="hover:text-white transition-colors duration-150 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1E293B]"
                   >
                     {link.label}
                   </Link>
@@ -115,7 +115,7 @@ export function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="hover:text-white transition-colors duration-150 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D1117]"
+                    className="hover:text-white transition-colors duration-150 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1E293B]"
                   >
                     {link.label}
                   </Link>

@@ -184,18 +184,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
       <div className="flex flex-col h-full min-h-0 flex-1">
         <PlanScrollRestorer />
-        <div className="flex-shrink-0 mb-3">
-          <h1 className="text-2xl md:text-3xl font-mono font-bold">Meal Plan</h1>
-          <p className="text-muted-foreground text-sm md:text-base">
+        <div className="flex-shrink-0 mb-1">
+          <h1 className="text-xl md:text-2xl font-mono font-bold">Meal Plan</h1>
+          <p className="text-muted-foreground text-xs md:text-sm">
             Plan your week. Assign cooks. Send the list. Done.
           </p>
         </div>
 
-        <Separator className="mb-4" />
+        <Separator className="mb-2" />
 
         {/* Empty week tip */}
         {isWeekEmpty && recipes.length > 0 && (
-          <Alert className="mb-4 bg-amber-50/50 border-amber-200/50 dark:bg-amber-950/20 dark:border-amber-800/30">
+          <Alert className="mb-2 bg-amber-50/50 border-amber-200/50 dark:bg-amber-950/20 dark:border-amber-800/30">
             <Lightbulb className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             <AlertDescription className="text-sm text-amber-800 dark:text-amber-200">
               <span className="font-medium">Tip:</span> Click any row to add a meal, or right-click for more options.

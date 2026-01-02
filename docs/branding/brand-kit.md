@@ -1,6 +1,7 @@
 # Babe, What's for Dinner? — Brand Kit
 
 > Single source of truth for the BWFD brand system.
+> **Design System:** Warm & Cozy
 
 ---
 
@@ -8,13 +9,14 @@
 
 | Element | Value |
 |---------|-------|
-| **Primary Font** | Manrope (400-800) |
-| **Script Font** | Caveat (decorative) |
-| **Serif Font** | Cormorant Garamond (optional) |
-| **Background** | Ivory `#FFFCF9` |
-| **Accent** | Pale Lilac `#DDC3E0` |
-| **Illustrations** | Chestnut `#7D4A5A` |
-| **Text/UI** | Black `#000000` |
+| **Primary Font** | Plus Jakarta Sans |
+| **Background** | Warm Off-White `#FFFCF6` |
+| **Accent** | Lime Green `#D9F99D` |
+| **Secondary** | Yellow `#FDE047` |
+| **Text/UI** | Near Black `#1A1A1A` |
+| **Border Style** | `border border-gray-200` (1px subtle) |
+| **Shadows** | Soft (`shadow-sm`, `shadow-md`) |
+| **Border Radius** | `rounded-xl` cards, `rounded-full` buttons |
 
 ---
 
@@ -30,92 +32,127 @@
 
 ## Color Palette
 
-### Brand Colors
+### Primary Colors
+
+| Name | Hex | HSL | CSS Variable | Usage |
+|------|-----|-----|--------------|-------|
+| Background | `#FFFCF6` | `40 100% 99%` | `--color-background` | Page background (warm off-white) |
+| Foreground | `#1A1A1A` | `0 0% 10%` | `--color-foreground` | Primary text, dark elements |
+| Lime Accent | `#D9F99D` | `75 91% 80%` | `--color-brand-primary` | CTAs, highlights, selection states |
+| Yellow Accent | `#FDE047` | `47 96% 64%` | `--color-brand-yellow` | Charts, secondary highlights |
+
+### Surfaces
 
 | Name | Hex | CSS Variable | Usage |
 |------|-----|--------------|-------|
-| Ivory | `#FFFCF9` | `--color-ivory` | Backgrounds, cards |
-| Pale Lilac | `#DDC3E0` | `--color-pale-lilac` | Accent, highlights, CTAs |
-| Pale Lilac Light | `#EBD9ED` | `--color-pale-lilac-light` | Hover states |
-| Pale Lilac Dark | `#C9A8CD` | `--color-pale-lilac-dark` | Pressed states |
-| Chestnut | `#7D4A5A` | `--color-chestnut` | Illustrations only |
-| Black | `#000000` | `--color-black` | Text, buttons, UI |
-| White | `#FFFFFF` | `--color-white` | Card backgrounds |
+| Surface | `#FFFFFF` | `--color-surface` | Cards, modals, elevated surfaces |
+| Muted | `#F3F4F6` | `--color-muted` | Subtle backgrounds |
 
-### Gray Scale
+### Text
 
-| Name | Hex | Usage |
-|------|-----|-------|
-| Gray 100 | `#F7F5F6` | Subtle backgrounds |
-| Gray 200 | `#E8E4E8` | Borders, dividers |
-| Gray 300 | `#D1CCD1` | Disabled borders |
-| Gray 400 | `#9E979E` | Placeholder text |
-| Gray 500 | `#6B636B` | Secondary text |
+| Name | Hex | CSS Variable | Usage |
+|------|-----|--------------|-------|
+| Primary Text | `#1A1A1A` | `--color-foreground` | Headings, body text |
+| Secondary Text | `#4B5563` | `--color-muted-foreground` | Labels, captions |
+
+### Borders
+
+| Name | Hex | CSS Variable | Usage |
+|------|-----|--------------|-------|
+| Border | `#E5E7EB` | `--color-border` | Subtle borders, dividers |
+
+### Accent Backgrounds
+
+| Name | Hex | CSS Variable | Usage |
+|------|-----|--------------|-------|
+| Purple Accent | `#EDE9FE` | `--color-brand-purple` | Feature card backgrounds |
+| Orange Accent | `#FFF0E6` | `--color-brand-orange` | Feature card backgrounds |
+| Lime Accent BG | `#EFFFE3` | N/A | Trust strip, CTA sections (light) |
+| Lime Accent Strong | `#E4F8C9` | N/A | CTA sections (darker) |
+
+### Always-Dark Elements
+
+#### Sidebar
+
+| Name | Hex | CSS Variable | Usage |
+|------|-----|--------------|-------|
+| Sidebar BG | `#0D1117` | `--color-sidebar-bg` | Sidebar background |
+| Sidebar Surface | `#161B22` | `--color-sidebar-surface` | Elevated sidebar elements |
+| Sidebar Border | `#30363D` | `--color-sidebar-border` | Sidebar borders |
+| Sidebar Text | `#F0F6FC` | `--color-sidebar-text` | Sidebar text |
+| Sidebar Text Muted | `#8B949E` | `--color-sidebar-text-muted` | Secondary text |
+
+#### Footer
+
+| Name | Hex | CSS Variable | Usage |
+|------|-----|--------------|-------|
+| Footer BG | `#0D1117` | `--color-footer-bg` | Footer background |
+| Footer Text | `#9CA3AF` | `--color-footer-text` | Footer body text |
+| Footer Title | `#FFFFFF` | `--color-footer-title` | Footer headings |
 
 ### Semantic Colors
 
-| Name | Hex | Usage |
-|------|-----|-------|
-| Success | `#2D5A2D` | Positive actions |
-| Success Light | `#E8F0E8` | Success backgrounds |
-| Warning | `#5A4A2D` | Caution states |
-| Warning Light | `#FDF5ED` | Warning backgrounds |
-| Error | `#5A2D2D` | Destructive actions |
-| Error Light | `#FDEDED` | Error backgrounds |
-
-### Cook Assignment Colors
-
-| Cook | Hex | Name |
-|------|-----|------|
-| Cook 1 | `#000000` | Black |
-| Cook 2 | `#4A7C59` | Forest |
-| Cook 3 | `#8B6914` | Amber |
-| Cook 4 | `#2E5984` | Navy |
-| Cook 5 | `#6B4A7C` | Plum |
+| Type | Default | Light BG | Dark Variant |
+|------|---------|----------|--------------|
+| Success | `#10B981` | `#D1FAE5` | `#065F46` |
+| Warning | `#F59E0B` | `#FEF3C7` | `#92400E` |
+| Error | `#EF4444` | `#FEE2E2` | `#991B1B` |
+| Info | `#3B82F6` | `#DBEAFE` | `#1E40AF` |
 
 ---
 
 ## Typography
 
-### Font Families
+### Font Stack
 
 ```css
---font-primary: 'Manrope', sans-serif;    /* Headlines, body, UI */
---font-script: 'Caveat', cursive;          /* Decorative, logo */
---font-serif: 'Cormorant Garamond', serif; /* Recipe titles (optional) */
+--font-display: "Plus Jakarta Sans", "Nunito", system-ui, sans-serif;
+--font-body: "Plus Jakarta Sans", "Nunito", system-ui, sans-serif;
 ```
 
-### Google Fonts Import
+**Primary:** Plus Jakarta Sans (modern, friendly, professional)
+**Fallback:** Nunito (similar characteristics)
 
-```html
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
-```
+### Font Weights
+
+| Weight | Value | Usage |
+|--------|-------|-------|
+| Regular | 400 | Body text |
+| Medium | 500 | Subtle emphasis |
+| Semibold | 600 | Subheadings, labels |
+| Bold | 700 | Headings |
+| Extrabold | 800 | Hero headings |
 
 ### Type Scale
 
-| Level | Size | Weight | Usage |
-|-------|------|--------|-------|
-| H1 | 36px (2.25rem) | 700 | Page titles |
-| H2 | 24px (1.5rem) | 500 | Section titles |
-| Body | 16px (1rem) | 400 | Paragraphs |
-| Small | 14px (0.875rem) | 400 | Labels, hints |
-| XS | 12px (0.75rem) | 400 | Timestamps |
-| Script | 30px (1.875rem) | 400 | Decorative accents |
+| Class | Size | Line Height | Usage |
+|-------|------|-------------|-------|
+| `text-xs` | 0.75rem | 1rem | Fine print, badges |
+| `text-sm` | 0.875rem | 1.25rem | Secondary text, captions |
+| `text-base` | 1rem | 1.5rem | Body text |
+| `text-lg` | 1.125rem | 1.75rem | Lead paragraphs |
+| `text-xl` | 1.25rem | 1.75rem | Subheadings |
+| `text-2xl` | 1.5rem | 2rem | Section headings |
+| `text-3xl` | 1.875rem | 2.25rem | Page headings |
+| `text-4xl` | 2.25rem | 2.5rem | Hero text (mobile) |
+| `text-5xl` | 3rem | 1.1 | Hero text (tablet) |
+| `text-6xl` | 3.75rem | 1.1 | Hero text (desktop) |
 
 ---
 
-## Spacing Scale
+## Spacing
+
+Use Tailwind's default spacing scale. Key values:
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--space-1` | 4px | Tight gaps |
-| `--space-2` | 8px | Related items |
-| `--space-3` | 12px | Button padding |
-| `--space-4` | 16px | Standard gap |
-| `--space-6` | 24px | Section padding |
-| `--space-8` | 32px | Between sections |
-| `--space-12` | 48px | Page sections |
-| `--space-16` | 64px | Major sections |
+| `4` | 1rem | Base unit, component padding |
+| `6` | 1.5rem | Card padding |
+| `8` | 2rem | Section gaps |
+| `12` | 3rem | Large gaps |
+| `16` | 4rem | Section padding (vertical) |
+| `20` | 5rem | Large section padding |
+| `24` | 6rem | Hero section padding |
 
 ---
 
@@ -123,104 +160,229 @@
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--radius-sm` | 4px | Subtle |
-| `--radius-md` | 8px | Inputs |
-| `--radius-lg` | 12px | Buttons, meal slots |
-| `--radius-xl` | 16px | Cards |
-| `--radius-2xl` | 24px | Sections |
-| `--radius-full` | 9999px | Pills, avatars |
+| `rounded` | 0.5rem | Default, inputs |
+| `rounded-lg` | 0.75rem | Cards |
+| `rounded-xl` | 1rem | Feature cards |
+| `rounded-2xl` | 1.5rem | Large cards, accent sections |
+| `rounded-full` | 9999px | Buttons, pills, avatars |
 
 ---
 
 ## Shadows
 
+Soft, subtle shadows for depth without harshness.
+
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle depth |
-| `--shadow-md` | `0 4px 6px -1px rgba(0,0,0,0.07)` | Cards |
-| `--shadow-lg` | `0 10px 15px -3px rgba(0,0,0,0.08)` | Hover states |
-| `--shadow-xl` | `0 20px 25px -5px rgba(0,0,0,0.1)` | Modals |
+| `shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle elevation |
+| `shadow` | `0 1px 3px rgba(0,0,0,0.1)` | Cards |
+| `shadow-md` | `0 4px 6px rgba(0,0,0,0.1)` | Dropdowns, popovers |
+| `shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)` | Modals, hero cards |
+
+---
+
+## Border Style
+
+**Soft & Subtle** — Use `border border-gray-200` for most elements (1px subtle borders).
+
+```tsx
+// Card example
+className="border border-gray-200"
+
+// NOT: border-2 border-black (too harsh)
+```
 
 ---
 
 ## Components
 
-### Buttons
+### Primary Button
 
-| Variant | Background | Text | Border |
-|---------|------------|------|--------|
-| Primary | Black | White | None |
-| Secondary | Pale Lilac | Black | None |
-| Outline | Transparent | Black | 2px Black |
-| Ghost | Transparent | Black | None |
+```tsx
+<button className="bg-[#1A1A1A] text-white px-6 py-3 rounded-full font-semibold
+  hover:bg-gray-800 transition-all duration-200 flex items-center gap-2 group">
+  Get started
+  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+</button>
+```
 
-### Form Inputs
+**Variants:**
+- Default: Dark background (`#1A1A1A`), white text
+- Outline: Transparent bg, dark border
+- Ghost: Transparent, text only
+- Accent: Lime background, dark text
 
-- Background: White
-- Border: 2px Gray 200
-- Focus Border: Black
-- Focus Shadow: Pale Lilac Light glow
+### Card
 
-### Cards
+```tsx
+<div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+  {/* Card content */}
+</div>
+```
 
-- Background: Ivory
-- Border: 1px Gray 200
-- Radius: XL (16px)
-- Hover: Shadow LG + translateY(-2px)
+**Variants:**
+- Default: White background
+- Elevated: With `shadow-lg`
+- Accent Yellow: `bg-[#FFF6D8]`
+- Accent Purple: `bg-[#EDE9FE]`
+- Accent Orange: `bg-[#FFF0E6]`
 
-### Badges
+### Input
 
-| Variant | Background | Text |
-|---------|------------|------|
-| Primary | Black | White |
-| Secondary | Pale Lilac | Black |
-| Outline | Transparent | Black (1px border) |
+```tsx
+<input className="w-full px-4 py-3 rounded-lg border border-gray-200
+  focus:outline-none focus:ring-2 focus:ring-[#D9F99D] focus:border-transparent
+  transition-all duration-200" />
+```
 
----
+**Focus State:** Lime ring (`focus:ring-[#D9F99D]`)
 
-## Logo
+### Badge/Pill
 
-### Versions
-
-1. **Horizontal**: `Babe, What's for Dinner?` — Primary use
-2. **Stacked**: Multi-line for square formats
-3. **Short form**: `BWFD` — App icons, favicons
-
-### Logo Font
-
-Always use **Caveat** (script font) for the logo.
-
-### Color Variations
-
-| Background | Logo Color |
-|------------|------------|
-| Ivory | Black |
-| Pale Lilac | Black |
-| Chestnut | White |
-| Black | White |
+```tsx
+<span className="inline-flex items-center px-3 py-1 rounded-full
+  bg-[#D9F99D] text-sm font-medium text-gray-900">
+  New
+</span>
+```
 
 ---
 
-## Illustrations
+## Section Patterns
 
-- **Color**: Chestnut `#7D4A5A` only (single color)
-- **Style**: Hand-drawn, sketchy strokes
-- **Stroke width**: 2-3px
-- **Line caps**: Rounded
-- **Feel**: Warm, personal, approachable
+### Trust Strip
+
+```tsx
+<section className="bg-[#EFFFE3] dark:bg-[#1A2E1A] py-6">
+  <div className="container mx-auto px-4 text-center">
+    {/* Trust content */}
+  </div>
+</section>
+```
+
+### CTA Section
+
+```tsx
+<section className="bg-[#E4F8C9] dark:bg-gray-800 py-24 relative overflow-hidden">
+  <div className="container mx-auto px-4 text-center">
+    <h2 className="text-4xl md:text-5xl font-bold mb-6">
+      Ready to answer "What's for dinner?" forever?
+    </h2>
+    <p className="text-gray-700 max-w-2xl mx-auto mb-10">
+      {/* Subtext */}
+    </p>
+    <Button>Get started free</Button>
+  </div>
+</section>
+```
+
+### Footer
+
+```tsx
+<footer className="bg-[#0D1117] text-gray-400 pt-20 pb-8">
+  <div className="container mx-auto px-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
+      {/* Logo + description + social */}
+      {/* Link columns */}
+    </div>
+    <div className="pt-8 border-t border-gray-800 text-center text-xs">
+      {/* Copyright */}
+    </div>
+  </div>
+</footer>
+```
 
 ---
 
-## Design Rules
+## Animations & Transitions
 
-1. **Text is always black** — Headers, body, labels
-2. **Primary buttons are black** — White text
-3. **Secondary buttons use Pale Lilac** — Black text
-4. **Illustrations use Chestnut only** — Single color, hand-drawn
-5. **Script font for decorative elements** — Logo, playful callouts
-6. **Ivory for backgrounds** — White for cards
-7. **High contrast** — Clean, editorial feel
-8. **Soft shadows** — No hard offsets
+### Duration
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `duration-150` | 150ms | Micro interactions (hovers) |
+| `duration-200` | 200ms | Default transitions |
+| `duration-300` | 300ms | Larger transitions |
+| `duration-500` | 500ms | Page transitions |
+
+### Easing
+
+```css
+transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /* ease-out */
+```
+
+### Common Patterns
+
+```tsx
+// Hover lift
+className="transition-transform duration-200 hover:-translate-y-1"
+
+// Button arrow
+className="group-hover:translate-x-1 transition-transform"
+
+// Fade in
+className="animate-fade-in"
+
+// Scale on hover
+className="transition-transform duration-200 hover:scale-105"
+```
+
+---
+
+## Dark Mode
+
+The app supports dark mode via the `.dark` class on `<html>`.
+
+**Key differences:**
+- Background: `#0F172A` (slate-900)
+- Surface: `#1E293B` (slate-800)
+- Text: `#F8FAFC` (slate-50)
+- Accent backgrounds darken appropriately
+
+**Note:** Sidebar and footer are always dark, regardless of theme.
+
+---
+
+## Accessibility
+
+- All interactive elements must have visible focus states
+- Color contrast must meet WCAG AA (4.5:1 for normal text)
+- Use semantic HTML elements
+- Provide aria-labels for icon-only buttons
+- Ensure keyboard navigation works
+
+### Focus States
+
+```tsx
+className="focus:outline-none focus:ring-2 focus:ring-[#D9F99D] focus:ring-offset-2"
+```
+
+---
+
+## Quick Reference Classes
+
+```tsx
+// Page background
+className="bg-background"
+
+// Card
+className="bg-white rounded-xl border border-gray-200 shadow-sm p-6"
+
+// Primary button
+className="bg-[#1A1A1A] text-white px-6 py-3 rounded-full font-semibold"
+
+// Accent section
+className="bg-[#E4F8C9] py-24"
+
+// Section heading
+className="text-3xl md:text-4xl font-bold text-gray-900"
+
+// Body text
+className="text-gray-600 text-lg"
+
+// Muted text
+className="text-gray-500 text-sm"
+```
 
 ---
 
@@ -228,12 +390,12 @@ Always use **Caveat** (script font) for the logo.
 
 | File | Purpose |
 |------|---------|
-| `/Branding/BRAND-SYSTEM-COMPLETE.md` | Original brand documentation |
-| `/Branding/design-tokens-complete.css` | CSS custom properties |
-| `/Branding/bwfd-brand-guidelines-complete.html` | Visual HTML guide |
-| `src/app/globals.css` | Implementation |
-| `src/lib/brand/colors.ts` | TypeScript exports |
+| `nextjs/src/lib/brand/design-system.md` | Complete design system documentation |
+| `nextjs/src/lib/brand/colors.ts` | TypeScript color exports |
+| `nextjs/src/app/globals.css` | CSS implementation |
+| `nextjs/tailwind.config.ts` | Tailwind configuration |
 
 ---
 
-*Babe, What's for Dinner? — Meal planning for couples and families who actually cook together.*
+*Last updated: January 2026*
+*Design system: Warm & Cozy v2.0*

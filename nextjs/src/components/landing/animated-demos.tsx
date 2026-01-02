@@ -41,7 +41,7 @@ export function RecipeCardDemo() {
       <div className={`
         bg-card rounded-xl border-2 border-black p-4
         transition-all duration-300
-        ${phase >= 1 ? "shadow-retro" : ""}
+        ${phase >= 1 ? "" : ""}
       `}>
         {/* Image placeholder */}
         <div className="h-32 bg-secondary/30 rounded-lg border-2 border-black mb-3 flex items-center justify-center">
@@ -66,8 +66,8 @@ export function RecipeCardDemo() {
           <button className={`
             p-2 rounded-full border-2 border-black transition-all duration-300
             ${phase >= 1
-              ? "bg-red-50 text-red-500 shadow-retro"
-              : "bg-muted text-muted-foreground hover:shadow-retro"
+              ? "bg-red-50 text-red-500"
+              : "bg-muted text-muted-foreground hover:"
             }
           `}>
             <Heart className={`w-4 h-4 ${phase >= 1 ? "fill-current" : ""}`} />
@@ -76,7 +76,7 @@ export function RecipeCardDemo() {
             flex-1 relative h-10 rounded-full border-2 border-black
             text-sm font-medium transition-all duration-500 ease-out
             ${phase >= 2
-              ? "bg-secondary text-foreground shadow-retro"
+              ? "bg-secondary text-foreground"
               : "bg-muted text-muted-foreground"
             }
           `}>
@@ -103,7 +103,7 @@ export function RecipeCardDemo() {
       {/* Success Badge */}
       <div className={`
         absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-semibold
-        px-2.5 py-1 rounded-full border-2 border-black shadow-retro
+        px-2.5 py-1 rounded-full border-2 border-black
         transition-all duration-300
         ${phase >= 3 ? "opacity-100 scale-100" : "opacity-0 scale-75"}
       `}>
@@ -165,7 +165,7 @@ export function MealPlanDemo() {
         <h4 className="font-semibold text-foreground text-sm">This Week</h4>
         <span className={`
           relative text-xs px-3 py-1 rounded-full border-2 border-black transition-all duration-500 min-w-[90px] h-6 inline-flex items-center justify-center
-          ${complete ? "bg-green-50 text-green-600 shadow-retro" : "bg-muted text-muted-foreground"}
+          ${complete ? "bg-green-50 text-green-600" : "bg-muted text-muted-foreground"}
         `}>
           {/* Progress state */}
           <span className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${complete ? "opacity-0" : "opacity-100"}`}>
@@ -187,7 +187,7 @@ export function MealPlanDemo() {
               h-16 rounded-lg border-2 border-black flex flex-col items-center justify-center
               transition-all duration-300
               ${i < filledDays
-                ? "bg-secondary/20 shadow-retro"
+                ? "bg-secondary/20"
                 : "bg-muted border-dashed"
               }
             `}>
@@ -274,7 +274,7 @@ export function ShoppingListDemo() {
             className={`
               flex items-center gap-3 p-2.5 rounded-lg border-2 border-black transition-all duration-300
               ${checked.includes(i)
-                ? "bg-green-50 shadow-retro"
+                ? "bg-green-50"
                 : "bg-card"
               }
             `}
@@ -391,7 +391,7 @@ export function CookModeDemo() {
             className={`
               flex items-center gap-3 p-3 rounded-lg border-2 border-black transition-all duration-300
               ${i === currentStep
-                ? "bg-primary/10 shadow-retro"
+                ? "bg-primary/10"
                 : i < currentStep
                   ? "bg-green-50"
                   : "bg-card"

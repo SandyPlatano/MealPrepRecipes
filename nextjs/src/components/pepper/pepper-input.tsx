@@ -81,7 +81,7 @@ export function PepperInput({
             "rounded-lg",
             "border-2 border-black dark:border-white",
             "bg-background",
-            "shadow-retro-input",
+            "",
             "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1"
           )}
         >

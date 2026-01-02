@@ -111,7 +111,7 @@ function FloatingStat({
     <div
       className={`
         absolute ${position}
-        bg-card border-2 border-black px-3 py-2 rounded-lg shadow-retro
+        bg-card border-2 border-black px-3 py-2 rounded-lg
         transition-all duration-700 ease-out
         ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}
         hidden xl:block
@@ -148,7 +148,7 @@ function JourneyStepComponent({ step, isReversed, isVisible }: {
       {/* Demo Side - Retro card */}
       <div className={`${isReversed ? "lg:order-2" : "lg:order-1"}`}>
         <div className={`
-          bg-card border-2 border-black shadow-retro rounded-xl p-6 lg:p-8
+          bg-card border-2 border-black rounded-xl p-6 lg:p-8
           transition-all duration-700 delay-200
           ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"}
         `}>
@@ -263,7 +263,7 @@ function JourneyCompletion({ isVisible }: { isVisible: boolean }) {
       {/* Celebration icon */}
       <div className={`
         inline-flex items-center justify-center w-20 h-20 rounded-full
-        bg-secondary border-2 border-black shadow-retro
+        bg-secondary border-2 border-black
         mb-6
         transition-all duration-700 delay-200
         ${isVisible ? "rotate-0" : "rotate-12"}

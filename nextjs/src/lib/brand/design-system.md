@@ -48,23 +48,23 @@
 |-------|-----|-------|
 | `--color-border` | `#E5E7EB` | Subtle borders, dividers |
 
-### Sidebar (Always Dark)
+### Sidebar (Warm Dark)
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| `--color-sidebar-bg` | `#0D1117` | Sidebar background |
-| `--color-sidebar-surface` | `#161B22` | Elevated sidebar elements |
-| `--color-sidebar-border` | `#30363D` | Sidebar borders |
-| `--color-sidebar-text` | `#F0F6FC` | Sidebar text |
-| `--color-sidebar-text-muted` | `#8B949E` | Sidebar secondary text |
+| `--color-sidebar-bg` | `#1E293B` | Sidebar background (slate-800) |
+| `--color-sidebar-surface` | `#334155` | Elevated sidebar elements (slate-700) |
+| `--color-sidebar-border` | `#475569` | Sidebar borders (slate-600) |
+| `--color-sidebar-text` | `#E2E8F0` | Sidebar text (slate-200) |
+| `--color-sidebar-text-muted` | `#94A3B8` | Sidebar secondary text (slate-400) |
 
-### Footer (Always Dark)
+### Footer (Warm Dark)
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| `--color-footer-bg` | `#0D1117` | Footer background |
-| `--color-footer-text` | `#9CA3AF` | Footer body text |
-| `--color-footer-title` | `#FFFFFF` | Footer headings |
+| `--color-footer-bg` | `#1E293B` | Footer background (slate-800) |
+| `--color-footer-text` | `#94A3B8` | Footer body text (slate-400) |
+| `--color-footer-title` | `#F1F5F9` | Footer headings (slate-100) |
 
 ### Semantic Colors
 
@@ -268,13 +268,13 @@ Use Tailwind's default spacing scale. Key values:
 ### Footer
 
 ```tsx
-<footer className="bg-[#0D1117] text-gray-400 pt-20 pb-8">
+<footer className="bg-[#1E293B] text-[#94A3B8] pt-20 pb-8">
   <div className="container mx-auto px-4">
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
       {/* Logo + description + social */}
       {/* Link columns */}
     </div>
-    <div className="pt-8 border-t border-gray-800 text-center text-xs">
+    <div className="pt-8 border-t border-slate-700 text-center text-xs">
       {/* Copyright */}
     </div>
   </div>

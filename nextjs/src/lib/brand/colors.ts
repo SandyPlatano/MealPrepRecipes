@@ -210,21 +210,21 @@ export const BACKGROUNDS = {
     muted: { hex: "#F3F4F6", hsl: "220 14% 96%" }, // Light gray
   },
   dark: {
-    background: { hex: "#0F172A", hsl: "222 47% 11%" }, // Dark slate
-    card: { hex: "#1E293B", hsl: "217 33% 17%" }, // Slate 800
-    muted: { hex: "#334155", hsl: "215 25% 27%" }, // Slate 700
+    background: { hex: "#0F172A", hsl: "222 47% 11%" }, // Slate 900 - darkest warm
+    card: { hex: "#1E293B", hsl: "217 33% 17%" }, // Slate 800 - surfaces
+    muted: { hex: "#334155", hsl: "215 25% 27%" }, // Slate 700 - elevated
   },
   footer: {
-    background: { hex: "#0D1117", hsl: "215 28% 7%" }, // GitHub dark
-    text: { hex: "#9CA3AF", hsl: "218 11% 65%" }, // Gray 400
-    title: { hex: "#FFFFFF", hsl: "0 0% 100%" }, // White
+    background: { hex: "#1E293B", hsl: "217 33% 17%" }, // Slate 800 - warm dark
+    text: { hex: "#94A3B8", hsl: "215 16% 65%" }, // Slate 400
+    title: { hex: "#F1F5F9", hsl: "210 20% 96%" }, // Slate 100
   },
   sidebar: {
-    background: { hex: "#0D1117", hsl: "215 28% 7%" }, // GitHub dark
-    surface: { hex: "#161B22", hsl: "215 23% 11%" }, // Slightly lighter
-    border: { hex: "#30363D", hsl: "212 12% 21%" }, // Border
-    text: { hex: "#F0F6FC", hsl: "210 40% 98%" }, // Light text
-    textMuted: { hex: "#8B949E", hsl: "210 12% 58%" }, // Muted text
+    background: { hex: "#1E293B", hsl: "217 33% 17%" }, // Slate 800 - warm dark
+    surface: { hex: "#334155", hsl: "215 25% 27%" }, // Slate 700
+    border: { hex: "#475569", hsl: "215 20% 36%" }, // Slate 600
+    text: { hex: "#E2E8F0", hsl: "214 32% 91%" }, // Slate 200
+    textMuted: { hex: "#94A3B8", hsl: "215 16% 65%" }, // Slate 400
   },
 } as const;
 

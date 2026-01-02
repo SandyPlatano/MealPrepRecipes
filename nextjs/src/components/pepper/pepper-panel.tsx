@@ -68,7 +68,7 @@ export function PepperPanel({
             "sm:rounded-xl rounded-none",
             "border-0 sm:border-2 border-black dark:border-white",
             "bg-background",
-            "sm:shadow-retro",
+            "sm:",
             "flex flex-col",
             "overflow-hidden"
           )}

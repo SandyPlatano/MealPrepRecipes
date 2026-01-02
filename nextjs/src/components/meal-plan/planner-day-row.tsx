@@ -173,7 +173,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
         <ContextMenuTrigger asChild disabled={isSelectionMode}>
           <Card
         className={cn(
-          "group relative transition-all flex-1 min-h-0",
+          "group relative transition-all h-full",
           isToday && "ring-2 ring-primary",
           isPast && "opacity-60",
           isFocused && !isToday && "ring-2 ring-primary/50",

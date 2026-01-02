@@ -42,7 +42,7 @@ export function TerminalFeature() {
       <div className="container mx-auto px-4 relative z-10">
         {/* Section header */}
         <div className="text-center mb-16">
-          <div className="inline-block badge-retro border-[#F97316] text-[#F97316] mb-4">
+          <div className="inline-block border-[#F97316] text-[#F97316] mb-4">
             Smart Import
           </div>
           <h2 className="font-mono text-3xl md:text-4xl font-bold text-[#FDFBF7] mb-4">
@@ -56,7 +56,7 @@ export function TerminalFeature() {
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           {/* Terminal Animation */}
           <div className="order-2 md:order-1">
-            <div className="card-pixel p-1 bg-[#111111] border-[#FDFBF7]">
+            <div className=" p-1 bg-[#111111] border-[#FDFBF7]">
               <TerminalLog
                 lines={DEMO_RECIPE_IMPORT_LINES}
                 typingSpeed={25}

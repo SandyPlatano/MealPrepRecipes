@@ -234,9 +234,9 @@ function AppShellContent({
           <ProfilePill user={user} />
         </header>
 
-        {/* Main Content - takes remaining space */}
-        <main id="main-content" className="flex-1 overflow-y-auto">
-          <div className="container mx-auto w-full px-4 py-8">
+        {/* Main Content - takes remaining space, fills viewport height */}
+        <main id="main-content" className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col w-full px-4 md:px-6 py-2 min-h-0">
             {children}
           </div>
         </main>

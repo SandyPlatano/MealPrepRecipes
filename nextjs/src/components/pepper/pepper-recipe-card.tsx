@@ -20,7 +20,7 @@ export function PepperRecipeCard({ recipe, onSelect }: PepperRecipeCardProps) {
         "rounded-lg p-3",
         "border-2 border-black dark:border-white",
         "bg-card hover:bg-accent/50",
-        "shadow-retro-sm hover:shadow-retro-sm-hover",
+        " hover:",
         "hover:translate-x-[1px] hover:translate-y-[1px]",
         "transition-all duration-150",
         "cursor-pointer"
