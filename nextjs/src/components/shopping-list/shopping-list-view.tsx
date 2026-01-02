@@ -109,9 +109,8 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useOffline } from "@/lib/use-offline";
 import { Confetti } from "@/components/ui/confetti";
-import { SubstitutionButton } from "./substitution-button";
-import { SwipeableShoppingItem } from "./swipeable-shopping-item";
 import { SubstitutionSheet } from "./substitution-sheet";
+import { SortableCategorySection, CategoryCardOverlay } from "./category-section";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ShoppingCart } from "lucide-react";
 

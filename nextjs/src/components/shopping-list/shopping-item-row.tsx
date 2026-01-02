@@ -214,56 +214,61 @@ export const ShoppingItemRow = memo(function ShoppingItemRow({
               <span className="text-xs text-blue-600 dark:text-blue-400">(was: {item.substituted_from})</span>
             )}
           </span>
-          <SubstitutionButton
-            onClick={() =>
-              onSubstitute({
-                id: item.id,
-                ingredient: item.ingredient,
-                quantity: item.quantity,
-                unit: item.unit,
-                recipe_id: item.recipe_id,
-                recipe_title: item.recipe_title,
-              })
-            }
-            disabled={item.is_checked}
-          />
-          <Tooltip>
-            <TooltipTrigger asChild>
+          {/* Hide extra buttons in store mode for cleaner UI */}
+          {!storeMode && (
+            <>
+              <SubstitutionButton
+                onClick={() =>
+                  onSubstitute({
+                    id: item.id,
+                    ingredient: item.ingredient,
+                    quantity: item.quantity,
+                    unit: item.unit,
+                    recipe_id: item.recipe_id,
+                    recipe_title: item.recipe_title,
+                  })
+                }
+                disabled={item.is_checked}
+              />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`h-10 w-10 sm:h-8 sm:w-8 flex-shrink-0 transition-opacity ${
+                      item.is_in_pantry
+                        ? "opacity-100 text-green-600"
+                        : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePantryToggle();
+                    }}
+                    disabled={isTogglingPantry}
+                  >
+                    <Cookie className="h-5 w-5 sm:h-4 sm:w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {item.is_in_pantry
+                    ? "Remove from pantry"
+                    : "Mark as pantry staple"}
+                </TooltipContent>
+              </Tooltip>
               <Button
                 variant="ghost"
                 size="icon"
-                className={`h-10 w-10 sm:h-8 sm:w-8 flex-shrink-0 transition-opacity ${
-                  item.is_in_pantry
-                    ? "opacity-100 text-green-600"
-                    : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
-                }`}
+                className="h-10 w-10 sm:h-8 sm:w-8 flex-shrink-0 sm:opacity-0 sm:group-hover:opacity-100"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handlePantryToggle();
+                  handleRemove();
                 }}
-                disabled={isTogglingPantry}
+                disabled={isRemoving}
               >
-                <Cookie className="h-5 w-5 sm:h-4 sm:w-4" />
+                <Trash2 className="h-5 w-5 sm:h-4 sm:w-4" />
               </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {item.is_in_pantry
-                ? "Remove from pantry"
-                : "Mark as pantry staple"}
-            </TooltipContent>
-          </Tooltip>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-10 w-10 sm:h-8 sm:w-8 flex-shrink-0 sm:opacity-0 sm:group-hover:opacity-100"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleRemove();
-            }}
-            disabled={isRemoving}
-          >
-            <Trash2 className="h-5 w-5 sm:h-4 sm:w-4" />
-          </Button>
+            </>
+          )}
         </li>
       </TooltipProvider>
     </SwipeableShoppingItem>
