@@ -1,244 +1,283 @@
-import { redirect } from "next/navigation";
-import { getWeekPlan, getRecipesForPlanning } from "@/app/actions/meal-plans";
-import { getSettings, getMealTypeCustomization, getPlannerViewSettings, getDefaultCooksByDay } from "@/app/actions/settings";
-import { getUserPreferencesV2 } from "@/app/actions/user-preferences";
-import { getFavorites } from "@/app/actions/recipes";
-import {
-  getRecentlyCooked,
-  getPreviousWeekMealCount,
-  getSmartSuggestions,
-} from "@/app/actions/meal-plan-suggestions";
-import { checkAIQuota } from "@/app/actions/ai-meal-suggestions";
-import {
-  getBulkRecipeNutrition,
-  getWeeklyNutritionDashboard,
-  getMacroGoals,
-  isNutritionTrackingEnabled,
-} from "@/app/actions/nutrition";
-import type { RecipeNutrition } from "@/types/nutrition";
-import { MealPlannerGrid } from "@/components/meal-plan/meal-planner-grid";
-import { PlanScrollRestorer } from "@/components/meal-plan/plan-scroll-restorer";
-import { getWeekStart } from "@/types/meal-plan";
 import { createClient } from "@/lib/supabase/server";
-import { OnboardingWrapper } from "@/components/onboarding/onboarding-wrapper";
-import { hasActiveSubscription } from "@/lib/stripe/subscription";
-import { ContextualHint } from "@/components/hints/contextual-hint";
-import { HINT_IDS, HINT_CONTENT } from "@/lib/hints";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { getWeekPlan } from "@/app/actions/meal-plans";
+import { getSettings } from "@/app/actions/settings";
+import { getShoppingListWithItems } from "@/app/actions/shopping-list";
+import { getWasteDashboard } from "@/app/actions/waste-tracking";
+import { getWeekStart, DAYS_OF_WEEK, type DayOfWeek, type MealAssignmentWithRecipe } from "@/types/meal-plan";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Lightbulb, Keyboard } from "lucide-react";
+import { Calendar, ShoppingCart, Plus, UtensilsCrossed, ChefHat, Flame, Users } from "lucide-react";
+import Link from "next/link";
 
-interface HomePageProps {
-  searchParams: Promise<{ week?: string }>;
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
 }
 
-export default async function HomePage({ searchParams }: HomePageProps) {
-  const params = await searchParams;
+function getTodaysDayOfWeek(): DayOfWeek {
+  const dayIndex = new Date().getDay();
+  const days: DayOfWeek[] = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  return days[dayIndex];
+}
+
+const defaultAssignments: Record<DayOfWeek, MealAssignmentWithRecipe[]> = {
+  Monday: [],
+  Tuesday: [],
+  Wednesday: [],
+  Thursday: [],
+  Friday: [],
+  Saturday: [],
+  Sunday: [],
+};
+
+export default async function HomePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Get current week for comparison
-  const currentWeekStart = getWeekStart(new Date()).toISOString().split("T")[0];
+  const weekStartStr = getWeekStart(new Date()).toISOString().split("T")[0];
 
-  // Get week start from URL or default to current week
-  const weekStartDate = params.week
-    ? new Date(params.week)
-    : getWeekStart(new Date());
-
-  const weekStartStr = weekStartDate.toISOString().split("T")[0];
-
-  // Calculate previous week for copy feature
-  const previousWeekStart = new Date(weekStartDate);
-  previousWeekStart.setDate(previousWeekStart.getDate() - 7);
-  const previousWeekStr = previousWeekStart.toISOString().split("T")[0];
-
-  // Fetch all data in parallel (including profile and subscription check)
-  const [
-    profileResult,
-    canNavigateWeeksResult,
-    planResult,
-    recipesResult,
-    settingsResult,
-    favoritesResult,
-    recentlyCooked,
-    prevWeekCount,
-    suggestions,
-    aiQuota,
-    nutritionTrackingResult,
-    mealTypeSettingsResult,
-    plannerViewSettingsResult,
-    defaultCooksByDayResult,
-    userPreferencesV2Result,
-  ] = await Promise.all([
-    user ? supabase.from("profiles").select("id, first_name, last_name, email, avatar_url, cover_image_url, username, bio, cooking_philosophy, profile_emoji, currently_craving, cook_with_me_status, favorite_cuisine, cooking_skill, location, website_url, public_profile, show_cooking_stats, show_badges, show_cook_photos, show_reviews, show_saved_recipes, profile_accent_color, created_at, updated_at").eq("id", user.id).single() : Promise.resolve({ data: null }),
-    user ? hasActiveSubscription(user.id, 'pro') : Promise.resolve(false),
+  const [profileResult, planResult, settingsResult, shoppingResult, wasteResult] = await Promise.all([
+    user ? supabase.from("profiles").select("first_name, last_name").eq("id", user.id).single() : Promise.resolve({ data: null }),
     getWeekPlan(weekStartStr),
-    getRecipesForPlanning(),
     getSettings(),
-    getFavorites(),
-    getRecentlyCooked(),
-    getPreviousWeekMealCount(previousWeekStr),
-    getSmartSuggestions(weekStartStr),
-    checkAIQuota(),
-    isNutritionTrackingEnabled(),
-    getMealTypeCustomization(),
-    getPlannerViewSettings(),
-    getDefaultCooksByDay(),
-    user ? getUserPreferencesV2(user.id) : Promise.resolve({ error: null, data: null }),
+    getShoppingListWithItems(),
+    getWasteDashboard(),
   ]);
 
   const profile = profileResult.data;
-  const canNavigateWeeks = canNavigateWeeksResult;
+  const firstName = profile?.first_name || "there";
+  const greeting = getGreeting();
 
-  // Redirect free users who try to navigate to non-current weeks via URL
-  if (!canNavigateWeeks && weekStartStr !== currentWeekStart) {
-    redirect(`/app?week=${currentWeekStart}`);
-  }
-
-  const weekPlan = planResult.data || {
-    meal_plan: null,
-    assignments: {
-      Monday: [],
-      Tuesday: [],
-      Wednesday: [],
-      Thursday: [],
-      Friday: [],
-      Saturday: [],
-      Sunday: [],
-    },
-  };
-
-  const recipes = recipesResult.data || [];
+  const assignments = planResult.data?.assignments ?? defaultAssignments;
   const cookNames = (settingsResult.data?.cook_names || []) as string[];
   const cookColors = (settingsResult.data?.cook_colors || {}) as Record<string, string>;
-  const userAllergenAlerts = (settingsResult.data?.allergen_alerts || []) as string[];
-  const calendarExcludedDays = (settingsResult.data?.calendar_excluded_days || []) as string[];
-  const googleConnected = !!settingsResult.data?.google_connected_account;
-  const favorites = favoritesResult.data || [];
-  const recentRecipeIds = (recentlyCooked.data || []).map((r) => r.id);
-  const suggestedRecipeIds = (suggestions.data || []).map((r) => r.id);
-  const mealTypeSettings = mealTypeSettingsResult.data;
-  const plannerViewSettings = plannerViewSettingsResult.data;
-  const defaultCooksByDay = defaultCooksByDayResult.data;
 
-  // Get existing meal days for AI suggestions
-  const existingMealDays = Object.entries(weekPlan.assignments)
-    .filter(([, meals]) => meals.length > 0)
-    .map(([day]) => day);
+  const todaysDayOfWeek = getTodaysDayOfWeek();
+  const todaysMeals = assignments[todaysDayOfWeek] || [];
 
-  // Fetch nutrition data if tracking is enabled
-  const nutritionEnabled = nutritionTrackingResult.enabled || false;
-  let nutritionData = null;
-  let weeklyNutritionDashboard = null;
-  let macroGoals = null;
+  const shoppingItems = shoppingResult.data?.items || [];
+  const totalItems = shoppingItems.length;
+  const checkedItems = shoppingItems.filter(item => item.is_checked).length;
 
-  if (nutritionEnabled) {
-    // Get all unique recipe IDs from assignments
-    const allRecipeIds = Object.values(weekPlan.assignments)
-      .flat()
-      .map((a) => a.recipe_id);
-    const uniqueRecipeIds = Array.from(new Set(allRecipeIds));
+  const mealsByType = {
+    breakfast: todaysMeals.find((m: MealAssignmentWithRecipe) => m.meal_type === "breakfast"),
+    lunch: todaysMeals.find((m: MealAssignmentWithRecipe) => m.meal_type === "lunch"),
+    dinner: todaysMeals.find((m: MealAssignmentWithRecipe) => m.meal_type === "dinner"),
+  };
 
-    // Fetch nutrition data for all recipes in parallel
-    const [nutritionResult, dashboardResult, goalsResult] = await Promise.all([
-      uniqueRecipeIds.length > 0 ? getBulkRecipeNutrition(uniqueRecipeIds) : Promise.resolve({ data: {} as Record<string, RecipeNutrition>, error: null }),
-      getWeeklyNutritionDashboard(weekStartStr),
-      getMacroGoals(),
-    ]);
+  const weekPeek = DAYS_OF_WEEK.map(day => ({
+    day,
+    hasPlannedMeals: (assignments[day] || []).length > 0,
+    isToday: day === todaysDayOfWeek,
+  }));
 
-    // Create nutrition lookup map from the Record
-    if (nutritionResult.data && Object.keys(nutritionResult.data).length > 0) {
-      nutritionData = new Map(
-        Object.entries(nutritionResult.data).map(([recipeId, nutrition]) => [recipeId, nutrition])
-      );
-    } else {
-      // Create empty Map when nutrition is enabled but no data exists
-      nutritionData = new Map();
-    }
+  // Partner handoff - who's cooking dinner tonight
+  const dinnerCook = mealsByType.dinner?.cook;
+  const otherCooks = cookNames.filter(name => name !== dinnerCook);
+  const hasMultipleCooks = cookNames.length > 1;
 
-    weeklyNutritionDashboard = dashboardResult.data;
-    macroGoals = goalsResult.data;
-  }
-
-  // Check if user needs onboarding
-  // Show onboarding only for truly new users who haven't set up anything yet
-  // Note: cook_names defaults to ["Me"], so we check if it's just that default
-  const hasCustomCookNames = cookNames.length > 1 || (cookNames.length === 1 && cookNames[0] !== "Me");
-  const hasSetName = !!(profile?.first_name || profile?.last_name);
-  const hasCompletedOnboarding = hasSetName || hasCustomCookNames;
-
-  const needsOnboarding = !hasCompletedOnboarding && recipes.length === 0;
-
-  // Check if the week is completely empty (no meals planned)
-  const totalMealsThisWeek = Object.values(weekPlan.assignments).flat().length;
-  const isWeekEmpty = totalMealsThisWeek === 0 && !needsOnboarding;
+  // Motivation stat from waste dashboard
+  const streak = wasteResult.data?.streak;
+  const aggregate = wasteResult.data?.aggregate;
 
   return (
-    <>
-      <OnboardingWrapper
-        shouldShow={needsOnboarding}
-        currentName={[profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || ""}
-        currentCookNames={cookNames}
-        currentCookColors={cookColors}
-      />
+    <div className="flex flex-col gap-6 p-4 md:p-6 max-w-4xl mx-auto">
+      {/* Hero greeting */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">
+          {greeting}, {firstName}!
+        </h1>
+        <p className="text-muted-foreground">
+          Here&apos;s what&apos;s cooking today.
+        </p>
+      </div>
 
-      <div className="flex flex-col h-full min-h-0 flex-1">
-        <PlanScrollRestorer />
-        <div className="flex-shrink-0 mb-1">
-          <h1 className="text-xl md:text-2xl font-mono font-bold">Meal Plan</h1>
-          <p className="text-muted-foreground text-xs md:text-sm">
-            Plan your week. Assign cooks. Send the list. Done.
-          </p>
+      <Separator />
+
+      {/* Today's Meals */}
+      <section>
+        <h2 className="text-lg font-semibold mb-3">Today&apos;s Meals</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {(["breakfast", "lunch", "dinner"] as const).map((mealType) => {
+            const meal = mealsByType[mealType];
+            const labels = { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner" };
+            const emojis = { breakfast: "🌅", lunch: "☀️", dinner: "🌙" };
+
+            return (
+              <Card key={mealType} className="bg-white rounded-xl border shadow-sm overflow-hidden">
+                <div className="relative h-32 bg-gray-100">
+                  <div className="flex items-center justify-center h-full">
+                    <UtensilsCrossed className="h-8 w-8 text-gray-300" />
+                  </div>
+                  <span className="absolute top-2 left-2 px-2 py-1 text-xs font-medium bg-[#D9F99D] text-[#1A1A1A] rounded-full">
+                    {emojis[mealType]} {labels[mealType]}
+                  </span>
+                </div>
+                <CardContent className="p-4">
+                  {meal ? (
+                    <>
+                      <h3 className="font-semibold text-[#1A1A1A] truncate">
+                        {meal.recipe?.title || "Unknown recipe"}
+                      </h3>
+                      {meal.cook && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <div
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: cookColors[meal.cook] || "#D9F99D" }}
+                          />
+                          <span className="text-sm text-gray-600">{meal.cook}&apos;s cooking</span>
+                        </div>
+                      )}
+                      <Button asChild className="w-full mt-3 bg-[#1A1A1A] text-white rounded-full">
+                        <Link href={`/app/recipes/${meal.recipe_id}`}>
+                          <ChefHat className="h-4 w-4 mr-2" />
+                          View Recipe
+                        </Link>
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm text-gray-500">No meal planned</p>
+                      <Button asChild variant="outline" className="w-full mt-3 rounded-full">
+                        <Link href="/app/plan">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add meal
+                        </Link>
+                      </Button>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
+      </section>
 
-        <Separator className="mb-2" />
+      {/* Quick Actions */}
+      <section>
+        <div className="grid grid-cols-3 gap-3">
+          <Button asChild variant="outline" className="h-16 rounded-xl flex-col gap-1">
+            <Link href="/app/plan">
+              <Calendar className="h-5 w-5" />
+              <span className="text-xs">Plan Week</span>
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="h-16 rounded-xl flex-col gap-1">
+            <Link href="/app/shop">
+              <ShoppingCart className="h-5 w-5" />
+              <span className="text-xs">Shopping</span>
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="h-16 rounded-xl flex-col gap-1">
+            <Link href="/app/recipes/new">
+              <Plus className="h-5 w-5" />
+              <span className="text-xs">Add Recipe</span>
+            </Link>
+          </Button>
+        </div>
+      </section>
 
-        {/* Empty week tip */}
-        {isWeekEmpty && recipes.length > 0 && (
-          <Alert className="mb-2 bg-amber-50/50 border-amber-200/50 dark:bg-amber-950/20 dark:border-amber-800/30">
-            <Lightbulb className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-            <AlertDescription className="text-sm text-amber-800 dark:text-amber-200">
-              <span className="font-medium">Tip:</span> Click any row to add a meal, or right-click for more options.
-              <span className="hidden md:inline ml-1">
-                <Keyboard className="inline h-3 w-3 mx-1" />
-                Press <kbd className="px-1 py-0.5 rounded bg-amber-100 dark:bg-amber-900/50 text-xs font-mono">1-7</kbd> to jump to a day.
-              </span>
-            </AlertDescription>
-          </Alert>
+      {/* Secondary Info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Partner Handoff */}
+        {hasMultipleCooks && (
+          <Card className="p-4 bg-gradient-to-br from-purple-50 to-white">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 rounded-full">
+                <Users className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-sm">Tonight&apos;s Chef</h3>
+                {dinnerCook ? (
+                  <p className="text-lg font-bold text-[#1A1A1A]">
+                    {dinnerCook}&apos;s cooking
+                    {otherCooks.length > 0 && (
+                      <span className="text-sm font-normal text-muted-foreground ml-1">
+                        ({otherCooks[0]} is off duty)
+                      </span>
+                    )}
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No dinner assigned yet</p>
+                )}
+              </div>
+            </div>
+          </Card>
         )}
 
-        <ContextualHint
-          hintId={HINT_IDS.MEAL_PLANNER_INTRO}
-          title={HINT_CONTENT[HINT_IDS.MEAL_PLANNER_INTRO].title}
-          description={HINT_CONTENT[HINT_IDS.MEAL_PLANNER_INTRO].description}
-        />
+        {/* Motivation Stat */}
+        {(streak?.current_streak ?? 0) > 0 && (
+          <Card className="p-4 bg-gradient-to-br from-orange-50 to-white">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-orange-100 rounded-full">
+                <Flame className="h-5 w-5 text-orange-500" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-sm">Cooking Streak</h3>
+                <p className="text-lg font-bold text-[#1A1A1A]">
+                  {streak?.current_streak} week{(streak?.current_streak ?? 0) !== 1 ? "s" : ""}
+                  {aggregate && aggregate.total_money_saved_cents > 0 && (
+                    <span className="text-sm font-normal text-muted-foreground ml-1">
+                      (${(aggregate.total_money_saved_cents / 100).toFixed(0)} saved)
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
 
-        <MealPlannerGrid
-          weekStartStr={weekStartStr}
-          weekPlan={weekPlan}
-          recipes={recipes}
-          cookNames={cookNames}
-          cookColors={cookColors}
-          userAllergenAlerts={userAllergenAlerts}
-          calendarExcludedDays={calendarExcludedDays}
-          googleConnected={googleConnected}
-          favorites={favorites}
-          recentRecipeIds={recentRecipeIds}
-          suggestedRecipeIds={suggestedRecipeIds}
-          previousWeekMealCount={prevWeekCount.count}
-          subscriptionTier={aiQuota.data?.tier || 'free'}
-          aiQuotaRemaining={aiQuota.data?.remaining || null}
-          existingMealDays={existingMealDays}
-          nutritionEnabled={nutritionEnabled}
-          nutritionData={nutritionData}
-          weeklyNutritionDashboard={weeklyNutritionDashboard}
-          macroGoals={macroGoals}
-          canNavigateWeeks={canNavigateWeeks}
-          mealTypeSettings={mealTypeSettings}
-          plannerViewSettings={plannerViewSettings}
-          defaultCooksByDay={defaultCooksByDay}
-        />
+        {/* Shopping Pulse */}
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-sm">Shopping List</h3>
+              {totalItems > 0 ? (
+                <p className="text-2xl font-bold text-[#1A1A1A]">
+                  {checkedItems}/{totalItems} <span className="text-sm font-normal text-muted-foreground">items</span>
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">No items yet</p>
+              )}
+            </div>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/app/shop">View</Link>
+            </Button>
+          </div>
+          {totalItems > 0 && (
+            <div className="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-[#D9F99D] transition-all"
+                style={{ width: `${(checkedItems / totalItems) * 100}%` }}
+              />
+            </div>
+          )}
+        </Card>
+
+        {/* Week Peek */}
+        <Card className="p-4">
+          <h3 className="font-semibold text-sm mb-3">This Week</h3>
+          <div className="flex justify-between">
+            {weekPeek.map(({ day, hasPlannedMeals, isToday }) => (
+              <div key={day} className="flex flex-col items-center gap-1">
+                <span className={`text-xs ${isToday ? "font-bold text-[#1A1A1A]" : "text-muted-foreground"}`}>
+                  {day.slice(0, 1)}
+                </span>
+                <div
+                  className={`w-3 h-3 rounded-full ${
+                    hasPlannedMeals
+                      ? "bg-[#D9F99D]"
+                      : "bg-gray-200"
+                  } ${isToday ? "ring-2 ring-[#1A1A1A] ring-offset-1" : ""}`}
+                />
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
-    </>
+    </div>
   );
 }

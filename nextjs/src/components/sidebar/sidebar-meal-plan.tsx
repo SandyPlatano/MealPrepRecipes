@@ -33,7 +33,7 @@ const BUILTIN_ITEMS: Record<
 > = {
   plan: {
     label: "Plan",
-    href: "/app",
+    href: "/app/plan",
     defaultIcon: Calendar,
     pinnableId: "page-plan",
   },
@@ -138,7 +138,6 @@ export function SidebarMealPlan({
                 label={label}
                 emoji={emoji}
                 badge={badge}
-                exactMatch={itemId === "plan"}
                 pinnableType="page"
                 pinnableId={builtinMeta.pinnableId}
               />
@@ -205,10 +204,9 @@ function StaticMealPlan({
     <SidebarSection title="Meal Planning" icon={Calendar} defaultOpen>
       <div className="px-2 flex flex-col gap-0.5">
         <SidebarNavItem
-          href="/app"
+          href="/app/plan"
           icon={Calendar}
           label="Plan"
-          exactMatch
           pinnableType="page"
           pinnableId="page-plan"
         />

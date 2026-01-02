@@ -236,7 +236,7 @@ function AppShellContent({
 
         {/* Main Content - takes remaining space, fills viewport height */}
         <main id="main-content" className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 flex flex-col w-full px-4 md:px-6 py-2 min-h-0">
+          <div className="flex-1 flex flex-col w-full px-4 md:px-6 pt-2 pb-4 min-h-0">
             {children}
           </div>
         </main>
