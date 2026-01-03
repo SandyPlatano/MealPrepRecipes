@@ -324,7 +324,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
       </div>
 
       {/* Diet Type Filters */}
-      <div className="flex flex-col pt-3 border-t">
+      <div className="flex flex-col gap-2 pt-3 border-t overflow-hidden">
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium">Diet Types</label>
           <Button
@@ -337,16 +337,17 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
             Bulk Tag
           </Button>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           <ToggleGroup
             type="single"
             value={dietFilter}
             onValueChange={(value) => setFilter("dietFilter", value || "all")}
-            spacing={2}
+            spacing={1}
+            className="flex-wrap"
           >
             <ToggleGroupItem
               value="all"
-              className="rounded-full px-3 py-1.5 text-sm data-[state=on]:bg-[#D9F99D] data-[state=on]:text-[#1A1A1A] data-[state=on]:border-[#D9F99D] bg-white border border-gray-200"
+              className="rounded-full px-2.5 py-1 text-xs data-[state=on]:bg-[#D9F99D] data-[state=on]:text-[#1A1A1A] data-[state=on]:border-[#D9F99D] bg-white border border-gray-200"
             >
               All Diets
             </ToggleGroupItem>
@@ -356,9 +357,9 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
                 <ToggleGroupItem
                   key={diet.label}
                   value={diet.label}
-                  className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm data-[state=on]:bg-[#D9F99D] data-[state=on]:text-[#1A1A1A] data-[state=on]:border-[#D9F99D] bg-white border border-gray-200"
+                  className="flex items-center gap-1 rounded-full px-2.5 py-1 text-xs data-[state=on]:bg-[#D9F99D] data-[state=on]:text-[#1A1A1A] data-[state=on]:border-[#D9F99D] bg-white border border-gray-200"
                 >
-                  <Icon className="size-4" />
+                  <Icon className="size-3.5" />
                   {diet.label}
                 </ToggleGroupItem>
               );
