@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, ScanLine } from "lucide-react";
 import { INGREDIENT_CATEGORIES } from "@/types/shopping-list";
 
 interface AddItemFormProps {
@@ -20,6 +20,7 @@ interface AddItemFormProps {
   setNewCategory: (value: string) => void;
   isAdding: boolean;
   onSubmit: (e: React.FormEvent) => void;
+  onScan?: () => void;
 }
 
 /**
@@ -34,6 +35,7 @@ export function AddItemForm({
   setNewCategory,
   isAdding,
   onSubmit,
+  onScan,
 }: AddItemFormProps) {
   return (
     <Card>
@@ -69,6 +71,17 @@ export function AddItemForm({
           >
             <Plus className="h-4 w-4" />
           </Button>
+          {onScan && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onScan}
+              className="rounded-full border-gray-300 dark:border-gray-600"
+              title="Scan barcode"
+            >
+              <ScanLine className="h-4 w-4" />
+            </Button>
+          )}
         </form>
       </CardContent>
     </Card>

@@ -416,11 +416,11 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
         onFocus={handlePrefetch}
       >
         <Card
-          className="group h-full bg-white rounded-sm border-[1.5px] border-[#1A1A1A] shadow-none hover:shadow-md hover:border-[#1A1A1A] transition-all duration-300 ease-out flex flex-col cursor-pointer overflow-hidden animate-slide-up-fade relative"
+          className="group h-full bg-white rounded-2xl border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-gray-300/80 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col cursor-pointer overflow-hidden animate-slide-up-fade relative"
           style={animationIndex !== undefined ? { animationDelay: `${animationIndex * 50}ms`, animationFillMode: 'backwards' } : undefined}
         >
           {/* Image Section - ALWAYS present for consistent card height */}
-          <div className="relative w-full h-44 overflow-hidden bg-[#1A1A1A]">
+          <div className="relative w-full h-48 overflow-hidden rounded-t-2xl">
             {recipe.image_url ? (
               <Image
                 src={recipe.image_url}
@@ -432,9 +432,13 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYH/8QAIhAAAgEDAwUBAAAAAAAAAAAAAQIDAAQRBQYhEhMiMVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQADAQEBAAAAAAAAAAAAAAAAAQIDEUH/2gAMAwEAAhEDEQA/ALTce5Nw6XfRWOnWtjJAkccjGaN2LFhnHDDjgce/dSX9x73/AGb/AHfz/Sla1FNRlpHD9J//2Q=="
               />
             ) : (
-              /* Placeholder for cards without images - editorial dark */
-              <div className="absolute inset-0 flex items-center justify-center bg-[#1A1A1A]">
-                <UtensilsCrossed className="size-12 text-[#3A3A3A]" />
+              /* Placeholder for cards without images - warm gradient with pattern */
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#F5F5F5] via-[#EEEEEE] to-[#E8E8E8]">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="size-16 rounded-full bg-white/80 flex items-center justify-center shadow-sm">
+                    <UtensilsCrossed className="size-8 text-gray-400" />
+                  </div>
+                </div>
               </div>
             )}
 
@@ -498,22 +502,13 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
               </div>
             )}
 
-            {/* Floating Info Pill - Bottom of image */}
-            <div className="absolute bottom-3 left-3 z-10 flex items-center gap-3 px-3 py-1.5 bg-[#1A1A1A] text-white text-[10px] font-medium uppercase tracking-wider">
-              {currentRating && (
-                <>
-                  <span className="flex items-center gap-1">
-                    <Star className="size-3 fill-[#D9F99D] text-[#D9F99D]" />
-                    {currentRating.toFixed(1)}
-                  </span>
-                  <span className="w-px h-3 bg-white/30" />
-                </>
-              )}
-              <span className="flex items-center gap-1">
-                <Clock className="size-3 text-white/70" />
+            {/* Floating Time Badge - Bottom of image (only shows on images) */}
+            {recipe.image_url && (
+              <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 bg-black/60 backdrop-blur-sm rounded-full text-white text-[11px] font-medium">
+                <Clock className="size-3" />
                 {metadata.totalTime}
-              </span>
-            </div>
+              </div>
+            )}
 
             {/* More Menu - Top Right */}
             <div
@@ -628,39 +623,51 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
             )}
           </div>
 
-          {/* Title Section - editorial with RECIPE label */}
+          {/* Title Section - clean and prominent */}
           <div className="px-4 pt-4 pb-2 shrink-0">
-            <span className="text-[10px] font-medium tracking-[0.15em] text-gray-400 uppercase mb-1.5 block">
-              RECIPE
-            </span>
-            <CardTitle className="text-xl font-serif leading-tight line-clamp-2 text-[#1A1A1A]">
+            <CardTitle className="text-lg font-semibold leading-snug line-clamp-2 text-[#1A1A1A] group-hover:text-[#333] transition-colors">
               <HighlightText text={recipe.title} searchTerm={searchTerm} />
             </CardTitle>
           </div>
 
-          {/* Type Badge + Metadata Row - editorial style */}
-          <div className="px-4 pb-3 flex flex-col gap-2 shrink-0">
-            {/* Recipe Type Badge - minimal border style */}
-            <div
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider border border-[#1A1A1A] w-fit transition-all duration-300 ease-out"
-            >
-              <span>{recipe.recipe_type}</span>
+          {/* Type Badge + Metadata Row */}
+          <div className="px-4 pb-3 flex flex-col gap-2.5 shrink-0">
+            {/* Recipe Type Badge - pill style with subtle color */}
+            <div className="flex items-center gap-2">
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium",
+                  getRecipeTypeBadgeClasses(recipe.recipe_type)
+                )}
+              >
+                {getRecipeIcon(recipe.recipe_type)}
+                {recipe.recipe_type}
+              </span>
+              {currentRating && (
+                <span className="inline-flex items-center gap-1 text-[11px] text-gray-500">
+                  <Star className="size-3 fill-amber-400 text-amber-400" />
+                  {currentRating.toFixed(1)}
+                </span>
+              )}
             </div>
 
-            {/* Metadata: Calories | Protein | Difficulty - editorial style */}
-            <div className="flex items-center gap-3 text-[11px] text-gray-500 uppercase tracking-wide">
+            {/* Metadata: Time • Calories • Difficulty */}
+            <div className="flex items-center flex-wrap gap-x-2 gap-y-1 text-[12px] text-gray-500">
+              <span className="flex items-center gap-1">
+                <Clock className="size-3" />
+                {metadata.totalTime}
+              </span>
+              <span className="text-gray-300">•</span>
               <span>{metadata.calories}</span>
-              <span className="w-px h-3 bg-gray-300" />
-              <span>{metadata.protein}</span>
-              <span className="w-px h-3 bg-gray-300" />
+              <span className="text-gray-300">•</span>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span
                     className={cn(
-                      "cursor-help",
-                      metadata.difficulty === "Easy" && "text-green-600",
+                      "cursor-help font-medium",
+                      metadata.difficulty === "Easy" && "text-emerald-600",
                       metadata.difficulty === "Medium" && "text-amber-600",
-                      metadata.difficulty === "Hard" && "text-red-600"
+                      metadata.difficulty === "Hard" && "text-rose-600"
                     )}
                   >
                     {metadata.difficulty}
@@ -693,42 +700,37 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
               </Tooltip>
               {lastMadeDate && (
                 <>
-                  <span className="w-px h-3 bg-gray-300" />
-                  <span className="text-[10px]">
-                    {formatDistanceToNow(new Date(lastMadeDate), {
-                      addSuffix: true,
-                    })}
+                  <span className="text-gray-300">•</span>
+                  <span className="text-[11px] text-gray-400">
+                    Made {formatDistanceToNow(new Date(lastMadeDate), { addSuffix: false })} ago
                   </span>
                 </>
               )}
             </div>
           </div>
-          <CardContent className="flex flex-col flex-1 pt-0 px-4">
-            {/* Key Ingredients Section - editorial uppercase, hidden on mobile */}
-            {!isMobile && (
-              <p className="text-[10px] text-gray-400 uppercase tracking-wide line-clamp-1 pb-3">
+          <CardContent className="flex flex-col flex-1 pt-0 px-4 pb-4">
+            {/* Key Ingredients - subtle preview, hidden on mobile */}
+            {!isMobile && recipe.ingredients.length > 0 && (
+              <p className="text-xs text-gray-400 line-clamp-1 pb-3 border-b border-gray-100">
                 {recipe.ingredients.slice(0, 3).map((ingredient, idx) => (
                   <span key={idx}>
-                    {idx > 0 && " · "}
+                    {idx > 0 && ", "}
                     <HighlightText text={ingredient} searchTerm={searchTerm} />
                   </span>
                 ))}
-                {recipe.ingredients.length > 3 && " +more"}
+                {recipe.ingredients.length > 3 && "..."}
               </p>
             )}
 
-            {/* Separator before footer */}
-            <Separator className="my-0" />
-
-            {/* Footer: Add to Plan + Favorite - pill buttons */}
+            {/* Footer: Add to Plan + Favorite */}
             <div className="pt-3 mt-auto flex items-center gap-2">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="default"
                     className={cn(
-                      "flex-1 rounded-full bg-[#1A1A1A] hover:bg-[#333] text-white shadow-sm hover:shadow-md transition-all",
-                      isMobile && "h-12 text-base"
+                      "flex-1 rounded-full bg-[#1A1A1A] hover:bg-[#333] text-white font-medium text-sm shadow-sm hover:shadow-md transition-all",
+                      isMobile && "h-12"
                     )}
                     onClick={handleAddToCart}
                     disabled={isAddingToPlan}
@@ -739,18 +741,18 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                 <TooltipContent>Add this recipe to your weekly meal plan</TooltipContent>
               </Tooltip>
 
-              {/* Favorite Button - pill with animated heart */}
+              {/* Favorite Button - rounded to match card */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="outline"
                     size="icon"
                     className={cn(
-                      "shrink-0 rounded-full border-gray-200 transition-all duration-200",
+                      "shrink-0 rounded-full border border-gray-200 transition-all duration-200",
                       isMobile && "size-12",
                       isFavorite
-                        ? "border-red-200 bg-red-50 text-red-500 hover:bg-red-100"
-                        : "hover:border-red-200 hover:bg-red-50 hover:text-red-500"
+                        ? "bg-red-50 border-red-200 text-red-500"
+                        : "hover:bg-red-50 hover:border-red-200 hover:text-red-500"
                     )}
                     onClick={handleToggleFavorite}
                     disabled={isPending}

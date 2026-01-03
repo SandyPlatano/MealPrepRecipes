@@ -82,7 +82,7 @@ import { SortableCategorySection, CategoryCardOverlay } from "./category-section
 import { AddItemForm } from "./add-item-form";
 import { ProgressBar } from "./progress-bar";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ShoppingCart, ScanLine } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { BarcodeScanner } from "./barcode-scanner";
 import { ScanResultModal, type ScannedProduct } from "./scan-result-modal";
 import type { BarcodeLookupResponse } from "@/types/barcode";
@@ -510,27 +510,15 @@ export function ShoppingListView({
       )}
 
       {/* Add Item Form with Scan Button */}
-      <div className="flex gap-2 items-end">
-        <div className="flex-1">
-          <AddItemForm
-            newItem={newItem}
-            setNewItem={setNewItem}
-            newCategory={newCategory}
-            setNewCategory={setNewCategory}
-            isAdding={isAdding}
-            onSubmit={handleAddItem}
-          />
-        </div>
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-10 w-10 flex-shrink-0 rounded-full border-gray-300"
-          onClick={() => setIsScannerOpen(true)}
-          title="Scan barcode"
-        >
-          <ScanLine className="h-5 w-5" />
-        </Button>
-      </div>
+      <AddItemForm
+        newItem={newItem}
+        setNewItem={setNewItem}
+        newCategory={newCategory}
+        setNewCategory={setNewCategory}
+        isAdding={isAdding}
+        onSubmit={handleAddItem}
+        onScan={() => setIsScannerOpen(true)}
+      />
 
       {/* Actions */}
       {shoppingList.items.length > 0 && (
