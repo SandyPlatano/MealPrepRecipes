@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meal Plan Row Layout Options</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .meal-dot-breakfast { background-color: #FDE047; }
+    .meal-dot-lunch { background-color: #86EFAC; }
+    .meal-dot-dinner { background-color: #93C5FD; }
+  </style>
+</head>
+<body class="bg-[#FFFCF6] p-8">
+  <div class="max-w-4xl mx-auto space-y-12">
+    <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2">Meal Plan Row Layout Options</h1>
+    <p class="text-gray-600 mb-8">Click the option you prefer!</p>
+
+    <!-- Option B: Overflow Menu -->
+    <section class="space-y-4">
+      <div class="flex items-center gap-3">
+        <span class="bg-[#1A1A1A] text-white text-sm font-bold px-3 py-1 rounded-full">Option B</span>
+        <h2 class="text-xl font-semibold">Overflow Menu (Gmail/Todoist style)</h2>
+      </div>
+      <p class="text-sm text-gray-500">Cleanest look - cook & actions hidden in kebab menu</p>
+
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+        <!-- Day Row 1 -->
+        <div class="flex items-center gap-4 p-3 border-b border-gray-100">
+          <div class="flex-shrink-0 w-16 text-center">
+            <div class="text-2xl font-bold font-mono">29</div>
+            <div class="text-xs font-semibold text-gray-500">MON</div>
+            <div class="text-[10px] text-gray-400">Dec</div>
+          </div>
+          <div class="flex-1 space-y-2">
+            <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
+              <span class="font-medium text-sm">Cauliflower Steaks with Chimichurri</span>
+              <button class="p-1.5 hover:bg-gray-200 rounded-md">
+                <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="4" r="2"/><circle cx="10" cy="10" r="2"/><circle cx="10" cy="16" r="2"/></svg>
+              </button>
+            </div>
+            <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
+              <span class="font-medium text-sm">Grilled Chicken Caesar Salad</span>
+              <button class="p-1.5 hover:bg-gray-200 rounded-md">
+                <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="4" r="2"/><circle cx="10" cy="10" r="2"/><circle cx="10" cy="16" r="2"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Day Row 2 - Empty -->
+        <div class="flex items-center gap-4 p-3">
+          <div class="flex-shrink-0 w-16 text-center">
+            <div class="text-2xl font-bold font-mono text-gray-400">30</div>
+            <div class="text-xs font-semibold text-gray-400">TUE</div>
+            <div class="text-[10px] text-gray-300">Dec</div>
+          </div>
+          <div class="flex-1 flex justify-center">
+            <button class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-gray-300 text-gray-500 hover:border-[#D9F99D] hover:bg-[#D9F99D]/10 transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              Add meal
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Option C: Two Rows -->
+    <section class="space-y-4">
+      <div class="flex items-center gap-3">
+        <span class="bg-[#1A1A1A] text-white text-sm font-bold px-3 py-1 rounded-full">Option C</span>
+        <h2 class="text-xl font-semibold">Two-Row Metadata (Mobile-first)</h2>
+      </div>
+      <p class="text-sm text-gray-500">Most info visible - recipe on top, cook & meal type below</p>
+
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+        <!-- Day Row 1 -->
+        <div class="flex items-start gap-4 p-3 border-b border-gray-100">
+          <div class="flex-shrink-0 w-16 text-center pt-1">
+            <div class="text-2xl font-bold font-mono">29</div>
+            <div class="text-xs font-semibold text-gray-500">MON</div>
+            <div class="text-[10px] text-gray-400">Dec</div>
+          </div>
+          <div class="flex-1 space-y-3">
+            <!-- Meal 1 -->
+            <div class="px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 border-l-4 border-l-blue-400">
+              <div class="flex items-center justify-between">
+                <span class="font-medium text-sm">Cauliflower Steaks with Chimichurri</span>
+                <div class="flex items-center gap-1">
+                  <button class="p-1 hover:bg-gray-200 rounded"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                  <button class="p-1 hover:bg-gray-200 rounded"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg></button>
+                  <button class="p-1 hover:bg-red-100 hover:text-red-500 rounded"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 mt-1.5 text-xs text-gray-500">
+                <span class="flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full meal-dot-dinner"></span>
+                  Dinner
+                </span>
+                <span>•</span>
+                <button class="flex items-center gap-1 hover:text-[#1A1A1A]">
+                  <span class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white text-[10px] font-bold">S</span>
+                  Sarah
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+              </div>
+            </div>
+            <!-- Meal 2 -->
+            <div class="px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 border-l-4 border-l-green-400">
+              <div class="flex items-center justify-between">
+                <span class="font-medium text-sm">Grilled Chicken Caesar Salad</span>
+                <div class="flex items-center gap-1">
+                  <button class="p-1 hover:bg-gray-200 rounded"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                  <button class="p-1 hover:bg-gray-200 rounded"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg></button>
+                  <button class="p-1 hover:bg-red-100 hover:text-red-500 rounded"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 mt-1.5 text-xs text-gray-500">
+                <span class="flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full meal-dot-lunch"></span>
+                  Lunch
+                </span>
+                <span>•</span>
+                <button class="flex items-center gap-1 hover:text-[#1A1A1A]">
+                  <span class="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center text-white text-[10px] font-bold">M</span>
+                  Mike
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Day Row 2 - Empty -->
+        <div class="flex items-center gap-4 p-3">
+          <div class="flex-shrink-0 w-16 text-center">
+            <div class="text-2xl font-bold font-mono text-gray-400">30</div>
+            <div class="text-xs font-semibold text-gray-400">TUE</div>
+            <div class="text-[10px] text-gray-300">Dec</div>
+          </div>
+          <div class="flex-1 flex justify-center">
+            <button class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-gray-300 text-gray-500 hover:border-[#D9F99D] hover:bg-[#D9F99D]/10 transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              Add meal
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Option D: Hybrid Inline -->
+    <section class="space-y-4">
+      <div class="flex items-center gap-3">
+        <span class="bg-[#D9F99D] text-[#1A1A1A] text-sm font-bold px-3 py-1 rounded-full">Option D - Recommended</span>
+        <h2 class="text-xl font-semibold">Hybrid Inline (Balanced)</h2>
+      </div>
+      <p class="text-sm text-gray-500">Color dot + recipe + cook dropdown + actions - all in one row</p>
+
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+        <!-- Day Row 1 -->
+        <div class="flex items-center gap-4 p-3 border-b border-gray-100">
+          <div class="flex-shrink-0 w-16 text-center">
+            <div class="text-2xl font-bold font-mono">29</div>
+            <div class="text-xs font-semibold text-gray-500">MON</div>
+            <div class="text-[10px] text-gray-400">Dec</div>
+          </div>
+          <div class="flex-1 space-y-2">
+            <!-- Meal 1 -->
+            <div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
+              <span class="w-2.5 h-2.5 rounded-full meal-dot-dinner flex-shrink-0"></span>
+              <span class="font-medium text-sm flex-1 truncate">Cauliflower Steaks with Chimichurri</span>
+              <button class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white border border-gray-200 text-xs hover:bg-gray-50 flex-shrink-0">
+                <span class="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-white text-[9px] font-bold">S</span>
+                Sarah
+                <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <div class="flex items-center gap-0.5 flex-shrink-0">
+                <button class="p-1 hover:bg-gray-200 rounded"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                <button class="p-1 hover:bg-gray-200 rounded"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg></button>
+                <button class="p-1 hover:bg-red-100 hover:text-red-500 rounded"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+              </div>
+            </div>
+            <!-- Meal 2 -->
+            <div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
+              <span class="w-2.5 h-2.5 rounded-full meal-dot-lunch flex-shrink-0"></span>
+              <span class="font-medium text-sm flex-1 truncate">Grilled Chicken Caesar Salad</span>
+              <button class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white border border-gray-200 text-xs hover:bg-gray-50 flex-shrink-0">
+                <span class="w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center text-white text-[9px] font-bold">M</span>
+                Mike
+                <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <div class="flex items-center gap-0.5 flex-shrink-0">
+                <button class="p-1 hover:bg-gray-200 rounded"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                <button class="p-1 hover:bg-gray-200 rounded"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg></button>
+                <button class="p-1 hover:bg-red-100 hover:text-red-500 rounded"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Day Row 2 - Empty -->
+        <div class="flex items-center gap-4 p-3">
+          <div class="flex-shrink-0 w-16 text-center">
+            <div class="text-2xl font-bold font-mono text-gray-400">30</div>
+            <div class="text-xs font-semibold text-gray-400">TUE</div>
+            <div class="text-[10px] text-gray-300">Dec</div>
+          </div>
+          <div class="flex-1 flex justify-center">
+            <button class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-gray-300 text-gray-500 hover:border-[#D9F99D] hover:bg-[#D9F99D]/10 transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              Add meal
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="border-t pt-8 text-center text-gray-500">
+      <p>Which option do you prefer? Let me know in the chat!</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -232,8 +232,11 @@ export const PlannerDayRow = memo(function PlannerDayRow({
             )}
           </div>
 
-          {/* Meals content - center/right - stacked vertically for better readability */}
-          <div className="flex-1 flex flex-col gap-1 min-w-0 overflow-y-auto">
+          {/* CENTER: Meals content - grows to fill, centered when empty */}
+          <div className={cn(
+            "flex-1 flex flex-col gap-1 min-w-0 overflow-y-auto",
+            assignments.length === 0 && "items-center justify-center"
+          )}>
             {assignments.length === 0 ? (
               isPast ? (
                 <span className="text-sm text-muted-foreground">No meals</span>
@@ -245,7 +248,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                   className={cn(
                     "flex items-center gap-2 px-3 py-1.5 rounded-md border border-dashed border-gray-300",
                     "hover:border-[#D9F99D] hover:bg-[#D9F99D]/10 transition-all text-sm text-gray-600",
-                    "hover:text-[#1A1A1A] w-fit"
+                    "hover:text-[#1A1A1A]"
                   )}
                 >
                   <Plus className="size-4" />
@@ -254,7 +257,7 @@ export const PlannerDayRow = memo(function PlannerDayRow({
               )
             ) : (
               <>
-                {/* Stack all meals vertically - each takes full width */}
+                {/* Stack all meals vertically */}
                 {assignments.map((assignment) => {
                   const defaultColors = ["#3b82f6", "#a855f7", "#10b981", "#f59e0b", "#ec4899"];
                   const cookColor = assignment.cook
@@ -301,42 +304,10 @@ export const PlannerDayRow = memo(function PlannerDayRow({
                           <Trash2 className="size-3" />
                         </Button>
                       </div>
-                      {/* Cook Selector - right side */}
-                      <Select
-                        value={assignment.cook || "none"}
-                        onValueChange={async (value) => {
-                          await onUpdateCook(assignment.id, value === "none" ? null : value);
-                        }}
-                      >
-                        <SelectTrigger
-                          className="h-7 w-[120px] text-xs flex-shrink-0"
-                          style={cookColor ? { borderColor: cookColor } : undefined}
-                        >
-                          <ChefHat className="size-3 mr-1 flex-shrink-0" />
-                          <SelectValue placeholder="Cook" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">No cook</SelectItem>
-                          {cookNames.map((name) => {
-                            const color = cookColors[name] || defaultColors[cookNames.indexOf(name) % defaultColors.length];
-                            return (
-                              <SelectItem key={name} value={name}>
-                                <span className="flex items-center gap-2">
-                                  <span
-                                    className="size-2 rounded-full flex-shrink-0"
-                                    style={{ backgroundColor: color }}
-                                  />
-                                  {name}
-                                </span>
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
                     </div>
                   );
                 })}
-                {/* Add more button at the end */}
+                {/* Add more button */}
                 {!isPast && (
                   <QuickAddDropdown
                     recipes={recipes}
@@ -352,6 +323,53 @@ export const PlannerDayRow = memo(function PlannerDayRow({
               </>
             )}
           </div>
+
+          {/* RIGHT: Cook selector column - fixed width */}
+          {assignments.length > 0 && (
+            <div className="flex-shrink-0 w-[130px] flex flex-col gap-1">
+              {assignments.map((assignment) => {
+                const defaultColors = ["#3b82f6", "#a855f7", "#10b981", "#f59e0b", "#ec4899"];
+                const cookColor = assignment.cook
+                  ? cookColors[assignment.cook] || defaultColors[cookNames.indexOf(assignment.cook) % defaultColors.length]
+                  : null;
+
+                return (
+                  <Select
+                    key={assignment.id}
+                    value={assignment.cook || "none"}
+                    onValueChange={async (value) => {
+                      await onUpdateCook(assignment.id, value === "none" ? null : value);
+                    }}
+                  >
+                    <SelectTrigger
+                      className="h-[34px] text-xs"
+                      style={cookColor ? { borderColor: cookColor } : undefined}
+                    >
+                      <ChefHat className="size-3 mr-1 flex-shrink-0" />
+                      <SelectValue placeholder="Cook" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No cook</SelectItem>
+                      {cookNames.map((name) => {
+                        const color = cookColors[name] || defaultColors[cookNames.indexOf(name) % defaultColors.length];
+                        return (
+                          <SelectItem key={name} value={name}>
+                            <span className="flex items-center gap-2">
+                              <span
+                                className="size-2 rounded-full flex-shrink-0"
+                                style={{ backgroundColor: color }}
+                              />
+                              {name}
+                            </span>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                );
+              })}
+            </div>
+          )}
         </CardContent>
 
         {/* Recipe Picker Modal */}

@@ -12,35 +12,18 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import {
   Plus,
   Pencil,
   Trash2,
   GripVertical,
-  Smile,
-  Palette,
   FolderTree,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -55,8 +38,11 @@ import type {
   CustomIngredientCategory,
   CustomIngredientCategoryFormData,
 } from "@/types/custom-ingredient-category";
-import { MEAL_TYPE_COLOR_PALETTE } from "@/types/settings";
-import { EmojiPicker } from "@/components/ui/emoji-picker";
+import {
+  EmojiPickerField,
+  ColorPickerField,
+  DeleteConfirmation,
+} from "./customizable-list";
 
 interface CustomIngredientCategoriesSectionProps {
   householdId: string;
@@ -79,8 +65,6 @@ export function CustomIngredientCategoriesSection({
     color: "#6366f1",
     parentCategoryId: null,
   });
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [customColorInput, setCustomColorInput] = useState("#6366f1");
   const [isSaving, setIsSaving] = useState(false);
   const [categoryToDelete, setCategoryToDelete] =
     useState<CustomIngredientCategory | null>(null);
@@ -224,7 +208,6 @@ export function CustomIngredientCategoriesSection({
       parentCategoryId: category.parentCategoryId,
       defaultStoreId: category.defaultStoreId,
     });
-    setCustomColorInput(category.color);
   };
 
   // Open create dialog
@@ -236,14 +219,12 @@ export function CustomIngredientCategoriesSection({
       color: "#6366f1",
       parentCategoryId: null,
     });
-    setCustomColorInput("#6366f1");
   };
 
   // Close dialogs
   const handleClose = () => {
     setEditingCategory(null);
     setIsCreating(false);
-    setShowEmojiPicker(false);
   };
 
   // Save (create or update)
@@ -337,26 +318,6 @@ export function CustomIngredientCategoriesSection({
     }
   };
 
-  // Handle emoji selection
-  const handleEmojiSelect = (emoji: { native: string }) => {
-    setFormData((prev) => ({ ...prev, emoji: emoji.native }));
-    setShowEmojiPicker(false);
-  };
-
-  // Handle color selection
-  const handleColorSelect = (color: string) => {
-    setFormData((prev) => ({ ...prev, color }));
-    setCustomColorInput(color);
-  };
-
-  // Handle custom color input
-  const handleCustomColorChange = (value: string) => {
-    setCustomColorInput(value);
-    if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-      setFormData((prev) => ({ ...prev, color: value }));
-    }
-  };
-
   const rootCategories = categoriesByParent["root"] || [];
   const availableParents = categories.filter(
     (c) => !editingCategory || c.id !== editingCategory.id
@@ -416,89 +377,18 @@ export function CustomIngredientCategoriesSection({
             </div>
 
             {/* Emoji */}
-            <div className="flex flex-col gap-2">
-              <Label className="flex items-center gap-2">
-                <Smile className="h-4 w-4" />
-                Emoji
-              </Label>
-              <div className="flex items-center gap-2">
-                <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="h-12 w-16 text-2xl p-0">
-                      {formData.emoji || "—"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-auto p-0 border-0 z-[10000]"
-                    align="start"
-                    usePortal={false}
-                  >
-                    <EmojiPicker
-                      onEmojiSelect={handleEmojiSelect}
-                      categories={["foods", "objects", "nature", "symbols"]}
-                      perLine={8}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() =>
-                    setFormData((prev) => ({ ...prev, emoji: "" }))
-                  }
-                  disabled={!formData.emoji}
-                >
-                  Clear
-                </Button>
-              </div>
-            </div>
+            <EmojiPickerField
+              value={formData.emoji}
+              onChange={(emoji) => setFormData((prev) => ({ ...prev, emoji }))}
+              onClear={() => setFormData((prev) => ({ ...prev, emoji: "" }))}
+              categories={["foods", "objects", "nature", "symbols"]}
+            />
 
             {/* Color */}
-            <div className="flex flex-col gap-3">
-              <Label className="flex items-center gap-2">
-                <Palette className="h-4 w-4" />
-                Color
-              </Label>
-
-              {/* Color palette grid */}
-              <div className="grid grid-cols-8 gap-2">
-                {MEAL_TYPE_COLOR_PALETTE.map((c) => (
-                  <button
-                    type="button"
-                    key={c.key}
-                    onClick={() => handleColorSelect(c.color)}
-                    className={cn(
-                      "h-8 w-8 rounded-md transition-all",
-                      formData.color === c.color
-                        ? "ring-2 ring-offset-2 ring-primary scale-110"
-                        : "hover:scale-110 ring-1 ring-black/10"
-                    )}
-                    style={{ backgroundColor: c.color }}
-                    title={c.label}
-                  />
-                ))}
-              </div>
-
-              {/* Custom color input */}
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Custom:</span>
-                <div className="relative flex-1">
-                  <Input
-                    type="text"
-                    value={customColorInput}
-                    onChange={(e) => handleCustomColorChange(e.target.value)}
-                    placeholder="#6366f1"
-                    className="font-mono text-sm pl-10"
-                  />
-                  <input
-                    type="color"
-                    value={formData.color}
-                    onChange={(e) => handleColorSelect(e.target.value)}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 h-6 w-6 cursor-pointer rounded border-0"
-                  />
-                </div>
-              </div>
-            </div>
+            <ColorPickerField
+              value={formData.color}
+              onChange={(color) => setFormData((prev) => ({ ...prev, color }))}
+            />
 
             {/* Parent Category */}
             <div className="flex flex-col gap-2">
@@ -570,31 +460,14 @@ export function CustomIngredientCategoriesSection({
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        open={categoryToDelete !== null}
-        onOpenChange={(open) => !open && setCategoryToDelete(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Category</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete &quot;{categoryToDelete?.name}&quot;?
-              This action cannot be undone. Child categories will be moved to the
-              top level.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSaving}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={isSaving}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isSaving ? "Deleting..." : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmation
+        isOpen={categoryToDelete !== null}
+        onClose={() => setCategoryToDelete(null)}
+        onConfirm={handleDelete}
+        isSaving={isSaving}
+        title="Delete Category"
+        description={`Are you sure you want to delete "${categoryToDelete?.name}"? This action cannot be undone. Child categories will be moved to the top level.`}
+      />
     </div>
   );
 }
