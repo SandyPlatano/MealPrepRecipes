@@ -25,6 +25,7 @@ import { SidebarCustomSection } from "./sidebar-custom-section";
 import { SidebarDivider } from "./sidebar-section";
 import { SidebarProfileAvatar } from "./sidebar-profile-avatar";
 import { SidebarSearchBar } from "./sidebar-search-bar";
+import { SidebarCollapseTrigger } from "./sidebar-collapse-trigger";
 
 export interface AppSidebarProps {
   user: User | null;
@@ -131,7 +132,10 @@ export function AppSidebar({
             </div>
           )}
           {!isIconOnly && (
-            <SidebarProfileAvatar user={user} />
+            <div className="flex items-center gap-2">
+              <SidebarProfileAvatar user={user} />
+              <SidebarCollapseTrigger />
+            </div>
           )}
         </div>
 

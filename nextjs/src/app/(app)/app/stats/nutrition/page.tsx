@@ -18,6 +18,7 @@ import { TodayHeroCard } from "@/components/nutrition/today-hero-card";
 import { MacroDashboard } from "@/components/nutrition/macro-dashboard";
 import { NutritionTipCard } from "@/components/nutrition/nutrition-tip-card";
 import { NutritionFab, QuickAddButton } from "@/components/nutrition/nutrition-fab";
+import { NutritionTrendsChart } from "@/components/nutrition/nutrition-trends-chart";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Calendar, AlertCircle, HelpCircle, DollarSign, Flame } from "lucide-react";
 import {
@@ -318,7 +319,7 @@ async function TrendsTabContent() {
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       {/* Summary Stats */}
       <div className="grid grid-cols-2 gap-4">
         <Card>
@@ -334,6 +335,9 @@ async function TrendsTabContent() {
           </CardHeader>
         </Card>
       </div>
+
+      {/* Visual Charts */}
+      <NutritionTrendsChart history={history} />
 
       {/* Weekly History */}
       <Card>
