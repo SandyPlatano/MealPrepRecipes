@@ -74,7 +74,7 @@ export function FeaturesTimeline() {
         <SectionHeader isVisible={headerVisible} />
 
         {/* Features with Connecting Line */}
-        <div className="mx-auto max-w-6xl relative">
+        <div className="mx-auto max-w-7xl relative">
           {/* Vertical connecting line - hidden on mobile */}
           <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2">
             <div

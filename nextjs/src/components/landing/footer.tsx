@@ -14,7 +14,6 @@ const FOOTER_LINKS = {
   ],
   pages: [
     { label: 'About', href: '/about' },
-    { label: 'Blog', href: '/blog' },
     { label: 'Contact', href: '/contact' },
   ],
   reference: [

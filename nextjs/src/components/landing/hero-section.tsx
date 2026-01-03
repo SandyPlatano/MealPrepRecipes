@@ -199,13 +199,8 @@ export function HeroSection() {
             </h1>
 
             {/* Subtext */}
-            <p className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0 mb-4 leading-relaxed">
+            <p className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
               Spend 5 minutes planning your week. Save money on groceries. Actually eat what you buy.
-            </p>
-
-            {/* Differentiator line */}
-            <p className="text-base text-gray-500 max-w-lg mx-auto lg:mx-0 mb-8 italic">
-              Not batch cooking — just knowing what&apos;s for dinner before you&apos;re starving and staring at the fridge.
             </p>
 
             {/* Dual CTA Buttons */}

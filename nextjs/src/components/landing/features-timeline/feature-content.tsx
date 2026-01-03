@@ -1,7 +1,6 @@
 import { Check, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { StarSmall } from '../shared/star-decoration';
-import { MethodPills } from './method-pills';
 import type { Feature } from '../features-data';
 
 interface FeatureContentProps {
@@ -10,8 +9,6 @@ interface FeatureContentProps {
 }
 
 export function FeatureContent({ feature, isReversed }: FeatureContentProps) {
-  const isImportFeature = feature.number === '01';
-
   return (
     <div className={`
       ${isReversed ? 'lg:order-1 lg:text-right' : 'lg:order-2'}
@@ -36,9 +33,6 @@ export function FeatureContent({ feature, isReversed }: FeatureContentProps) {
       <p className="mb-5 text-base leading-relaxed text-gray-600">
         {feature.description}
       </p>
-
-      {/* Method Pills - Only for Import feature */}
-      {isImportFeature && <MethodPills isReversed={isReversed} />}
 
       {/* Details list */}
       <ul className={`
