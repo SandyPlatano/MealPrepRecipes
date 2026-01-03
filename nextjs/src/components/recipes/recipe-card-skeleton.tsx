@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
 
 interface RecipeCardSkeletonProps {
   /** Animation delay index for staggered animations */
@@ -11,41 +12,48 @@ interface RecipeCardSkeletonProps {
 export function RecipeCardSkeleton({ animationIndex }: RecipeCardSkeletonProps) {
   return (
     <Card
-      className="h-full bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col overflow-hidden animate-slide-up-fade"
+      className="h-full bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col overflow-hidden animate-slide-up-fade"
       style={
         animationIndex !== undefined
           ? { animationDelay: `${animationIndex * 50}ms`, animationFillMode: "backwards" }
           : undefined
       }
     >
-      {/* Image placeholder - warm brand gradient */}
-      <Skeleton className="w-full h-40 rounded-t-xl bg-gradient-to-br from-[#FEF7E8] to-[#F5EFE0]" />
-
-      {/* Title section */}
-      <div className="px-4 py-4 border-b border-gray-200">
-        <div className="flex items-start justify-between gap-2">
-          <Skeleton className="h-5 w-3/4 bg-gray-100" />
-          <Skeleton className="h-6 w-12 rounded-full bg-gray-100" />
+      {/* Image placeholder - taller with floating pill */}
+      <div className="relative w-full h-44 rounded-t-2xl overflow-hidden">
+        <Skeleton className="w-full h-full bg-gradient-to-br from-[#FEF7E8] to-[#F5EFE0]" />
+        {/* Floating info pill skeleton */}
+        <div className="absolute bottom-3 left-3 z-10">
+          <Skeleton className="h-7 w-24 rounded-full bg-white/80" />
         </div>
       </div>
 
-      {/* Badge + Metadata Row */}
-      <div className="px-4 py-3 border-b border-gray-200 flex items-center gap-2">
-        <Skeleton className="h-5 w-16 rounded-full bg-gray-100" />
-        <Skeleton className="h-4 w-32 bg-gray-100" />
+      {/* Title section - no border, larger */}
+      <div className="px-4 pt-4 pb-2">
+        <Skeleton className="h-6 w-4/5 bg-gray-100" />
       </div>
 
-      <CardContent className="flex flex-col flex-1 pt-0">
+      {/* Type Badge + Metadata - stacked layout */}
+      <div className="px-4 pb-3 flex flex-col gap-2">
+        <Skeleton className="h-6 w-20 rounded-full bg-gray-100" />
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-4 w-16 bg-gray-100" />
+          <Skeleton className="h-4 w-16 bg-gray-100" />
+          <Skeleton className="h-4 w-14 bg-gray-100" />
+        </div>
+      </div>
+
+      <CardContent className="flex flex-col flex-1 pt-0 px-4">
         {/* Key Ingredients - hidden on mobile */}
-        <div className="py-3 hidden md:block">
-          <Skeleton className="h-4 w-24 mb-2 bg-gray-100" />
-          <Skeleton className="h-4 w-full bg-gray-100" />
-        </div>
+        <Skeleton className="h-4 w-full bg-gray-100 hidden md:block mb-3" />
 
-        {/* Footer buttons */}
-        <div className="pt-3 mt-auto flex items-center gap-2 md:border-t md:border-gray-200">
-          <Skeleton className="h-10 flex-1 bg-gray-100" />
-          <Skeleton className="h-10 w-10 rounded-md bg-gray-100" />
+        {/* Separator */}
+        <Separator className="my-0" />
+
+        {/* Footer buttons - pill shaped */}
+        <div className="pt-3 mt-auto flex items-center gap-2">
+          <Skeleton className="h-10 flex-1 rounded-full bg-gray-100" />
+          <Skeleton className="h-10 w-10 rounded-full bg-gray-100" />
         </div>
       </CardContent>
     </Card>
