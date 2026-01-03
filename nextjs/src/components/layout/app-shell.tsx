@@ -21,7 +21,6 @@ import {
   type AppSidebarProps,
 } from "@/components/sidebar";
 import { MobileBottomNav } from "./mobile-bottom-nav";
-import { CommandPalette } from "@/components/command-palette";
 import { TourProvider } from "@/contexts/tour-context";
 import { TourSpotlight } from "@/components/tour";
 import {
@@ -212,9 +211,6 @@ function AppShellContent({
           {/* Bottom Tab Navigation */}
           <MobileBottomNav />
 
-          {/* Command Palette */}
-          <CommandPalette />
-
           {/* Onboarding Tour */}
           <TourSpotlight />
         </div>
@@ -252,9 +248,6 @@ function AppShellContent({
             {children}
           </div>
         </main>
-
-        {/* Command Palette */}
-        <CommandPalette />
 
         {/* Onboarding Tour */}
         <TourSpotlight />

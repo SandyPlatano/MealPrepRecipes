@@ -364,8 +364,8 @@ export function GlobalSearchModal() {
           </button>
         </div>
 
-        {/* Results Area - taller on mobile */}
-        <div className="max-h-[calc(85vh-120px)] sm:max-h-[70vh] overflow-y-auto">
+        {/* Results Area - fixed height for consistent sizing */}
+        <div className="h-[50vh] sm:h-[400px] overflow-y-auto">
           {/* Recent Items */}
           {showRecents && (
             <div className="py-2">
