@@ -1,9 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import Image from "next/image";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useRecipeDetailState, type CookingHistoryEntry } from "@/hooks/use-recipe-detail-state";
+import {
+  RecipeDetailIngredients,
+  RecipeDetailInstructions,
+  RecipeDetailNutrition,
+  RecipeDetailHistory,
+  RecipeDetailNotes,
+} from "./recipe-detail/index";
 import {
   Card,
   CardContent,
@@ -12,10 +20,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { StarRating } from "@/components/ui/star-rating";
-import { NutritionFactsCard } from "@/components/nutrition";
 import {
   Heart,
   Clock,
@@ -34,8 +39,6 @@ import {
   Download,
   Trash2,
   Edit,
-  Sparkles,
-  Loader2,
   Share2,
   Globe,
   Link2,
@@ -43,6 +46,10 @@ import {
   CheckCircle2,
   Star,
   LayoutGrid,
+  AlertTriangle,
+  Apple,
+  FileText,
+  CalendarDays,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -66,10 +73,34 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { toggleFavorite, deleteRecipe } from "@/app/actions/recipes";
-import { deleteCookingHistoryEntry } from "@/app/actions/cooking-history";
-import { updateRecipeLayoutPreferencesAuto } from "@/app/actions/user-preferences";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
 import { RatingBadge } from "@/components/ui/rating-badge";
+import { formatDistanceToNow } from "date-fns";
+import { detectAllergens, mergeAllergens, getAllergenDisplayName, hasUserAllergens, hasCustomRestrictions } from "@/lib/allergen-detector";
+import type { Recipe, RecipeType } from "@/types/recipe";
+import type { RecipeNutrition } from "@/types/nutrition";
+import type { UnitSystem } from "@/lib/ingredient-scaler";
+import type { Substitution } from "@/lib/substitutions";
+import type { RecipeLayoutPreferences, RecipeSectionId } from "@/types/recipe-layout";
+import { DEFAULT_RECIPE_LAYOUT_PREFERENCES } from "@/types/recipe-layout";
 
 // Lazy load dialog components - only loaded when user opens them
 const MarkCookedDialog = dynamic(
@@ -92,76 +123,11 @@ const RecipeLayoutCustomizer = dynamic(
   () => import("@/components/recipes/recipe-layout-customizer").then((mod) => mod.RecipeLayoutCustomizer),
   { ssr: false }
 );
-import { getMostRecentCookingEntry } from "@/app/actions/cooking-history";
-import type { Recipe, RecipeType } from "@/types/recipe";
-import type { RecipeNutrition } from "@/types/nutrition";
-import { formatDistanceToNow } from "date-fns";
-import { scaleIngredients, convertIngredientsToSystem, type UnitSystem } from "@/lib/ingredient-scaler";
-import { UnitSystemToggle } from "@/components/recipes/unit-system-toggle";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { detectAllergens, mergeAllergens, getAllergenDisplayName, hasUserAllergens, hasCustomRestrictions } from "@/lib/allergen-detector";
-import { Substitution } from "@/lib/substitutions";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Separator } from "@/components/ui/separator";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-} from "@/components/ui/carousel";
-import { AlertTriangle, RefreshCw, ChevronDown, Leaf, AlertCircle, ImageIcon, Apple, FileText, CalendarDays, Plus, Check } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Progress } from "@/components/ui/progress";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import type { RecipeLayoutPreferences, RecipeSectionId } from "@/types/recipe-layout";
-import { DEFAULT_RECIPE_LAYOUT_PREFERENCES } from "@/types/recipe-layout";
-import { AddIngredientsDialog } from "@/components/recipes/add-ingredients-dialog";
-import { ClickableIngredient } from "@/components/recipes/clickable-ingredient";
-import { useQuickCartContext } from "@/components/quick-cart";
-import { ShoppingCart } from "lucide-react";
 
-interface CookingHistoryEntry {
-  id: string;
-  cooked_at: string;
-  rating: number | null;
-  notes: string | null;
-  modifications: string | null;
-  photo_url: string | null;
-  cooked_by_profile?: { first_name: string | null; last_name: string | null } | null;
-}
+// ============================================================================
+// Utility Functions
+// ============================================================================
 
-// Get icon based on recipe type
 function getRecipeIcon(recipeType: RecipeType) {
   switch (recipeType) {
     case "Baking":
@@ -180,30 +146,45 @@ function getRecipeIcon(recipeType: RecipeType) {
   }
 }
 
-// Filter tags to remove duplicates that appear in recipe_type, category, or protein_type
 function getDisplayTags(recipe: Recipe): string[] {
   const excludedValues = new Set<string>();
 
-  // Exclude recipe_type (e.g., "Side Dish" badge)
   if (recipe.recipe_type) {
     excludedValues.add(recipe.recipe_type.toLowerCase());
   }
-
-  // Exclude category if it exists (e.g., "Vegan" badge)
   if (recipe.category) {
     excludedValues.add(recipe.category.toLowerCase());
   }
-
-  // Exclude protein_type if it exists (e.g., "vegan" subtitle)
   if (recipe.protein_type) {
     excludedValues.add(recipe.protein_type.toLowerCase());
   }
 
-  // Filter tags to remove duplicates
   return recipe.tags.filter(
     (tag) => !excludedValues.has(tag.toLowerCase())
   );
 }
+
+function getSectionDisplayName(sectionId: RecipeSectionId): string {
+  switch (sectionId) {
+    case "nutrition": return "Nutrition";
+    case "notes": return "Notes";
+    case "cooking-history": return "History";
+    default: return sectionId;
+  }
+}
+
+function getSectionIcon(sectionId: RecipeSectionId): React.ReactNode {
+  switch (sectionId) {
+    case "nutrition": return <Apple className="size-4" />;
+    case "notes": return <FileText className="size-4" />;
+    case "cooking-history": return <CalendarDays className="size-4" />;
+    default: return null;
+  }
+}
+
+// ============================================================================
+// Component Props
+// ============================================================================
 
 interface RecipeDetailProps {
   recipe: Recipe;
@@ -219,6 +200,10 @@ interface RecipeDetailProps {
   layoutPrefs?: RecipeLayoutPreferences;
 }
 
+// ============================================================================
+// Main Component
+// ============================================================================
+
 export function RecipeDetail({
   recipe,
   isFavorite: initialIsFavorite,
@@ -228,1004 +213,112 @@ export function RecipeDetail({
   nutrition = null,
   nutritionEnabled = false,
   substitutions = new Map(),
-  currentUserId,
   userUnitSystem = "imperial",
   layoutPrefs = DEFAULT_RECIPE_LAYOUT_PREFERENCES,
 }: RecipeDetailProps) {
-  const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
-  const [currentRating, setCurrentRating] = useState<number | null>(recipe.rating);
-  const [showCookedDialog, setShowCookedDialog] = useState(false);
-  const [showExportDialog, setShowExportDialog] = useState(false);
-  const [showShareDialog, setShowShareDialog] = useState(false);
-  const [showLayoutCustomizer, setShowLayoutCustomizer] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [isExtractingNutrition, setIsExtractingNutrition] = useState(false);
-  const [localNutrition, setLocalNutrition] = useState<RecipeNutrition | null>(nutrition);
-  const [localHistory, setLocalHistory] = useState(history);
-  const [localLayoutPrefs, setLocalLayoutPrefs] = useState(layoutPrefs);
-  const [editingHistoryEntry, setEditingHistoryEntry] = useState<CookingHistoryEntry | null>(null);
-  const [deleteHistoryEntryId, setDeleteHistoryEntryId] = useState<string | null>(null);
-  const [isDeletingHistoryEntry, setIsDeletingHistoryEntry] = useState(false);
-
-  // Quick cart integration
-  const [showAddIngredientsDialog, setShowAddIngredientsDialog] = useState(false);
-  const [isAddingIngredients, setIsAddingIngredients] = useState(false);
-  const quickCart = useQuickCartContext();
-  const router = useRouter();
   const isMobile = useIsMobile();
 
-  // Ingredient checkboxes state (for gathering while prepping)
-  const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
-
-  // Instruction step progress state
-  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
-
-  // Toggle ingredient checkbox
-  const toggleIngredientCheck = (index: number) => {
-    setCheckedIngredients(prev => {
-      const next = new Set(prev);
-      if (next.has(index)) {
-        next.delete(index);
-      } else {
-        next.add(index);
-      }
-      return next;
-    });
-  };
-
-  // Toggle instruction step completion
-  const toggleStepCompletion = (index: number) => {
-    setCompletedSteps(prev => {
-      const next = new Set(prev);
-      if (next.has(index)) {
-        next.delete(index);
-      } else {
-        next.add(index);
-      }
-      return next;
-    });
-  };
-
-  // Check if recipe was cooked today
-  const today = new Date().toDateString();
-  const cookedToday = localHistory.some(
-    (entry) => new Date(entry.cooked_at).toDateString() === today
-  );
-
-  const handleCookedSuccess = () => {
-    // Optimistically add a new entry to local history
-    const newEntry: CookingHistoryEntry = {
-      id: `temp-${Date.now()}`,
-      cooked_at: new Date().toISOString(),
-      rating: null,
-      notes: null,
-      modifications: null,
-      photo_url: null,
-      cooked_by_profile: null,
-    };
-    setLocalHistory([newEntry, ...localHistory]);
-    // Also refresh the page to get server data
-    router.refresh();
-  };
-
-  const handleEditHistorySuccess = (updatedEntry: {
-    id: string;
-    cooked_at: string;
-    rating: number | null;
-    notes: string | null;
-    modifications: string | null;
-  }) => {
-    // Optimistically update the entry in local history
-    setLocalHistory((prev) =>
-      prev.map((entry) =>
-        entry.id === updatedEntry.id ? { ...entry, ...updatedEntry } : entry
-      )
-    );
-    router.refresh();
-  };
-
-  const handleDeleteHistoryEntry = async () => {
-    if (!deleteHistoryEntryId) return;
-
-    setIsDeletingHistoryEntry(true);
-    const result = await deleteCookingHistoryEntry(deleteHistoryEntryId);
-    setIsDeletingHistoryEntry(false);
-
-    if (result.error) {
-      toast.error("Failed to delete", { description: result.error });
-      return;
-    }
-
-    // Optimistically remove from local history
-    setLocalHistory((prev) => prev.filter((entry) => entry.id !== deleteHistoryEntryId));
-    setDeleteHistoryEntryId(null);
-    toast.success("Entry deleted");
-    router.refresh();
-  };
-
-  // Serving size scaling
-  const [currentServings, setCurrentServings] = useState(
-    recipe.base_servings || 1
-  );
-  const [servingsInputValue, setServingsInputValue] = useState(
-    String(recipe.base_servings || 1)
-  );
-  const canScale = recipe.base_servings !== null && recipe.base_servings > 0;
-  const scaledIngredients = canScale
-    ? scaleIngredients(recipe.ingredients, recipe.base_servings!, currentServings)
-    : recipe.ingredients;
-
-  // Unit system (local override for per-recipe toggle)
-  const [localUnitSystem, setLocalUnitSystem] = useState<UnitSystem | null>(null);
-  const effectiveUnitSystem = localUnitSystem ?? userUnitSystem;
-  const displayIngredients = convertIngredientsToSystem(scaledIngredients, effectiveUnitSystem);
+  const { state, dialogs, actions, router } = useRecipeDetailState({
+    recipe,
+    initialIsFavorite,
+    history,
+    nutrition,
+    layoutPrefs,
+    userUnitSystem,
+  });
 
   // Allergen detection
   const detectedAllergens = detectAllergens(recipe.ingredients);
   const allergens = mergeAllergens(detectedAllergens, recipe.allergen_tags || []);
-  
-  // Check if recipe contains user's allergens
   const hasUserAllergensFlag = hasUserAllergens(allergens, userAllergenAlerts);
   const matchingAllergens = allergens.filter((allergen) => userAllergenAlerts.includes(allergen));
-  
-  // Check for custom dietary restrictions
   const matchingCustomRestrictions = hasCustomRestrictions(recipe.ingredients, customDietaryRestrictions);
   const hasAnyWarnings = hasUserAllergensFlag || matchingCustomRestrictions.length > 0;
 
-  // Substitutions are now passed as a prop from the server component
+  // Section rendering configuration
+  const primarySections: RecipeSectionId[] = ["ingredients", "instructions"];
+  const secondarySections: RecipeSectionId[] = ["nutrition", "notes", "cooking-history"];
 
-  const handleToggleFavorite = async () => {
-    const result = await toggleFavorite(recipe.id);
-    if (!result.error) {
-      setIsFavorite(result.isFavorite);
-      toast.success(
-        result.isFavorite ? "Added to favorites ❤️" : "Removed from favorites"
-      );
-    }
-  };
-
-  const handleLayoutUpdate = async (newPrefs: RecipeLayoutPreferences) => {
-    // Optimistic update
-    setLocalLayoutPrefs(newPrefs);
-
-    // Save to server
-    const result = await updateRecipeLayoutPreferencesAuto(newPrefs);
-    if (result.error) {
-      toast.error("Failed to save layout");
-      // Revert on error
-      setLocalLayoutPrefs(layoutPrefs);
-    }
-  };
-
-  // Handle rating click - check if cooking history exists
-  const handleRatingClick = async () => {
-    // Check if user has cooking history for this recipe
-    const result = await getMostRecentCookingEntry(recipe.id);
-
-    if (result.data) {
-      // Has cooking history - open edit dialog
-      setEditingHistoryEntry(result.data);
-    } else {
-      // No cooking history - open mark as cooked dialog
-      setShowCookedDialog(true);
-    }
-  };
-
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    const result = await deleteRecipe(recipe.id);
-    if (result.error) {
-      console.error("Failed to delete:", result.error);
-      setIsDeleting(false);
-    } else {
-      toast.success("Recipe deleted");
-      router.push("/app/recipes");
-    }
-    setDeleteDialogOpen(false);
-  };
-
-  const handleExtractNutrition = async () => {
-    setIsExtractingNutrition(true);
-    try {
-      const response = await fetch("/api/ai/extract-nutrition", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // Ensure cookies are sent with the request
-        body: JSON.stringify({
-          recipe_id: recipe.id, // Fixed: API expects recipe_id, not recipeId
-          title: recipe.title,
-          ingredients: recipe.ingredients,
-          servings: recipe.base_servings || 4,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        toast.error(result.error || "Failed to extract nutrition");
-        return;
-      }
-
-      // Update local nutrition state with extracted data
-      setLocalNutrition(result.nutrition);
-      toast.success("Nutrition extracted successfully!");
-
-      // Refresh the page to update all data
-      router.refresh();
-    } catch (error) {
-      console.error("Error extracting nutrition:", error);
-      toast.error("Failed to extract nutrition");
-    } finally {
-      setIsExtractingNutrition(false);
-    }
-  };
-
-  const MAX_SERVINGS = 99;
-
-  const setServingsPreset = (multiplier: number) => {
-    if (recipe.base_servings) {
-      const newServings = Math.min(MAX_SERVINGS, Math.round(recipe.base_servings * multiplier));
-      setCurrentServings(newServings);
-      setServingsInputValue(String(newServings));
-    }
-  };
-
-  const handleServingsInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-
-    // Allow empty string for typing
-    if (value === "") {
-      setServingsInputValue("");
-      return;
-    }
-
-    // Only allow digits
-    if (!/^\d+$/.test(value)) {
-      return;
-    }
-
-    const numValue = parseInt(value, 10);
-
-    // Block values over 99
-    if (numValue > MAX_SERVINGS) {
-      setServingsInputValue(String(MAX_SERVINGS));
-      setCurrentServings(MAX_SERVINGS);
-      return;
-    }
-
-    // Block zero - minimum is 1
-    if (numValue === 0) {
-      setServingsInputValue("0"); // Allow typing but don't update scaling
-      return;
-    }
-
-    setServingsInputValue(value);
-    setCurrentServings(numValue);
-  };
-
-  const handleServingsInputBlur = () => {
-    const numValue = parseInt(servingsInputValue, 10);
-
-    // If empty or invalid, revert to base_servings
-    if (servingsInputValue === "" || isNaN(numValue) || numValue < 1) {
-      const fallback = recipe.base_servings || 1;
-      setServingsInputValue(String(fallback));
-      setCurrentServings(fallback);
-      return;
-    }
-
-    // Clamp to valid range
-    const clampedValue = Math.min(MAX_SERVINGS, Math.max(1, numValue));
-    setServingsInputValue(String(clampedValue));
-    setCurrentServings(clampedValue);
-  };
-
-  // Handle adding all ingredients to shopping cart
-  const handleAddAllIngredients = async () => {
-    setIsAddingIngredients(true);
-    try {
-      const result = await quickCart.addItemsFromRecipe(
-        recipe.ingredients,
-        recipe.id,
-        recipe.title
-      );
-
-      setShowAddIngredientsDialog(false);
-
-      if (result.error) {
-        toast.error(result.error);
-      } else if (result.added > 0) {
-        toast.success(`Added ${result.added} items to cart`, {
-          description: result.skipped > 0 ? `${result.skipped} already in list` : undefined,
-        });
-      } else {
-        toast.info("All ingredients already in cart");
-      }
-    } catch {
-      toast.error("Failed to add ingredients");
-    } finally {
-      setIsAddingIngredients(false);
-    }
-  };
-
-  const lastCooked = localHistory.length > 0 ? localHistory[0].cooked_at : null;
-
-  // ============================================================================
-  // Section Render Helpers
-  // ============================================================================
-
-  const renderIngredientsSection = () => (
-    <div className="flex flex-col gap-5">
-      {/* Title Row with visual hierarchy */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 min-w-0">
-          <h3 className="text-xl font-bold text-[#1A1A1A] dark:text-white whitespace-nowrap">Ingredients</h3>
-          <Badge className="bg-[#D9F99D]/20 text-[#1A1A1A] dark:text-white border-0 text-xs">
-            {recipe.ingredients.length} items
-          </Badge>
-          <Separator className="flex-1 hidden sm:block" />
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowAddIngredientsDialog(true)}
-          className="gap-2 rounded-full"
-        >
-          <ShoppingCart className="size-4" />
-          Add All
-        </Button>
-      </div>
-
-      {/* Unit toggle for non-scalable recipes */}
-      {!canScale && (
-        <UnitSystemToggle
-          defaultSystem={effectiveUnitSystem}
-          onSystemChange={setLocalUnitSystem}
-        />
-      )}
-
-      {/* Serving Controls Row */}
-      {canScale && (
-        <div className="bg-[#F5F5F0] dark:bg-slate-700/50 rounded-2xl p-4 space-y-4">
-          {/* Quick presets - pill buttons */}
-          <div className="flex gap-2 flex-wrap">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setServingsPreset(0.5)}
-              className={`rounded-full px-4 transition-all ${
-                currentServings === Math.round((recipe.base_servings || 1) * 0.5)
-                  ? "bg-[#D9F99D] text-[#1A1A1A] border-[#D9F99D] hover:bg-[#D9F99D]/90"
-                  : "bg-white dark:bg-slate-600 hover:bg-gray-50 dark:hover:bg-slate-500"
-              }`}
-            >
-              Half
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setServingsPreset(1)}
-              className={`rounded-full px-4 transition-all ${
-                currentServings === recipe.base_servings
-                  ? "bg-[#D9F99D] text-[#1A1A1A] border-[#D9F99D] hover:bg-[#D9F99D]/90"
-                  : "bg-white dark:bg-slate-600 hover:bg-gray-50 dark:hover:bg-slate-500"
-              }`}
-            >
-              Original
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setServingsPreset(2)}
-              className={`rounded-full px-4 transition-all ${
-                currentServings === Math.round((recipe.base_servings || 1) * 2)
-                  ? "bg-[#D9F99D] text-[#1A1A1A] border-[#D9F99D] hover:bg-[#D9F99D]/90"
-                  : "bg-white dark:bg-slate-600 hover:bg-gray-50 dark:hover:bg-slate-500"
-              }`}
-            >
-              Double
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setServingsPreset(4)}
-              className={`rounded-full px-4 transition-all ${
-                currentServings === Math.round((recipe.base_servings || 1) * 4)
-                  ? "bg-[#D9F99D] text-[#1A1A1A] border-[#D9F99D] hover:bg-[#D9F99D]/90"
-                  : "bg-white dark:bg-slate-600 hover:bg-gray-50 dark:hover:bg-slate-500"
-              }`}
-            >
-              Family (4x)
-            </Button>
-          </div>
-          {/* Serving size input row */}
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-3 bg-white dark:bg-slate-600 rounded-full px-4 py-2 border border-gray-200 dark:border-gray-500 shadow-sm">
-              <Users className="size-4 text-muted-foreground" />
-              <Input
-                type="number"
-                min={1}
-                max={99}
-                value={servingsInputValue}
-                onChange={handleServingsInputChange}
-                onBlur={handleServingsInputBlur}
-                className="h-7 w-14 text-center font-semibold border-0 bg-transparent p-0 focus-visible:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <span className="text-sm text-muted-foreground">servings</span>
-            </div>
-            <UnitSystemToggle
-              defaultSystem={effectiveUnitSystem}
-              onSystemChange={setLocalUnitSystem}
-            />
-          </div>
-        </div>
-      )}
-
-      {canScale && currentServings !== recipe.base_servings && (
-        <p className="text-xs text-muted-foreground italic">
-          Scaled from {recipe.base_servings} serving
-          {recipe.base_servings !== 1 ? "s" : ""}
-        </p>
-      )}
-
-      {/* Ingredient Progress */}
-      {checkedIngredients.size > 0 && (
-        <div className="flex items-center gap-3 bg-[#D9F99D]/10 rounded-lg px-3 py-2">
-          <Progress
-            value={(checkedIngredients.size / displayIngredients.length) * 100}
-            className="h-2 flex-1"
-          />
-          <span className="text-sm font-medium text-[#1A1A1A] dark:text-white whitespace-nowrap">
-            {checkedIngredients.size}/{displayIngredients.length} gathered
-          </span>
-        </div>
-      )}
-
-      <ul className="flex flex-col gap-3">
-        {displayIngredients.map((ingredient, index) => {
-          const ingredientSubs = substitutions.get(recipe.ingredients[index] || ingredient);
-          const hasSubstitutes = ingredientSubs && ingredientSubs.length > 0;
-          const isChecked = checkedIngredients.has(index);
-
-          return (
-            <li
-              key={index}
-              className={`flex items-start gap-3 group text-base transition-all ${
-                isChecked ? "opacity-60" : ""
-              }`}
-            >
-              <Checkbox
-                id={`ingredient-${index}`}
-                checked={isChecked}
-                onCheckedChange={() => toggleIngredientCheck(index)}
-                className="mt-1 size-5 rounded border-2 border-[#D9F99D] data-[state=checked]:bg-[#D9F99D] data-[state=checked]:text-[#1A1A1A]"
-              />
-              <div className={`flex-1 flex items-center gap-2 ${isChecked ? "line-through decoration-[#D9F99D]/50" : ""}`}>
-                {hasSubstitutes ? (
-                  <HoverCard openDelay={300} closeDelay={100}>
-                    <HoverCardTrigger asChild>
-                      <div className="cursor-help">
-                        <ClickableIngredient
-                          ingredient={recipe.ingredients[index] || ingredient}
-                          recipeId={recipe.id}
-                          recipeTitle={recipe.title}
-                        >
-                          <span className="border-b border-dashed border-muted-foreground/40 hover:border-primary transition-colors">
-                            {ingredient}
-                          </span>
-                        </ClickableIngredient>
-                      </div>
-                    </HoverCardTrigger>
-                    <HoverCardContent className="w-72" align="start" side="right">
-                      <div className="flex flex-col gap-3">
-                        <div className="flex items-center gap-2">
-                          <div className="size-8 rounded-full bg-[#D9F99D]/30 flex items-center justify-center">
-                            <Leaf className="size-4 text-green-600" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium">Substitutions Available</p>
-                            <p className="text-xs text-muted-foreground">{ingredientSubs.length} option{ingredientSubs.length > 1 ? "s" : ""}</p>
-                          </div>
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          {ingredientSubs.slice(0, 2).map((sub, subIndex) => (
-                            <div key={subIndex} className="flex items-start gap-2 text-sm">
-                              <RefreshCw className="size-3 mt-1 text-muted-foreground flex-shrink-0" />
-                              <div>
-                                <span className="font-medium">{sub.substitute_ingredient}</span>
-                                {sub.notes && (
-                                  <p className="text-xs text-muted-foreground line-clamp-1">{sub.notes}</p>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                          {ingredientSubs.length > 2 && (
-                            <p className="text-xs text-muted-foreground pl-5">
-                              +{ingredientSubs.length - 2} more options
-                            </p>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground italic border-t pt-2">
-                          Click &quot;Swap&quot; for details
-                        </p>
-                      </div>
-                    </HoverCardContent>
-                  </HoverCard>
-                ) : (
-                  <ClickableIngredient
-                    ingredient={recipe.ingredients[index] || ingredient}
-                    recipeId={recipe.id}
-                    recipeTitle={recipe.title}
-                  >
-                    <span>{ingredient}</span>
-                  </ClickableIngredient>
-                )}
-                {hasSubstitutes && (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 px-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <RefreshCw className="h-3 w-3 mr-1" />
-                        Swap
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80" align="start">
-                      <div className="flex flex-col gap-2">
-                        <p className="text-sm font-medium">Substitutions for {recipe.ingredients[index]}:</p>
-                        <ul className="flex flex-col gap-1.5">
-                          {ingredientSubs.map((sub, subIndex) => (
-                            <li key={subIndex} className="text-sm">
-                              <div className="font-medium">{sub.substitute_ingredient}</div>
-                              {sub.notes && (
-                                <div className="text-xs text-muted-foreground">{sub.notes}</div>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                )}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-
-      {/* Add All Ingredients Dialog */}
-      <AddIngredientsDialog
-        open={showAddIngredientsDialog}
-        onOpenChange={setShowAddIngredientsDialog}
-        ingredients={recipe.ingredients}
-        recipeTitle={recipe.title}
-        onConfirm={handleAddAllIngredients}
-        isLoading={isAddingIngredients}
-      />
-    </div>
-  );
-
-  const renderInstructionsSection = () => {
-    const completedCount = completedSteps.size;
-    const totalSteps = recipe.instructions.length;
-    const progressPercent = totalSteps > 0 ? Math.round((completedCount / totalSteps) * 100) : 0;
-
-    return (
-      <div className="flex flex-col gap-5">
-        {/* Title Row with visual hierarchy */}
-        <div className="flex items-center gap-3">
-          <h3 className="text-xl font-bold text-[#1A1A1A] dark:text-white whitespace-nowrap">Instructions</h3>
-          <Badge className="bg-[#D9F99D]/20 text-[#1A1A1A] dark:text-white border-0 text-xs">
-            {completedCount}/{totalSteps} steps
-          </Badge>
-          <Separator className="flex-1" />
-        </div>
-
-        {/* Progress Bar */}
-        {completedCount > 0 && (
-          <div className="flex items-center gap-3">
-            <Progress value={progressPercent} className="h-2 flex-1" />
-            <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
-              {progressPercent}% done
-            </span>
-          </div>
-        )}
-
-        {/* Timeline step cards */}
-        <ol className="flex flex-col gap-0">
-          {recipe.instructions.map((instruction, index) => {
-            const isCompleted = completedSteps.has(index);
-            const isCurrentStep = !isCompleted && (index === 0 || completedSteps.has(index - 1));
-
-            return (
-              <li key={index} className="relative flex gap-4 pb-6 last:pb-0">
-                {/* Connector line */}
-                {index < recipe.instructions.length - 1 && (
-                  <div
-                    className={`absolute left-[1.1875rem] top-12 bottom-0 w-0.5 transition-colors ${
-                      isCompleted ? "bg-[#D9F99D]" : "bg-[#D9F99D]/40"
-                    }`}
-                  />
-                )}
-                {/* Step number - clickable */}
-                <button
-                  onClick={() => toggleStepCompletion(index)}
-                  className={`flex-shrink-0 size-10 rounded-full font-bold flex items-center justify-center z-10 shadow-sm transition-all ${
-                    isCompleted
-                      ? "bg-[#D9F99D] text-[#1A1A1A]"
-                      : isCurrentStep
-                      ? "bg-[#D9F99D] text-[#1A1A1A] ring-2 ring-[#D9F99D] ring-offset-2"
-                      : "bg-gray-100 dark:bg-slate-600 text-gray-500 dark:text-gray-400"
-                  }`}
-                  aria-label={isCompleted ? `Mark step ${index + 1} as incomplete` : `Mark step ${index + 1} as complete`}
-                >
-                  {isCompleted ? <Check className="size-5" /> : index + 1}
-                </button>
-                {/* Step content card */}
-                <div
-                  className={`flex-1 rounded-xl border p-4 shadow-sm transition-all cursor-pointer ${
-                    isCompleted
-                      ? "bg-[#D9F99D]/10 border-[#D9F99D]/30 dark:bg-[#D9F99D]/5"
-                      : isCurrentStep
-                      ? "bg-white dark:bg-slate-700 border-[#D9F99D] dark:border-[#D9F99D]"
-                      : "bg-white dark:bg-slate-700 border-gray-100 dark:border-gray-600"
-                  }`}
-                  onClick={() => toggleStepCompletion(index)}
-                >
-                  <div
-                    className={`prose prose-base dark:prose-invert max-w-none leading-relaxed ${
-                      isCompleted ? "opacity-60 line-through decoration-[#D9F99D]/50" : ""
-                    }`}
-                  >
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {instruction}
-                    </ReactMarkdown>
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-      </div>
-    );
-  };
-
-  const renderNutritionSection = () => {
-    if (!nutritionEnabled) return null;
-
-    // Daily value percentages (based on 2000 calorie diet)
-    const getDailyValuePercent = (value: number | null | undefined, dailyValue: number) => {
-      if (!value) return 0;
-      return Math.min(100, Math.round((value / dailyValue) * 100));
-    };
-
-    return (
-      <div className="flex flex-col gap-6">
-        {localNutrition ? (
-          <>
-            {/* Visual Nutrition Summary */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {/* Calories */}
-              <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border border-gray-100 dark:border-gray-600 shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">Calories</span>
-                  <span className="text-lg font-bold text-[#1A1A1A] dark:text-white">
-                    {localNutrition.calories || 0}
-                  </span>
-                </div>
-                <Progress
-                  value={getDailyValuePercent(localNutrition.calories, 2000)}
-                  className="h-2 bg-gray-100 dark:bg-gray-600"
-                />
-                <span className="text-xs text-muted-foreground mt-1 block">
-                  {getDailyValuePercent(localNutrition.calories, 2000)}% DV
-                </span>
-              </div>
-
-              {/* Protein */}
-              <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border border-gray-100 dark:border-gray-600 shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">Protein</span>
-                  <span className="text-lg font-bold text-[#1A1A1A] dark:text-white">
-                    {localNutrition.protein_g || 0}g
-                  </span>
-                </div>
-                <Progress
-                  value={getDailyValuePercent(localNutrition.protein_g, 50)}
-                  className="h-2 bg-gray-100 dark:bg-gray-600 [&>div]:bg-blue-500"
-                />
-                <span className="text-xs text-muted-foreground mt-1 block">
-                  {getDailyValuePercent(localNutrition.protein_g, 50)}% DV
-                </span>
-              </div>
-
-              {/* Carbs */}
-              <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border border-gray-100 dark:border-gray-600 shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">Carbs</span>
-                  <span className="text-lg font-bold text-[#1A1A1A] dark:text-white">
-                    {localNutrition.carbs_g || 0}g
-                  </span>
-                </div>
-                <Progress
-                  value={getDailyValuePercent(localNutrition.carbs_g, 300)}
-                  className="h-2 bg-gray-100 dark:bg-gray-600 [&>div]:bg-amber-500"
-                />
-                <span className="text-xs text-muted-foreground mt-1 block">
-                  {getDailyValuePercent(localNutrition.carbs_g, 300)}% DV
-                </span>
-              </div>
-
-              {/* Fat */}
-              <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border border-gray-100 dark:border-gray-600 shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">Fat</span>
-                  <span className="text-lg font-bold text-[#1A1A1A] dark:text-white">
-                    {localNutrition.fat_g || 0}g
-                  </span>
-                </div>
-                <Progress
-                  value={getDailyValuePercent(localNutrition.fat_g, 65)}
-                  className="h-2 bg-gray-100 dark:bg-gray-600 [&>div]:bg-rose-500"
-                />
-                <span className="text-xs text-muted-foreground mt-1 block">
-                  {getDailyValuePercent(localNutrition.fat_g, 65)}% DV
-                </span>
-              </div>
-            </div>
-
-            {/* Detailed Nutrition Card (collapsible on mobile) */}
-            <Collapsible defaultOpen={!isMobile}>
-              <CollapsibleTrigger className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full justify-center py-2">
-                <span>View detailed nutrition facts</span>
-                <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <NutritionFactsCard
-                  nutrition={localNutrition}
-                  recipeId={recipe.id}
-                  servings={recipe.base_servings || 4}
-                  editable
-                />
-              </CollapsibleContent>
-            </Collapsible>
-          </>
-        ) : (
-          <div className="flex flex-col">
-            <div className="flex text-center py-8 flex-col">
-              <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-                <Sparkles className="size-8 text-muted-foreground" />
-              </div>
-              <div className="flex flex-col">
-                <h3 className="font-semibold text-lg">No Nutrition Data</h3>
-                <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                  Use AI to automatically extract nutrition information from the recipe ingredients.
-                </p>
-              </div>
-              <Button
-                onClick={handleExtractNutrition}
-                disabled={isExtractingNutrition}
-                className="mx-auto"
-              >
-                {isExtractingNutrition ? (
-                  <>
-                    <Loader2 className="mr-2 size-4 animate-spin" />
-                    Extracting...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-2 size-4" />
-                    Extract Nutrition with AI
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderNotesSection = () => {
-    if (!recipe.notes) return null;
-    return (
-      <Collapsible defaultOpen={false} className="flex flex-col gap-3">
-        <CollapsibleTrigger className="flex items-center justify-between w-full group">
-          <div className="flex items-center gap-3">
-            <h3 className="text-xl font-bold text-[#1A1A1A] dark:text-white">Notes</h3>
-            <Separator className="flex-1" />
-          </div>
-          <ChevronDown className="size-5 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
-        </CollapsibleTrigger>
-        <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-          <div className="prose prose-base dark:prose-invert max-w-none text-muted-foreground leading-relaxed">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {recipe.notes}
-            </ReactMarkdown>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-    );
-  };
-
-  const renderCookingHistorySection = () => {
-    if (localHistory.length === 0) return null;
-
-    const renderHistoryEntry = (entry: CookingHistoryEntry) => (
-      <li
-        key={entry.id}
-        className="flex items-center justify-between text-sm p-2 rounded-lg bg-muted/50 group"
-      >
-        <div className="flex flex-col gap-1 flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="font-medium">
-              {new Date(entry.cooked_at).toLocaleDateString(
-                "en-US",
-                {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                }
-              )}
-            </span>
-            {(entry.cooked_by_profile?.first_name || entry.cooked_by_profile?.last_name) && (
-              <span className="text-xs text-muted-foreground">
-                by {[entry.cooked_by_profile.first_name, entry.cooked_by_profile.last_name].filter(Boolean).join(" ")}
-              </span>
-            )}
-          </div>
-          {entry.modifications && (
-            <div className="text-xs">
-              <span className="font-medium text-primary">Tweaks: </span>
-              <span className="text-muted-foreground">{entry.modifications}</span>
-            </div>
-          )}
-          {entry.notes && (
-            <span className="text-muted-foreground text-xs">
-              {entry.notes}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          {entry.rating && (
-            <StarRating rating={entry.rating} readonly size="sm" />
-          )}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <MoreVertical className="size-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setEditingHistoryEntry(entry)}>
-                <Edit className="mr-2 size-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setDeleteHistoryEntryId(entry.id)}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="mr-2 size-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </li>
-    );
-
-    const firstEntry = localHistory[0];
-    const remainingEntries = localHistory.slice(1, 5);
-
-    return (
-      <div className="flex flex-col gap-4">
-        {/* Title Row with visual hierarchy */}
-        <div className="flex items-center gap-3">
-          <h3 className="text-xl font-bold text-[#1A1A1A] dark:text-white whitespace-nowrap">Cooking History</h3>
-          <Badge className="bg-[#D9F99D]/20 text-[#1A1A1A] dark:text-white border-0 text-xs">
-            Made {localHistory.length} time{localHistory.length !== 1 ? "s" : ""}
-          </Badge>
-          <Separator className="flex-1" />
-        </div>
-        <ul className="flex flex-col gap-2">
-          {/* Always show the most recent entry */}
-          {renderHistoryEntry(firstEntry)}
-
-          {/* Collapsible section for older entries */}
-          {remainingEntries.length > 0 && (
-            <Collapsible defaultOpen={false}>
-              <CollapsibleTrigger className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group w-full justify-center py-1">
-                <span>Show {remainingEntries.length} more</span>
-                <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-                <div className="flex flex-col gap-2 pt-2">
-                  {remainingEntries.map(renderHistoryEntry)}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          )}
-        </ul>
-      </div>
-    );
-  };
-
-  // Map section IDs to render functions (reviews removed - consolidated into cooking history)
-  const sectionRenderers: Record<RecipeSectionId, () => React.ReactNode> = {
-    ingredients: renderIngredientsSection,
-    instructions: renderInstructionsSection,
-    nutrition: renderNutritionSection,
-    notes: renderNotesSection,
-    "cooking-history": renderCookingHistorySection,
-    reviews: () => null, // Reviews removed - ratings are now part of cooking history
-  };
-
-  // Check if section should be rendered (uses localLayoutPrefs for optimistic updates)
   const shouldRenderSection = (sectionId: RecipeSectionId): boolean => {
-    // Reviews section removed - consolidated into cooking history
     if (sectionId === "reviews") return false;
 
-    const config = localLayoutPrefs.sections[sectionId];
-    // Defensive check for missing section config (schema migration edge case)
+    const config = state.localLayoutPrefs.sections[sectionId];
     if (!config || !config.visible) return false;
 
-    // Additional conditional checks based on data availability
     switch (sectionId) {
       case "nutrition":
         return nutritionEnabled;
       case "notes":
         return !!recipe.notes;
       case "cooking-history":
-        return localHistory.length > 0;
+        return state.localHistory.length > 0;
       default:
         return true;
     }
   };
 
-  // Define primary vs secondary sections
-  const primarySections: RecipeSectionId[] = ["ingredients", "instructions"];
-  const secondarySections: RecipeSectionId[] = ["nutrition", "notes", "cooking-history"];
-
-  // Helper to get section display name
-  const getSectionDisplayName = (sectionId: RecipeSectionId): string => {
-    switch (sectionId) {
-      case "nutrition": return "Nutrition";
-      case "notes": return "Notes";
-      case "cooking-history": return "History";
-      default: return sectionId;
-    }
-  };
-
-  // Helper to get section icon
-  const getSectionIcon = (sectionId: RecipeSectionId): React.ReactNode => {
-    switch (sectionId) {
-      case "nutrition": return <Apple className="size-4" />;
-      case "notes": return <FileText className="size-4" />;
-      case "cooking-history": return <CalendarDays className="size-4" />;
-      default: return null;
-    }
+  // Section renderers using sub-components
+  const sectionRenderers: Record<RecipeSectionId, () => React.ReactNode> = {
+    ingredients: () => (
+      <RecipeDetailIngredients
+        recipeId={recipe.id}
+        recipeTitle={recipe.title}
+        ingredients={recipe.ingredients}
+        displayIngredients={state.displayIngredients}
+        baseServings={recipe.base_servings}
+        currentServings={state.currentServings}
+        servingsInputValue={state.servingsInputValue}
+        canScale={state.canScale}
+        effectiveUnitSystem={state.effectiveUnitSystem}
+        checkedIngredients={state.checkedIngredients}
+        substitutions={substitutions}
+        showAddIngredientsDialog={dialogs.showAddIngredientsDialog}
+        isAddingIngredients={state.isAddingIngredients}
+        onToggleIngredientCheck={actions.toggleIngredientCheck}
+        onSetServingsPreset={actions.setServingsPreset}
+        onServingsInputChange={actions.handleServingsInputChange}
+        onServingsInputBlur={actions.handleServingsInputBlur}
+        onSetLocalUnitSystem={actions.setLocalUnitSystem}
+        onShowAddIngredientsDialog={dialogs.setShowAddIngredientsDialog}
+        onAddAllIngredients={actions.handleAddAllIngredients}
+      />
+    ),
+    instructions: () => (
+      <RecipeDetailInstructions
+        instructions={recipe.instructions}
+        completedSteps={state.completedSteps}
+        onToggleStepCompletion={actions.toggleStepCompletion}
+      />
+    ),
+    nutrition: () => (
+      <RecipeDetailNutrition
+        recipeId={recipe.id}
+        nutrition={state.localNutrition}
+        baseServings={recipe.base_servings}
+        isExtractingNutrition={state.isExtractingNutrition}
+        isMobile={isMobile}
+        onExtractNutrition={actions.handleExtractNutrition}
+      />
+    ),
+    notes: () => <RecipeDetailNotes notes={recipe.notes} />,
+    "cooking-history": () => (
+      <RecipeDetailHistory
+        history={state.localHistory}
+        onEditEntry={actions.setEditingHistoryEntry}
+        onDeleteEntry={actions.setDeleteHistoryEntryId}
+      />
+    ),
+    reviews: () => null,
   };
 
   // Render secondary sections as Tabs (desktop) or Accordion (mobile)
   const renderSecondaryContent = () => {
-    // Filter to only visible secondary sections
     const visibleSecondarySections = secondarySections.filter(shouldRenderSection);
-
     if (visibleSecondarySections.length === 0) return null;
 
-    // Determine default tab
     const defaultTab = visibleSecondarySections[0];
 
     if (isMobile) {
-      // Mobile: Accordion
       return (
         <div className="mt-8 border-t border-gray-200 dark:border-gray-600 pt-8">
           <Accordion type="multiple" className="w-full space-y-2">
@@ -1244,9 +337,9 @@ export function RecipeDetail({
                         Per Serving
                       </Badge>
                     )}
-                    {sectionId === "cooking-history" && localHistory.length > 0 && (
+                    {sectionId === "cooking-history" && state.localHistory.length > 0 && (
                       <Badge className="bg-[#D9F99D]/20 text-[#1A1A1A] dark:text-white border-0 text-xs ml-1">
-                        {localHistory.length}
+                        {state.localHistory.length}
                       </Badge>
                     )}
                   </div>
@@ -1261,7 +354,6 @@ export function RecipeDetail({
       );
     }
 
-    // Desktop: Tabs
     return (
       <div className="mt-8 border-t border-gray-200 dark:border-gray-600 pt-8">
         <Tabs defaultValue={defaultTab} className="w-full">
@@ -1275,9 +367,9 @@ export function RecipeDetail({
                 <div className="flex items-center gap-2">
                   {getSectionIcon(sectionId)}
                   {getSectionDisplayName(sectionId)}
-                  {sectionId === "cooking-history" && localHistory.length > 0 && (
+                  {sectionId === "cooking-history" && state.localHistory.length > 0 && (
                     <Badge className="bg-[#D9F99D] text-[#1A1A1A] border-0 text-xs ml-1 rounded-full size-5 p-0 flex items-center justify-center">
-                      {localHistory.length}
+                      {state.localHistory.length}
                     </Badge>
                   )}
                 </div>
@@ -1296,30 +388,27 @@ export function RecipeDetail({
     );
   };
 
-  // Render all customizable sections based on layout preferences (uses localLayoutPrefs for optimistic updates)
+  // Render all customizable sections based on layout preferences
   const renderDynamicSections = () => {
     const sections: React.ReactNode[] = [];
     let i = 0;
 
-    while (i < localLayoutPrefs.sectionOrder.length) {
-      const sectionId = localLayoutPrefs.sectionOrder[i];
-      const config = localLayoutPrefs.sections[sectionId];
+    while (i < state.localLayoutPrefs.sectionOrder.length) {
+      const sectionId = state.localLayoutPrefs.sectionOrder[i];
+      const config = state.localLayoutPrefs.sections[sectionId];
 
-      // Skip if section config is missing or shouldn't render
       if (!config || !shouldRenderSection(sectionId)) {
         i++;
         continue;
       }
 
-      // Skip secondary sections - they're rendered separately in Tabs/Accordion
       if (secondarySections.includes(sectionId)) {
         i++;
         continue;
       }
 
-      // Check if this and next section are both half-width and visible
-      const nextSectionId = localLayoutPrefs.sectionOrder[i + 1];
-      const nextConfig = nextSectionId ? localLayoutPrefs.sections[nextSectionId] : null;
+      const nextSectionId = state.localLayoutPrefs.sectionOrder[i + 1];
+      const nextConfig = nextSectionId ? state.localLayoutPrefs.sections[nextSectionId] : null;
       const nextShouldRender = nextSectionId ? shouldRenderSection(nextSectionId) : false;
       const nextIsSecondary = nextSectionId ? secondarySections.includes(nextSectionId) : false;
 
@@ -1327,7 +416,6 @@ export function RecipeDetail({
       const nextIsHalf = nextConfig?.width === "half";
 
       if (isHalf && nextIsHalf && nextShouldRender && !nextIsSecondary) {
-        // Render two half-width sections side-by-side
         sections.push(
           <div key={`${sectionId}-${nextSectionId}`}>
             <div className="border-t border-gray-200 dark:border-gray-600" />
@@ -1339,7 +427,6 @@ export function RecipeDetail({
         );
         i += 2;
       } else {
-        // Render single full-width section
         sections.push(
           <div key={sectionId}>
             <div className="border-t border-gray-200 dark:border-gray-600" />
@@ -1350,7 +437,6 @@ export function RecipeDetail({
       }
     }
 
-    // Add secondary content (Tabs/Accordion) at the end
     const secondaryContent = renderSecondaryContent();
     if (secondaryContent) {
       sections.push(<div key="secondary-content">{secondaryContent}</div>);
@@ -1368,7 +454,6 @@ export function RecipeDetail({
           <div className="relative">
             <Carousel className="w-full" opts={{ loop: true }}>
               <CarouselContent>
-                {/* Main Recipe Image */}
                 <CarouselItem>
                   <div className="relative aspect-[16/9] w-full">
                     <Image
@@ -1379,9 +464,7 @@ export function RecipeDetail({
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 60vw"
                       priority
                     />
-                    {/* Gradient overlay for text readability */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    {/* Recipe info overlay */}
                     <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
                       <div className="flex gap-2">
                         {recipe.prep_time && (
@@ -1406,7 +489,6 @@ export function RecipeDetail({
                     </div>
                   </div>
                 </CarouselItem>
-                {/* Quick Stats Slide */}
                 <CarouselItem>
                   <div className="relative aspect-[16/9] w-full bg-gradient-to-br from-[#F5F5F5] via-[#EEEEEE] to-[#E8E8E8] dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 flex items-center justify-center p-6">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-2xl">
@@ -1437,7 +519,6 @@ export function RecipeDetail({
               <CarouselPrevious className="left-4 bg-white/80 backdrop-blur-sm hover:bg-white" />
               <CarouselNext className="right-4 bg-white/80 backdrop-blur-sm hover:bg-white" />
             </Carousel>
-            {/* Carousel Dots Indicator */}
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
               <div className="size-2 rounded-full bg-white/80" />
               <div className="size-2 rounded-full bg-white/40" />
@@ -1445,7 +526,7 @@ export function RecipeDetail({
           </div>
         )}
 
-        {/* Smart Allergen Banner - Prominent Warning */}
+        {/* Smart Allergen Banner */}
         {hasAnyWarnings && (
           <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-3">
             <div className="flex items-center gap-3">
@@ -1498,12 +579,11 @@ export function RecipeDetail({
             </div>
             <TooltipProvider>
               <div className="flex items-center gap-2">
-                {/* Rating Badge - Opens cooking history for rating */}
-                {currentRating ? (
+                {state.currentRating ? (
                   <RatingBadge
-                    rating={currentRating}
+                    rating={state.currentRating}
                     size="md"
-                    onClick={handleRatingClick}
+                    onClick={actions.handleRatingClick}
                   />
                 ) : (
                   <Tooltip>
@@ -1512,7 +592,7 @@ export function RecipeDetail({
                         variant="ghost"
                         size="icon"
                         className="text-muted-foreground/50 hover:text-yellow-500"
-                        onClick={handleRatingClick}
+                        onClick={actions.handleRatingClick}
                       >
                         <Star className="size-5" />
                       </Button>
@@ -1521,22 +601,21 @@ export function RecipeDetail({
                   </Tooltip>
                 )}
 
-                {/* Favorite Button */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={handleToggleFavorite}
-                      className={isFavorite ? "text-red-500" : ""}
+                      onClick={actions.handleToggleFavorite}
+                      className={state.isFavorite ? "text-red-500" : ""}
                     >
                       <Heart
-                        className={`size-6 ${isFavorite ? "fill-current" : ""}`}
+                        className={`size-6 ${state.isFavorite ? "fill-current" : ""}`}
                       />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {isFavorite ? "Remove from favorites" : "Add to favorites"}
+                    {state.isFavorite ? "Remove from favorites" : "Add to favorites"}
                   </TooltipContent>
                 </Tooltip>
                 <DropdownMenu>
@@ -1555,11 +634,11 @@ export function RecipeDetail({
                       <Edit className="size-4 mr-2" />
                       Edit Recipe
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setShowLayoutCustomizer(true)}>
+                    <DropdownMenuItem onClick={() => dialogs.setShowLayoutCustomizer(true)}>
                       <LayoutGrid className="size-4 mr-2" />
                       Customize Layout
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setShowExportDialog(true)}>
+                    <DropdownMenuItem onClick={() => dialogs.setShowExportDialog(true)}>
                       <Download className="size-4 mr-2" />
                       Export
                     </DropdownMenuItem>
@@ -1576,7 +655,7 @@ export function RecipeDetail({
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuItem
-                      onClick={() => setDeleteDialogOpen(true)}
+                      onClick={() => dialogs.setDeleteDialogOpen(true)}
                       className="text-destructive focus:text-destructive"
                     >
                       <Trash2 className="size-4 mr-2" />
@@ -1611,12 +690,12 @@ export function RecipeDetail({
                 </span>
               </div>
             )}
-            {lastCooked && (
+            {state.lastCooked && (
               <div className="flex items-center gap-1">
                 <History className="size-4" />
                 <span>
                   Last made{" "}
-                  {formatDistanceToNow(new Date(lastCooked), {
+                  {formatDistanceToNow(new Date(state.lastCooked), {
                     addSuffix: true,
                   })}
                 </span>
@@ -1642,7 +721,7 @@ export function RecipeDetail({
             )}
           </div>
 
-          {/* Tags (filtered to remove duplicates from category/protein_type) */}
+          {/* Tags */}
           {(() => {
             const displayTags = getDisplayTags(recipe);
             return displayTags.length > 0 ? (
@@ -1658,17 +737,17 @@ export function RecipeDetail({
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-2">
-            {cookedToday ? (
+            {state.cookedToday ? (
               <Button
                 variant="secondary"
-                onClick={() => setShowCookedDialog(true)}
+                onClick={() => dialogs.setShowCookedDialog(true)}
                 className="bg-green-100 hover:bg-green-200 text-green-800 dark:bg-green-900/30 dark:hover:bg-green-900/50 dark:text-green-300"
               >
                 <CheckCircle2 className="mr-2 size-4" />
                 Cooked Today
               </Button>
             ) : (
-              <Button onClick={() => setShowCookedDialog(true)} className="bg-[#D9F99D] hover:bg-[#D9F99D]/90 text-[#1A1A1A]">
+              <Button onClick={() => dialogs.setShowCookedDialog(true)} className="bg-[#D9F99D] hover:bg-[#D9F99D]/90 text-[#1A1A1A]">
                 <ChefHat className="mr-2 size-4" />
                 I Made This!
               </Button>
@@ -1679,13 +758,13 @@ export function RecipeDetail({
                 Start Cooking Mode
               </Link>
             </Button>
-            <Button variant="default" onClick={() => setShowShareDialog(true)} className="bg-[#D9F99D] hover:bg-[#D9F99D]/90 text-[#1A1A1A]">
+            <Button variant="default" onClick={() => dialogs.setShowShareDialog(true)} className="bg-[#D9F99D] hover:bg-[#D9F99D]/90 text-[#1A1A1A]">
               <Share2 className="mr-2 size-4" />
               Share
             </Button>
           </div>
 
-          {/* Dynamic Sections based on layout preferences */}
+          {/* Dynamic Sections */}
           {renderDynamicSections()}
         </CardContent>
       </Card>
@@ -1697,7 +776,7 @@ export function RecipeDetail({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowShareDialog(true)}
+              onClick={() => dialogs.setShowShareDialog(true)}
               className="flex-1 rounded-full"
             >
               <Share2 className="mr-2 size-4" />
@@ -1717,7 +796,7 @@ export function RecipeDetail({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowCookedDialog(true)}
+              onClick={() => dialogs.setShowCookedDialog(true)}
               className="flex-1 rounded-full"
             >
               <ChefHat className="mr-2 size-4" />
@@ -1730,29 +809,27 @@ export function RecipeDetail({
       {/* Spacer for mobile sticky footer */}
       {isMobile && <div className="h-20" />}
 
-      {/* Mark as Cooked Dialog */}
+      {/* Dialogs */}
       <MarkCookedDialog
         recipeId={recipe.id}
         recipeTitle={recipe.title}
-        open={showCookedDialog}
-        onOpenChange={setShowCookedDialog}
-        onSuccess={handleCookedSuccess}
+        open={dialogs.showCookedDialog}
+        onOpenChange={dialogs.setShowCookedDialog}
+        onSuccess={actions.handleCookedSuccess}
       />
 
-      {/* Edit Cooking History Dialog */}
-      {editingHistoryEntry && (
+      {state.editingHistoryEntry && (
         <EditCookingHistoryDialog
-          entry={editingHistoryEntry}
-          open={!!editingHistoryEntry}
-          onOpenChange={(open) => !open && setEditingHistoryEntry(null)}
-          onSuccess={handleEditHistorySuccess}
+          entry={state.editingHistoryEntry}
+          open={!!state.editingHistoryEntry}
+          onOpenChange={(open) => !open && actions.setEditingHistoryEntry(null)}
+          onSuccess={actions.handleEditHistorySuccess}
         />
       )}
 
-      {/* Delete Cooking History Confirmation Dialog */}
       <AlertDialog
-        open={!!deleteHistoryEntryId}
-        onOpenChange={(open) => !open && setDeleteHistoryEntryId(null)}
+        open={!!state.deleteHistoryEntryId}
+        onOpenChange={(open) => !open && actions.setDeleteHistoryEntryId(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -1764,27 +841,25 @@ export function RecipeDetail({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDeleteHistoryEntry}
-              disabled={isDeletingHistoryEntry}
+              onClick={actions.handleDeleteHistoryEntry}
+              disabled={state.isDeletingHistoryEntry}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeletingHistoryEntry ? "Deleting..." : "Delete"}
+              {state.isDeletingHistoryEntry ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Export Dialog */}
       <RecipeExportOnlyDialog
-        open={showExportDialog}
-        onOpenChange={setShowExportDialog}
-        recipe={{ ...recipe, nutrition: localNutrition }}
+        open={dialogs.showExportDialog}
+        onOpenChange={dialogs.setShowExportDialog}
+        recipe={{ ...recipe, nutrition: state.localNutrition }}
       />
 
-      {/* Share Dialog */}
       <RecipeShareDialog
-        open={showShareDialog}
-        onOpenChange={setShowShareDialog}
+        open={dialogs.showShareDialog}
+        onOpenChange={dialogs.setShowShareDialog}
         recipeId={recipe.id}
         recipeTitle={recipe.title}
         isPublic={recipe.is_public || false}
@@ -1792,8 +867,7 @@ export function RecipeDetail({
         viewCount={recipe.view_count || 0}
       />
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialog open={dialogs.deleteDialogOpen} onOpenChange={dialogs.setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete This Recipe?</AlertDialogTitle>
@@ -1806,22 +880,21 @@ export function RecipeDetail({
           <AlertDialogFooter>
             <AlertDialogCancel>Keep It</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDelete}
-              disabled={isDeleting}
+              onClick={actions.handleDelete}
+              disabled={state.isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {state.isDeleting ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Layout Customizer Dialog */}
       <RecipeLayoutCustomizer
-        open={showLayoutCustomizer}
-        onOpenChange={setShowLayoutCustomizer}
-        layoutPrefs={localLayoutPrefs}
-        onUpdate={handleLayoutUpdate}
+        open={dialogs.showLayoutCustomizer}
+        onOpenChange={dialogs.setShowLayoutCustomizer}
+        layoutPrefs={state.localLayoutPrefs}
+        onUpdate={actions.handleLayoutUpdate}
       />
     </>
   );

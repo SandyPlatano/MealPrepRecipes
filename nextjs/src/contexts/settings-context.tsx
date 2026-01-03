@@ -14,8 +14,6 @@ import {
   updateSettings,
   updatePlannerViewSettings,
   updateCalendarPreferences,
-  addCustomDietaryRestriction,
-  removeCustomDietaryRestriction,
 } from "@/app/actions/settings";
 import {
   updateDisplayPreferencesAuto as updateDisplayPreferences,
@@ -47,6 +45,7 @@ import {
 } from "@/types/user-preferences-v2";
 import type { SettingsChange, SettingsChangeCategory } from "@/types/settings-history";
 import { getSettingLabel } from "@/lib/settings/setting-labels";
+import { executeSave, createDietaryRestrictionActions, type PendingChanges } from "./settings-actions";
 
 // ============================================================================
 // Types
@@ -168,19 +167,7 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
 
   // Track pending changes for batching
-  const pendingChanges = useRef<{
-    settings?: Partial<UserSettings>;
-    displayPrefs?: Partial<DisplayPreferences>;
-    soundPrefs?: Partial<SoundPreferences>;
-    keyboardPrefs?: Partial<KeyboardPreferences>;
-    aiPersonality?: { personality: AiPersonalityType; customPrompt?: string | null };
-    servingPresets?: ServingSizePreset[];
-    privacyPrefs?: Partial<PrivacyPreferences>;
-    plannerSettings?: Partial<PlannerViewSettings>;
-    recipeLayoutPrefs?: RecipeLayoutPreferences;
-    calendarPrefs?: Partial<CalendarPreferences>;
-  }>({});
-
+  const pendingChanges = useRef<PendingChanges>({});
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Settings history for undo functionality
@@ -223,96 +210,8 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
   // Save Logic
   // ──────────────────────────────────────────────────────────────────────────
 
-  const executeSave = useCallback(async () => {
-    const changes = { ...pendingChanges.current };
-    pendingChanges.current = {};
-
-    if (Object.keys(changes).length === 0) return;
-
-    setSaveStatus("saving");
-
-    try {
-      const savePromises: Promise<{ error: string | null }>[] = [];
-
-      // Settings
-      if (changes.settings && Object.keys(changes.settings).length > 0) {
-        savePromises.push(updateSettings(changes.settings));
-      }
-
-      // Display preferences
-      if (changes.displayPrefs && Object.keys(changes.displayPrefs).length > 0) {
-        savePromises.push(updateDisplayPreferences(changes.displayPrefs));
-      }
-
-      // Sound preferences
-      if (changes.soundPrefs && Object.keys(changes.soundPrefs).length > 0) {
-        savePromises.push(updateSoundPreferences(changes.soundPrefs));
-      }
-
-      // Keyboard preferences
-      if (changes.keyboardPrefs && Object.keys(changes.keyboardPrefs).length > 0) {
-        savePromises.push(updateKeyboardPreferences(changes.keyboardPrefs));
-      }
-
-      // AI personality
-      if (changes.aiPersonality) {
-        savePromises.push(
-          updateAiPersonality(
-            changes.aiPersonality.personality,
-            changes.aiPersonality.customPrompt ?? null
-          )
-        );
-      }
-
-      // Serving presets
-      if (changes.servingPresets) {
-        savePromises.push(updateServingSizePresets(changes.servingPresets));
-      }
-
-      // Privacy preferences
-      if (changes.privacyPrefs && Object.keys(changes.privacyPrefs).length > 0) {
-        savePromises.push(updatePrivacyPreferences(changes.privacyPrefs));
-      }
-
-      // Planner view settings
-      if (changes.plannerSettings && Object.keys(changes.plannerSettings).length > 0) {
-        savePromises.push(updatePlannerViewSettings(changes.plannerSettings));
-      }
-
-      // Calendar preferences
-      if (changes.calendarPrefs && Object.keys(changes.calendarPrefs).length > 0) {
-        savePromises.push(updateCalendarPreferences(changes.calendarPrefs));
-      }
-
-      // Recipe layout preferences
-      if (changes.recipeLayoutPrefs) {
-        savePromises.push(updateRecipeLayoutPreferences(changes.recipeLayoutPrefs));
-      }
-
-      const results = await Promise.all(savePromises);
-      const hasError = results.some((r) => r.error);
-
-      if (hasError) {
-        setSaveStatus("error");
-        const errors = results.filter((r) => r.error).map((r) => r.error);
-        toast.error(`Failed to save: ${errors.join(", ")}`);
-
-        // Reset to error after brief display
-        setTimeout(() => setSaveStatus("idle"), 3000);
-      } else {
-        setSaveStatus("saved");
-        setLastSavedAt(new Date());
-
-        // Reset to idle after showing "saved"
-        setTimeout(() => setSaveStatus("idle"), 2000);
-      }
-    } catch (error) {
-      console.error("Settings save error:", error);
-      setSaveStatus("error");
-      toast.error("Failed to save settings");
-
-      setTimeout(() => setSaveStatus("idle"), 3000);
-    }
+  const executeSettingsSave = useCallback(async () => {
+    await executeSave(pendingChanges, setSaveStatus, setLastSavedAt);
   }, []);
 
   const scheduleSave = useCallback(() => {
@@ -320,16 +219,16 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
       clearTimeout(saveTimeoutRef.current);
     }
 
-    saveTimeoutRef.current = setTimeout(executeSave, DEBOUNCE_MS);
-  }, [executeSave]);
+    saveTimeoutRef.current = setTimeout(executeSettingsSave, DEBOUNCE_MS);
+  }, [executeSettingsSave]);
 
   const saveNow = useCallback(async () => {
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
       saveTimeoutRef.current = null;
     }
-    await executeSave();
-  }, [executeSave]);
+    await executeSettingsSave();
+  }, [executeSettingsSave]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -686,54 +585,8 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     [scheduleSave]
   );
 
-  const addDietaryRestriction = useCallback(
-    async (restriction: string) => {
-      const result = await addCustomDietaryRestriction(restriction);
-      if (result.error) {
-        toast.error(result.error);
-        return;
-      }
-
-      // Optimistic update
-      setState((prev) => ({
-        ...prev,
-        settings: {
-          ...prev.settings,
-          custom_dietary_restrictions: [
-            ...(prev.settings.custom_dietary_restrictions || []),
-            restriction,
-          ],
-        },
-      }));
-
-      toast.success("Dietary restriction added");
-    },
-    []
-  );
-
-  const removeDietaryRestriction = useCallback(
-    async (restriction: string) => {
-      const result = await removeCustomDietaryRestriction(restriction);
-      if (result.error) {
-        toast.error(result.error);
-        return;
-      }
-
-      // Optimistic update
-      setState((prev) => ({
-        ...prev,
-        settings: {
-          ...prev.settings,
-          custom_dietary_restrictions: (
-            prev.settings.custom_dietary_restrictions || []
-          ).filter((r) => r !== restriction),
-        },
-      }));
-
-      toast.success("Dietary restriction removed");
-    },
-    []
-  );
+  // Dietary restrictions (immediate save)
+  const dietaryActions = createDietaryRestrictionActions(setState);
 
   // ──────────────────────────────────────────────────────────────────────────
   // Undo Functionality
@@ -838,8 +691,8 @@ export function SettingsProvider({ children, initialData }: SettingsProviderProp
     updatePlannerSettings,
     updateRecipeLayoutPrefs,
     updateCalendarPrefs,
-    addDietaryRestriction,
-    removeDietaryRestriction,
+    addDietaryRestriction: dietaryActions.addDietaryRestriction,
+    removeDietaryRestriction: dietaryActions.removeDietaryRestriction,
     saveNow,
     // Undo functionality
     canUndo,

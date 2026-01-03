@@ -1,12 +1,11 @@
-/**
- * Custom Fields Section Components
- *
- * Modular components for managing custom field definitions.
- */
-
-// TODO: These components need to be created
-// export { CustomFieldsSection } from "./custom-fields-section";
-// export { FieldList } from "./field-list";
-// export { FieldWizardDialog } from "./field-wizard-dialog";
-// export { useFieldWizard } from "./hooks/use-field-wizard";
-export { FIELD_TYPE_META, FIELD_TYPES, COLOR_OPTIONS, type WizardStep } from "./constants";
+export { CustomFieldsSection } from "./custom-fields-section";
+export { FieldListItem } from "./field-list-item";
+export { TypeSelectorStep } from "./type-selector-step";
+export { ConfigStep } from "./config-step";
+export { OptionsStep } from "./options-step";
+export { DisplayStep } from "./display-step";
+export { PreviewStep } from "./preview-step";
+export { FieldWizardDialog } from "./field-wizard-dialog";
+export { useFieldManagement } from "./use-field-management";
+export { FIELD_TYPE_META, FIELD_TYPES, COLOR_OPTIONS } from "./constants";
+export type { WizardStep } from "./constants";
