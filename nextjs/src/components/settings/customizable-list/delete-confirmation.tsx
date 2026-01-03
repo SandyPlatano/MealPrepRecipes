@@ -24,8 +24,8 @@ interface DeleteConfirmationProps {
   onClose: () => void;
   /** Callback when delete is confirmed */
   onConfirm: () => void;
-  /** Whether a delete operation is in progress */
-  isSaving: boolean;
+  /** Whether a delete operation is in progress (defaults to false) */
+  isSaving?: boolean;
   /** Dialog title */
   title: string;
   /** Dialog description */
@@ -36,7 +36,7 @@ export function DeleteConfirmation({
   isOpen,
   onClose,
   onConfirm,
-  isSaving,
+  isSaving = false,
   title,
   description,
 }: DeleteConfirmationProps) {

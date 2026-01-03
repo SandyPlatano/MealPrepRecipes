@@ -23,20 +23,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Palette, Plus, Smile, Trash2, GripVertical } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import {
   getCustomRecipeTypes,
   getCustomRecipeTypeUsage,
@@ -46,133 +40,25 @@ import {
   reorderCustomRecipeTypes,
   reassignRecipesToType,
 } from "@/app/actions/custom-recipe-types";
-import type { CustomRecipeType, CustomRecipeTypeFormData } from "@/types/custom-recipe-type";
-import { MEAL_TYPE_COLOR_PALETTE } from "@/types/settings";
-import { EmojiPicker } from "@/components/ui/emoji-picker";
+import type {
+  CustomRecipeType,
+  CustomRecipeTypeFormData,
+} from "@/types/custom-recipe-type";
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+  EmojiPickerField,
+  ColorPickerField,
+  SortableWrapper,
+  SortableItem,
+  DragHandle,
+} from "./customizable-list";
 
 interface CustomRecipeTypesSectionProps {
   householdId: string;
 }
 
-interface SortableItemProps {
-  type: CustomRecipeType;
-  onEdit: (type: CustomRecipeType) => void;
-  onDelete: (type: CustomRecipeType) => void;
-}
-
-function SortableRecipeTypeCard({ type, onEdit, onDelete }: SortableItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: type.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  const hasEmoji = type.emoji && type.emoji.trim() !== "";
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={cn(
-        "group relative flex items-center gap-3 p-4 rounded-xl border-2 transition-all bg-card",
-        isDragging && "opacity-50 scale-105 shadow-lg"
-      )}
-      {...attributes}
-    >
-      {/* Drag handle */}
-      <button
-        type="button"
-        className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors"
-        {...listeners}
-      >
-        <GripVertical className="h-5 w-5" />
-      </button>
-
-      {/* Color accent */}
-      <div
-        className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-lg"
-        style={{ backgroundColor: type.color }}
-      />
-
-      {/* Emoji */}
-      <div className="text-2xl w-10 h-10 flex items-center justify-center">
-        {hasEmoji ? type.emoji : (
-          <span className="text-muted-foreground text-sm">--</span>
-        )}
-      </div>
-
-      {/* Info */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <h4 className="font-medium text-sm">{type.name}</h4>
-          {type.isSystem && (
-            <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-              System
-            </span>
-          )}
-        </div>
-        {type.description && (
-          <p className="text-xs text-muted-foreground truncate mt-0.5">
-            {type.description}
-          </p>
-        )}
-      </div>
-
-      {/* Color swatch */}
-      <div
-        className="h-6 w-6 rounded-full ring-1 ring-black/10 flex-shrink-0"
-        style={{ backgroundColor: type.color }}
-      />
-
-      {/* Actions */}
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onEdit(type)}
-        >
-          Edit
-        </Button>
-        {!type.isSystem && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onDelete(type)}
-          >
-            <Trash2 className="h-4 w-4 text-destructive" />
-          </Button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSectionProps) {
+export function CustomRecipeTypesSection({
+  householdId,
+}: CustomRecipeTypesSectionProps) {
   const [recipeTypes, setRecipeTypes] = useState<CustomRecipeType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingType, setEditingType] = useState<CustomRecipeType | null>(null);
@@ -183,18 +69,13 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
     color: "#6366f1",
     description: "",
   });
-  const [customColorInput, setCustomColorInput] = useState("#6366f1");
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState<CustomRecipeType | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<CustomRecipeType | null>(
+    null
+  );
   const [reassignTarget, setReassignTarget] = useState<string>("");
-  const [usage, setUsage] = useState<{ count: number; limit: number } | null>(null);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
+  const [usage, setUsage] = useState<{ count: number; limit: number } | null>(
+    null
   );
 
   // Load recipe types and usage
@@ -231,7 +112,6 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
       color: "#6366f1",
       description: "",
     });
-    setCustomColorInput("#6366f1");
   };
 
   // Open edit dialog
@@ -243,14 +123,12 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
       color: type.color,
       description: type.description || "",
     });
-    setCustomColorInput(type.color);
   };
 
   // Close dialogs
   const handleClose = () => {
     setIsCreating(false);
     setEditingType(null);
-    setShowEmojiPicker(false);
   };
 
   // Save (create or update)
@@ -291,7 +169,9 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
   const handleDeleteClick = (type: CustomRecipeType) => {
     setDeleteConfirm(type);
     // Pre-select first system type as reassignment target
-    const firstSystemType = recipeTypes.find((t) => t.isSystem && t.id !== type.id);
+    const firstSystemType = recipeTypes.find(
+      (t) => t.isSystem && t.id !== type.id
+    );
     setReassignTarget(firstSystemType?.id || "");
   };
 
@@ -302,7 +182,10 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
 
     // First reassign recipes if a target is selected
     if (reassignTarget) {
-      const reassignResult = await reassignRecipesToType(deleteConfirm.id, reassignTarget);
+      const reassignResult = await reassignRecipesToType(
+        deleteConfirm.id,
+        reassignTarget
+      );
       if (reassignResult.error) {
         toast.error("Failed to reassign recipes");
         setIsSaving(false);
@@ -323,48 +206,25 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
     setIsSaving(false);
   };
 
-  // Handle drag end
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
+  // Handle reorder
+  async function handleReorder(reordered: CustomRecipeType[]) {
+    const previousOrder = recipeTypes;
+    setRecipeTypes(reordered);
 
-    if (!over || active.id === over.id) return;
-
-    const oldIndex = recipeTypes.findIndex((t) => t.id === active.id);
-    const newIndex = recipeTypes.findIndex((t) => t.id === over.id);
-
-    const newOrder = arrayMove(recipeTypes, oldIndex, newIndex);
-    setRecipeTypes(newOrder);
-
-    // Update in database
-    const orderedIds = newOrder.map((t) => t.id);
+    const orderedIds = reordered.map((t) => t.id);
     const result = await reorderCustomRecipeTypes(householdId, orderedIds);
     if (result.error) {
       toast.error("Failed to reorder recipe types");
-      // Revert on error
-      loadRecipeTypes();
+      setRecipeTypes(previousOrder);
     }
-  };
-
-  // Emoji handlers
-  const handleEmojiSelect = (emoji: { native: string }) => {
-    setFormData((prev) => ({ ...prev, emoji: emoji.native }));
-    setShowEmojiPicker(false);
-  };
-
-  const handleColorSelect = (color: string) => {
-    setFormData((prev) => ({ ...prev, color }));
-    setCustomColorInput(color);
-  };
-
-  const handleCustomColorChange = (value: string) => {
-    setCustomColorInput(value);
-    if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-      setFormData((prev) => ({ ...prev, color: value }));
-    }
-  };
+  }
 
   if (isLoading) {
-    return <div className="text-sm text-muted-foreground">Loading recipe types...</div>;
+    return (
+      <div className="text-sm text-muted-foreground">
+        Loading recipe types...
+      </div>
+    );
   }
 
   const isDialogOpen = isCreating || editingType !== null;
@@ -392,35 +252,91 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
 
       {isAtLimit && (
         <div className="text-sm text-amber-600 bg-amber-50 dark:bg-amber-950/20 dark:text-amber-400 px-3 py-2 rounded-md">
-          You've reached the maximum of {usage?.limit} custom recipe types. Delete an existing type to add a new one.
+          You've reached the maximum of {usage?.limit} custom recipe types.
+          Delete an existing type to add a new one.
         </div>
       )}
 
       {/* Sortable list */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={recipeTypes.map((t) => t.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <div className="flex flex-col gap-2">
-            {recipeTypes.map((type) => (
-              <SortableRecipeTypeCard
-                key={type.id}
-                type={type}
-                onEdit={handleEdit}
-                onDelete={handleDeleteClick}
-              />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
+      <SortableWrapper items={recipeTypes} onReorder={handleReorder}>
+        <div className="flex flex-col gap-2">
+          {recipeTypes.map((type) => {
+            const hasEmoji = type.emoji && type.emoji.trim() !== "";
+            return (
+              <SortableItem key={type.id} id={type.id}>
+                <div className="group relative flex items-center gap-3 p-4 rounded-xl border-2 transition-all bg-card">
+                  {/* Drag handle */}
+                  <DragHandle />
+
+                  {/* Color accent */}
+                  <div
+                    className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-lg"
+                    style={{ backgroundColor: type.color }}
+                  />
+
+                  {/* Emoji */}
+                  <div className="text-2xl w-10 h-10 flex items-center justify-center">
+                    {hasEmoji ? (
+                      type.emoji
+                    ) : (
+                      <span className="text-muted-foreground text-sm">--</span>
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-sm">{type.name}</h4>
+                      {type.isSystem && (
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                          System
+                        </span>
+                      )}
+                    </div>
+                    {type.description && (
+                      <p className="text-xs text-muted-foreground truncate mt-0.5">
+                        {type.description}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Color swatch */}
+                  <div
+                    className="h-6 w-6 rounded-full ring-1 ring-black/10 flex-shrink-0"
+                    style={{ backgroundColor: type.color }}
+                  />
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEdit(type)}
+                    >
+                      Edit
+                    </Button>
+                    {!type.isSystem && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteClick(type)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </SortableItem>
+            );
+          })}
+        </div>
+      </SortableWrapper>
 
       {/* Create/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleClose()}>
+      <Dialog
+        open={isDialogOpen}
+        onOpenChange={(open) => !open && handleClose()}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
@@ -434,7 +350,9 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
               <Label>Name *</Label>
               <Input
                 value={formData.name}
-                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
                 placeholder="e.g., Comfort Food"
               />
             </div>
@@ -445,7 +363,10 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
               <Textarea
                 value={formData.description}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, description: e.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
                 }
                 placeholder="e.g., Warm, cozy meals for cold days"
                 rows={2}
@@ -453,83 +374,17 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
             </div>
 
             {/* Emoji */}
-            <div className="flex flex-col gap-2">
-              <Label className="flex items-center gap-2">
-                <Smile className="h-4 w-4" />
-                Emoji
-              </Label>
-              <div className="flex items-center gap-2">
-                <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="h-12 w-16 text-2xl p-0">
-                      {formData.emoji || "—"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 border-0 z-[10000]" align="start" usePortal={false}>
-                    <EmojiPicker
-                      onEmojiSelect={handleEmojiSelect}
-                      categories={["foods", "activity", "nature", "objects", "symbols", "people"]}
-                      perLine={8}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setFormData((prev) => ({ ...prev, emoji: "" }))}
-                  disabled={!formData.emoji}
-                >
-                  Clear
-                </Button>
-              </div>
-            </div>
+            <EmojiPickerField
+              value={formData.emoji}
+              onChange={(emoji) => setFormData((prev) => ({ ...prev, emoji }))}
+              onClear={() => setFormData((prev) => ({ ...prev, emoji: "" }))}
+            />
 
             {/* Color */}
-            <div className="flex flex-col gap-3">
-              <Label className="flex items-center gap-2">
-                <Palette className="h-4 w-4" />
-                Color
-              </Label>
-
-              {/* Color palette grid */}
-              <div className="grid grid-cols-8 gap-2">
-                {MEAL_TYPE_COLOR_PALETTE.map((c) => (
-                  <button
-                    type="button"
-                    key={c.key}
-                    onClick={() => handleColorSelect(c.color)}
-                    className={cn(
-                      "h-8 w-8 rounded-md transition-all",
-                      formData.color === c.color
-                        ? "ring-2 ring-offset-2 ring-primary scale-110"
-                        : "hover:scale-110 ring-1 ring-black/10"
-                    )}
-                    style={{ backgroundColor: c.color }}
-                    title={c.label}
-                  />
-                ))}
-              </div>
-
-              {/* Custom color input */}
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Custom:</span>
-                <div className="relative flex-1">
-                  <Input
-                    type="text"
-                    value={customColorInput}
-                    onChange={(e) => handleCustomColorChange(e.target.value)}
-                    placeholder="#6366f1"
-                    className="font-mono text-sm pl-10"
-                  />
-                  <input
-                    type="color"
-                    value={formData.color}
-                    onChange={(e) => handleColorSelect(e.target.value)}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 h-6 w-6 cursor-pointer rounded border-0"
-                  />
-                </div>
-              </div>
-            </div>
+            <ColorPickerField
+              value={formData.color}
+              onChange={(color) => setFormData((prev) => ({ ...prev, color }))}
+            />
 
             {/* Preview */}
             <div className="flex flex-col gap-2">
@@ -544,7 +399,9 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
                 {formData.emoji && (
                   <span className="text-lg">{formData.emoji}</span>
                 )}
-                <span className="flex-1 font-semibold">{formData.name || "Recipe Type"}</span>
+                <span className="flex-1 font-semibold">
+                  {formData.name || "Recipe Type"}
+                </span>
               </div>
             </div>
           </div>
@@ -560,14 +417,18 @@ export function CustomRecipeTypesSection({ householdId }: CustomRecipeTypesSecti
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteConfirm !== null} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+      {/* Delete Confirmation Dialog with Reassignment */}
+      <AlertDialog
+        open={deleteConfirm !== null}
+        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Recipe Type</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete "{deleteConfirm?.name}"?
-              {recipeTypes.filter((t) => t.id !== deleteConfirm?.id).length > 0 && (
+              {recipeTypes.filter((t) => t.id !== deleteConfirm?.id).length >
+                0 && (
                 <div className="mt-4 flex flex-col gap-2">
                   <p className="font-medium text-foreground">
                     Reassign existing recipes to:

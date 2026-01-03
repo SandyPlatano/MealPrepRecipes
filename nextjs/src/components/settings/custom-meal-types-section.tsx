@@ -12,31 +12,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Palette, Smile, Plus, Trash2, GripVertical } from "lucide-react";
+import { Clock, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import {
   getCustomMealTypes,
   createCustomMealType,
@@ -44,30 +28,24 @@ import {
   deleteCustomMealType,
   reorderCustomMealTypes,
 } from "@/app/actions/custom-meal-types";
-import type { CustomMealType, CustomMealTypeFormData } from "@/types/custom-meal-type";
-import { MEAL_TYPE_COLOR_PALETTE } from "@/types/settings";
-import { EmojiPicker } from "@/components/ui/emoji-picker";
+import type {
+  CustomMealType,
+  CustomMealTypeFormData,
+} from "@/types/custom-meal-type";
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+  EmojiPickerField,
+  ColorPickerField,
+  DeleteConfirmation,
+  SortableWrapper,
+  SortableItem,
+  DragHandle,
+} from "./customizable-list";
 
 interface CustomMealTypesSectionProps {
   householdId: string;
 }
 
+// Time options from 5:00 AM to 11:30 PM in 30-minute increments
 const TIME_OPTIONS = Array.from({ length: 37 }, (_, i) => {
   const hour = Math.floor(i / 2) + 5;
   const minute = (i % 2) * 30;
@@ -85,102 +63,24 @@ function formatTime(time: string): string {
   return `${hour12}:${minute.toString().padStart(2, "0")} ${ampm}`;
 }
 
-interface SortableMealTypeCardProps {
-  mealType: CustomMealType;
-  onEdit: (mealType: CustomMealType) => void;
-}
-
-function SortableMealTypeCard({ mealType, onEdit }: SortableMealTypeCardProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: mealType.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  const hasEmoji = mealType.emoji && mealType.emoji.trim() !== "";
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={cn(
-        "group relative flex items-center gap-3 p-4 rounded-xl border-2 transition-all bg-card",
-        isDragging && "opacity-50 shadow-lg"
-      )}
-      onClick={() => !isDragging && onEdit(mealType)}
-    >
-      <div
-        className="absolute top-0 left-0 right-0 h-1.5 rounded-t-lg"
-        style={{ backgroundColor: mealType.color }}
-      />
-
-      <div
-        {...attributes}
-        {...listeners}
-        className="cursor-grab active:cursor-grabbing p-1 -ml-1 hover:bg-muted rounded transition-colors"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <GripVertical className="h-4 w-4 text-muted-foreground" />
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          {hasEmoji && <span className="text-xl">{mealType.emoji}</span>}
-          <span className="text-sm font-medium truncate">{mealType.name}</span>
-          {mealType.isSystem && (
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-              System
-            </Badge>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <div
-            className="h-3 w-3 rounded-full ring-1 ring-black/10"
-            style={{ backgroundColor: mealType.color }}
-          />
-          <Clock className="h-3 w-3" />
-          <span className="font-mono">{formatTime(mealType.defaultTime)}</span>
-        </div>
-      </div>
-
-      <span className="text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-        Click to edit
-      </span>
-    </div>
-  );
-}
-
-export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionProps) {
+export function CustomMealTypesSection({
+  householdId,
+}: CustomMealTypesSectionProps) {
   const [mealTypes, setMealTypes] = useState<CustomMealType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [editingMealType, setEditingMealType] = useState<CustomMealType | null>(null);
+  const [editingMealType, setEditingMealType] = useState<CustomMealType | null>(
+    null
+  );
   const [isCreating, setIsCreating] = useState(false);
-  const [editForm, setEditForm] = useState<CustomMealTypeFormData>({
+  const [formData, setFormData] = useState<CustomMealTypeFormData>({
     name: "",
     emoji: "🍽️",
     color: "#6366f1",
     defaultTime: "12:00",
   });
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [customColorInput, setCustomColorInput] = useState("");
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  const [deleteConfirmItem, setDeleteConfirmItem] =
+    useState<CustomMealType | null>(null);
 
   useEffect(() => {
     loadMealTypes();
@@ -199,36 +99,33 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
     setMealTypes(result.data || []);
   }
 
-  function handleOpenCreate() {
+  function handleCreate() {
     setIsCreating(true);
-    setEditForm({
+    setFormData({
       name: "",
       emoji: "🍽️",
       color: "#6366f1",
       defaultTime: "12:00",
     });
-    setCustomColorInput("#6366f1");
   }
 
-  function handleOpenEdit(mealType: CustomMealType) {
+  function handleEdit(mealType: CustomMealType) {
     setEditingMealType(mealType);
-    setEditForm({
+    setFormData({
       name: mealType.name,
       emoji: mealType.emoji,
       color: mealType.color,
       defaultTime: mealType.defaultTime,
     });
-    setCustomColorInput(mealType.color);
   }
 
   function handleClose() {
     setEditingMealType(null);
     setIsCreating(false);
-    setShowEmojiPicker(false);
   }
 
   async function handleSave() {
-    if (!editForm.name.trim()) {
+    if (!formData.name.trim()) {
       toast.error("Name is required");
       return;
     }
@@ -236,7 +133,7 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
     setIsSaving(true);
 
     if (isCreating) {
-      const result = await createCustomMealType(householdId, editForm);
+      const result = await createCustomMealType(householdId, formData);
       setIsSaving(false);
 
       if (result.error) {
@@ -245,9 +142,9 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
       }
 
       setMealTypes((prev) => [...prev, result.data!]);
-      toast.success(`${editForm.name} created`);
+      toast.success(`${formData.name} created`);
     } else if (editingMealType) {
-      const result = await updateCustomMealType(editingMealType.id, editForm);
+      const result = await updateCustomMealType(editingMealType.id, formData);
       setIsSaving(false);
 
       if (result.error) {
@@ -257,26 +154,20 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
 
       setMealTypes((prev) =>
         prev.map((mt) =>
-          mt.id === editingMealType.id
-            ? {
-                ...mt,
-                name: editForm.name,
-                emoji: editForm.emoji,
-                color: editForm.color,
-                defaultTime: editForm.defaultTime,
-              }
-            : mt
+          mt.id === editingMealType.id ? { ...mt, ...formData } : mt
         )
       );
-      toast.success(`${editForm.name} updated`);
+      toast.success(`${formData.name} updated`);
     }
 
     handleClose();
   }
 
-  async function handleDelete(id: string) {
+  async function handleDelete() {
+    if (!deleteConfirmItem) return;
+
     setIsSaving(true);
-    const result = await deleteCustomMealType(id);
+    const result = await deleteCustomMealType(deleteConfirmItem.id);
     setIsSaving(false);
 
     if (result.error) {
@@ -284,54 +175,14 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
       return;
     }
 
-    setMealTypes((prev) => prev.filter((mt) => mt.id !== id));
+    setMealTypes((prev) => prev.filter((mt) => mt.id !== deleteConfirmItem.id));
     toast.success("Meal type deleted");
-    setDeleteConfirmId(null);
+    setDeleteConfirmItem(null);
+    handleClose();
   }
 
-  function handleEmojiSelect(emoji: { native: string }) {
-    setEditForm((prev) => ({ ...prev, emoji: emoji.native }));
-    setShowEmojiPicker(false);
-  }
-
-  function handleColorSelect(color: string) {
-    setEditForm((prev) => ({ ...prev, color }));
-    setCustomColorInput(color);
-  }
-
-  function handleCustomColorChange(value: string) {
-    setCustomColorInput(value);
-    if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-      setEditForm((prev) => ({ ...prev, color: value }));
-    }
-  }
-
-  function handleTimeChange(time: string) {
-    setEditForm((prev) => ({ ...prev, defaultTime: time }));
-  }
-
-  function handleClearEmoji() {
-    setEditForm((prev) => ({ ...prev, emoji: "" }));
-  }
-
-  async function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-
-    if (!over || active.id === over.id) {
-      return;
-    }
-
-    const oldIndex = mealTypes.findIndex((mt) => mt.id === active.id);
-    const newIndex = mealTypes.findIndex((mt) => mt.id === over.id);
-
-    if (oldIndex === -1 || newIndex === -1) {
-      return;
-    }
-
-    const reordered = [...mealTypes];
-    const [moved] = reordered.splice(oldIndex, 1);
-    reordered.splice(newIndex, 0, moved);
-
+  async function handleReorder(reordered: CustomMealType[]) {
+    const previousOrder = mealTypes;
     setMealTypes(reordered);
 
     const result = await reorderCustomMealTypes(
@@ -341,12 +192,14 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
 
     if (result.error) {
       toast.error("Failed to reorder meal types");
-      setMealTypes(mealTypes);
+      setMealTypes(previousOrder);
     }
   }
 
   const isDialogOpen = isCreating || editingMealType !== null;
-  const dialogTitle = isCreating ? "Add New Meal Type" : `Edit ${editingMealType?.name || ""}`;
+  const dialogTitle = isCreating
+    ? "Add New Meal Type"
+    : `Edit ${editingMealType?.name || ""}`;
 
   if (isLoading) {
     return (
@@ -360,133 +213,126 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
 
   return (
     <div className="flex flex-col gap-6">
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext items={mealTypes} strategy={verticalListSortingStrategy}>
-          <div className="flex flex-col gap-2">
-            {mealTypes.map((mealType) => (
-              <SortableMealTypeCard
-                key={mealType.id}
-                mealType={mealType}
-                onEdit={handleOpenEdit}
-              />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
+      {/* Meal Types List with Drag Reorder */}
+      <SortableWrapper items={mealTypes} onReorder={handleReorder}>
+        <div className="flex flex-col gap-2">
+          {mealTypes.map((mealType) => {
+            const hasEmoji = mealType.emoji && mealType.emoji.trim() !== "";
+            return (
+              <SortableItem key={mealType.id} id={mealType.id}>
+                <div
+                  className="group relative flex items-center gap-3 p-4 rounded-xl border-2 transition-all bg-card cursor-pointer hover:border-primary/30"
+                  onClick={() => handleEdit(mealType)}
+                >
+                  {/* Color accent bar */}
+                  <div
+                    className="absolute top-0 left-0 right-0 h-1.5 rounded-t-lg"
+                    style={{ backgroundColor: mealType.color }}
+                  />
 
-      <Button onClick={handleOpenCreate} className="w-full" variant="outline">
+                  {/* Drag handle */}
+                  <DragHandle />
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      {hasEmoji && (
+                        <span className="text-xl">{mealType.emoji}</span>
+                      )}
+                      <span className="text-sm font-medium truncate">
+                        {mealType.name}
+                      </span>
+                      {mealType.isSystem && (
+                        <Badge
+                          variant="secondary"
+                          className="text-[10px] px-1.5 py-0"
+                        >
+                          System
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <div
+                        className="h-3 w-3 rounded-full ring-1 ring-black/10"
+                        style={{ backgroundColor: mealType.color }}
+                      />
+                      <Clock className="h-3 w-3" />
+                      <span className="font-mono">
+                        {formatTime(mealType.defaultTime)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <span className="text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                    Click to edit
+                  </span>
+                </div>
+              </SortableItem>
+            );
+          })}
+        </div>
+      </SortableWrapper>
+
+      {/* Add Button */}
+      <Button onClick={handleCreate} className="w-full" variant="outline">
         <Plus className="h-4 w-4 mr-2" />
         Add New Meal Type
       </Button>
 
+      {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleClose()}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              {editForm?.emoji && <span className="text-xl">{editForm.emoji}</span>}
+              {formData?.emoji && <span className="text-xl">{formData.emoji}</span>}
               {dialogTitle}
             </DialogTitle>
           </DialogHeader>
 
           <div className="flex flex-col gap-6 py-4">
+            {/* Name */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
-                value={editForm.name}
-                onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
                 placeholder="e.g., Second Breakfast, Pre-Workout"
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <Label className="flex items-center gap-2">
-                <Smile className="h-4 w-4" />
-                Emoji
-              </Label>
-              <div className="flex items-center gap-2">
-                <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="h-12 w-16 text-2xl p-0">
-                      {editForm.emoji || "—"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 border-0 z-[10000]" align="start" usePortal={false}>
-                    <EmojiPicker
-                      onEmojiSelect={handleEmojiSelect}
-                      categories={["foods", "activity", "nature", "objects", "symbols", "people"]}
-                      perLine={8}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleClearEmoji}
-                  disabled={!editForm.emoji}
-                >
-                  Clear
-                </Button>
-              </div>
-            </div>
+            {/* Emoji */}
+            <EmojiPickerField
+              value={formData.emoji}
+              onChange={(emoji) => setFormData((prev) => ({ ...prev, emoji }))}
+              onClear={() => setFormData((prev) => ({ ...prev, emoji: "" }))}
+            />
 
-            <div className="flex flex-col gap-3">
-              <Label className="flex items-center gap-2">
-                <Palette className="h-4 w-4" />
-                Color
-              </Label>
+            {/* Color */}
+            <ColorPickerField
+              value={formData.color}
+              onChange={(color) => setFormData((prev) => ({ ...prev, color }))}
+            />
 
-              <div className="grid grid-cols-8 gap-2">
-                {MEAL_TYPE_COLOR_PALETTE.map((c) => (
-                  <button
-                    type="button"
-                    key={c.key}
-                    onClick={() => handleColorSelect(c.color)}
-                    className={cn(
-                      "h-8 w-8 rounded-md transition-all",
-                      editForm.color === c.color
-                        ? "ring-2 ring-offset-2 ring-primary scale-110"
-                        : "hover:scale-110 ring-1 ring-black/10"
-                    )}
-                    style={{ backgroundColor: c.color }}
-                    title={c.label}
-                  />
-                ))}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Custom:</span>
-                <div className="relative flex-1">
-                  <Input
-                    type="text"
-                    value={customColorInput}
-                    onChange={(e) => handleCustomColorChange(e.target.value)}
-                    placeholder="#f97316"
-                    className="font-mono text-sm pl-10"
-                  />
-                  <input
-                    type="color"
-                    value={editForm.color}
-                    onChange={(e) => handleColorSelect(e.target.value)}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 h-6 w-6 cursor-pointer rounded border-0"
-                  />
-                </div>
-              </div>
-            </div>
-
+            {/* Default Time */}
             <div className="flex flex-col gap-2">
               <Label className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
                 Default Calendar Time
               </Label>
               <p className="text-xs text-muted-foreground mb-2">
-                When Google Calendar events are created, this meal type will start at this time.
+                When Google Calendar events are created, this meal type will
+                start at this time.
               </p>
-              <Select value={editForm.defaultTime} onValueChange={handleTimeChange}>
+              <Select
+                value={formData.defaultTime}
+                onValueChange={(time) =>
+                  setFormData((prev) => ({ ...prev, defaultTime: time }))
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -500,19 +346,27 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
               </Select>
             </div>
 
+            {/* Preview */}
             <div className="flex flex-col gap-2">
               <Label>Preview</Label>
               <div
                 className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-sm font-medium"
                 style={{
-                  backgroundColor: `${editForm.color}15`,
-                  borderLeft: `4px solid ${editForm.color}`,
+                  backgroundColor: `${formData.color}15`,
+                  borderLeft: `4px solid ${formData.color}`,
                 }}
               >
-                {editForm.emoji && <span className="text-lg">{editForm.emoji}</span>}
-                <span className="flex-1 font-semibold">{editForm.name || "Meal Type"}</span>
-                <Badge variant="secondary" className="text-[11px] px-2 py-0.5 h-5 font-mono">
-                  {formatTime(editForm.defaultTime)}
+                {formData.emoji && (
+                  <span className="text-lg">{formData.emoji}</span>
+                )}
+                <span className="flex-1 font-semibold">
+                  {formData.name || "Meal Type"}
+                </span>
+                <Badge
+                  variant="secondary"
+                  className="text-[11px] px-2 py-0.5 h-5 font-mono"
+                >
+                  {formatTime(formData.defaultTime)}
                 </Badge>
               </div>
             </div>
@@ -523,7 +377,7 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setDeleteConfirmId(editingMealType.id)}
+                onClick={() => setDeleteConfirmItem(editingMealType)}
                 disabled={isSaving}
                 className="text-destructive hover:text-destructive"
               >
@@ -543,26 +397,15 @@ export function CustomMealTypesSection({ householdId }: CustomMealTypesSectionPr
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={deleteConfirmId !== null} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Meal Type</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this meal type? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSaving}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => deleteConfirmId && handleDelete(deleteConfirmId)}
-              disabled={isSaving}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Delete Confirmation */}
+      <DeleteConfirmation
+        isOpen={deleteConfirmItem !== null}
+        onClose={() => setDeleteConfirmItem(null)}
+        onConfirm={handleDelete}
+        isSaving={isSaving}
+        title="Delete Meal Type"
+        description={`Are you sure you want to delete "${deleteConfirmItem?.name}"? This action cannot be undone.`}
+      />
     </div>
   );
 }

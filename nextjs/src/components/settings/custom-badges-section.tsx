@@ -30,17 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { DeleteConfirmation } from "./customizable-list";
 import { Tags, Plus, X, Pencil, Trash2, Info } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -292,56 +282,55 @@ function CustomBadgeRow({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const colors = getBadgeColorClasses(badge.color);
 
   return (
-    <div className="flex items-center justify-between rounded-lg border p-3">
-      <div className="flex items-center gap-3">
-        <Switch checked={badge.is_active} onCheckedChange={onToggleActive} />
-        <div>
-          <div className="flex items-center gap-2">
-            <span
-              className={cn(
-                "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium",
-                colors.bg,
-                colors.text,
-                colors.border,
-                !badge.is_active && "opacity-50"
-              )}
-            >
-              {badge.name}
-            </span>
+    <>
+      <div className="flex items-center justify-between rounded-lg border p-3">
+        <div className="flex items-center gap-3">
+          <Switch checked={badge.is_active} onCheckedChange={onToggleActive} />
+          <div>
+            <div className="flex items-center gap-2">
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium",
+                  colors.bg,
+                  colors.text,
+                  colors.border,
+                  !badge.is_active && "opacity-50"
+                )}
+              >
+                {badge.name}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {formatConditionsDescription(badge.conditions)}
+            </p>
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {formatConditionsDescription(badge.conditions)}
-          </p>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" onClick={onEdit}>
+            <Pencil className="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowDeleteConfirm(true)}
+          >
+            <Trash2 className="size-4 text-destructive" />
+          </Button>
         </div>
       </div>
-      <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon" onClick={onEdit}>
-          <Pencil className="size-4" />
-        </Button>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Trash2 className="size-4 text-destructive" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Badge</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete &quot;{badge.name}&quot;? This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={onDelete}>Delete</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
-    </div>
+
+      <DeleteConfirmation
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={onDelete}
+        title="Delete Badge"
+        description={`Are you sure you want to delete "${badge.name}"? This action cannot be undone.`}
+      />
+    </>
   );
 }
 
