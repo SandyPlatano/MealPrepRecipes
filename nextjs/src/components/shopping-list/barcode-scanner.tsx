@@ -9,7 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, Smartphone } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface BarcodeScannerProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export function BarcodeScanner({ isOpen, onClose, onScanSuccess }: BarcodeScanne
   const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const hasScannedRef = useRef(false);
+  const isMobile = useIsMobile();
 
   const handleScanSuccess = useCallback(
     (decodedText: string) => {
@@ -106,6 +108,15 @@ export function BarcodeScanner({ isOpen, onClose, onScanSuccess }: BarcodeScanne
             </Button>
           </DialogTitle>
         </DialogHeader>
+
+        {!isMobile && (
+          <div className="flex items-center gap-3 p-4 bg-[#1A1A1A] rounded-xl text-sm">
+            <Smartphone className="h-5 w-5 text-[#D9F99D] flex-shrink-0" />
+            <p className="text-white">
+              <span className="font-semibold">Best on mobile.</span> Desktop cameras are often poorly positioned for barcode scanning.
+            </p>
+          </div>
+        )}
 
         <div className="relative min-h-[300px]">
           {isInitializing && (

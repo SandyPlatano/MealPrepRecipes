@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { Badge } from "@/components/ui/badge";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Clock, Flame, Drumstick } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { RecipeNutrition } from "@/types/nutrition";
@@ -34,8 +34,6 @@ export function RecipePreviewPopover({
   children,
   disabled = false,
 }: RecipePreviewPopoverProps) {
-  const [open, setOpen] = useState(false);
-
   if (disabled) {
     return <>{children}</>;
   }
@@ -57,31 +55,23 @@ export function RecipePreviewPopover({
   const totalTime = getTotalTime();
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <div
-          onMouseEnter={() => setOpen(true)}
-          onMouseLeave={() => setOpen(false)}
-          className="cursor-pointer"
-        >
-          {children}
-        </div>
-      </PopoverTrigger>
-      <PopoverContent
+    <HoverCard openDelay={200} closeDelay={100}>
+      <HoverCardTrigger asChild>
+        <div className="cursor-pointer">{children}</div>
+      </HoverCardTrigger>
+      <HoverCardContent
         side="top"
         align="start"
         sideOffset={8}
         className={cn(
-          "w-72 p-0 overflow-hidden shadow-xl",
+          "w-72 p-0 overflow-hidden shadow-xl border-0",
           "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
           "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
         )}
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
       >
-        {/* Recipe Image */}
+        {/* Recipe Image with AspectRatio */}
         {recipe.image_url ? (
-          <div className="relative w-full h-32 bg-muted">
+          <AspectRatio ratio={16 / 9} className="bg-muted">
             <Image
               src={recipe.image_url}
               alt={recipe.title}
@@ -89,15 +79,15 @@ export function RecipePreviewPopover({
               className="object-cover"
               sizes="288px"
             />
-          </div>
+          </AspectRatio>
         ) : (
-          <div className="w-full h-24 bg-gradient-to-br from-muted to-muted-foreground/10 flex items-center justify-center">
+          <div className="w-full h-24 bg-gradient-to-br from-[#D9F99D]/20 to-[#FDE047]/20 flex items-center justify-center">
             <span className="text-4xl opacity-50">🍽️</span>
           </div>
         )}
 
         {/* Recipe Info */}
-        <div className="p-3 space-y-2">
+        <div className="p-3 space-y-2 bg-white dark:bg-slate-900">
           <div>
             <h4 className="font-semibold text-sm line-clamp-1">{recipe.title}</h4>
             <p className="text-xs text-muted-foreground">{recipe.recipe_type}</p>
@@ -129,24 +119,24 @@ export function RecipePreviewPopover({
           {nutrition && (nutrition.carbs_g || nutrition.fat_g) && (
             <div className="flex gap-1.5 flex-wrap">
               {nutrition.carbs_g && (
-                <Badge variant="outline" className="text-[10px] h-5 px-1.5">
+                <Badge variant="outline" className="text-[10px] h-5 px-1.5 bg-[#EDE9FE]/50">
                   {Math.round(nutrition.carbs_g)}g carbs
                 </Badge>
               )}
               {nutrition.fat_g && (
-                <Badge variant="outline" className="text-[10px] h-5 px-1.5">
+                <Badge variant="outline" className="text-[10px] h-5 px-1.5 bg-[#FED7AA]/50">
                   {Math.round(nutrition.fat_g)}g fat
                 </Badge>
               )}
               {nutrition.fiber_g && (
-                <Badge variant="outline" className="text-[10px] h-5 px-1.5">
+                <Badge variant="outline" className="text-[10px] h-5 px-1.5 bg-[#D9F99D]/50">
                   {Math.round(nutrition.fiber_g)}g fiber
                 </Badge>
               )}
             </div>
           )}
         </div>
-      </PopoverContent>
-    </Popover>
+      </HoverCardContent>
+    </HoverCard>
   );
 }

@@ -11,6 +11,7 @@ import {
   EarnedAchievements,
   WasteStreakSkeleton,
 } from "./waste-streak";
+import { WasteTrendsChart } from "./waste-trends-chart";
 import {
   Leaf,
   DollarSign,
@@ -73,7 +74,7 @@ export function WasteDashboard({ className }: WasteDashboardProps) {
     return null;
   }
 
-  const { aggregate, streak, achievements, next_achievement, current_week } =
+  const { aggregate, streak, achievements, next_achievement, current_week, weekly_trend } =
     data;
 
   const motivationalMessage = getMotivationalMessage(streak, aggregate);
@@ -128,6 +129,14 @@ export function WasteDashboard({ className }: WasteDashboardProps) {
         />
         <EarnedAchievements achievements={achievements} />
       </div>
+
+      {/* Weekly Trends Charts */}
+      {weekly_trend && weekly_trend.length >= 2 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-4">Weekly Trends</h3>
+          <WasteTrendsChart weeklyTrend={weekly_trend} />
+        </div>
+      )}
 
       {/* This Week's Progress */}
       {current_week && (

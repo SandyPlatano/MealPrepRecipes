@@ -6,6 +6,7 @@ import { getRecipeNutrition, isNutritionTrackingEnabled } from "@/app/actions/nu
 import { findSubstitutionsForIngredients } from "@/app/actions/substitutions";
 import { getUserPreferencesV2 } from "@/app/actions/user-preferences";
 import { RecipeDetail } from "@/components/recipes/recipe-detail";
+import { AppBreadcrumb } from "@/components/navigation/app-breadcrumb";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -63,13 +64,9 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Breadcrumb Navigation */}
       <div className="flex items-center justify-between">
-        <Link href={backHref}>
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {backLabel}
-          </Button>
-        </Link>
+        <AppBreadcrumb currentTitle={recipe.title} />
         <Link href={`/app/recipes/${id}/edit`}>
           <Button variant="outline" size="sm">
             <Edit className="mr-2 h-4 w-4" />

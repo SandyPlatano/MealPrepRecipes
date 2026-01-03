@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import { RecipeCard } from "./recipe-card";
 import { BulkDietTagger } from "./bulk-diet-tagger";
@@ -17,7 +17,16 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles, Star, Leaf, Wheat, Flame, Mountain, Ship, Milk, TrendingDown, Tags, PanelLeftClose, PanelLeft, ChevronDown } from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { Search, X, SlidersHorizontal, Plus, ArrowDownUp, Sparkles, Star, Leaf, Wheat, Flame, Mountain, Ship, Milk, TrendingDown, Tags, PanelLeftClose, PanelLeft } from "lucide-react";
 import { StarRatingFilter } from "@/components/ui/star-rating-filter";
 import { useRecipeFilters } from "@/hooks/use-recipe-filters";
 import type { RecipeWithFavoriteAndNutrition, RecipeType } from "@/types/recipe";
@@ -92,8 +101,9 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
   // Desktop sidebar collapsed state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // Pagination state: how many recipes to show
-  const [visibleCount, setVisibleCount] = useState(RECIPES_PER_PAGE);
+  // Pagination state: current page (1-indexed)
+  const [currentPage, setCurrentPage] = useState(1);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   // Extract unique proteins and tags from recipes
   const { proteins, tags } = useMemo(() => {
@@ -217,18 +227,65 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
     return sorted;
   }, [initialRecipes, search, typeFilter, proteinTypeFilter, tagFilter, dietFilter, favoritesOnly, ratingFilter, minRating, ratedFilter, sortBy, recipeCookCounts, folderRecipeIds, isHydrated]);
 
-  // Reset pagination when filters change
+  // Reset to page 1 when filters change
   useEffect(() => {
-    setVisibleCount(RECIPES_PER_PAGE);
+    setCurrentPage(1);
   }, [search, typeFilter, proteinTypeFilter, tagFilter, dietFilter, favoritesOnly, ratingFilter, minRating, ratedFilter, sortBy, folderRecipeIds]);
+
+  // Scroll to top of grid when page changes (smooth scroll)
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [currentPage]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredRecipes.length / RECIPES_PER_PAGE);
+  const startIndex = (currentPage - 1) * RECIPES_PER_PAGE;
+  const endIndex = startIndex + RECIPES_PER_PAGE;
 
   // Get recipes to display (paginated)
   const visibleRecipes = useMemo(() => {
-    return filteredRecipes.slice(0, visibleCount);
-  }, [filteredRecipes, visibleCount]);
+    return filteredRecipes.slice(startIndex, endIndex);
+  }, [filteredRecipes, startIndex, endIndex]);
 
-  const hasMoreRecipes = filteredRecipes.length > visibleCount;
-  const remainingCount = filteredRecipes.length - visibleCount;
+  // Generate page numbers to display (show current ± 2 pages with ellipsis)
+  const getPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = [];
+    const showPages = 5; // Maximum page numbers to show
+
+    if (totalPages <= showPages + 2) {
+      // Show all pages if there aren't many
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      // Always show first page
+      pages.push(1);
+
+      if (currentPage > 3) {
+        pages.push("ellipsis");
+      }
+
+      // Show pages around current
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      if (currentPage < totalPages - 2) {
+        pages.push("ellipsis");
+      }
+
+      // Always show last page
+      if (totalPages > 1) pages.push(totalPages);
+    }
+
+    return pages;
+  };
 
   // Count active filters for badge
   const activeFilterCount = [
@@ -652,7 +709,7 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
         )}
 
         {/* Recipe Grid */}
-      <div className="flex flex-col">
+      <div ref={gridRef} className="flex flex-col scroll-mt-4">
         {filteredRecipes.length === 0 ? (
           // Empty state varies by context
           initialRecipes.length === 0 ? (
@@ -708,17 +765,52 @@ export function RecipeGrid({ recipes: initialRecipes, recipeCookCounts = {}, use
                 ))}
               </div>
             </TooltipProvider>
-            {/* Load More Button */}
-            {hasMoreRecipes && (
-              <div className="flex justify-center mt-8">
-                <Button
-                  variant="outline"
-                  onClick={() => setVisibleCount((prev) => prev + RECIPES_PER_PAGE)}
-                  className="gap-2"
-                >
-                  <ChevronDown className="h-4 w-4" />
-                  Load more ({remainingCount} remaining)
-                </Button>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex flex-col items-center gap-3 mt-8">
+                {/* Page info */}
+                <p className="text-sm text-muted-foreground">
+                  Showing {startIndex + 1}-{Math.min(endIndex, filteredRecipes.length)} of {filteredRecipes.length} recipes
+                </p>
+
+                {/* Pagination controls */}
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        aria-disabled={currentPage === 1}
+                      />
+                    </PaginationItem>
+
+                    {getPageNumbers().map((page, idx) =>
+                      page === "ellipsis" ? (
+                        <PaginationItem key={`ellipsis-${idx}`}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      ) : (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(page)}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      )
+                    )}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        aria-disabled={currentPage === totalPages}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
               </div>
             )}
           </>

@@ -17,6 +17,11 @@ import {
 } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
 import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import {
   Heart,
   Download,
   Trash2,
@@ -34,6 +39,7 @@ import {
   FolderPlus,
   Star,
   Clock,
+  Users,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -74,6 +80,7 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 // Lazy load modal dialogs - only loaded when user opens them
 const MarkCookedDialog = dynamic(
@@ -410,17 +417,19 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
 
   return (
     <>
-      <Link
-        href={`/app/recipes/${recipe.id}`}
-        onMouseEnter={handlePrefetch}
-        onFocus={handlePrefetch}
-      >
-        <Card
+      <HoverCard openDelay={200} closeDelay={100}>
+        <HoverCardTrigger asChild>
+          <Link
+            href={`/app/recipes/${recipe.id}`}
+            onMouseEnter={handlePrefetch}
+            onFocus={handlePrefetch}
+          >
+            <Card
           className="group h-full bg-white rounded-2xl border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-gray-300/80 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col cursor-pointer overflow-hidden animate-slide-up-fade relative"
           style={animationIndex !== undefined ? { animationDelay: `${animationIndex * 50}ms`, animationFillMode: 'backwards' } : undefined}
         >
-          {/* Image Section - ALWAYS present for consistent card height */}
-          <div className="relative w-full h-48 overflow-hidden rounded-t-2xl">
+          {/* Image Section - AspectRatio ensures consistent proportions */}
+          <AspectRatio ratio={4 / 3} className="overflow-hidden rounded-t-2xl">
             {recipe.image_url ? (
               <Image
                 src={recipe.image_url}
@@ -458,56 +467,35 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
               ) : null;
             })()}
 
-            {/* Quick Action Hover Bar - Desktop Only */}
-            {!isMobile && (
-              <div
-                className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-2 p-3 bg-gradient-to-t from-black/80 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                onClick={(e) => e.preventDefault()}
-              >
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="h-8 px-3 bg-white/90 hover:bg-white text-black shadow-lg"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    router.push(`/app/recipes/${recipe.id}/cook`);
-                  }}
-                  aria-label={`Cook ${recipe.title}`}
-                >
-                  <ChefHat className="size-4 mr-1.5" />
-                  Cook
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="h-8 px-3 bg-white/90 hover:bg-white text-black shadow-lg"
-                  onClick={handleAddToCart}
-                  disabled={isAddingToPlan}
-                  aria-label={`Add ${recipe.title} to meal plan`}
-                >
-                  <UtensilsCrossed className="size-4 mr-1.5" />
-                  Plan
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="h-8 px-3 bg-white/90 hover:bg-white text-black shadow-lg"
-                  onClick={handleShare}
-                  aria-label={`Share ${recipe.title}`}
-                >
-                  <Share2 className="size-4 mr-1.5" />
-                  Share
-                </Button>
-              </div>
-            )}
-
-            {/* Floating Time Badge - Bottom of image (only shows on images) */}
-            {recipe.image_url && (
-              <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 bg-black/60 backdrop-blur-sm rounded-full text-white text-[11px] font-medium">
+            {/* Floating Badges - Bottom of image */}
+            <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between">
+              {/* Time Badge */}
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-black/60 backdrop-blur-sm rounded-full text-white text-[11px] font-medium">
                 <Clock className="size-3" />
                 {metadata.totalTime}
               </div>
+              {/* Rating Badge */}
+              {currentRating && (
+                <Badge className="bg-white/90 text-black hover:bg-white shadow-sm">
+                  <Star className="size-3 fill-amber-400 text-amber-400 mr-1" />
+                  {currentRating.toFixed(1)}
+                </Badge>
+              )}
+            </div>
+
+            {/* Allergen Warning Icon - overlays image */}
+            {hasAnyWarnings && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="absolute top-2 left-12 z-10 p-1.5 rounded-full bg-amber-100/90 dark:bg-amber-900/80 backdrop-blur-sm shadow-sm">
+                    <AlertTriangle className="size-3.5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="text-xs">
+                  Contains: {allWarnings.slice(0, 3).join(", ")}
+                  {allWarnings.length > 3 && ` +${allWarnings.length - 3} more`}
+                </TooltipContent>
+              </Tooltip>
             )}
 
             {/* More Menu - Top Right */}
@@ -583,45 +571,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          </div>
-
-          {/* Optional Badges Section - fixed height area for consistent card heights */}
-          <div className="min-h-[32px] flex flex-col justify-center shrink-0">
-            {/* Allergen & Dietary Restriction Warning Banner */}
-            {hasAnyWarnings && (
-              <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 px-4 py-2 flex items-start gap-2">
-                <AlertTriangle className="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-amber-800 dark:text-amber-200">
-                    Contains: {allWarnings.join(", ")}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Nutrition Badges */}
-            {nutritionBadges.length > 0 && (
-              <div className="px-4 py-1.5 flex flex-wrap gap-1 border-b">
-                {nutritionBadges.map((badge) => {
-                  const colors = getBadgeColorClasses(badge.color);
-                  return (
-                    <span
-                      key={badge.key}
-                      className={cn(
-                        "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-medium",
-                        colors.bg,
-                        colors.text,
-                        colors.border
-                      )}
-                      title={badge.description}
-                    >
-                      {badge.label}
-                    </span>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          </AspectRatio>
 
           {/* Title Section - clean and prominent */}
           <div className="px-4 pt-4 pb-2 shrink-0">
@@ -630,100 +580,34 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
             </CardTitle>
           </div>
 
-          {/* Type Badge + Metadata Row */}
-          <div className="px-4 pb-3 flex flex-col gap-2.5 shrink-0">
-            {/* Recipe Type Badge - pill style with subtle color */}
-            <div className="flex items-center gap-2">
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium",
-                  getRecipeTypeBadgeClasses(recipe.recipe_type)
-                )}
-              >
-                {getRecipeIcon(recipe.recipe_type)}
-                {recipe.recipe_type}
-              </span>
-              {currentRating && (
-                <span className="inline-flex items-center gap-1 text-[11px] text-gray-500">
-                  <Star className="size-3 fill-amber-400 text-amber-400" />
-                  {currentRating.toFixed(1)}
-                </span>
+          {/* Type Badge + Simple Metadata */}
+          <div className="px-4 pb-3 flex flex-col gap-2 shrink-0">
+            {/* Recipe Type Badge */}
+            <span
+              className={cn(
+                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium w-fit",
+                getRecipeTypeBadgeClasses(recipe.recipe_type)
               )}
-            </div>
+            >
+              {getRecipeIcon(recipe.recipe_type)}
+              {recipe.recipe_type}
+            </span>
 
-            {/* Metadata: Time • Calories • Difficulty */}
-            <div className="flex items-center flex-wrap gap-x-2 gap-y-1 text-[12px] text-gray-500">
+            {/* Simple Metadata: Time + Servings */}
+            <div className="flex items-center gap-3 text-[12px] text-gray-500">
               <span className="flex items-center gap-1">
                 <Clock className="size-3" />
                 {metadata.totalTime}
               </span>
-              <span className="text-gray-300">•</span>
-              <span>{metadata.calories}</span>
-              <span className="text-gray-300">•</span>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span
-                    className={cn(
-                      "cursor-help font-medium",
-                      metadata.difficulty === "Easy" && "text-emerald-600",
-                      metadata.difficulty === "Medium" && "text-amber-600",
-                      metadata.difficulty === "Hard" && "text-rose-600"
-                    )}
-                  >
-                    {metadata.difficulty}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent className="text-xs">
-                  <div className="flex flex-col gap-1">
-                    <p className="font-medium">Difficulty Breakdown</p>
-                    <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
-                      <span className="text-muted-foreground">Time:</span>
-                      <span>
-                        {metadata.difficultyBreakdown.time.minutes !== null
-                          ? `${metadata.difficultyBreakdown.time.minutes} min`
-                          : "N/A"}{" "}
-                        ({metadata.difficultyBreakdown.time.score})
-                      </span>
-                      <span className="text-muted-foreground">Ingredients:</span>
-                      <span>
-                        {metadata.difficultyBreakdown.ingredients.count} items (
-                        {metadata.difficultyBreakdown.ingredients.score})
-                      </span>
-                      <span className="text-muted-foreground">Steps:</span>
-                      <span>
-                        {metadata.difficultyBreakdown.steps.count} steps (
-                        {metadata.difficultyBreakdown.steps.score})
-                      </span>
-                    </div>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-              {lastMadeDate && (
-                <>
-                  <span className="text-gray-300">•</span>
-                  <span className="text-[11px] text-gray-400">
-                    Made {formatDistanceToNow(new Date(lastMadeDate), { addSuffix: false })} ago
-                  </span>
-                </>
-              )}
+              <span className="flex items-center gap-1">
+                <Users className="size-3" />
+                {recipe.servings} servings
+              </span>
             </div>
           </div>
           <CardContent className="flex flex-col flex-1 pt-0 px-4 pb-4">
-            {/* Key Ingredients - subtle preview, hidden on mobile */}
-            {!isMobile && recipe.ingredients.length > 0 && (
-              <p className="text-xs text-gray-400 line-clamp-1 pb-3 border-b border-gray-100">
-                {recipe.ingredients.slice(0, 3).map((ingredient, idx) => (
-                  <span key={idx}>
-                    {idx > 0 && ", "}
-                    <HighlightText text={ingredient} searchTerm={searchTerm} />
-                  </span>
-                ))}
-                {recipe.ingredients.length > 3 && "..."}
-              </p>
-            )}
-
             {/* Footer: Add to Plan + Favorite */}
-            <div className="pt-3 mt-auto flex items-center gap-2">
+            <div className="mt-auto flex items-center gap-2">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -772,8 +656,129 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
               </Tooltip>
             </div>
           </CardContent>
-        </Card>
-      </Link>
+            </Card>
+          </Link>
+        </HoverCardTrigger>
+
+        {/* HoverCard Content - Desktop only, shows nutrition & quick actions */}
+        {!isMobile && (
+          <HoverCardContent className="w-80" side="right" align="start">
+            <div className="space-y-3">
+              {/* Header: Title + Favorite */}
+              <div className="flex justify-between items-start">
+                <div>
+                  <h4 className="font-semibold line-clamp-1">{recipe.title}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {recipe.recipe_type}
+                    {recipe.category && ` • ${recipe.category}`}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 w-8 p-0 shrink-0"
+                  onClick={handleToggleFavorite}
+                  disabled={isPending}
+                >
+                  <Heart
+                    className={cn(
+                      "h-4 w-4",
+                      isFavorite && "fill-red-500 text-red-500"
+                    )}
+                  />
+                </Button>
+              </div>
+
+              {/* Tags */}
+              {recipe.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {recipe.tags.slice(0, 4).map((tag) => (
+                    <Badge key={tag} variant="secondary" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                  {recipe.tags.length > 4 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{recipe.tags.length - 4}
+                    </Badge>
+                  )}
+                </div>
+              )}
+
+              {/* Nutrition Grid */}
+              {recipe.nutrition && (
+                <div className="grid grid-cols-4 gap-2 pt-2 border-t">
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-[#D9F99D]">
+                      {Math.round(recipe.nutrition.calories || 0)}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">kcal</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold">
+                      {Math.round(recipe.nutrition.protein_g || 0)}g
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">protein</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold">
+                      {Math.round(recipe.nutrition.carbs_g || 0)}g
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">carbs</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold">
+                      {Math.round(recipe.nutrition.fat_g || 0)}g
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">fat</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Allergen Warning */}
+              {hasAnyWarnings && (
+                <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400 pt-2 border-t">
+                  <AlertTriangle className="size-4 shrink-0" />
+                  <span>Contains: {allWarnings.slice(0, 3).join(", ")}</span>
+                </div>
+              )}
+
+              {/* Quick Actions */}
+              <div className="flex gap-2 pt-2 border-t">
+                <Button
+                  size="sm"
+                  className="flex-1 bg-[#1A1A1A] hover:bg-[#2A2A2A]"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    router.push(`/app/recipes/${recipe.id}/cook`);
+                  }}
+                >
+                  <ChefHat className="h-3 w-3 mr-1" />
+                  Cook
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleAddToCart}
+                  disabled={isAddingToPlan}
+                >
+                  <UtensilsCrossed className="h-3 w-3 mr-1" />
+                  Plan
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleShare}
+                >
+                  <Share2 className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+          </HoverCardContent>
+        )}
+      </HoverCard>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>

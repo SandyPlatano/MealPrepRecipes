@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "clean": "rm -rf .next",
-    "predev": "lsof -ti :3001 | xargs kill -9 2>/dev/null; sleep 0.5; lsof -ti :3001 | xargs kill -9 2>/dev/null || true",
+    "predev": "rm -rf .next && lsof -ti :3001 | xargs kill -9 2>/dev/null; sleep 0.5; lsof -ti :3001 | xargs kill -9 2>/dev/null || true",
     "dev": "next dev -p 3001",
     "dev:fresh": "npm run clean && npm run dev",
     "monitor:start": "launchctl load ~/Library/LaunchAgents/com.mealpreprecipes.devmonitor.plist 2>/dev/null || echo 'Already running'",

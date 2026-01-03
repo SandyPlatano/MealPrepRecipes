@@ -99,6 +99,7 @@ import { scaleIngredients, convertIngredientsToSystem, type UnitSystem } from "@
 import { UnitSystemToggle } from "@/components/recipes/unit-system-toggle";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { detectAllergens, mergeAllergens, getAllergenDisplayName, hasUserAllergens, hasCustomRestrictions } from "@/lib/allergen-detector";
 import { Substitution } from "@/lib/substitutions";
 import {
@@ -106,7 +107,24 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { AlertTriangle, RefreshCw } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
+import { AlertTriangle, RefreshCw, ChevronDown, Leaf, AlertCircle, ImageIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -586,18 +604,72 @@ export function RecipeDetail({
       <ul className="flex flex-col gap-2.5">
         {displayIngredients.map((ingredient, index) => {
           const ingredientSubs = substitutions.get(recipe.ingredients[index] || ingredient);
+          const hasSubstitutes = ingredientSubs && ingredientSubs.length > 0;
+
           return (
             <li key={index} className="flex items-start gap-2 group">
               <span className="text-muted-foreground">•</span>
               <div className="flex-1 flex items-center gap-2">
-                <ClickableIngredient
-                  ingredient={recipe.ingredients[index] || ingredient}
-                  recipeId={recipe.id}
-                  recipeTitle={recipe.title}
-                >
-                  <span>{ingredient}</span>
-                </ClickableIngredient>
-                {ingredientSubs && ingredientSubs.length > 0 && (
+                {hasSubstitutes ? (
+                  <HoverCard openDelay={300} closeDelay={100}>
+                    <HoverCardTrigger asChild>
+                      <div className="cursor-help">
+                        <ClickableIngredient
+                          ingredient={recipe.ingredients[index] || ingredient}
+                          recipeId={recipe.id}
+                          recipeTitle={recipe.title}
+                        >
+                          <span className="border-b border-dashed border-muted-foreground/40 hover:border-primary transition-colors">
+                            {ingredient}
+                          </span>
+                        </ClickableIngredient>
+                      </div>
+                    </HoverCardTrigger>
+                    <HoverCardContent className="w-72" align="start" side="right">
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-center gap-2">
+                          <div className="size-8 rounded-full bg-[#D9F99D]/30 flex items-center justify-center">
+                            <Leaf className="size-4 text-green-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">Substitutions Available</p>
+                            <p className="text-xs text-muted-foreground">{ingredientSubs.length} option{ingredientSubs.length > 1 ? "s" : ""}</p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          {ingredientSubs.slice(0, 2).map((sub, subIndex) => (
+                            <div key={subIndex} className="flex items-start gap-2 text-sm">
+                              <RefreshCw className="size-3 mt-1 text-muted-foreground flex-shrink-0" />
+                              <div>
+                                <span className="font-medium">{sub.substitute_ingredient}</span>
+                                {sub.notes && (
+                                  <p className="text-xs text-muted-foreground line-clamp-1">{sub.notes}</p>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                          {ingredientSubs.length > 2 && (
+                            <p className="text-xs text-muted-foreground pl-5">
+                              +{ingredientSubs.length - 2} more options
+                            </p>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground italic border-t pt-2">
+                          Click &quot;Swap&quot; for details
+                        </p>
+                      </div>
+                    </HoverCardContent>
+                  </HoverCard>
+                ) : (
+                  <ClickableIngredient
+                    ingredient={recipe.ingredients[index] || ingredient}
+                    recipeId={recipe.id}
+                    recipeTitle={recipe.title}
+                  >
+                    <span>{ingredient}</span>
+                  </ClickableIngredient>
+                )}
+                {hasSubstitutes && (
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -719,19 +791,96 @@ export function RecipeDetail({
   const renderNotesSection = () => {
     if (!recipe.notes) return null;
     return (
-      <div className="flex flex-col">
-        <h3 className="text-lg font-semibold text-[#1A1A1A] dark:text-white">Notes</h3>
-        <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {recipe.notes}
-          </ReactMarkdown>
-        </div>
-      </div>
+      <Collapsible defaultOpen={false} className="flex flex-col">
+        <CollapsibleTrigger className="flex items-center justify-between w-full group">
+          <h3 className="text-lg font-semibold text-[#1A1A1A] dark:text-white">Notes</h3>
+          <ChevronDown className="size-5 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+          <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground pt-3">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {recipe.notes}
+            </ReactMarkdown>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     );
   };
 
   const renderCookingHistorySection = () => {
     if (localHistory.length === 0) return null;
+
+    const renderHistoryEntry = (entry: CookingHistoryEntry) => (
+      <li
+        key={entry.id}
+        className="flex items-center justify-between text-sm p-2 rounded-lg bg-muted/50 group"
+      >
+        <div className="flex flex-col gap-1 flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">
+              {new Date(entry.cooked_at).toLocaleDateString(
+                "en-US",
+                {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                }
+              )}
+            </span>
+            {(entry.cooked_by_profile?.first_name || entry.cooked_by_profile?.last_name) && (
+              <span className="text-xs text-muted-foreground">
+                by {[entry.cooked_by_profile.first_name, entry.cooked_by_profile.last_name].filter(Boolean).join(" ")}
+              </span>
+            )}
+          </div>
+          {entry.modifications && (
+            <div className="text-xs">
+              <span className="font-medium text-primary">Tweaks: </span>
+              <span className="text-muted-foreground">{entry.modifications}</span>
+            </div>
+          )}
+          {entry.notes && (
+            <span className="text-muted-foreground text-xs">
+              {entry.notes}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {entry.rating && (
+            <StarRating rating={entry.rating} readonly size="sm" />
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <MoreVertical className="size-4" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setEditingHistoryEntry(entry)}>
+                <Edit className="mr-2 size-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setDeleteHistoryEntryId(entry.id)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="mr-2 size-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </li>
+    );
+
+    const firstEntry = localHistory[0];
+    const remainingEntries = localHistory.slice(1, 5);
+
     return (
       <div className="flex flex-col">
         <div>
@@ -742,73 +891,23 @@ export function RecipeDetail({
           </p>
         </div>
         <ul className="flex flex-col gap-2">
-          {localHistory.slice(0, 5).map((entry) => (
-            <li
-              key={entry.id}
-              className="flex items-center justify-between text-sm p-2 rounded-lg bg-muted/50 group"
-            >
-              <div className="flex flex-col gap-1 flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">
-                    {new Date(entry.cooked_at).toLocaleDateString(
-                      "en-US",
-                      {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      }
-                    )}
-                  </span>
-                  {(entry.cooked_by_profile?.first_name || entry.cooked_by_profile?.last_name) && (
-                    <span className="text-xs text-muted-foreground">
-                      by {[entry.cooked_by_profile.first_name, entry.cooked_by_profile.last_name].filter(Boolean).join(" ")}
-                    </span>
-                  )}
+          {/* Always show the most recent entry */}
+          {renderHistoryEntry(firstEntry)}
+
+          {/* Collapsible section for older entries */}
+          {remainingEntries.length > 0 && (
+            <Collapsible defaultOpen={false}>
+              <CollapsibleTrigger className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group w-full justify-center py-1">
+                <span>Show {remainingEntries.length} more</span>
+                <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+                <div className="flex flex-col gap-2 pt-2">
+                  {remainingEntries.map(renderHistoryEntry)}
                 </div>
-                {entry.modifications && (
-                  <div className="text-xs">
-                    <span className="font-medium text-primary">Tweaks: </span>
-                    <span className="text-muted-foreground">{entry.modifications}</span>
-                  </div>
-                )}
-                {entry.notes && (
-                  <span className="text-muted-foreground text-xs">
-                    {entry.notes}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                {entry.rating && (
-                  <StarRating rating={entry.rating} readonly size="sm" />
-                )}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <MoreVertical className="size-4" />
-                      <span className="sr-only">Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setEditingHistoryEntry(entry)}>
-                      <Edit className="mr-2 size-4" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => setDeleteHistoryEntryId(entry.id)}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="mr-2 size-4" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </li>
-          ))}
+              </CollapsibleContent>
+            </Collapsible>
+          )}
         </ul>
       </div>
     );
@@ -899,7 +998,89 @@ export function RecipeDetail({
   return (
     <>
       {/* Single Card with All Recipe Info */}
-      <Card className="bg-white rounded-xl border border-gray-200 shadow-sm dark:bg-slate-800 dark:border-gray-700">
+      <Card className="bg-white rounded-xl border border-gray-200 shadow-sm dark:bg-slate-800 dark:border-gray-700 overflow-hidden">
+        {/* Recipe Image Carousel */}
+        {recipe.image_url && (
+          <div className="relative">
+            <Carousel className="w-full" opts={{ loop: true }}>
+              <CarouselContent>
+                {/* Main Recipe Image */}
+                <CarouselItem>
+                  <div className="relative aspect-[16/9] w-full">
+                    <Image
+                      src={recipe.image_url}
+                      alt={recipe.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 60vw"
+                      priority
+                    />
+                    {/* Gradient overlay for text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    {/* Recipe info overlay */}
+                    <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                      <div className="flex gap-2">
+                        {recipe.prep_time && (
+                          <Badge className="bg-white/90 text-[#1A1A1A] backdrop-blur-sm">
+                            <Clock className="size-3 mr-1" />
+                            Prep: {recipe.prep_time}
+                          </Badge>
+                        )}
+                        {recipe.cook_time && (
+                          <Badge className="bg-white/90 text-[#1A1A1A] backdrop-blur-sm">
+                            <ChefHat className="size-3 mr-1" />
+                            Cook: {recipe.cook_time}
+                          </Badge>
+                        )}
+                      </div>
+                      {(recipe.servings || recipe.base_servings) && (
+                        <Badge className="bg-[#D9F99D] text-[#1A1A1A]">
+                          <Users className="size-3 mr-1" />
+                          {recipe.servings || recipe.base_servings} servings
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </CarouselItem>
+                {/* Quick Stats Slide */}
+                <CarouselItem>
+                  <div className="relative aspect-[16/9] w-full bg-gradient-to-br from-[#F5F5F5] via-[#EEEEEE] to-[#E8E8E8] dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 flex items-center justify-center p-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-2xl">
+                      <div className="flex flex-col items-center gap-2 p-4 bg-white/80 dark:bg-slate-900/80 rounded-xl backdrop-blur-sm">
+                        <Clock className="size-8 text-[#D9F99D]" />
+                        <span className="text-sm text-muted-foreground">Prep Time</span>
+                        <span className="font-semibold">{recipe.prep_time || "N/A"}</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-2 p-4 bg-white/80 dark:bg-slate-900/80 rounded-xl backdrop-blur-sm">
+                        <ChefHat className="size-8 text-amber-500" />
+                        <span className="text-sm text-muted-foreground">Cook Time</span>
+                        <span className="font-semibold">{recipe.cook_time || "N/A"}</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-2 p-4 bg-white/80 dark:bg-slate-900/80 rounded-xl backdrop-blur-sm">
+                        <Users className="size-8 text-blue-500" />
+                        <span className="text-sm text-muted-foreground">Servings</span>
+                        <span className="font-semibold">{recipe.servings || recipe.base_servings || "N/A"}</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-2 p-4 bg-white/80 dark:bg-slate-900/80 rounded-xl backdrop-blur-sm">
+                        <UtensilsCrossed className="size-8 text-rose-500" />
+                        <span className="text-sm text-muted-foreground">Ingredients</span>
+                        <span className="font-semibold">{recipe.ingredients.length} items</span>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+              </CarouselContent>
+              <CarouselPrevious className="left-4 bg-white/80 backdrop-blur-sm hover:bg-white" />
+              <CarouselNext className="right-4 bg-white/80 backdrop-blur-sm hover:bg-white" />
+            </Carousel>
+            {/* Carousel Dots Indicator */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+              <div className="size-2 rounded-full bg-white/80" />
+              <div className="size-2 rounded-full bg-white/40" />
+            </div>
+          </div>
+        )}
+
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex flex-col">

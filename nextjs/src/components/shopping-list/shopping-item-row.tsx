@@ -80,7 +80,16 @@ export const ShoppingItemRow = memo(function ShoppingItemRow({
 
   const handleRemove = async () => {
     setIsRemoving(true);
-    await removeShoppingListItem(item.id);
+    try {
+      const result = await removeShoppingListItem(item.id);
+      if (result.error) {
+        toast.error(`Failed to remove: ${result.error}`);
+        setIsRemoving(false);
+      }
+    } catch {
+      toast.error("Failed to remove item");
+      setIsRemoving(false);
+    }
   };
 
   const handlePantryToggle = async () => {
