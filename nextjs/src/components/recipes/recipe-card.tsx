@@ -98,7 +98,7 @@ import { triggerHaptic } from "@/lib/haptics";
 import { calculateCustomBadges, getBadgeColorClasses, type CustomBadge } from "@/lib/nutrition/badge-calculator";
 import { buildRecipeMetadata } from "@/lib/recipe/metadata-utils";
 import { cn } from "@/lib/utils";
-import { useSidebar } from "@/components/sidebar";
+import { useSidebar } from "@/components/ui/sidebar";
 import { useDifficultyThresholds } from "@/contexts/difficulty-thresholds-context";
 import { HighlightText } from "@/components/ui/highlight-text";
 

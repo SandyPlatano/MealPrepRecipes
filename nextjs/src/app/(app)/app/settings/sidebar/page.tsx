@@ -1,198 +1,58 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, ChevronRight, Settings2, PanelLeft, PanelLeftClose } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
+import { PanelLeft, Keyboard } from "lucide-react";
 import { SettingsHeader } from "@/components/settings/layout/settings-header";
-import { SettingSection, SettingRow } from "@/components/settings/shared/setting-row";
-import { SidebarSectionsManager } from "@/components/settings/sidebar/sidebar-sections-manager";
-import { MealPlanningItemsManager } from "@/components/settings/sidebar/meal-planning-items-manager";
-import { CustomLinkEditor } from "@/components/settings/sidebar/custom-link-editor";
-import { useSidebar } from "@/components/sidebar/sidebar-context";
-import type { CustomSectionConfig } from "@/types/sidebar-customization";
+import { SettingSection } from "@/components/settings/shared/setting-row";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function SidebarSettingsPage() {
-  const {
-    sections,
-    sectionOrder,
-    reducedMotion,
-    mode,
-    setMode,
-    addCustomSectionItem,
-    removeCustomSectionItem,
-  } = useSidebar();
-
-  // Track which custom sections are expanded for link editing
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
-
-  // Get custom sections in order
-  const customSections = sectionOrder
-    .map((id) => sections[id])
-    .filter((s): s is CustomSectionConfig => s?.type === "custom");
-
-  const toggleSectionExpanded = (sectionId: string) => {
-    setExpandedSections((prev) => {
-      const next = new Set(prev);
-      if (next.has(sectionId)) {
-        next.delete(sectionId);
-      } else {
-        next.add(sectionId);
-      }
-      return next;
-    });
-  };
-
   return (
     <div className="flex flex-col gap-8">
       <SettingsHeader
         title="Sidebar"
-        description="Customize your sidebar sections, order, and appearance"
+        description="Your sidebar navigation settings"
       />
 
-      {/* Section 1: Section Order & Visibility */}
       <SettingSection
-        title="Sections"
-        description="Drag to reorder sections. Click the eye to show or hide them."
+        title="Keyboard Shortcut"
+        description="Quickly toggle the sidebar"
       >
-        <div className="pt-2">
-          <SidebarSectionsManager />
-        </div>
-      </SettingSection>
-
-      {/* Section 2: Meal Planning Items */}
-      <SettingSection
-        title="Meal Planning Items"
-        description="Customize the navigation items in your Meal Planning section. Drag to reorder, hide items, or add custom links."
-      >
-        <div className="pt-2">
-          <MealPlanningItemsManager />
-        </div>
-      </SettingSection>
-
-      {/* Section 3: Custom Section Links */}
-      {customSections.length > 0 && (
-        <SettingSection
-          title="Custom Section Links"
-          description="Manage the links in your custom sections"
-        >
-          <div className="flex flex-col gap-3 pt-2">
-            {customSections.map((section) => {
-              const isExpanded = expandedSections.has(section.id);
-              return (
-                <div
-                  key={section.id}
-                  className="border rounded-lg overflow-hidden"
-                >
-                  {/* Section Header */}
-                  <button
-                    type="button"
-                    className={cn(
-                      "w-full flex items-center gap-3 p-3 text-left hover:bg-muted/50 transition-colors",
-                      isExpanded && "bg-muted/30"
-                    )}
-                    onClick={() => toggleSectionExpanded(section.id)}
-                  >
-                    {isExpanded ? (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                    )}
-                    {section.emoji && (
-                      <span className="text-lg shrink-0">{section.emoji}</span>
-                    )}
-                    <span className="text-sm font-medium flex-1">
-                      {section.title}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {section.items.length} {section.items.length === 1 ? "link" : "links"}
-                    </span>
-                  </button>
-
-                  {/* Section Content */}
-                  {isExpanded && (
-                    <div className="border-t p-3 bg-muted/20">
-                      <CustomLinkEditor
-                        section={section}
-                        onAddItem={addCustomSectionItem}
-                        onRemoveItem={removeCustomSectionItem}
-                      />
-                    </div>
-                  )}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-muted">
+                  <PanelLeft className="h-5 w-5 text-muted-foreground" />
                 </div>
-              );
-            })}
-          </div>
-        </SettingSection>
-      )}
-
-      {/* Section 3: Display Options */}
-      <SettingSection
-        title="Display"
-        description="Additional display options for the sidebar"
-      >
-        {/* Sidebar Mode Toggle */}
-        <SettingRow
-          id="sidebar-mode"
-          label="Sidebar style"
-          description="Choose between compact icons or full navigation"
-        >
-          <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
-            <button
-              type="button"
-              onClick={() => setMode("collapsed")}
-              className={cn(
-                "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
-                mode === "collapsed"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <PanelLeftClose className="h-4 w-4" />
-              <span className="hidden sm:inline">Icons</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("expanded")}
-              className={cn(
-                "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
-                mode === "expanded"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <PanelLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Full</span>
-            </button>
-          </div>
-        </SettingRow>
-
-        <SettingRow
-          id="reduced-motion"
-          label="Reduce motion"
-          description="Disable animations and transitions in the sidebar"
-        >
-          <Switch
-            id="reduced-motion-control"
-            checked={reducedMotion}
-            disabled
-            // TODO: Wire up to context when implemented
-          />
-        </SettingRow>
+                <div>
+                  <p className="font-medium">Toggle Sidebar</p>
+                  <p className="text-sm text-muted-foreground">
+                    Collapse or expand the sidebar
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <kbd className="px-2 py-1 text-xs font-medium bg-muted rounded border">
+                  ⌘
+                </kbd>
+                <span className="text-muted-foreground">+</span>
+                <kbd className="px-2 py-1 text-xs font-medium bg-muted rounded border">
+                  B
+                </kbd>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </SettingSection>
 
-      {/* Helpful tips */}
       <div className="rounded-lg border bg-muted/30 p-4">
         <div className="flex items-start gap-3">
-          <Settings2 className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+          <Keyboard className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
           <div className="flex flex-col gap-1">
-            <p className="text-sm font-medium">Sidebar Tips</p>
-            <ul className="text-xs text-muted-foreground flex flex-col gap-1">
-              <li>• Drag sections to change their order in the sidebar</li>
-              <li>• Click the pencil icon to rename sections or add emojis</li>
-              <li>• Hide sections you don&apos;t use with the eye icon</li>
-              <li>• Create custom sections for your favorite links and recipes</li>
-            </ul>
+            <p className="text-sm font-medium">Tip</p>
+            <p className="text-xs text-muted-foreground">
+              Use <kbd className="px-1 py-0.5 text-xs bg-muted rounded">⌘B</kbd> (or <kbd className="px-1 py-0.5 text-xs bg-muted rounded">Ctrl+B</kbd> on Windows) to quickly toggle the sidebar while working.
+            </p>
           </div>
         </div>
       </div>

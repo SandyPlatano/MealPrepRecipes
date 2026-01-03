@@ -42,6 +42,7 @@ export function QuickCartPanel({
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <SheetContent
         side="right"
+        hideCloseButton
         className="w-full sm:max-w-md flex flex-col p-0"
       >
         {/* Header */}

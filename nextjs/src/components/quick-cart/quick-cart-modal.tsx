@@ -78,7 +78,7 @@ export function QuickCartModal({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="max-w-[95vw] sm:max-w-[85vw] md:max-w-[75vw] lg:max-w-[70vw] h-[90vh] sm:h-[85vh] flex flex-col p-0 gap-0">
+        <DialogContent hideCloseButton className="max-w-[95vw] sm:max-w-[85vw] md:max-w-[75vw] lg:max-w-[70vw] h-[90vh] sm:h-[85vh] flex flex-col p-0 gap-0">
           {/* Header */}
           <QuickCartModalHeader
             itemCount={itemCount}
