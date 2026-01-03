@@ -80,16 +80,6 @@ export function NavMain({ shoppingListCount, favoritesCount }: NavMainProps) {
       <SidebarGroupLabel>Navigation</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
-          {/* New Recipe Action */}
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="New Recipe">
-              <Link href="/app/recipes/new">
-                <Plus className="h-4 w-4" />
-                <span>New Recipe</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
           {/* Navigation Items */}
           {navItems.map((item) => {
             const isActive =
@@ -116,6 +106,16 @@ export function NavMain({ shoppingListCount, favoritesCount }: NavMainProps) {
               </SidebarMenuItem>
             );
           })}
+
+          {/* New Recipe Action - at the bottom */}
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="New Recipe">
+              <Link href="/app/recipes/new">
+                <Plus className="h-4 w-4" />
+                <span>New Recipe</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Navigation } from "@/components/landing/navigation";
 import { Footer } from "@/components/landing/footer";
@@ -17,6 +18,20 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="pt-32 pb-16 px-4">
         <div className="max-w-2xl mx-auto text-center">
+          {/* Photo */}
+          <div className="relative w-64 h-64 md:w-80 md:h-80 mx-auto mb-10">
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#D9F99D]/30 to-[#D9F99D]/10 blur-2xl" />
+            <div className="relative w-full h-full rounded-2xl border-4 border-[#D9F99D]/30 overflow-hidden shadow-xl">
+              <Image
+                src="/images/BabeWFDAboutPic.jpg"
+                alt="The team behind What's for Dinner?"
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+          </div>
+
           <span className="inline-block bg-[#D9F99D] text-[#1A1A1A] font-semibold px-4 py-2 text-sm rounded-full mb-8">
             Our Story
           </span>
