@@ -1,16 +1,18 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { HelpCircle } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
+import { StarSmall, StarDecoration } from './shared/star-decoration';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// FAQ SECTION - Warm & Cozy Design System
-// Clean accordion with soft shadows and rounded corners
+// FAQ SECTION - Premium & Polished Redesign
+// Spring animations, generous padding, chat fallback
 // ═══════════════════════════════════════════════════════════════════════════
 
 const faqs = [
@@ -57,41 +59,118 @@ const faqs = [
 ];
 
 export function FAQ() {
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = sectionRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
+
   return (
-    <section className="py-24 bg-white relative overflow-hidden">
+    <section ref={sectionRef} className="py-24 md:py-28 bg-white relative overflow-hidden">
+      {/* Decorative stars */}
+      <StarDecoration
+        size={20}
+        className="absolute top-16 right-[12%] text-[#D9F99D]/30"
+      />
+      <StarSmall
+        size={14}
+        className="absolute bottom-24 left-[8%] text-[#1A1A1A]/10"
+      />
+
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-12">
-            <span className="bg-[#D9F99D] text-[#1A1A1A] text-sm font-semibold px-4 py-2 rounded-full inline-flex items-center gap-2 mb-4">
-              <HelpCircle className="w-4 h-4" />
+          <div className="text-center mb-14">
+            <span className={`
+              inline-flex items-center gap-2 mb-4 rounded-full border border-gray-200
+              bg-white px-4 py-2 text-xs font-semibold text-[#1A1A1A] shadow-sm
+              transition-all duration-700
+              ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+            `}>
+              <StarSmall size={12} className="text-[#84CC16]" />
               FAQ
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
+            <h2 className={`
+              text-3xl md:text-4xl lg:text-5xl font-bold text-[#1A1A1A] mb-4
+              transition-all duration-700 delay-100
+              ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+            `}>
               Questions & Answers
             </h2>
-            <p className="text-gray-600">
+            <p className={`
+              text-gray-600 text-lg
+              transition-all duration-700 delay-200
+              ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+            `}>
               Everything you need to know about meal planning.
             </p>
           </div>
 
-          {/* Accordion with Warm & Cozy styling */}
-          <Accordion type="single" collapsible className="w-full space-y-3">
+          {/* Accordion with Premium styling */}
+          <Accordion type="single" collapsible className="w-full space-y-4">
             {faqs.map((faq, index) => (
               <AccordionItem
                 key={index}
                 value={`item-${index}`}
-                className="border border-gray-200 bg-white rounded-xl shadow-sm px-6 hover:shadow-md transition-shadow data-[state=open]:border-[#D9F99D] data-[state=open]:shadow-md"
+                className={`
+                  border border-gray-200 bg-white rounded-2xl shadow-sm px-6 md:px-8
+                  hover:shadow-md transition-all duration-300
+                  data-[state=open]:border-[#D9F99D] data-[state=open]:shadow-lg
+                  data-[state=open]:bg-gradient-to-br data-[state=open]:from-white data-[state=open]:to-[#FAFFF8]
+                  ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+                `}
+                style={{ transitionDelay: `${300 + index * 50}ms` }}
               >
-                <AccordionTrigger className="text-left text-base font-semibold text-[#1A1A1A] hover:text-gray-700 transition-colors py-5 [&[data-state=open]]:text-[#1A1A1A]">
+                <AccordionTrigger className="text-left text-base md:text-lg font-semibold text-[#1A1A1A] hover:text-gray-700 transition-colors py-6 [&[data-state=open]]:text-[#1A1A1A]">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-gray-600 pb-5 leading-relaxed">
+                <AccordionContent className="text-gray-600 pb-6 leading-relaxed text-base">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
+
+          {/* Chat Fallback */}
+          <div className={`
+            mt-12 text-center
+            transition-all duration-700 delay-700
+            ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+          `}>
+            <div className="inline-flex items-center gap-4 bg-gradient-to-br from-[#FAFFF8] to-[#F0FDF4] rounded-2xl px-6 py-4 border border-[#D9F99D]/30">
+              <div className="w-10 h-10 rounded-full bg-[#D9F99D] flex items-center justify-center">
+                <MessageCircle className="w-5 h-5 text-[#1A1A1A]" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-[#1A1A1A]">Still have questions?</p>
+                <p className="text-sm text-gray-600">
+                  <a href="mailto:support@babewfd.com" className="text-[#84CC16] hover:underline font-medium">
+                    Chat with us
+                  </a>
+                  {' '}— we&apos;re here to help!
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

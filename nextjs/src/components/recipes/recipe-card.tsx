@@ -425,7 +425,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
             onFocus={handlePrefetch}
           >
             <Card
-          className="group h-full bg-white rounded-2xl border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-gray-300/80 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col cursor-pointer overflow-hidden animate-slide-up-fade relative"
+          className="group h-full bg-white rounded-2xl border border-gray-100 border-l-4 border-l-gray-200 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-l-gray-300 transition-all duration-300 ease-out flex flex-col cursor-pointer overflow-hidden animate-slide-up-fade relative"
           style={animationIndex !== undefined ? { animationDelay: `${animationIndex * 50}ms`, animationFillMode: 'backwards' } : undefined}
         >
           {/* Image Section - AspectRatio ensures consistent proportions */}

@@ -31,9 +31,35 @@
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| `--color-background` | `#FFFCF6` | Page background (warm off-white) |
+| `--color-background` | `#F5F5F0` | Page background (subtle warm gray) |
 | `--color-surface` | `#FFFFFF` | Cards, modals, elevated surfaces |
 | `--color-muted` | `#F3F4F6` | Subtle backgrounds |
+
+### Visual Hierarchy (3-Tier System)
+
+The app uses a 3-tier depth system to create clear visual hierarchy:
+
+| Tier | Color | Shadow | Usage |
+|------|-------|--------|-------|
+| 1 - Page | `#F5F5F0` | none | Page background |
+| 2 - Container | `#FAFAF8` | `shadow-md` | Day cards, section containers |
+| 3 - Content | `#FFFFFF` | `shadow-lg` | Recipe cards (hero elements) |
+
+**Recipe Card Styling:**
+```tsx
+// Tier 3 - Hero element with lime accent
+className="bg-white rounded-2xl border border-gray-100
+  border-l-4 border-l-[#D9F99D]        // Lime left accent
+  shadow-lg                             // Strong shadow
+  hover:shadow-2xl hover:-translate-y-2 // Dramatic hover
+  hover:ring-2 hover:ring-[#D9F99D]/30" // Lime glow
+```
+
+**Day Container Styling:**
+```tsx
+// Tier 2 - Section containers
+className="bg-[#FAFAF8] shadow-md"
+```
 
 ### Text
 

@@ -1,9 +1,11 @@
 import { HeroSection } from '@/components/landing/hero-section';
 import { FeaturesTimeline } from '@/components/landing/features-timeline';
+import { WeeklyStruggle } from '@/components/landing/weekly-struggle';
 import { PricingSection } from '@/components/landing/pricing-section';
 import { FAQ } from '@/components/landing/faq';
 import { CTASection } from '@/components/landing/cta-section';
 import { Navigation } from '@/components/landing/navigation';
+import { StickyCTA } from '@/components/landing/sticky-cta';
 import { Footer } from '@/components/landing/footer';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -25,6 +27,9 @@ export default function Home() {
         <FeaturesTimeline />
       </div>
 
+      {/* Weekly Struggle - Story narrative */}
+      <WeeklyStruggle />
+
       {/* Pricing */}
       <div id="pricing">
         <PricingSection />
@@ -40,6 +45,9 @@ export default function Home() {
 
       {/* Footer - Dark background */}
       <Footer />
+
+      {/* Sticky CTA - Floating bar on scroll */}
+      <StickyCTA />
     </main>
   );
 }

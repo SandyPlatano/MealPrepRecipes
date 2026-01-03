@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Download, Calendar, ShoppingCart, ChefHat, ArrowRight, Check, GripVertical, Clock } from 'lucide-react';
+import { Download, Calendar, ShoppingCart, ChefHat, ArrowRight, Check, GripVertical, Clock, Link2, Upload, Copy } from 'lucide-react';
 import Link from 'next/link';
+import { StarSmall, StarDecoration } from './shared/star-decoration';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// FEATURES TIMELINE - Warm & Cozy Design System (Pass 4 Animated Demos)
-// Alternating layout with looping animated demo cards
+// FEATURES TIMELINE - Premium & Polished Redesign
+// Large step numbers, method pills, connecting flow, premium animations
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Hook to detect prefers-reduced-motion
@@ -62,11 +63,11 @@ const FEATURES: Feature[] = [
   {
     number: '03',
     icon: ShoppingCart,
-    title: 'Shop smarter, not harder',
-    description: 'Every ingredient from your planned meals, combined and organized by store aisle. Check items off as you shop.',
+    title: 'Shop smarter, waste less',
+    description: 'Buy exactly what you need — no more rotting veggies, no forgotten leftovers. Every ingredient combined and organized by store aisle.',
     details: [
+      'Buy only what you\'ll actually cook',
       'Auto-combines duplicate items',
-      'Organized by store section',
       'Works offline in the store',
     ],
     accentColor: 'orange',
@@ -74,12 +75,12 @@ const FEATURES: Feature[] = [
   {
     number: '04',
     icon: ChefHat,
-    title: 'Cook with confidence',
-    description: 'Follow along step-by-step with large, easy-to-read instructions. Timers built right in. Scale servings on the fly.',
+    title: 'Cook once, eat all week',
+    description: 'Batch cook on Sunday, portion into containers, eat homemade all week. Scale any recipe from 1 serving to 10+ with one click.',
     details: [
-      'Step-by-step instructions',
-      'Built-in timers',
-      'Scale servings anytime',
+      'Scale recipes for any household size',
+      'Batch cook & portion for the week',
+      'Step-by-step with built-in timers',
     ],
     accentColor: 'lime',
   },
@@ -94,8 +95,27 @@ const ACCENT_COLORS = {
 
 export function FeaturesTimeline() {
   const [visibleFeatures, setVisibleFeatures] = useState<Set<number>>(new Set());
+  const [headerVisible, setHeaderVisible] = useState(false);
   const featureRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const sectionRef = useRef<HTMLElement>(null);
 
+  // Header visibility
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setHeaderVisible(true);
+      },
+      { threshold: 0.2 }
+    );
+
+    const currentRef = sectionRef.current;
+    if (currentRef) observer.observe(currentRef);
+    return () => {
+      if (currentRef) observer.unobserve(currentRef);
+    };
+  }, []);
+
+  // Feature visibility
   useEffect(() => {
     const observerOptions = {
       root: null,
@@ -120,47 +140,104 @@ export function FeaturesTimeline() {
   }, []);
 
   return (
-    <section id="features" className="bg-[#FFFCF6] py-24">
+    <section
+      ref={sectionRef}
+      id="features"
+      className="bg-[#FFFCF6] py-24 md:py-32 relative overflow-hidden"
+    >
+      {/* Decorative stars */}
+      <StarDecoration
+        size={24}
+        className="absolute top-20 right-[8%] text-[#D9F99D]/30"
+      />
+      <StarSmall
+        size={16}
+        className="absolute bottom-32 left-[5%] text-[#1A1A1A]/10"
+      />
+
       <div className="container mx-auto px-4">
         {/* Section Header */}
-        <div className="mb-20 text-center">
+        <div className="mb-20 md:mb-24 text-center">
           <span className={`
-            mb-4 inline-block rounded-full border border-gray-200 bg-white px-4
+            inline-flex items-center gap-2 mb-4 rounded-full border border-gray-200 bg-white px-4
             py-2 text-xs font-semibold text-[#1A1A1A] shadow-sm
+            transition-all duration-700
+            ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
           `}>
+            <StarSmall size={12} className="text-[#84CC16]" />
             How It Works
           </span>
           <h2 className={`
             mb-4 font-display text-3xl font-bold text-[#1A1A1A]
-            md:text-4xl
-            lg:text-5xl
+            md:text-4xl lg:text-5xl
+            transition-all duration-700 delay-100
+            ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
           `}>
             From URL to table in 4 steps
           </h2>
-          <p className="mx-auto max-w-xl text-lg text-gray-600">
+          <p className={`
+            mx-auto max-w-xl text-lg text-gray-600
+            transition-all duration-700 delay-200
+            ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+          `}>
             See exactly how easy meal planning becomes. No signup required to explore.
           </p>
         </div>
 
-        {/* Features */}
-        <div className="mx-auto max-w-6xl space-y-24">
-          {FEATURES.map((feature, index) => (
+        {/* Features with Connecting Line */}
+        <div className="mx-auto max-w-6xl relative">
+          {/* Vertical connecting line - hidden on mobile */}
+          <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2">
             <div
-              key={feature.number}
-              ref={(el) => { featureRefs.current[index] = el; }}
-            >
-              <FeatureRow
-                feature={feature}
-                isReversed={index % 2 === 1}
-                isVisible={visibleFeatures.has(index)}
-              />
-            </div>
-          ))}
+              className={`
+                w-full h-full bg-gradient-to-b from-transparent via-[#D9F99D]/40 to-transparent
+                transition-all duration-1000
+                ${visibleFeatures.size > 0 ? 'opacity-100' : 'opacity-0'}
+              `}
+            />
+          </div>
+
+          <div className="space-y-20 md:space-y-28">
+            {FEATURES.map((feature, index) => (
+              <div
+                key={feature.number}
+                ref={(el) => { featureRefs.current[index] = el; }}
+                className="relative"
+              >
+                {/* Center step indicator - hidden on mobile */}
+                <div className={`
+                  hidden lg:flex absolute left-1/2 top-8 -translate-x-1/2 z-10
+                  w-14 h-14 rounded-full bg-white border-2 border-[#D9F99D]
+                  items-center justify-center shadow-lg
+                  transition-all duration-700
+                  ${visibleFeatures.has(index)
+                    ? 'opacity-100 scale-100'
+                    : 'opacity-0 scale-75'
+                  }
+                `}>
+                  <span className="text-lg font-bold text-[#1A1A1A]">{feature.number}</span>
+                </div>
+
+                <FeatureRow
+                  feature={feature}
+                  isReversed={index % 2 === 1}
+                  isVisible={visibleFeatures.has(index)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
   );
 }
+
+// Method pills for Import feature
+const IMPORT_METHODS = [
+  { icon: Link2, label: 'Paste URL' },
+  { icon: Upload, label: 'Upload Photo' },
+  { icon: Copy, label: 'Copy Text' },
+];
 
 function FeatureRow({
   feature,
@@ -171,12 +248,14 @@ function FeatureRow({
   isReversed: boolean;
   isVisible: boolean;
 }) {
+  const isImportFeature = feature.number === '01';
+
   return (
     <div
       className={`
         grid items-center gap-10 transition-all duration-700 ease-out
-        lg:grid-cols-2 lg:gap-14
-        ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}
+        lg:grid-cols-2 lg:gap-20
+        ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}
       `}
     >
       {/* Accent Card Side */}
@@ -186,9 +265,9 @@ function FeatureRow({
         <div
           className={`
             ${ACCENT_COLORS[feature.accentColor]}
-            relative overflow-hidden rounded-2xl p-6 transition-transform
-            duration-300
-            hover:-translate-y-1
+            relative overflow-hidden rounded-2xl p-6 md:p-8 transition-all
+            duration-300 shadow-sm
+            hover:-translate-y-1 hover:shadow-md
           `}
         >
           <FeatureDemoCard featureNumber={feature.number} />
@@ -197,66 +276,84 @@ function FeatureRow({
 
       {/* Content Side */}
       <div className={`
-        ${isReversed ? 'lg:order-1' : 'lg:order-2'}
+        ${isReversed ? 'lg:order-1 lg:text-right' : 'lg:order-2'}
       `}>
-        {/* Timeline number */}
-        <div className="mb-5 flex items-center gap-4">
-          <div className={`
-            flex h-10 w-10 items-center justify-center rounded-full border
-            border-gray-200 bg-white shadow-sm
-          `}>
-            <span className="text-xs font-bold text-gray-400">{feature.number}</span>
+        {/* Large Step Number - Mobile only (desktop shows center indicator) */}
+        <div className={`
+          lg:hidden mb-6 flex items-center gap-4
+          ${isReversed ? 'flex-row-reverse' : ''}
+        `}>
+          <div className="w-12 h-12 rounded-full bg-white border-2 border-[#D9F99D] flex items-center justify-center shadow-md">
+            <span className="text-lg font-bold text-[#1A1A1A]">{feature.number}</span>
           </div>
-          <div className="h-px flex-1 bg-gray-200" />
+          <div className="h-px flex-1 bg-gradient-to-r from-[#D9F99D]/50 to-transparent" />
         </div>
 
         {/* Title */}
-        <h3 className={`
-          mb-3 font-display text-xl font-bold text-[#1A1A1A]
-          md:text-2xl
-        `}>
+        <h3 className="mb-3 font-display text-2xl md:text-3xl font-bold text-[#1A1A1A]">
           {feature.title}
         </h3>
 
         {/* Description */}
-        <p className="mb-5 text-sm leading-relaxed text-gray-600">
+        <p className="mb-5 text-base leading-relaxed text-gray-600">
           {feature.description}
         </p>
 
+        {/* Method Pills - Only for Import feature */}
+        {isImportFeature && (
+          <div className={`
+            flex flex-wrap gap-2 mb-6
+            ${isReversed ? 'lg:justify-end' : ''}
+          `}>
+            {IMPORT_METHODS.map((method) => {
+              const Icon = method.icon;
+              return (
+                <div
+                  key={method.label}
+                  className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1.5 border border-gray-200 shadow-sm"
+                >
+                  <Icon className="w-3.5 h-3.5 text-gray-500" />
+                  <span className="text-xs font-medium text-gray-600">{method.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         {/* Details list */}
-        <ul className="mb-6 space-y-2.5">
-          {feature.details.map((detail) => (
-            <li key={detail} className={`
-              flex items-center gap-2.5 text-sm text-gray-600
-            `}>
-              <span className={`
-                flex h-4 w-4 flex-shrink-0 items-center justify-center
-                rounded-full bg-[#D9F99D]
-              `}>
-                <Check className="h-2.5 w-2.5 text-[#1A1A1A]" strokeWidth={3} />
+        <ul className={`
+          mb-6 space-y-3
+          ${isReversed ? 'lg:space-y-3' : ''}
+        `}>
+          {feature.details.map((detail, index) => (
+            <li
+              key={detail}
+              className={`
+                flex items-center gap-3 text-sm text-gray-600
+                ${isReversed ? 'lg:flex-row-reverse' : ''}
+              `}
+              style={{ transitionDelay: `${index * 100}ms` }}
+            >
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#D9F99D]/50">
+                <Check className="h-3 w-3 text-[#1A1A1A]" strokeWidth={3} />
               </span>
               {detail}
             </li>
           ))}
         </ul>
 
-        {/* CTA - text link style with focus state */}
-        <Link
-          href="/signup"
-          className={`
-            group -ml-1 inline-flex items-center gap-1.5 rounded-md px-1 text-sm
-            font-medium text-[#1A1A1A] transition-all duration-150
-            hover:gap-2.5
-            focus:outline-none
-            focus-visible:ring-2 focus-visible:ring-[#D9F99D]
-            focus-visible:ring-offset-2
-          `}
-        >
-          Try it free
-          <ArrowRight className={`
-            h-3.5 w-3.5 transition-transform duration-150
-            group-hover:translate-x-0.5
-          `} />
+        {/* CTA Button */}
+        <Link href="/signup">
+          <button className={`
+            inline-flex items-center gap-2 bg-[#1A1A1A] text-white
+            px-6 py-3 rounded-full font-semibold text-sm
+            hover:bg-gray-800 transition-all duration-200 group
+            shadow-md hover:shadow-lg active:scale-[0.98]
+          `}>
+            <StarSmall size={14} className="text-[#D9F99D]" />
+            Try it free
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          </button>
         </Link>
       </div>
     </div>

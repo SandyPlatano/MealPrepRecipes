@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Card,
   CardContent,
@@ -114,6 +115,18 @@ import {
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
 import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
@@ -125,7 +138,9 @@ import {
   CarouselPrevious,
   CarouselNext,
 } from "@/components/ui/carousel";
-import { AlertTriangle, RefreshCw, ChevronDown, Leaf, AlertCircle, ImageIcon } from "lucide-react";
+import { AlertTriangle, RefreshCw, ChevronDown, Leaf, AlertCircle, ImageIcon, Apple, FileText, CalendarDays, Plus, Check } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -238,6 +253,39 @@ export function RecipeDetail({
   const [isAddingIngredients, setIsAddingIngredients] = useState(false);
   const quickCart = useQuickCartContext();
   const router = useRouter();
+  const isMobile = useIsMobile();
+
+  // Ingredient checkboxes state (for gathering while prepping)
+  const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
+
+  // Instruction step progress state
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+
+  // Toggle ingredient checkbox
+  const toggleIngredientCheck = (index: number) => {
+    setCheckedIngredients(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
+
+  // Toggle instruction step completion
+  const toggleStepCompletion = (index: number) => {
+    setCompletedSteps(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
 
   // Check if recipe was cooked today
   const today = new Date().toDateString();
@@ -621,15 +669,39 @@ export function RecipeDetail({
         </p>
       )}
 
+      {/* Ingredient Progress */}
+      {checkedIngredients.size > 0 && (
+        <div className="flex items-center gap-3 bg-[#D9F99D]/10 rounded-lg px-3 py-2">
+          <Progress
+            value={(checkedIngredients.size / displayIngredients.length) * 100}
+            className="h-2 flex-1"
+          />
+          <span className="text-sm font-medium text-[#1A1A1A] dark:text-white whitespace-nowrap">
+            {checkedIngredients.size}/{displayIngredients.length} gathered
+          </span>
+        </div>
+      )}
+
       <ul className="flex flex-col gap-3">
         {displayIngredients.map((ingredient, index) => {
           const ingredientSubs = substitutions.get(recipe.ingredients[index] || ingredient);
           const hasSubstitutes = ingredientSubs && ingredientSubs.length > 0;
+          const isChecked = checkedIngredients.has(index);
 
           return (
-            <li key={index} className="flex items-start gap-3 group text-base">
-              <span className="text-[#D9F99D] text-lg leading-tight">•</span>
-              <div className="flex-1 flex items-center gap-2">
+            <li
+              key={index}
+              className={`flex items-start gap-3 group text-base transition-all ${
+                isChecked ? "opacity-60" : ""
+              }`}
+            >
+              <Checkbox
+                id={`ingredient-${index}`}
+                checked={isChecked}
+                onCheckedChange={() => toggleIngredientCheck(index)}
+                className="mt-1 size-5 rounded border-2 border-[#D9F99D] data-[state=checked]:bg-[#D9F99D] data-[state=checked]:text-[#1A1A1A]"
+              />
+              <div className={`flex-1 flex items-center gap-2 ${isChecked ? "line-through decoration-[#D9F99D]/50" : ""}`}>
                 {hasSubstitutes ? (
                   <HoverCard openDelay={300} closeDelay={100}>
                     <HoverCardTrigger asChild>
@@ -736,53 +808,191 @@ export function RecipeDetail({
     </div>
   );
 
-  const renderInstructionsSection = () => (
-    <div className="flex flex-col gap-5">
-      {/* Title Row with visual hierarchy */}
-      <div className="flex items-center gap-3">
-        <h3 className="text-xl font-bold text-[#1A1A1A] dark:text-white whitespace-nowrap">Instructions</h3>
-        <Badge className="bg-[#D9F99D]/20 text-[#1A1A1A] dark:text-white border-0 text-xs">
-          {recipe.instructions.length} steps
-        </Badge>
-        <Separator className="flex-1" />
+  const renderInstructionsSection = () => {
+    const completedCount = completedSteps.size;
+    const totalSteps = recipe.instructions.length;
+    const progressPercent = totalSteps > 0 ? Math.round((completedCount / totalSteps) * 100) : 0;
+
+    return (
+      <div className="flex flex-col gap-5">
+        {/* Title Row with visual hierarchy */}
+        <div className="flex items-center gap-3">
+          <h3 className="text-xl font-bold text-[#1A1A1A] dark:text-white whitespace-nowrap">Instructions</h3>
+          <Badge className="bg-[#D9F99D]/20 text-[#1A1A1A] dark:text-white border-0 text-xs">
+            {completedCount}/{totalSteps} steps
+          </Badge>
+          <Separator className="flex-1" />
+        </div>
+
+        {/* Progress Bar */}
+        {completedCount > 0 && (
+          <div className="flex items-center gap-3">
+            <Progress value={progressPercent} className="h-2 flex-1" />
+            <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
+              {progressPercent}% done
+            </span>
+          </div>
+        )}
+
+        {/* Timeline step cards */}
+        <ol className="flex flex-col gap-0">
+          {recipe.instructions.map((instruction, index) => {
+            const isCompleted = completedSteps.has(index);
+            const isCurrentStep = !isCompleted && (index === 0 || completedSteps.has(index - 1));
+
+            return (
+              <li key={index} className="relative flex gap-4 pb-6 last:pb-0">
+                {/* Connector line */}
+                {index < recipe.instructions.length - 1 && (
+                  <div
+                    className={`absolute left-[1.1875rem] top-12 bottom-0 w-0.5 transition-colors ${
+                      isCompleted ? "bg-[#D9F99D]" : "bg-[#D9F99D]/40"
+                    }`}
+                  />
+                )}
+                {/* Step number - clickable */}
+                <button
+                  onClick={() => toggleStepCompletion(index)}
+                  className={`flex-shrink-0 size-10 rounded-full font-bold flex items-center justify-center z-10 shadow-sm transition-all ${
+                    isCompleted
+                      ? "bg-[#D9F99D] text-[#1A1A1A]"
+                      : isCurrentStep
+                      ? "bg-[#D9F99D] text-[#1A1A1A] ring-2 ring-[#D9F99D] ring-offset-2"
+                      : "bg-gray-100 dark:bg-slate-600 text-gray-500 dark:text-gray-400"
+                  }`}
+                  aria-label={isCompleted ? `Mark step ${index + 1} as incomplete` : `Mark step ${index + 1} as complete`}
+                >
+                  {isCompleted ? <Check className="size-5" /> : index + 1}
+                </button>
+                {/* Step content card */}
+                <div
+                  className={`flex-1 rounded-xl border p-4 shadow-sm transition-all cursor-pointer ${
+                    isCompleted
+                      ? "bg-[#D9F99D]/10 border-[#D9F99D]/30 dark:bg-[#D9F99D]/5"
+                      : isCurrentStep
+                      ? "bg-white dark:bg-slate-700 border-[#D9F99D] dark:border-[#D9F99D]"
+                      : "bg-white dark:bg-slate-700 border-gray-100 dark:border-gray-600"
+                  }`}
+                  onClick={() => toggleStepCompletion(index)}
+                >
+                  <div
+                    className={`prose prose-base dark:prose-invert max-w-none leading-relaxed ${
+                      isCompleted ? "opacity-60 line-through decoration-[#D9F99D]/50" : ""
+                    }`}
+                  >
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {instruction}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
       </div>
-      {/* Timeline step cards */}
-      <ol className="flex flex-col gap-0">
-        {recipe.instructions.map((instruction, index) => (
-          <li key={index} className="relative flex gap-4 pb-6 last:pb-0">
-            {/* Connector line */}
-            {index < recipe.instructions.length - 1 && (
-              <div className="absolute left-[1.1875rem] top-12 bottom-0 w-0.5 bg-[#D9F99D]/40" />
-            )}
-            {/* Step number */}
-            <div className="flex-shrink-0 size-10 rounded-full bg-[#D9F99D] text-[#1A1A1A] font-bold flex items-center justify-center z-10 shadow-sm">
-              {index + 1}
-            </div>
-            {/* Step content card */}
-            <div className="flex-1 bg-white dark:bg-slate-700 rounded-xl border border-gray-100 dark:border-gray-600 p-4 shadow-sm">
-              <div className="prose prose-base dark:prose-invert max-w-none leading-relaxed">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {instruction}
-                </ReactMarkdown>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
+    );
+  };
 
   const renderNutritionSection = () => {
     if (!nutritionEnabled) return null;
+
+    // Daily value percentages (based on 2000 calorie diet)
+    const getDailyValuePercent = (value: number | null | undefined, dailyValue: number) => {
+      if (!value) return 0;
+      return Math.min(100, Math.round((value / dailyValue) * 100));
+    };
+
     return (
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-6">
         {localNutrition ? (
-          <NutritionFactsCard
-            nutrition={localNutrition}
-            recipeId={recipe.id}
-            servings={recipe.base_servings || 4}
-            editable
-          />
+          <>
+            {/* Visual Nutrition Summary */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {/* Calories */}
+              <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border border-gray-100 dark:border-gray-600 shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-muted-foreground">Calories</span>
+                  <span className="text-lg font-bold text-[#1A1A1A] dark:text-white">
+                    {localNutrition.calories || 0}
+                  </span>
+                </div>
+                <Progress
+                  value={getDailyValuePercent(localNutrition.calories, 2000)}
+                  className="h-2 bg-gray-100 dark:bg-gray-600"
+                />
+                <span className="text-xs text-muted-foreground mt-1 block">
+                  {getDailyValuePercent(localNutrition.calories, 2000)}% DV
+                </span>
+              </div>
+
+              {/* Protein */}
+              <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border border-gray-100 dark:border-gray-600 shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-muted-foreground">Protein</span>
+                  <span className="text-lg font-bold text-[#1A1A1A] dark:text-white">
+                    {localNutrition.protein_g || 0}g
+                  </span>
+                </div>
+                <Progress
+                  value={getDailyValuePercent(localNutrition.protein_g, 50)}
+                  className="h-2 bg-gray-100 dark:bg-gray-600 [&>div]:bg-blue-500"
+                />
+                <span className="text-xs text-muted-foreground mt-1 block">
+                  {getDailyValuePercent(localNutrition.protein_g, 50)}% DV
+                </span>
+              </div>
+
+              {/* Carbs */}
+              <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border border-gray-100 dark:border-gray-600 shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-muted-foreground">Carbs</span>
+                  <span className="text-lg font-bold text-[#1A1A1A] dark:text-white">
+                    {localNutrition.carbs_g || 0}g
+                  </span>
+                </div>
+                <Progress
+                  value={getDailyValuePercent(localNutrition.carbs_g, 300)}
+                  className="h-2 bg-gray-100 dark:bg-gray-600 [&>div]:bg-amber-500"
+                />
+                <span className="text-xs text-muted-foreground mt-1 block">
+                  {getDailyValuePercent(localNutrition.carbs_g, 300)}% DV
+                </span>
+              </div>
+
+              {/* Fat */}
+              <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border border-gray-100 dark:border-gray-600 shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-muted-foreground">Fat</span>
+                  <span className="text-lg font-bold text-[#1A1A1A] dark:text-white">
+                    {localNutrition.fat_g || 0}g
+                  </span>
+                </div>
+                <Progress
+                  value={getDailyValuePercent(localNutrition.fat_g, 65)}
+                  className="h-2 bg-gray-100 dark:bg-gray-600 [&>div]:bg-rose-500"
+                />
+                <span className="text-xs text-muted-foreground mt-1 block">
+                  {getDailyValuePercent(localNutrition.fat_g, 65)}% DV
+                </span>
+              </div>
+            </div>
+
+            {/* Detailed Nutrition Card (collapsible on mobile) */}
+            <Collapsible defaultOpen={!isMobile}>
+              <CollapsibleTrigger className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full justify-center py-2">
+                <span>View detailed nutrition facts</span>
+                <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <NutritionFactsCard
+                  nutrition={localNutrition}
+                  recipeId={recipe.id}
+                  servings={recipe.base_servings || 4}
+                  editable
+                />
+              </CollapsibleContent>
+            </Collapsible>
+          </>
         ) : (
           <div className="flex flex-col">
             <div className="flex text-center py-8 flex-col">
@@ -980,6 +1190,112 @@ export function RecipeDetail({
     }
   };
 
+  // Define primary vs secondary sections
+  const primarySections: RecipeSectionId[] = ["ingredients", "instructions"];
+  const secondarySections: RecipeSectionId[] = ["nutrition", "notes", "cooking-history"];
+
+  // Helper to get section display name
+  const getSectionDisplayName = (sectionId: RecipeSectionId): string => {
+    switch (sectionId) {
+      case "nutrition": return "Nutrition";
+      case "notes": return "Notes";
+      case "cooking-history": return "History";
+      default: return sectionId;
+    }
+  };
+
+  // Helper to get section icon
+  const getSectionIcon = (sectionId: RecipeSectionId): React.ReactNode => {
+    switch (sectionId) {
+      case "nutrition": return <Apple className="size-4" />;
+      case "notes": return <FileText className="size-4" />;
+      case "cooking-history": return <CalendarDays className="size-4" />;
+      default: return null;
+    }
+  };
+
+  // Render secondary sections as Tabs (desktop) or Accordion (mobile)
+  const renderSecondaryContent = () => {
+    // Filter to only visible secondary sections
+    const visibleSecondarySections = secondarySections.filter(shouldRenderSection);
+
+    if (visibleSecondarySections.length === 0) return null;
+
+    // Determine default tab
+    const defaultTab = visibleSecondarySections[0];
+
+    if (isMobile) {
+      // Mobile: Accordion
+      return (
+        <div className="mt-8 border-t border-gray-200 dark:border-gray-600 pt-8">
+          <Accordion type="multiple" className="w-full space-y-2">
+            {visibleSecondarySections.map((sectionId) => (
+              <AccordionItem
+                key={sectionId}
+                value={sectionId}
+                className="bg-[#F5F5F0] dark:bg-slate-700/50 rounded-xl border-0 px-4 overflow-hidden"
+              >
+                <AccordionTrigger className="hover:no-underline py-4">
+                  <div className="flex items-center gap-2 text-[#1A1A1A] dark:text-white font-semibold">
+                    {getSectionIcon(sectionId)}
+                    {getSectionDisplayName(sectionId)}
+                    {sectionId === "nutrition" && (
+                      <Badge className="bg-[#D9F99D]/20 text-[#1A1A1A] dark:text-white border-0 text-xs ml-1">
+                        Per Serving
+                      </Badge>
+                    )}
+                    {sectionId === "cooking-history" && localHistory.length > 0 && (
+                      <Badge className="bg-[#D9F99D]/20 text-[#1A1A1A] dark:text-white border-0 text-xs ml-1">
+                        {localHistory.length}
+                      </Badge>
+                    )}
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pb-4">
+                  {sectionRenderers[sectionId]()}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      );
+    }
+
+    // Desktop: Tabs
+    return (
+      <div className="mt-8 border-t border-gray-200 dark:border-gray-600 pt-8">
+        <Tabs defaultValue={defaultTab} className="w-full">
+          <TabsList className="bg-[#F5F5F0] dark:bg-slate-700/50 rounded-full p-1 h-auto w-fit">
+            {visibleSecondarySections.map((sectionId) => (
+              <TabsTrigger
+                key={sectionId}
+                value={sectionId}
+                className="rounded-full px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-600 data-[state=active]:shadow-sm transition-all"
+              >
+                <div className="flex items-center gap-2">
+                  {getSectionIcon(sectionId)}
+                  {getSectionDisplayName(sectionId)}
+                  {sectionId === "cooking-history" && localHistory.length > 0 && (
+                    <Badge className="bg-[#D9F99D] text-[#1A1A1A] border-0 text-xs ml-1 rounded-full size-5 p-0 flex items-center justify-center">
+                      {localHistory.length}
+                    </Badge>
+                  )}
+                </div>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {visibleSecondarySections.map((sectionId) => (
+            <TabsContent key={sectionId} value={sectionId} className="mt-6">
+              <div className="bg-[#F5F5F0]/50 dark:bg-slate-700/30 rounded-xl p-6">
+                {sectionRenderers[sectionId]()}
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
+      </div>
+    );
+  };
+
   // Render all customizable sections based on layout preferences (uses localLayoutPrefs for optimistic updates)
   const renderDynamicSections = () => {
     const sections: React.ReactNode[] = [];
@@ -995,15 +1311,22 @@ export function RecipeDetail({
         continue;
       }
 
+      // Skip secondary sections - they're rendered separately in Tabs/Accordion
+      if (secondarySections.includes(sectionId)) {
+        i++;
+        continue;
+      }
+
       // Check if this and next section are both half-width and visible
       const nextSectionId = localLayoutPrefs.sectionOrder[i + 1];
       const nextConfig = nextSectionId ? localLayoutPrefs.sections[nextSectionId] : null;
       const nextShouldRender = nextSectionId ? shouldRenderSection(nextSectionId) : false;
+      const nextIsSecondary = nextSectionId ? secondarySections.includes(nextSectionId) : false;
 
       const isHalf = config.width === "half";
       const nextIsHalf = nextConfig?.width === "half";
 
-      if (isHalf && nextIsHalf && nextShouldRender) {
+      if (isHalf && nextIsHalf && nextShouldRender && !nextIsSecondary) {
         // Render two half-width sections side-by-side
         sections.push(
           <div key={`${sectionId}-${nextSectionId}`}>
@@ -1025,6 +1348,12 @@ export function RecipeDetail({
         );
         i++;
       }
+    }
+
+    // Add secondary content (Tabs/Accordion) at the end
+    const secondaryContent = renderSecondaryContent();
+    if (secondaryContent) {
+      sections.push(<div key="secondary-content">{secondaryContent}</div>);
     }
 
     return sections;
@@ -1112,6 +1441,38 @@ export function RecipeDetail({
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
               <div className="size-2 rounded-full bg-white/80" />
               <div className="size-2 rounded-full bg-white/40" />
+            </div>
+          </div>
+        )}
+
+        {/* Smart Allergen Banner - Prominent Warning */}
+        {hasAnyWarnings && (
+          <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-3">
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0 size-10 rounded-full bg-white/20 flex items-center justify-center">
+                <AlertTriangle className="size-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm">Contains items you&apos;ve flagged</p>
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {matchingAllergens.map((allergen) => (
+                    <span
+                      key={allergen}
+                      className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm"
+                    >
+                      {getAllergenDisplayName(allergen)}
+                    </span>
+                  ))}
+                  {matchingCustomRestrictions.map((restriction) => (
+                    <span
+                      key={restriction}
+                      className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm"
+                    >
+                      {restriction}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -1281,41 +1642,6 @@ export function RecipeDetail({
             )}
           </div>
 
-          {/* User Allergen & Dietary Restriction Warning - Prominent */}
-          {hasAnyWarnings && (
-            <Alert className="mb-4 bg-amber-50 dark:bg-amber-950 border-amber-500">
-              <AlertTriangle className="size-5 text-amber-600 dark:text-amber-400" />
-              <AlertDescription>
-                <div className="flex flex-col">
-                  <p className="font-semibold text-amber-800 dark:text-amber-200">
-                    ⚠️ Contains items you&apos;ve flagged
-                  </p>
-                  <div className="flex flex-wrap gap-2 items-center">
-                    <span className="text-sm text-amber-700 dark:text-amber-300">
-                      This recipe contains:
-                    </span>
-                    {matchingAllergens.map((allergen) => (
-                      <Badge
-                        key={allergen}
-                        className="bg-amber-600 dark:bg-amber-700 text-white"
-                      >
-                        {getAllergenDisplayName(allergen)}
-                      </Badge>
-                    ))}
-                    {matchingCustomRestrictions.map((restriction) => (
-                      <Badge
-                        key={restriction}
-                        className="bg-amber-600 dark:bg-amber-700 text-white"
-                      >
-                        {restriction}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </AlertDescription>
-            </Alert>
-          )}
-
           {/* Tags (filtered to remove duplicates from category/protein_type) */}
           {(() => {
             const displayTags = getDisplayTags(recipe);
@@ -1363,6 +1689,46 @@ export function RecipeDetail({
           {renderDynamicSections()}
         </CardContent>
       </Card>
+
+      {/* Mobile Sticky Actions Footer */}
+      {isMobile && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-gray-700 p-3 shadow-[0_-4px_6px_-1px_rgb(0_0_0/0.1)]">
+          <div className="flex items-center justify-center gap-3 max-w-md mx-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowShareDialog(true)}
+              className="flex-1 rounded-full"
+            >
+              <Share2 className="mr-2 size-4" />
+              Share
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              asChild
+              className="flex-1 bg-[#D9F99D] hover:bg-[#D9F99D]/90 text-[#1A1A1A] rounded-full"
+            >
+              <Link href={`/app/recipes/${recipe.id}/cook`}>
+                <Play className="mr-2 size-4" />
+                Cook Now
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowCookedDialog(true)}
+              className="flex-1 rounded-full"
+            >
+              <ChefHat className="mr-2 size-4" />
+              Made It
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Spacer for mobile sticky footer */}
+      {isMobile && <div className="h-20" />}
 
       {/* Mark as Cooked Dialog */}
       <MarkCookedDialog

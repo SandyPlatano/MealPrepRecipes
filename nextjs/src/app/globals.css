@@ -115,6 +115,12 @@
   /* Borders */
   --color-brand-border: #E5E7EB;
 
+  /* Visual Hierarchy Tiers */
+  --color-tier-1: #F5F5F0;             /* Page background */
+  --color-tier-2: #FAFAF8;             /* Day/section containers */
+  --color-tier-3: #FFFFFF;             /* Recipe cards (elevated) */
+  --color-accent-border: #D9F99D;      /* Lime accent for selection states */
+
   /* Sidebar Colors (Warm Light theme with dark mode support) */
   --color-sidebar-bg: #FFFCF6;
   --color-sidebar-surface: #F5F5F0;
@@ -187,11 +193,43 @@
   100% { background-position: 200% 0; }
 }
 
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════════
    Light Mode - Warm & Cozy
    ═══════════════════════════════════════════════════════════════════════════════ */
 :root {
-  --background: 40 33% 99%;            /* #FFFCF6 - warm off-white */
+  --background: 40 10% 96%;            /* #F5F5F0 - tier 1: subtle warm gray */
   --foreground: 0 0% 10%;              /* #1A1A1A - dark text */
 
   --card: 0 0% 100%;                   /* #FFFFFF - surface */
@@ -580,6 +618,104 @@
   /* Gradient backgrounds for hero sections */
   .gradient-lime-yellow {
     background: linear-gradient(135deg, rgba(217, 249, 157, 0.2), rgba(253, 224, 71, 0.2));
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────────────
+     Glassmorphism Utilities - Premium frosted glass effects
+     ───────────────────────────────────────────────────────────────────────────── */
+  .glass {
+    @apply backdrop-blur-md bg-white/70 border border-white/20;
+  }
+
+  .glass-dark {
+    @apply backdrop-blur-md bg-black/40 border border-white/10;
+  }
+
+  .glass-subtle {
+    @apply backdrop-blur-sm bg-white/50 border border-white/30;
+  }
+
+  .glass-card {
+    @apply backdrop-blur-lg bg-white/80 border border-gray-200/50 shadow-lg;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────────────
+     Premium Shadows - Refined depth system
+     ───────────────────────────────────────────────────────────────────────────── */
+  .shadow-premium {
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.03),
+      0 2px 4px rgba(0, 0, 0, 0.05),
+      0 12px 24px rgba(0, 0, 0, 0.05);
+  }
+
+  .shadow-premium-lg {
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.03),
+      0 4px 8px rgba(0, 0, 0, 0.04),
+      0 24px 48px rgba(0, 0, 0, 0.08);
+  }
+
+  .shadow-premium-xl {
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.02),
+      0 8px 16px rgba(0, 0, 0, 0.04),
+      0 32px 64px rgba(0, 0, 0, 0.1);
+  }
+
+  .shadow-glow-lime {
+    box-shadow:
+      0 0 0 1px rgba(217, 249, 157, 0.3),
+      0 4px 16px rgba(217, 249, 157, 0.2);
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────────────
+     Animation Utilities - Spring-like and smooth transitions
+     ───────────────────────────────────────────────────────────────────────────── */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-float-slow {
+    animation: float 8s ease-in-out infinite;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .transition-spring {
+    transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Hover lift with glow */
+  .hover-lift {
+    @apply transition-all duration-300;
+  }
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.03),
+      0 12px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .hover-glow-lime:hover {
+    box-shadow:
+      0 0 0 2px rgba(217, 249, 157, 0.5),
+      0 8px 24px rgba(217, 249, 157, 0.25);
+  }
+
+  /* Gradient backgrounds */
+  .gradient-warm-lime {
+    background: linear-gradient(135deg, #FFFCF6 0%, #F0FDF4 50%, #ECFCCB 100%);
+  }
+
+  .gradient-premium-cta {
+    background: linear-gradient(135deg, #FFFCF6 0%, #E4F8C9 100%);
   }
 }
 
