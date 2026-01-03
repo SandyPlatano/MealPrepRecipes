@@ -31,7 +31,7 @@ export function NavUser({ user, logoutAction }: NavUserProps) {
     if (isMobile) {
       setOpenMobile(false);
     }
-    window.location.href = "/api/auth/logout";
+    await logoutAction();
   };
 
   const handleSettingsClick = () => {
