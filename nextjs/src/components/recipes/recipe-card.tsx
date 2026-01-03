@@ -15,6 +15,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
 import {
   Heart,
   Download,
@@ -32,6 +33,7 @@ import {
   AlertTriangle,
   FolderPlus,
   Star,
+  Clock,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -414,17 +416,17 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
         onFocus={handlePrefetch}
       >
         <Card
-          className="group h-full bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-300 ease-out flex flex-col cursor-pointer overflow-hidden animate-slide-up-fade relative"
+          className="group h-full bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:scale-[1.01] hover:border-gray-200 transition-all duration-300 ease-out flex flex-col cursor-pointer overflow-hidden animate-slide-up-fade relative"
           style={animationIndex !== undefined ? { animationDelay: `${animationIndex * 50}ms`, animationFillMode: 'backwards' } : undefined}
         >
           {/* Image Section - ALWAYS present for consistent card height */}
-          <div className="relative w-full h-40 rounded-t-xl overflow-hidden bg-[#FEF7E8]">
+          <div className="relative w-full h-44 rounded-t-2xl overflow-hidden bg-[#FEF7E8]">
             {recipe.image_url ? (
               <Image
                 src={recipe.image_url}
                 alt={recipe.title}
                 fill
-                className="object-cover transition-opacity duration-300"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 placeholder="blur"
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYH/8QAIhAAAgEDAwUBAAAAAAAAAAAAAQIDAAQRBQYhEhMiMVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQADAQEBAAAAAAAAAAAAAAAAAQIDEUH/2gAMAwEAAhEDEQA/ALTce5Nw6XfRWOnWtjJAkccjGaN2LFhnHDDjgce/dSX9x73/AGb/AHfz/Sla1FNRlpHD9J//2Q=="
@@ -495,6 +497,19 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                 </Button>
               </div>
             )}
+
+            {/* Floating Info Pill - Bottom of image */}
+            <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-sm shadow-sm text-xs font-medium text-gray-700">
+              {currentRating && (
+                <>
+                  <Star className="size-3.5 fill-yellow-400 text-yellow-400" />
+                  <span>{currentRating.toFixed(1)}</span>
+                  <span className="text-gray-300">|</span>
+                </>
+              )}
+              <Clock className="size-3.5 text-gray-500" />
+              <span>{metadata.totalTime}</span>
+            </div>
 
             {/* More Menu - Top Right */}
             <div
@@ -609,43 +624,20 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
             )}
           </div>
 
-          {/* Title Section - with rating - fixed height for consistency */}
-          <div className="px-4 py-3 border-b border-gray-200 shrink-0 min-h-[60px] flex items-center">
-            <div className="flex items-start justify-between gap-2 w-full">
-              <CardTitle className="text-base leading-snug line-clamp-2 flex-1 text-[#1A1A1A]">
-                <HighlightText text={recipe.title} searchTerm={searchTerm} />
-              </CardTitle>
-              {/* Rating - clickable to open cooking history */}
-              <div onClick={(e) => e.stopPropagation()}>
-                {currentRating ? (
-                  <RatingBadge
-                    rating={currentRating}
-                    size="sm"
-                    onClick={handleRatingClick}
-                  />
-                ) : (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-7 px-2 text-muted-foreground hover:text-yellow-500"
-                    onClick={handleRatingClick}
-                    aria-label="Rate this recipe"
-                  >
-                    <Star className="size-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
+          {/* Title Section - prominent, no border */}
+          <div className="px-4 pt-4 pb-2 shrink-0">
+            <CardTitle className="text-lg font-semibold leading-tight line-clamp-2 text-[#1A1A1A]">
+              <HighlightText text={recipe.title} searchTerm={searchTerm} />
+            </CardTitle>
           </div>
 
-          {/* Badge + Metadata Row - shrink-0 for consistent height */}
-          <div className="px-4 py-2 border-b border-gray-200 flex items-center gap-2 flex-wrap shrink-0">
-            {/* Recipe Type Badge - Smaller */}
+          {/* Type Badge + Metadata Row - spaced, muted */}
+          <div className="px-4 pb-3 flex flex-col gap-2 shrink-0">
+            {/* Recipe Type Badge */}
             <div
               className={cn(
-                "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium",
+                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium w-fit",
                 "transition-all duration-300 ease-out",
-                "group-hover:scale-105",
                 getRecipeTypeBadgeClasses(recipe.recipe_type)
               )}
             >
@@ -653,25 +645,20 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
               <span>{recipe.recipe_type}</span>
             </div>
 
-            {/* Enhanced Metadata: Time • Calories • Protein • Difficulty */}
-            <span className="text-xs text-muted-foreground flex items-center gap-1 flex-wrap">
-              <span>{metadata.totalTime}</span>
-              <span className="text-muted-foreground/50">•</span>
+            {/* Metadata: Calories • Protein • Difficulty */}
+            <div className="flex items-center gap-3 text-sm text-gray-500">
               <span>{metadata.calories}</span>
-              <span className="text-muted-foreground/50">•</span>
+              <span className="text-gray-300">•</span>
               <span>{metadata.protein}</span>
-              <span className="text-muted-foreground/50">•</span>
+              <span className="text-gray-300">•</span>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span
                     className={cn(
                       "cursor-help underline decoration-dotted underline-offset-2",
-                      metadata.difficulty === "Easy" &&
-                        "text-green-600 dark:text-green-400",
-                      metadata.difficulty === "Medium" &&
-                        "text-amber-600 dark:text-amber-400",
-                      metadata.difficulty === "Hard" &&
-                        "text-red-600 dark:text-red-400"
+                      metadata.difficulty === "Easy" && "text-green-600",
+                      metadata.difficulty === "Medium" && "text-amber-600",
+                      metadata.difficulty === "Hard" && "text-red-600"
                     )}
                   >
                     {metadata.difficulty}
@@ -704,7 +691,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
               </Tooltip>
               {lastMadeDate && (
                 <>
-                  <span className="text-muted-foreground/50">•</span>
+                  <span className="text-gray-300">•</span>
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0">
                     Made{" "}
                     {formatDistanceToNow(new Date(lastMadeDate), {
@@ -713,34 +700,34 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                   </Badge>
                 </>
               )}
-            </span>
+            </div>
           </div>
-          <CardContent className="flex flex-col flex-1 pt-0">
-            {/* Key Ingredients Section - hidden on mobile for cleaner cards */}
+          <CardContent className="flex flex-col flex-1 pt-0 px-4">
+            {/* Key Ingredients Section - subtle italic text, hidden on mobile */}
             {!isMobile && (
-              <div className="py-3">
-                <p className="text-sm font-medium mb-1">Key Ingredients</p>
-                <p className="text-sm text-muted-foreground">
-                  {recipe.ingredients.slice(0, 5).map((ingredient, idx) => (
-                    <span key={idx}>
-                      {idx > 0 && ", "}
-                      <HighlightText text={ingredient} searchTerm={searchTerm} />
-                    </span>
-                  ))}
-                  {recipe.ingredients.length > 5 && "..."}
-                </p>
-              </div>
+              <p className="text-sm text-gray-400 italic line-clamp-1 pb-3">
+                {recipe.ingredients.slice(0, 4).map((ingredient, idx) => (
+                  <span key={idx}>
+                    {idx > 0 && ", "}
+                    <HighlightText text={ingredient} searchTerm={searchTerm} />
+                  </span>
+                ))}
+                {recipe.ingredients.length > 4 && "..."}
+              </p>
             )}
 
-            {/* Footer: Add to Plan + Favorite */}
-            <div className={cn("pt-3 mt-auto flex items-center gap-2", !isMobile && "border-t border-gray-200")}>
+            {/* Separator before footer */}
+            <Separator className="my-0" />
+
+            {/* Footer: Add to Plan + Favorite - pill buttons */}
+            <div className="pt-3 mt-auto flex items-center gap-2">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="default"
                     className={cn(
-                      "flex-1 hover:scale-105 transition-transform bg-[#D9F99D] hover:bg-[#D9F99D]/90 text-[#1A1A1A]",
-                      isMobile && "h-12 text-base" // Larger touch target on mobile
+                      "flex-1 rounded-full bg-[#1A1A1A] hover:bg-[#333] text-white shadow-sm hover:shadow-md transition-all",
+                      isMobile && "h-12 text-base"
                     )}
                     onClick={handleAddToCart}
                     disabled={isAddingToPlan}
@@ -751,18 +738,18 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                 <TooltipContent>Add this recipe to your weekly meal plan</TooltipContent>
               </Tooltip>
 
-              {/* Favorite Button */}
+              {/* Favorite Button - pill with animated heart */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="icon"
                     className={cn(
-                      "shrink-0 transition-all duration-200",
-                      isMobile && "size-12", // Match Add to Plan height on mobile
+                      "shrink-0 rounded-full border-gray-200 transition-all duration-200",
+                      isMobile && "size-12",
                       isFavorite
-                        ? "text-red-500 hover:text-red-600"
-                        : "text-muted-foreground hover:text-red-500"
+                        ? "border-red-200 bg-red-50 text-red-500 hover:bg-red-100"
+                        : "hover:border-red-200 hover:bg-red-50 hover:text-red-500"
                     )}
                     onClick={handleToggleFavorite}
                     disabled={isPending}
@@ -771,7 +758,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                     <Heart
                       className={cn(
                         "size-5 transition-all duration-300",
-                        isFavorite && "fill-current scale-110 animate-[heartBeat_0.3s_ease-in-out]"
+                        isFavorite && "fill-red-500 text-red-500 scale-110"
                       )}
                     />
                   </Button>
