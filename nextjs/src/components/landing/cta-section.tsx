@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Quote, Shield, X as CloseIcon } from 'lucide-react';
+import { ArrowRight, Shield, X as CloseIcon } from 'lucide-react';
 import { StarDecoration, StarSmall } from './shared/star-decoration';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -60,16 +60,15 @@ export function CTASection() {
       />
 
       <div className="container mx-auto px-4 text-center relative z-10">
-        {/* Micro-testimonial */}
+        {/* Stat badge */}
         <div className={`
           mb-8 transition-all duration-700
           ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
         `}>
           <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-full px-5 py-2.5 border border-[#D9F99D]/30 shadow-sm">
-            <Quote className="w-4 h-4 text-[#84CC16] flex-shrink-0" />
+            <span className="text-lg">💰</span>
             <p className="text-sm text-gray-700">
-              <span className="font-semibold text-[#1A1A1A]">&ldquo;Best $0 I ever spent&rdquo;</span>
-              <span className="text-gray-400 ml-2">— Sarah M.</span>
+              <span className="font-semibold text-[#1A1A1A]">The average household wastes $1,500/year on food</span>
             </p>
           </div>
         </div>
@@ -80,9 +79,7 @@ export function CTASection() {
           transition-all duration-700 delay-100
           ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
         `}>
-          Ready to answer
-          <br />
-          &ldquo;What&apos;s for dinner?&rdquo;
+          What&apos;s for dinner tonight?
         </h2>
 
         {/* Subtext with urgency */}
@@ -91,7 +88,7 @@ export function CTASection() {
           transition-all duration-700 delay-200
           ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
         `}>
-          Join 10,000+ home cooks who stopped stressing about meals.
+          You&apos;ll know the answer in 5 minutes.
           <br className="hidden sm:block" />
           <span className="font-semibold text-[#1A1A1A]">Start planning tonight.</span>
         </p>
@@ -104,10 +101,10 @@ export function CTASection() {
           <Link href="/signup">
             <button
               type="button"
-              className="bg-[#1A1A1A] text-white px-10 py-5 rounded-full font-bold text-lg hover:bg-gray-800 transition-all duration-200 flex items-center gap-3 group mx-auto shadow-xl hover:shadow-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1A1A1A] focus-visible:ring-offset-2 active:scale-[0.98]"
+              className="bg-[#1A1A1A] text-white px-8 py-3.5 rounded-full font-semibold text-base hover:bg-gray-800 transition-all duration-200 flex items-center gap-2.5 group mx-auto shadow-lg hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1A1A1A] focus-visible:ring-offset-2 active:scale-[0.98]"
             >
               <StarSmall size={18} className="text-[#D9F99D]" />
-              Get started free
+              Start planning free
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
             </button>
           </Link>

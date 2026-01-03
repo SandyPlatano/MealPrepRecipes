@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, ShoppingCart, Users, Play } from 'lucide-react';
+import { ArrowRight, ShoppingCart, Play } from 'lucide-react';
 import { memo, useEffect, useState } from 'react';
 import { StarSmall } from './shared/star-decoration';
 
@@ -43,36 +43,13 @@ const FeatureCheck = memo(function FeatureCheck({
 
 // Meal data for the week mockup
 const WEEK_MEALS = [
-  { day: 'Mon', meal: 'Pasta', emoji: '🍝', cook: 'sarah', color: 'bg-[#FFF6D8]' },
-  { day: 'Tue', meal: 'Salad', emoji: '🥗', cook: 'mike', color: 'bg-[#DCFCE7]' },
-  { day: 'Wed', meal: 'Tacos', emoji: '🌮', cook: 'sarah', color: 'bg-[#FFF0E6]' },
-  { day: 'Thu', meal: 'Curry', emoji: '🍛', cook: 'mike', color: 'bg-[#EDE9FE]' },
-  { day: 'Fri', meal: 'Pizza', emoji: '🍕', cook: 'out', color: 'bg-gray-100' },
+  { day: 'Mon', meal: 'Pasta', emoji: '🍝', color: 'bg-[#FFF6D8]' },
+  { day: 'Tue', meal: 'Salad', emoji: '🥗', color: 'bg-[#DCFCE7]' },
+  { day: 'Wed', meal: 'Tacos', emoji: '🌮', color: 'bg-[#FFF0E6]' },
+  { day: 'Thu', meal: 'Curry', emoji: '🍛', color: 'bg-[#EDE9FE]' },
+  { day: 'Fri', meal: 'Stir Fry', emoji: '🥘', color: 'bg-[#E0F2FE]' },
 ] as const;
 
-// Avatar component for cook assignment
-function CookAvatar({ cook, size = 'sm' }: { cook: 'sarah' | 'mike' | 'out'; size?: 'sm' | 'md' }) {
-  const sizeClasses = size === 'sm' ? 'w-6 h-6 text-[10px]' : 'w-8 h-8 text-xs';
-
-  if (cook === 'out') {
-    return (
-      <div className={`${sizeClasses} rounded-full bg-gray-200 flex items-center justify-center`}>
-        <span>🍽️</span>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className={`
-        ${sizeClasses} rounded-full flex items-center justify-center font-semibold text-white
-        ${cook === 'sarah' ? 'bg-pink-400' : 'bg-blue-400'}
-      `}
-    >
-      {cook === 'sarah' ? 'S' : 'M'}
-    </div>
-  );
-}
 
 // Premium App Mockup with glassmorphism
 function AppMockup() {
@@ -82,9 +59,6 @@ function AppMockup() {
     const timer = setTimeout(() => setIsVisible(true), 400);
     return () => clearTimeout(timer);
   }, []);
-
-  const sarahMeals = WEEK_MEALS.filter(m => m.cook === 'sarah').length;
-  const mikeMeals = WEEK_MEALS.filter(m => m.cook === 'mike').length;
 
   return (
     <div
@@ -111,7 +85,7 @@ function AppMockup() {
                 <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
-                babewfd.com
+                whatsfordinner.app
               </div>
             </div>
           </div>
@@ -124,12 +98,8 @@ function AppMockup() {
                 <h3 className="text-lg md:text-xl font-bold text-[#1A1A1A]">This Week</h3>
                 <p className="text-xs md:text-sm text-gray-500">Jan 6 - Jan 10</p>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
-                  <CookAvatar cook="sarah" size="md" />
-                  <CookAvatar cook="mike" size="md" />
-                </div>
-                <span className="text-xs md:text-sm text-gray-500 hidden sm:inline">2 cooks</span>
+              <div className="flex items-center gap-2 bg-[#D9F99D]/30 px-3 py-1.5 rounded-full">
+                <span className="text-xs md:text-sm font-medium text-[#1A1A1A]">5 mins to plan</span>
               </div>
             </div>
 
@@ -150,59 +120,33 @@ function AppMockup() {
                   <div className="text-2xl md:text-4xl mb-2">
                     {item.emoji}
                   </div>
-                  <div className="text-xs md:text-sm font-medium text-[#1A1A1A] mb-2 truncate">
+                  <div className="text-xs md:text-sm font-medium text-[#1A1A1A] truncate">
                     {item.meal}
-                  </div>
-                  <div className="flex justify-center">
-                    <CookAvatar cook={item.cook} />
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Bottom Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {/* Bottom Stats Row - Money focused */}
+            <div className="grid grid-cols-2 gap-3">
               {/* Shopping List */}
-              <div className="bg-[#D9F99D] rounded-xl p-4 md:col-span-1 shadow-sm">
+              <div className="bg-[#D9F99D] rounded-xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
                   <ShoppingCart className="w-4 h-4 text-[#1A1A1A]" />
                   <span className="text-xs font-medium text-[#1A1A1A]">Shopping List</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">23</div>
-                <div className="text-xs text-[#1A1A1A]/60">items · ~$85</div>
+                <div className="text-xs text-[#1A1A1A]/60">items needed</div>
               </div>
 
-              {/* Who's Cooking Stats */}
-              <div className="bg-white rounded-xl p-4 border border-gray-100 md:col-span-2 shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <Users className="w-4 h-4 text-gray-400" />
-                  <span className="text-xs font-medium text-gray-600">Who&apos;s Cooking</span>
+              {/* Weekly Savings */}
+              <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm">💰</span>
+                  <span className="text-xs font-medium text-gray-600">Est. Savings</span>
                 </div>
-                <div className="flex items-center gap-4 md:gap-6">
-                  <div className="flex items-center gap-2">
-                    <CookAvatar cook="sarah" size="md" />
-                    <div>
-                      <div className="text-sm font-semibold text-[#1A1A1A]">Sarah</div>
-                      <div className="text-xs text-gray-500">{sarahMeals} meals</div>
-                    </div>
-                  </div>
-                  <div className="h-8 w-px bg-gray-200 hidden md:block" />
-                  <div className="flex items-center gap-2">
-                    <CookAvatar cook="mike" size="md" />
-                    <div>
-                      <div className="text-sm font-semibold text-[#1A1A1A]">Mike</div>
-                      <div className="text-xs text-gray-500">{mikeMeals} meals</div>
-                    </div>
-                  </div>
-                  <div className="h-8 w-px bg-gray-200 hidden md:block" />
-                  <div className="flex items-center gap-2 hidden md:flex">
-                    <CookAvatar cook="out" size="md" />
-                    <div>
-                      <div className="text-sm font-semibold text-[#1A1A1A]">Out</div>
-                      <div className="text-xs text-gray-500">1 night</div>
-                    </div>
-                  </div>
-                </div>
+                <div className="text-2xl md:text-3xl font-bold text-[#22C55E]">$67</div>
+                <div className="text-xs text-gray-500">vs. no plan</div>
               </div>
             </div>
           </div>
@@ -243,21 +187,25 @@ export function HeroSection() {
             <div className="mb-6">
               <span className="bg-white border border-gray-200 text-[#1A1A1A] text-xs font-medium px-4 py-2 rounded-full inline-flex items-center gap-2 shadow-sm">
                 <StarSmall size={14} className="text-[#84CC16]" />
-                For couples who love eating well
+                Americans waste 30-40% of the food they buy
               </span>
             </div>
 
             {/* Main Headline - Single, Clear Value Prop */}
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-extrabold text-[#1A1A1A] mb-4 leading-[1.05] tracking-tight">
-              Plan meals you&apos;ll
+              Groceries are expensive.
               <br />
-              <span className="text-[#1A1A1A]">actually cook</span>
+              <span className="text-[#1A1A1A]">Planning isn&apos;t.</span>
             </h1>
 
             {/* Subtext */}
-            <p className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
-              Skip the dinner debate. One weekly plan, zero stress.
-              <span className="hidden sm:inline"> Import recipes, plan your week, generate shopping lists. Done.</span>
+            <p className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0 mb-4 leading-relaxed">
+              Spend 5 minutes planning your week. Save money on groceries. Actually eat what you buy.
+            </p>
+
+            {/* Differentiator line */}
+            <p className="text-base text-gray-500 max-w-lg mx-auto lg:mx-0 mb-8 italic">
+              Not batch cooking — just knowing what&apos;s for dinner before you&apos;re starving and staring at the fridge.
             </p>
 
             {/* Dual CTA Buttons */}
@@ -267,7 +215,7 @@ export function HeroSection() {
                   type="button"
                   className="w-full sm:w-auto bg-[#1A1A1A] text-white px-8 py-4 rounded-full font-semibold text-base hover:bg-gray-800 transition-all duration-200 flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 active:scale-[0.98]"
                 >
-                  Get started free
+                  Start planning free
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
                 </button>
               </Link>
@@ -284,9 +232,9 @@ export function HeroSection() {
 
             {/* Feature checks */}
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2">
-              <FeatureCheck delay={0}>AI Recipe Import</FeatureCheck>
-              <FeatureCheck delay={150}>Smart Shopping Lists</FeatureCheck>
-              <FeatureCheck delay={300}>No Credit Card</FeatureCheck>
+              <FeatureCheck delay={0}>Free forever plan</FeatureCheck>
+              <FeatureCheck delay={150}>No credit card needed</FeatureCheck>
+              <FeatureCheck delay={300}>Set up in 2 minutes</FeatureCheck>
             </div>
           </div>
 

@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
-export const alt = "Babe, What's for Dinner? - Meal Planning Made Simple";
+export const alt = "What's for Dinner? - Plan Smarter. Spend Less. Eat Better.";
 export const size = {
   width: 1200,
   height: 630,
@@ -52,22 +52,10 @@ export default async function Image() {
           🍽️
         </div>
 
-        {/* App name - Babe, */}
+        {/* App name */}
         <div
           style={{
-            fontSize: 72,
-            fontStyle: "italic",
-            color: "#1A1A1A",
-            marginBottom: -8,
-          }}
-        >
-          Babe,
-        </div>
-
-        {/* App name - What's for Dinner? */}
-        <div
-          style={{
-            fontSize: 48,
+            fontSize: 64,
             fontWeight: 700,
             color: "#1A1A1A",
             marginBottom: 24,
@@ -83,7 +71,7 @@ export default async function Image() {
             color: "#6B7280",
           }}
         >
-          Finally, an answer. Meal planning made simple.
+          Plan smarter. Spend less. Eat better.
         </div>
 
         {/* URL */}

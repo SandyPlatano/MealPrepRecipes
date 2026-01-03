@@ -54,7 +54,7 @@ export function StickyCTA() {
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold text-[#1A1A1A] truncate">
-                  Babe, What&apos;s for Dinner?
+                  What&apos;s for Dinner?
                 </p>
                 <p className="text-xs text-gray-500 hidden sm:block">
                   No credit card • Free forever plan

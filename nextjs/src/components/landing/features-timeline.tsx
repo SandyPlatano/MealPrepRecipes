@@ -39,48 +39,48 @@ const FEATURES: Feature[] = [
   {
     number: '01',
     icon: Download,
-    title: 'Import recipes from anywhere',
-    description: 'Paste any URL from your favorite food blog. Our AI extracts everything — ingredients, quantities, steps, and even nutrition info.',
+    title: 'Plan your week',
+    description: 'Pick meals in 5 minutes. Know exactly what you\'re making each night — no more staring at the fridge wondering what to cook.',
     details: [
-      'Works with any recipe website',
-      'AI cleans up formatting automatically',
-      'Extracts ingredients & quantities',
+      '5 minutes of planning saves hours',
+      'Drag and drop recipes to any day',
+      'Repeat weeks that worked great',
     ],
     accentColor: 'yellow',
   },
   {
     number: '02',
     icon: Calendar,
-    title: 'Plan your week easily',
-    description: 'Drag recipes onto your calendar. Assign who\'s cooking each night. Build a meal plan that actually works for your household.',
+    title: 'Get your shopping list',
+    description: 'Only what you need. No wandering the aisles. No impulse buys. Every ingredient combined and organized by store section.',
     details: [
-      'Visual weekly calendar',
-      'Assign cooks to each meal',
-      'Repeat your favorite weeks',
+      'Buy exactly what you\'ll cook',
+      'Auto-combines duplicate items',
+      'No more "forgot the garlic" runs',
     ],
     accentColor: 'purple',
   },
   {
     number: '03',
     icon: ShoppingCart,
-    title: 'Shop smarter, waste less',
-    description: 'Buy exactly what you need — no more rotting veggies, no forgotten leftovers. Every ingredient combined and organized by store aisle.',
+    title: 'Actually eat what you bought',
+    description: 'No more wilted lettuce. No more "I forgot we had that." When you have a plan, every dollar you spend on groceries gets used.',
     details: [
-      'Buy only what you\'ll actually cook',
-      'Auto-combines duplicate items',
-      'Works offline in the store',
+      'Nothing rots in the back of the fridge',
+      'Save $100+ per month on wasted food',
+      'Feel good about every grocery trip',
     ],
     accentColor: 'orange',
   },
   {
     number: '04',
     icon: ChefHat,
-    title: 'Cook once, eat all week',
-    description: 'Batch cook on Sunday, portion into containers, eat homemade all week. Scale any recipe from 1 serving to 10+ with one click.',
+    title: 'Cook with confidence',
+    description: 'Step-by-step instructions with built-in timers. Scale any recipe from 1 serving to 10+. No more recipe tab chaos.',
     details: [
-      'Scale recipes for any household size',
-      'Batch cook & portion for the week',
-      'Step-by-step with built-in timers',
+      'Scale recipes for any household',
+      'Built-in timers keep you on track',
+      'All your recipes in one place',
     ],
     accentColor: 'lime',
   },
@@ -165,7 +165,7 @@ export function FeaturesTimeline() {
             ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
           `}>
             <StarSmall size={12} className="text-[#84CC16]" />
-            How It Works
+            How Planning Saves You Money
           </span>
           <h2 className={`
             mb-4 font-display text-3xl font-bold text-[#1A1A1A]
@@ -173,14 +173,14 @@ export function FeaturesTimeline() {
             transition-all duration-700 delay-100
             ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
           `}>
-            From URL to table in 4 steps
+            5 minutes now. Savings all week.
           </h2>
           <p className={`
             mx-auto max-w-xl text-lg text-gray-600
             transition-all duration-700 delay-200
             ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
           `}>
-            See exactly how easy meal planning becomes. No signup required to explore.
+            The average household throws away 338 lbs of food per year. A simple plan changes that.
           </p>
         </div>
 

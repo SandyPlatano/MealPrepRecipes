@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Heart, Users, Home, Check } from 'lucide-react';
+import { Briefcase, Users, PiggyBank, Check } from 'lucide-react';
 import { StarSmall } from './shared/star-decoration';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -21,43 +21,43 @@ interface AudienceCard {
 
 const AUDIENCES: AudienceCard[] = [
   {
-    icon: Heart,
-    title: 'Couples',
-    painPoint: '"Who\'s cooking tonight?"',
-    quote: 'End the nightly dinner debate forever.',
+    icon: Briefcase,
+    title: 'Busy Professionals',
+    painPoint: '"Another $40 on delivery because I didn\'t have a plan"',
+    quote: 'Know what\'s for dinner before you leave work.',
     features: [
-      'Assign who cooks each night',
-      'Sync shopping lists together',
-      'See what\'s planned at a glance',
+      'Stop the DoorDash cycle',
+      '5-minute weekly planning',
+      'Save $200+/month on takeout',
     ],
-    gradient: 'from-pink-50 via-white to-white',
-    iconBg: 'bg-pink-100 text-pink-600',
+    gradient: 'from-orange-50 via-white to-white',
+    iconBg: 'bg-orange-100 text-orange-600',
   },
   {
     icon: Users,
     title: 'Families',
-    painPoint: '"What do the kids want?"',
-    quote: 'Plan kid-friendly meals they\'ll actually eat.',
+    painPoint: '"Kids won\'t eat it, so half the groceries go to waste"',
+    quote: 'Plan meals everyone will actually eat.',
     features: [
-      'Scale recipes for any family size',
+      'Less waste, less whining',
+      'Scale recipes for any size',
       'Track favorites everyone loves',
-      'Prep once, eat all week',
     ],
     gradient: 'from-blue-50 via-white to-white',
     iconBg: 'bg-blue-100 text-blue-600',
   },
   {
-    icon: Home,
-    title: 'Roommates',
-    painPoint: '"Split the cooking fairly"',
-    quote: 'Coordinate meals without the drama.',
+    icon: PiggyBank,
+    title: 'Budget-Conscious',
+    painPoint: '"Groceries used to cost half this much"',
+    quote: 'Make every dollar count with a plan.',
     features: [
-      'Fair rotation schedule',
-      'Separate or shared lists',
-      'No more wasted food',
+      'Buy only what you\'ll use',
+      'Nothing rots in the fridge',
+      'See exactly what you need',
     ],
-    gradient: 'from-purple-50 via-white to-white',
-    iconBg: 'bg-purple-100 text-purple-600',
+    gradient: 'from-green-50 via-white to-white',
+    iconBg: 'bg-green-100 text-green-600',
   },
 ];
 
@@ -167,22 +167,22 @@ export function WhoItsFor() {
             ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
           `}>
             <StarSmall size={12} className="text-[#84CC16]" />
-            Perfect For Your Household
+            Who It&apos;s For
           </span>
           <h2 className={`
             text-3xl md:text-4xl lg:text-5xl font-bold text-[#1A1A1A] mb-4
             transition-all duration-700 delay-100
             ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
           `}>
-            Built for how you actually live
+            Stop wasting food. Start saving money.
           </h2>
           <p className={`
             text-gray-600 text-lg max-w-2xl mx-auto
             transition-all duration-700 delay-200
             ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
           `}>
-            Whether you&apos;re cooking for two or feeding a crowd —
-            save money and eat better every week.
+            Whether you&apos;re cooking for one or feeding a family —
+            a plan makes every grocery dollar count.
           </p>
         </div>
 

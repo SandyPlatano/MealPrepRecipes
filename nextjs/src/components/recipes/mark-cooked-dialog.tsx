@@ -31,7 +31,7 @@ interface MarkCookedDialogProps {
   recipeTitle: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void;
+  onSuccess?: (rating: number | null) => void;
 }
 
 export function MarkCookedDialog({
@@ -135,8 +135,8 @@ export function MarkCookedDialog({
     setSelectedFile(null);
     onOpenChange(false);
 
-    // Notify parent to refresh data
-    onSuccess?.();
+    // Notify parent with the rating
+    onSuccess?.(rating);
   };
 
   const handleClose = () => {
@@ -166,7 +166,7 @@ export function MarkCookedDialog({
           <div className="flex flex-col gap-2">
             <Label>Rate this cook (optional)</Label>
             <div className="flex justify-center py-2">
-              <StarRating rating={rating} onChange={setRating} size="lg" />
+              <StarRating rating={rating} onChange={setRating} size="lg" allowHalfStars />
             </div>
           </div>
 

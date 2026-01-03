@@ -474,13 +474,14 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                 <Clock className="size-3" />
                 {metadata.totalTime}
               </div>
-              {/* Rating Badge */}
-              {currentRating && (
-                <Badge className="bg-white/90 text-black hover:bg-white shadow-sm">
-                  <Star className="size-3 fill-amber-400 text-amber-400 mr-1" />
-                  {currentRating.toFixed(1)}
-                </Badge>
-              )}
+              {/* Rating Badge - Click to review */}
+              <button
+                onClick={handleRatingClick}
+                className="flex items-center gap-1 px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-full text-black text-[11px] font-medium shadow-sm hover:bg-white transition-colors"
+              >
+                <Star className={currentRating ? "size-3 fill-amber-400 text-amber-400" : "size-3 text-muted-foreground/60"} />
+                {currentRating && currentRating.toFixed(1)}
+              </button>
             </div>
 
             {/* Allergen Warning Icon - overlays image */}
@@ -808,7 +809,12 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
         recipeTitle={recipe.title}
         open={showCookedDialog}
         onOpenChange={setShowCookedDialog}
-        onSuccess={() => router.refresh()}
+        onSuccess={(newRating) => {
+          if (newRating !== null) {
+            setCurrentRating(newRating);
+          }
+          router.refresh();
+        }}
       />
 
       {cookingEntryToEdit && (

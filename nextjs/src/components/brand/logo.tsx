@@ -1,7 +1,7 @@
 /**
  * Brand Logo Components
  *
- * Primary logo components for "Babe, What's for Dinner?"
+ * Primary logo components for "What's for Dinner?"
  * Supports multiple sizes, variants, color schemes, and icon styles.
  */
 
@@ -52,8 +52,7 @@ const sizeClasses = {
   xs: {
     icon: 14,
     iconClass: "w-3.5 h-3.5",
-    babe: "text-base",
-    rest: "text-xs",
+    brand: "text-sm",
     tagline: "text-[10px]",
     gap: "gap-1",
     stackGap: "gap-0.5",
@@ -61,8 +60,7 @@ const sizeClasses = {
   sm: {
     icon: 16,
     iconClass: "w-4 h-4",
-    babe: "text-lg",
-    rest: "text-sm",
+    brand: "text-base",
     tagline: "text-xs",
     gap: "gap-1.5",
     stackGap: "gap-0.5",
@@ -70,8 +68,7 @@ const sizeClasses = {
   md: {
     icon: 20,
     iconClass: "w-5 h-5",
-    babe: "text-2xl",
-    rest: "text-base",
+    brand: "text-lg",
     tagline: "text-sm",
     gap: "gap-2",
     stackGap: "gap-1",
@@ -79,8 +76,7 @@ const sizeClasses = {
   lg: {
     icon: 28,
     iconClass: "w-7 h-7",
-    babe: "text-4xl",
-    rest: "text-xl",
+    brand: "text-2xl",
     tagline: "text-base",
     gap: "gap-2.5",
     stackGap: "gap-1",
@@ -88,8 +84,7 @@ const sizeClasses = {
   xl: {
     icon: 40,
     iconClass: "w-10 h-10",
-    babe: "text-6xl",
-    rest: "text-2xl",
+    brand: "text-4xl",
     tagline: "text-lg",
     gap: "gap-3",
     stackGap: "gap-1.5",
@@ -103,32 +98,27 @@ const sizeClasses = {
 const colorSchemes = {
   default: {
     icon: "text-black",
-    babe: "text-black",
-    rest: "text-black",
+    brand: "text-black",
     tagline: "text-muted-foreground",
   },
   monochrome: {
     icon: "text-black",
-    babe: "text-black",
-    rest: "text-black",
+    brand: "text-black",
     tagline: "text-muted-foreground",
   },
   reversed: {
     icon: "text-white",
-    babe: "text-white",
-    rest: "text-white",
+    brand: "text-white",
     tagline: "text-white/70",
   },
   dark: {
     icon: "text-white",
-    babe: "text-white",
-    rest: "text-white",
+    brand: "text-white",
     tagline: "text-white/60",
   },
   light: {
     icon: "text-black",
-    babe: "text-black",
-    rest: "text-black",
+    brand: "text-black",
     tagline: "text-black/60",
   },
 };
@@ -229,40 +219,24 @@ export function BrandLogo({
           )}
         <span
           className={cn(
-            "inline-flex items-baseline gap-1",
-            isStacked && "justify-center"
+            "font-primary font-bold leading-none",
+            colors.brand,
+            sizes.brand
           )}
         >
-          <span
-            className={cn(
-              "font-script font-semibold leading-none",
-              colors.babe,
-              sizes.babe
-            )}
-          >
-            Babe,
-          </span>
-          <span
-            className={cn(
-              "font-primary font-bold leading-none",
-              colors.rest,
-              sizes.rest
-            )}
-          >
-            What&apos;s for Dinner?
-          </span>
+          What&apos;s for Dinner?
         </span>
       </span>
       {showTagline && (
         <span
           className={cn(
-            "font-primary tracking-wider uppercase mt-1",
+            "font-primary tracking-wide mt-1",
             colors.tagline,
             sizes.tagline,
             !isStacked && showIcon ? "ml-7" : ""
           )}
         >
-          Your Meal Prep OS
+          Plan smarter. Spend less. Eat better.
         </span>
       )}
     </span>
@@ -297,23 +271,13 @@ export function BrandLogoCompact({
         cn(colors.icon, iconVariant === "lucide" ? "w-5 h-5" : ""),
         animated
       )}
-      <span className="inline-flex items-baseline">
-        <span
-          className={cn(
-            "font-script font-semibold text-lg leading-none",
-            colors.babe
-          )}
-        >
-          Babe,
-        </span>
-        <span
-          className={cn(
-            "font-primary font-bold text-sm leading-none ml-1",
-            colors.rest
-          )}
-        >
-          What&apos;s for Dinner?
-        </span>
+      <span
+        className={cn(
+          "font-primary font-bold text-base leading-none",
+          colors.brand
+        )}
+      >
+        What&apos;s for Dinner?
       </span>
     </span>
   );
@@ -358,7 +322,7 @@ export function BrandIcon({
 /**
  * Standalone tagline component for use where the logo already exists.
  */
-export function MealPrepOSTagline({
+export function BrandTagline({
   className,
   size = "md",
 }: {
@@ -374,15 +338,18 @@ export function MealPrepOSTagline({
   return (
     <span
       className={cn(
-        "font-primary text-muted-foreground tracking-wider uppercase",
+        "font-primary text-muted-foreground tracking-wide",
         taglineSizes[size],
         className
       )}
     >
-      Meal Prep OS
+      Plan smarter. Spend less. Eat better.
     </span>
   );
 }
+
+// Keep old export name for backward compatibility
+export const MealPrepOSTagline = BrandTagline;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // WORDMARK ONLY - NO ICON
@@ -410,25 +377,15 @@ export function BrandWordmark({
   const colors = colorSchemes[colorScheme];
 
   return (
-    <span className={cn("inline-flex items-baseline gap-1", className)}>
-      <span
-        className={cn(
-          "font-script font-semibold leading-none",
-          colors.babe,
-          sizes.babe
-        )}
-      >
-        Babe,
-      </span>
-      <span
-        className={cn(
-          "font-primary font-bold leading-none",
-          colors.rest,
-          sizes.rest
-        )}
-      >
-        What&apos;s for Dinner?
-      </span>
+    <span
+      className={cn(
+        "font-primary font-bold leading-none",
+        colors.brand,
+        sizes.brand,
+        className
+      )}
+    >
+      What&apos;s for Dinner?
     </span>
   );
 }

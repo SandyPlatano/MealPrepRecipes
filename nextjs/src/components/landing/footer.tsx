@@ -40,17 +40,17 @@ export function Footer() {
           <div className="lg:col-span-2">
             <Link
               href="/"
-              aria-label="Babe, What's for Dinner? - Home"
+              aria-label="What's for Dinner? - Home"
               className="flex items-center gap-2 mb-5 text-white text-xl font-bold rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1E293B] transition-opacity hover:opacity-80"
             >
               <div className="w-7 h-7 bg-[#D9F99D] rounded-md flex items-center justify-center">
-                <span className="text-[#1A1A1A] font-bold text-xs">B</span>
+                <span className="text-[#1A1A1A] font-bold text-xs">W</span>
               </div>
-              babewfd<span className="text-[#D9F99D]">.</span>
+              WFD<span className="text-[#D9F99D]">.</span>
             </Link>
             <p className="mb-6 text-sm leading-relaxed max-w-sm">
-              Your family&apos;s meal planning assistant. Import recipes, plan your week,
-              generate shopping lists, and cook with confidence.
+              Plan smarter. Spend less. Eat better. Import recipes, plan your week,
+              generate shopping lists, and actually use what you buy.
             </p>
             {/* Social Links */}
             <div className="flex space-x-4">
@@ -127,7 +127,7 @@ export function Footer() {
 
         {/* Copyright */}
         <div className="pt-8 border-t border-gray-800 text-center text-xs text-gray-500">
-          <p>&copy; {new Date().getFullYear()} Babe, What&apos;s for Dinner? All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} What&apos;s for Dinner? All rights reserved.</p>
         </div>
       </div>
     </footer>

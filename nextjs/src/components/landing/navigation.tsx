@@ -54,14 +54,14 @@ export function Navigation() {
         {/* Logo */}
         <Link
           href="/"
-          aria-label="Babe, What's for Dinner? - Home"
+          aria-label="What's for Dinner? - Home"
           className="hover:opacity-80 transition-opacity flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D9F99D] focus-visible:ring-offset-2 rounded-lg"
         >
           <div className="w-8 h-8 bg-[#D9F99D] rounded-lg flex items-center justify-center transition-transform duration-150 group-hover:scale-105">
-            <span className="text-[#1A1A1A] font-bold text-sm">B</span>
+            <span className="text-[#1A1A1A] font-bold text-sm">W</span>
           </div>
           <span className="font-display text-xl font-bold text-[#1A1A1A] hidden sm:inline">
-            babewfd<span className="text-[#D9F99D]">.</span>
+            WFD<span className="text-[#D9F99D]">.</span>
           </span>
         </Link>
 
@@ -121,7 +121,7 @@ export function Navigation() {
               <SheetHeader>
                 <SheetTitle className="text-left text-[#1A1A1A] font-display flex items-center gap-2">
                   <div className="w-6 h-6 bg-[#D9F99D] rounded-md flex items-center justify-center">
-                    <span className="text-[#1A1A1A] font-bold text-xs">B</span>
+                    <span className="text-[#1A1A1A] font-bold text-xs">W</span>
                   </div>
                   Menu
                 </SheetTitle>

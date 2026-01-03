@@ -1,7 +1,7 @@
 {
-  "name": "Babe, What's for Dinner?",
+  "name": "What's for Dinner?",
   "short_name": "What's 4 Dinner",
-  "description": "Meal planning made easy. Plan your week, generate shopping lists, never wonder what's for dinner again.",
+  "description": "Plan smarter. Spend less. Eat better. Spend 5 minutes planning your week, save money on groceries, and actually eat what you buy.",
   "start_url": "/app",
   "display": "standalone",
   "background_color": "#0a0a0a",

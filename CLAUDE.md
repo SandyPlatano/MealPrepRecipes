@@ -40,18 +40,18 @@ nextjs/src/
 │   ├── (auth)/              # Auth pages (login, signup, forgot-password)
 │   ├── (marketing)/         # Landing, pricing, legal pages
 │   ├── (public)/            # Public profiles, shared recipes
-│   ├── api/                 # API routes (25+ directories)
+│   ├── api/                 # API routes (23 directories)
 │   └── actions/             # Server actions
 │       ├── settings/        # Modular (14 files) - PATTERN TO FOLLOW
 │       ├── meal-plans/      # Modular (6 files)
 │       └── *.ts             # Other actions (some need modularization)
-├── components/              # React components (47 directories)
+├── components/              # React components (35 directories)
 │   ├── ui/                  # shadcn/ui primitives
 │   ├── landing/             # Marketing components
 │   ├── recipes/             # Recipe components
 │   ├── meal-plan/           # Planner components
 │   └── shopping-list/       # Shopping list components
-├── lib/                     # Utilities (21 directories)
+├── lib/                     # Utilities (25 directories)
 │   ├── ai/                  # Claude AI prompts and extraction
 │   ├── cache/               # Redis caching (Upstash)
 │   ├── supabase/            # Database clients
@@ -59,7 +59,7 @@ nextjs/src/
 ├── hooks/                   # React hooks
 │   └── queries/             # TanStack Query hooks
 ├── contexts/                # React context providers
-└── types/                   # TypeScript definitions (35+ files)
+└── types/                   # TypeScript definitions (36 files)
 
 supabase/migrations/         # Database migrations
 docs/                        # Documentation
@@ -170,6 +170,27 @@ smart_folder_recipe_cache  # Precomputed smart folder memberships
 
 ---
 
+## Codebase Stats
+
+| Metric | Count |
+|--------|-------|
+| Total Lines | ~142K |
+| Source Files | 750 |
+| TSX (components) | ~84K lines |
+| TS (logic/types) | ~58K lines |
+
+### Largest Files (watch for refactoring)
+
+| Lines | File |
+|------:|------|
+| 1,828 | `components/recipes/recipe-detail.tsx` |
+| 1,080 | `components/meal-plan/planner-day-row.tsx` |
+| 1,030 | `components/recipes/cooking-mode.tsx` |
+| 990 | `app/(app)/app/settings/cooking-mode/content.tsx` |
+| 942 | `contexts/settings-context.tsx` |
+
+---
+
 ## Common Gotchas
 
 1. **Port 3001** - Dev server runs on 3001, not 3000
@@ -177,7 +198,7 @@ smart_folder_recipe_cache  # Precomputed smart folder memberships
 3. **Smart Folders** - Have database trigger-based cache; mutations should invalidate
 4. **RLS Everywhere** - All queries go through Supabase client with user context
 5. **Household Scope** - Most data is scoped to household_id, not just user_id
-6. **Large Files** - `pixel-art.tsx` (10k lines) needs refactoring
+6. **Large Files** - See stats above; consider splitting files >1000 lines
 
 ---
 
@@ -232,6 +253,8 @@ See `/docs/README.md` for full navigation.
 | `lib/brand/colors.ts` | Color constants and utility functions |
 | `types/settings.ts` | Complex settings type definitions |
 | `contexts/settings-context.tsx` | Global settings state |
+| `components/recipes/recipe-detail.tsx` | Largest component (1.8K lines) - recipe view |
+| `components/meal-plan/planner-day-row.tsx` | Complex planner row (1K lines) |
 
 ---
 

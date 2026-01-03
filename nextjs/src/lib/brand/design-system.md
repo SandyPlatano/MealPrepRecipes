@@ -1,6 +1,6 @@
-# Babe, What's for Dinner? - Design System
+# What's for Dinner? - Design System
 
-> **Warm & Cozy** design system for a family meal planning app.
+> **Warm & Cozy** design system for a meal planning app that helps you save money on groceries.
 > This document is the single source of truth for all UI implementation.
 
 ---
@@ -9,7 +9,7 @@
 
 | Aspect | Description |
 |--------|-------------|
-| **Vibe** | Warm & Cozy - approachable, family-friendly, inviting |
+| **Vibe** | Warm & Cozy - approachable, practical, inviting |
 | **Structure** | Clean, modular, professional (Zaplytic-inspired) |
 | **Interactions** | Soft & Smooth - gentle transitions, rounded corners |
 

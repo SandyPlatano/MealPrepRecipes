@@ -27,9 +27,9 @@ const faqs = [
       'Just paste a URL from any recipe website. Our AI reads the page and extracts the title, ingredients, instructions, cook times, and more. No more copying and pasting ingredient lists manually.',
   },
   {
-    question: 'Can my partner and I use it together?',
+    question: 'Can multiple people use it together?',
     answer:
-      'Yes! Pro and Premium plans include household sharing. Multiple people can collaborate on meal plans, shopping lists, and recipes from any device.',
+      'Yes! Pro and Premium plans include household sharing. Your whole household can collaborate on meal plans, shopping lists, and recipes from any device.',
   },
   {
     question: 'What happens to my recipes?',

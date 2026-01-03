@@ -19,28 +19,28 @@ interface DayComparison {
 const WEEK_COMPARISON: DayComparison[] = [
   {
     day: 'Mon',
-    without: { emoji: '😩', text: '"What\'s for dinner?"' },
-    withApp: { emoji: '😊', text: 'Plan already set' },
+    without: { emoji: '😩', text: 'Nothing thawed, order DoorDash' },
+    withApp: { emoji: '😊', text: 'Chicken already defrosted' },
   },
   {
     day: 'Tue',
-    without: { emoji: '😤', text: 'Forgot to thaw meat' },
-    withApp: { emoji: '✓', text: 'Ingredients ready' },
+    without: { emoji: '🥬', text: 'Lettuce wilted, toss it out' },
+    withApp: { emoji: '✓', text: 'Salad ingredients fresh' },
   },
   {
     day: 'Wed',
-    without: { emoji: '😫', text: 'Third takeout this week' },
-    withApp: { emoji: '✓', text: 'Quick 20-min meal' },
+    without: { emoji: '😫', text: '$45 takeout again...' },
+    withApp: { emoji: '✓', text: 'Quick 20-min meal ready' },
   },
   {
     day: 'Thu',
-    without: { emoji: '😠', text: '"We had this yesterday"' },
-    withApp: { emoji: '✓', text: 'Variety built in' },
+    without: { emoji: '🗑️', text: 'Throwing out old produce' },
+    withApp: { emoji: '✓', text: 'Everything gets used' },
   },
   {
     day: 'Fri',
-    without: { emoji: '😵', text: 'Kitchen is chaos' },
-    withApp: { emoji: '🎉', text: 'Enjoying dinner!' },
+    without: { emoji: '💸', text: 'Spent $180 extra this week' },
+    withApp: { emoji: '🎉', text: 'Saved $50+ and ate great!' },
   },
 ];
 
@@ -102,14 +102,14 @@ export function WeeklyStruggle() {
             transition-all duration-700 delay-100
             ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
           `}>
-            The weekly dinner struggle
+            Where does your money go?
           </h2>
           <p className={`
             text-gray-600 text-lg max-w-xl mx-auto
             transition-all duration-700 delay-200
             ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
           `}>
-            Every week, the same story plays out. Here&apos;s how it changes.
+            Without a plan, groceries get wasted and takeout adds up fast. Here&apos;s how it changes.
           </p>
         </div>
 
@@ -127,8 +127,8 @@ export function WeeklyStruggle() {
                   <X className="w-5 h-5 text-red-500" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-[#1A1A1A]">Without Us</h3>
-                  <p className="text-sm text-gray-500">The nightly struggle</p>
+                  <h3 className="font-bold text-[#1A1A1A]">Without a Plan</h3>
+                  <p className="text-sm text-gray-500">Money down the drain</p>
                 </div>
               </div>
 
@@ -150,11 +150,11 @@ export function WeeklyStruggle() {
                 ))}
               </div>
 
-              {/* Stress Meter */}
+              {/* Waste Meter */}
               <div>
                 <div className="flex justify-between text-xs text-gray-500 mb-2">
-                  <span>Stress level</span>
-                  <span className="font-medium text-red-500">High 😵</span>
+                  <span>Food wasted</span>
+                  <span className="font-medium text-red-500">30-40% 🗑️</span>
                 </div>
                 <StressMeter percentage={85} isVisible={isVisible} />
               </div>
@@ -167,8 +167,8 @@ export function WeeklyStruggle() {
                   <Check className="w-5 h-5 text-[#1A1A1A]" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-[#1A1A1A]">With Us</h3>
-                  <p className="text-sm text-gray-500">Peace of mind</p>
+                  <h3 className="font-bold text-[#1A1A1A]">With a Plan</h3>
+                  <p className="text-sm text-gray-500">Every dollar counts</p>
                 </div>
               </div>
 
@@ -190,11 +190,11 @@ export function WeeklyStruggle() {
                 ))}
               </div>
 
-              {/* Stress Meter */}
+              {/* Waste Meter */}
               <div>
                 <div className="flex justify-between text-xs text-gray-500 mb-2">
-                  <span>Stress level</span>
-                  <span className="font-medium text-[#84CC16]">Low 😌</span>
+                  <span>Food wasted</span>
+                  <span className="font-medium text-[#84CC16]">Almost none 💪</span>
                 </div>
                 <StressMeter percentage={15} isVisible={isVisible} />
               </div>
@@ -210,7 +210,7 @@ export function WeeklyStruggle() {
             <Link href="/signup">
               <button className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-4 rounded-full font-semibold text-base hover:bg-gray-800 transition-all duration-200 group shadow-lg hover:shadow-xl active:scale-[0.98]">
                 <StarSmall size={16} className="text-[#D9F99D]" />
-                End the chaos
+                Start saving money
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </Link>

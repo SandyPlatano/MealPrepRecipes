@@ -242,7 +242,7 @@ export function EditCookingHistoryDialog({
           <div className="flex flex-col gap-2">
             <Label>Rating</Label>
             <div className="flex justify-center py-2">
-              <StarRating rating={rating} onChange={setRating} size="lg" />
+              <StarRating rating={rating} onChange={setRating} size="lg" allowHalfStars />
             </div>
             {rating !== null && (
               <Button
