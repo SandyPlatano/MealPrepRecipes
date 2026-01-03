@@ -112,6 +112,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
 import {
   HoverCard,
   HoverCardContent,
@@ -507,20 +508,21 @@ export function RecipeDetail({
   // ============================================================================
 
   const renderIngredientsSection = () => (
-    <div className="flex flex-col gap-4">
-      {/* Title Row */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-baseline gap-2">
-          <h3 className="text-lg font-semibold text-[#1A1A1A] dark:text-white">Ingredients</h3>
-          <Badge variant="secondary" className="text-xs">
+    <div className="flex flex-col gap-5">
+      {/* Title Row with visual hierarchy */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <h3 className="text-xl font-bold text-[#1A1A1A] dark:text-white whitespace-nowrap">Ingredients</h3>
+          <Badge className="bg-[#D9F99D]/20 text-[#1A1A1A] dark:text-white border-0 text-xs">
             {recipe.ingredients.length} items
           </Badge>
+          <Separator className="flex-1 hidden sm:block" />
         </div>
         <Button
           variant="outline"
           size="sm"
           onClick={() => setShowAddIngredientsDialog(true)}
-          className="gap-2"
+          className="gap-2 rounded-full"
         >
           <ShoppingCart className="size-4" />
           Add All
@@ -537,14 +539,18 @@ export function RecipeDetail({
 
       {/* Serving Controls Row */}
       {canScale && (
-        <div className="flex flex-col gap-3">
-          {/* Quick presets */}
-          <div className="flex gap-2 flex-wrap items-center">
+        <div className="bg-[#F5F5F0] dark:bg-slate-700/50 rounded-2xl p-4 space-y-4">
+          {/* Quick presets - pill buttons */}
+          <div className="flex gap-2 flex-wrap">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setServingsPreset(0.5)}
-              className="text-xs"
+              className={`rounded-full px-4 transition-all ${
+                currentServings === Math.round((recipe.base_servings || 1) * 0.5)
+                  ? "bg-[#D9F99D] text-[#1A1A1A] border-[#D9F99D] hover:bg-[#D9F99D]/90"
+                  : "bg-white dark:bg-slate-600 hover:bg-gray-50 dark:hover:bg-slate-500"
+              }`}
             >
               Half
             </Button>
@@ -552,7 +558,11 @@ export function RecipeDetail({
               variant="outline"
               size="sm"
               onClick={() => setServingsPreset(1)}
-              className="text-xs"
+              className={`rounded-full px-4 transition-all ${
+                currentServings === recipe.base_servings
+                  ? "bg-[#D9F99D] text-[#1A1A1A] border-[#D9F99D] hover:bg-[#D9F99D]/90"
+                  : "bg-white dark:bg-slate-600 hover:bg-gray-50 dark:hover:bg-slate-500"
+              }`}
             >
               Original
             </Button>
@@ -560,7 +570,11 @@ export function RecipeDetail({
               variant="outline"
               size="sm"
               onClick={() => setServingsPreset(2)}
-              className="text-xs"
+              className={`rounded-full px-4 transition-all ${
+                currentServings === Math.round((recipe.base_servings || 1) * 2)
+                  ? "bg-[#D9F99D] text-[#1A1A1A] border-[#D9F99D] hover:bg-[#D9F99D]/90"
+                  : "bg-white dark:bg-slate-600 hover:bg-gray-50 dark:hover:bg-slate-500"
+              }`}
             >
               Double
             </Button>
@@ -568,28 +582,34 @@ export function RecipeDetail({
               variant="outline"
               size="sm"
               onClick={() => setServingsPreset(4)}
-              className="text-xs"
+              className={`rounded-full px-4 transition-all ${
+                currentServings === Math.round((recipe.base_servings || 1) * 4)
+                  ? "bg-[#D9F99D] text-[#1A1A1A] border-[#D9F99D] hover:bg-[#D9F99D]/90"
+                  : "bg-white dark:bg-slate-600 hover:bg-gray-50 dark:hover:bg-slate-500"
+              }`}
             >
               Family (4x)
             </Button>
+          </div>
+          {/* Serving size input row */}
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3 bg-white dark:bg-slate-600 rounded-full px-4 py-2 border border-gray-200 dark:border-gray-500 shadow-sm">
+              <Users className="size-4 text-muted-foreground" />
+              <Input
+                type="number"
+                min={1}
+                max={99}
+                value={servingsInputValue}
+                onChange={handleServingsInputChange}
+                onBlur={handleServingsInputBlur}
+                className="h-7 w-14 text-center font-semibold border-0 bg-transparent p-0 focus-visible:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <span className="text-sm text-muted-foreground">servings</span>
+            </div>
             <UnitSystemToggle
               defaultSystem={effectiveUnitSystem}
               onSystemChange={setLocalUnitSystem}
             />
-          </div>
-          {/* Serving size input */}
-          <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2 w-fit">
-            <Users className="size-4 text-muted-foreground" />
-            <Input
-              type="number"
-              min={1}
-              max={99}
-              value={servingsInputValue}
-              onChange={handleServingsInputChange}
-              onBlur={handleServingsInputBlur}
-              className="h-8 w-16 text-center font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            />
-            <span className="text-sm text-muted-foreground">servings</span>
           </div>
         </div>
       )}
@@ -601,14 +621,14 @@ export function RecipeDetail({
         </p>
       )}
 
-      <ul className="flex flex-col gap-2.5">
+      <ul className="flex flex-col gap-3">
         {displayIngredients.map((ingredient, index) => {
           const ingredientSubs = substitutions.get(recipe.ingredients[index] || ingredient);
           const hasSubstitutes = ingredientSubs && ingredientSubs.length > 0;
 
           return (
-            <li key={index} className="flex items-start gap-2 group">
-              <span className="text-muted-foreground">•</span>
+            <li key={index} className="flex items-start gap-3 group text-base">
+              <span className="text-[#D9F99D] text-lg leading-tight">•</span>
               <div className="flex-1 flex items-center gap-2">
                 {hasSubstitutes ? (
                   <HoverCard openDelay={300} closeDelay={100}>
@@ -717,23 +737,34 @@ export function RecipeDetail({
   );
 
   const renderInstructionsSection = () => (
-    <div className="flex flex-col">
-      <div className="mb-2">
-        <h3 className="text-lg font-semibold text-[#1A1A1A] dark:text-white">Instructions</h3>
-        <p className="text-sm text-muted-foreground">
+    <div className="flex flex-col gap-5">
+      {/* Title Row with visual hierarchy */}
+      <div className="flex items-center gap-3">
+        <h3 className="text-xl font-bold text-[#1A1A1A] dark:text-white whitespace-nowrap">Instructions</h3>
+        <Badge className="bg-[#D9F99D]/20 text-[#1A1A1A] dark:text-white border-0 text-xs">
           {recipe.instructions.length} steps
-        </p>
+        </Badge>
+        <Separator className="flex-1" />
       </div>
-      <ol className="flex flex-col gap-5">
+      {/* Timeline step cards */}
+      <ol className="flex flex-col gap-0">
         {recipe.instructions.map((instruction, index) => (
-          <li key={index} className="flex gap-4 pb-5 border-b border-border/50 last:border-0 last:pb-0">
-            <span className="flex-shrink-0 size-6 rounded-full bg-primary text-primary-foreground text-sm flex items-center justify-center font-medium">
+          <li key={index} className="relative flex gap-4 pb-6 last:pb-0">
+            {/* Connector line */}
+            {index < recipe.instructions.length - 1 && (
+              <div className="absolute left-[1.1875rem] top-12 bottom-0 w-0.5 bg-[#D9F99D]/40" />
+            )}
+            {/* Step number */}
+            <div className="flex-shrink-0 size-10 rounded-full bg-[#D9F99D] text-[#1A1A1A] font-bold flex items-center justify-center z-10 shadow-sm">
               {index + 1}
-            </span>
-            <div className="prose prose-sm dark:prose-invert max-w-none flex-1">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {instruction}
-              </ReactMarkdown>
+            </div>
+            {/* Step content card */}
+            <div className="flex-1 bg-white dark:bg-slate-700 rounded-xl border border-gray-100 dark:border-gray-600 p-4 shadow-sm">
+              <div className="prose prose-base dark:prose-invert max-w-none leading-relaxed">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {instruction}
+                </ReactMarkdown>
+              </div>
             </div>
           </li>
         ))}
@@ -791,13 +822,16 @@ export function RecipeDetail({
   const renderNotesSection = () => {
     if (!recipe.notes) return null;
     return (
-      <Collapsible defaultOpen={false} className="flex flex-col">
+      <Collapsible defaultOpen={false} className="flex flex-col gap-3">
         <CollapsibleTrigger className="flex items-center justify-between w-full group">
-          <h3 className="text-lg font-semibold text-[#1A1A1A] dark:text-white">Notes</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-xl font-bold text-[#1A1A1A] dark:text-white">Notes</h3>
+            <Separator className="flex-1" />
+          </div>
           <ChevronDown className="size-5 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
         </CollapsibleTrigger>
         <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-          <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground pt-3">
+          <div className="prose prose-base dark:prose-invert max-w-none text-muted-foreground leading-relaxed">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {recipe.notes}
             </ReactMarkdown>
@@ -882,13 +916,14 @@ export function RecipeDetail({
     const remainingEntries = localHistory.slice(1, 5);
 
     return (
-      <div className="flex flex-col">
-        <div>
-          <h3 className="text-lg font-semibold text-[#1A1A1A] dark:text-white">Cooking History</h3>
-          <p className="text-sm text-muted-foreground">
-            Made {localHistory.length} time
-            {localHistory.length !== 1 ? "s" : ""}
-          </p>
+      <div className="flex flex-col gap-4">
+        {/* Title Row with visual hierarchy */}
+        <div className="flex items-center gap-3">
+          <h3 className="text-xl font-bold text-[#1A1A1A] dark:text-white whitespace-nowrap">Cooking History</h3>
+          <Badge className="bg-[#D9F99D]/20 text-[#1A1A1A] dark:text-white border-0 text-xs">
+            Made {localHistory.length} time{localHistory.length !== 1 ? "s" : ""}
+          </Badge>
+          <Separator className="flex-1" />
         </div>
         <ul className="flex flex-col gap-2">
           {/* Always show the most recent entry */}
@@ -972,8 +1007,8 @@ export function RecipeDetail({
         // Render two half-width sections side-by-side
         sections.push(
           <div key={`${sectionId}-${nextSectionId}`}>
-            <div className="border-t border-gray-300 dark:border-gray-600" />
-            <div className="grid gap-8 md:grid-cols-2 pt-6">
+            <div className="border-t border-gray-200 dark:border-gray-600" />
+            <div className="grid gap-8 md:grid-cols-2 pt-8">
               <div>{sectionRenderers[sectionId]()}</div>
               <div>{sectionRenderers[nextSectionId]()}</div>
             </div>
@@ -984,8 +1019,8 @@ export function RecipeDetail({
         // Render single full-width section
         sections.push(
           <div key={sectionId}>
-            <div className="border-t border-gray-300 dark:border-gray-600" />
-            <div className="pt-6">{sectionRenderers[sectionId]()}</div>
+            <div className="border-t border-gray-200 dark:border-gray-600" />
+            <div className="pt-8">{sectionRenderers[sectionId]()}</div>
           </div>
         );
         i++;
@@ -998,7 +1033,7 @@ export function RecipeDetail({
   return (
     <>
       {/* Single Card with All Recipe Info */}
-      <Card className="bg-white rounded-xl border border-gray-200 shadow-sm dark:bg-slate-800 dark:border-gray-700 overflow-hidden">
+      <Card className="bg-white rounded-xl border border-gray-200 border-l-4 border-l-[#D9F99D] shadow-sm dark:bg-slate-800 dark:border-gray-700 dark:border-l-[#D9F99D] overflow-hidden">
         {/* Recipe Image Carousel */}
         {recipe.image_url && (
           <div className="relative">
