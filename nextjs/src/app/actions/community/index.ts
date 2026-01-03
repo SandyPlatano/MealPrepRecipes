@@ -8,7 +8,6 @@ import type {
   SavedRecipeListItem,
 } from "@/types/social";
 
-// Get public recipes with filtering
 export async function getPublicRecipes(options?: {
   limit?: number;
   offset?: number;
@@ -36,7 +35,6 @@ export async function getPublicRecipes(options?: {
     return { data: null, error: error.message };
   }
 
-  // Transform database response to PublicRecipe type
   const recipes: PublicRecipe[] = (data || []).map((r: {
     id: string;
     title: string;
@@ -78,7 +76,6 @@ export async function getPublicRecipes(options?: {
   return { data: recipes, error: null };
 }
 
-// Get trending recipes
 export async function getTrendingRecipes(
   limit: number = 10
 ): Promise<{ data: TrendingRecipe[] | null; error: string | null }> {
@@ -98,7 +95,6 @@ export async function getTrendingRecipes(
     return { data: null, error: error.message };
   }
 
-  // Transform database response to TrendingRecipe type
   const recipes: TrendingRecipe[] = (data || []).map((r: {
     id: string;
     title: string;
@@ -132,7 +128,6 @@ export async function getTrendingRecipes(
   return { data: recipes, error: null };
 }
 
-// Save a public recipe
 export async function saveRecipe(
   recipeId: string
 ): Promise<{ success: boolean; error: string | null }> {
@@ -162,7 +157,6 @@ export async function saveRecipe(
   return { success: true, error: null };
 }
 
-// Unsave a recipe
 export async function unsaveRecipe(
   recipeId: string
 ): Promise<{ success: boolean; error: string | null }> {
@@ -190,7 +184,6 @@ export async function unsaveRecipe(
   return { success: true, error: null };
 }
 
-// Get user's saved recipes
 export async function getSavedRecipes(options?: {
   limit?: number;
   offset?: number;
@@ -242,7 +235,6 @@ export async function getSavedRecipes(options?: {
     return { data: null, error: error.message };
   }
 
-  // Transform to SavedRecipeListItem type
   const recipes: SavedRecipeListItem[] = (data || []).map((item) => {
     const r = item.recipe as unknown as {
       id: string;
@@ -284,7 +276,6 @@ export async function getSavedRecipes(options?: {
   return { data: recipes, error: null };
 }
 
-// Report a recipe
 export async function reportRecipe(
   recipeId: string,
   reason: RecipeReportReason,
@@ -300,7 +291,6 @@ export async function reportRecipe(
     return { success: false, error: "You must be signed in to report recipes" };
   }
 
-  // Check that recipe exists and is public
   const { data: recipe } = await supabase
     .from("recipes")
     .select("id, user_id, is_public")
@@ -337,7 +327,6 @@ export async function reportRecipe(
   return { success: true, error: null };
 }
 
-// Get available categories from public recipes
 export async function getPublicCategories(): Promise<{
   data: string[] | null;
   error: string | null;
@@ -356,12 +345,10 @@ export async function getPublicCategories(): Promise<{
     return { data: null, error: error.message };
   }
 
-  // Get unique categories
   const categories = Array.from(new Set(data.map((r) => r.category).filter(Boolean))) as string[];
   return { data: categories.sort(), error: null };
 }
 
-// Get available recipe types from public recipes
 export async function getPublicRecipeTypes(): Promise<{
   data: string[] | null;
   error: string | null;
@@ -379,12 +366,10 @@ export async function getPublicRecipeTypes(): Promise<{
     return { data: null, error: error.message };
   }
 
-  // Get unique recipe types
   const types = Array.from(new Set(data.map((r) => r.recipe_type).filter(Boolean))) as string[];
   return { data: types.sort(), error: null };
 }
 
-// Refresh trending cache (called by cron)
 export async function refreshTrendingCache(): Promise<{
   success: boolean;
   error: string | null;

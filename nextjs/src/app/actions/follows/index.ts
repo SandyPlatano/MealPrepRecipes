@@ -3,7 +3,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { UserProfile, ActivityFeedItem } from "@/types/social";
 
-// Follow a user
 export async function followUser(
   userId: string
 ): Promise<{ success: boolean; error: string | null }> {
@@ -37,7 +36,6 @@ export async function followUser(
   return { success: true, error: null };
 }
 
-// Unfollow a user
 export async function unfollowUser(
   userId: string
 ): Promise<{ success: boolean; error: string | null }> {
@@ -65,7 +63,6 @@ export async function unfollowUser(
   return { success: true, error: null };
 }
 
-// Check if following a user
 export async function isFollowingUser(
   userId: string
 ): Promise<{ isFollowing: boolean; error: string | null }> {
@@ -94,7 +91,6 @@ export async function isFollowingUser(
   return { isFollowing: !!data, error: null };
 }
 
-// Get followers of a user
 export async function getFollowers(
   userId: string,
   options?: { limit?: number; offset?: number }
@@ -134,7 +130,6 @@ export async function getFollowers(
     return { data: null, error: error.message };
   }
 
-  // Transform to UserProfile type with is_following check
   const followingSet = new Set<string>();
 
   if (user) {
@@ -179,7 +174,6 @@ export async function getFollowers(
   return { data: profiles, error: null };
 }
 
-// Get users that a user is following
 export async function getFollowing(
   userId: string,
   options?: { limit?: number; offset?: number }
@@ -219,7 +213,6 @@ export async function getFollowing(
     return { data: null, error: error.message };
   }
 
-  // Transform to UserProfile type
   const followingSet = new Set<string>();
 
   if (user) {
@@ -264,7 +257,6 @@ export async function getFollowing(
   return { data: profiles, error: null };
 }
 
-// Get activity feed
 export async function getActivityFeed(options?: {
   limit?: number;
   offset?: number;
@@ -290,7 +282,6 @@ export async function getActivityFeed(options?: {
     return { data: null, error: error.message };
   }
 
-  // Transform to ActivityFeedItem type
   const items: ActivityFeedItem[] = (data || []).map((item: {
     id: string;
     actor_id: string;
@@ -326,7 +317,6 @@ export async function getActivityFeed(options?: {
   return { data: items, error: null };
 }
 
-// Get user profile by username
 export async function getUserByUsername(
   username: string
 ): Promise<{ data: UserProfile | null; error: string | null }> {
@@ -363,7 +353,6 @@ export async function getUserByUsername(
     return { data: null, error: error.message };
   }
 
-  // Check if current user is following
   let isFollowing = false;
   if (user && user.id !== data.id) {
     const { data: follow } = await supabase
@@ -376,7 +365,6 @@ export async function getUserByUsername(
     isFollowing = !!follow;
   }
 
-  // Get public recipe count
   const { count } = await supabase
     .from("recipes")
     .select("id", { count: "exact", head: true })
@@ -401,7 +389,6 @@ export async function getUserByUsername(
   return { data: profile, error: null };
 }
 
-// Get public recipes by a user
 export async function getUserPublicRecipes(
   userId: string,
   options?: { limit?: number; offset?: number }
