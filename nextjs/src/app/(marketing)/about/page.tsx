@@ -21,7 +21,7 @@ export default function AboutPage() {
             Our Story
           </span>
           <h1 className="text-4xl md:text-5xl font-bold text-[#1A1A1A] mb-6 leading-tight">
-            About <span className="text-gray-500">Babe, What&apos;s for Dinner?</span>
+            About <span className="text-[#1A1A1A]">Babe, What&apos;s for Dinner?</span>
           </h1>
           <p className="text-xl text-gray-600 leading-relaxed">
             A love story about meal prep, scattered recipes, and building

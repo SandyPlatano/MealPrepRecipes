@@ -1,7 +1,14 @@
+import { Navigation } from "@/components/landing/navigation";
+import { Footer } from "@/components/landing/footer";
+
 export default function TermsPage() {
   return (
-    <div className="prose prose-neutral dark:prose-invert max-w-none">
-      <h1 className="font-mono">Terms of Service</h1>
+    <main className="min-h-screen bg-[#FFFCF6]">
+      <Navigation />
+
+      <div className="container mx-auto px-4 py-32 max-w-3xl">
+        <div className="prose prose-neutral max-w-none">
+          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Terms of Service</h1>
       <p className="text-muted-foreground">Last updated: December 2024</p>
 
       <h2>The Human Version</h2>
@@ -194,13 +201,17 @@ export default function TermsPage() {
         United States. Any disputes will be resolved in the courts of California.
       </p>
 
-      <h2>17. Contact</h2>
-      <p>
-        Questions about these terms? Email us at{" "}
-        <a href="mailto:legal@babewhatsfordinner.com" className="text-primary">
-          legal@babewhatsfordinner.com
-        </a>
-      </p>
-    </div>
+          <h2>17. Contact</h2>
+          <p>
+            Questions about these terms? Email us at{" "}
+            <a href="mailto:legal@babewhatsfordinner.com" className="text-[#1A1A1A] underline hover:no-underline">
+              legal@babewhatsfordinner.com
+            </a>
+          </p>
+        </div>
+      </div>
+
+      <Footer />
+    </main>
   );
 }

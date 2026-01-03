@@ -1,7 +1,14 @@
+import { Navigation } from "@/components/landing/navigation";
+import { Footer } from "@/components/landing/footer";
+
 export default function PrivacyPage() {
   return (
-    <div className="prose prose-neutral dark:prose-invert max-w-none">
-      <h1 className="font-mono">Privacy Policy</h1>
+    <main className="min-h-screen bg-[#FFFCF6]">
+      <Navigation />
+
+      <div className="container mx-auto px-4 py-32 max-w-3xl">
+        <div className="prose prose-neutral max-w-none">
+          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Privacy Policy</h1>
       <p className="text-muted-foreground">Last updated: December 2024</p>
 
       <h2>The Short Version</h2>
@@ -166,13 +173,17 @@ export default function PrivacyPage() {
         changes will be communicated through the app.
       </p>
 
-      <h2>Contact Us</h2>
-      <p>
-        Questions about privacy? Reach out at{" "}
-        <a href="mailto:privacy@babewhatsfordinner.com" className="text-primary">
-          privacy@babewhatsfordinner.com
-        </a>
-      </p>
-    </div>
+          <h2>Contact Us</h2>
+          <p>
+            Questions about privacy? Reach out at{" "}
+            <a href="mailto:privacy@babewhatsfordinner.com" className="text-[#1A1A1A] underline hover:no-underline">
+              privacy@babewhatsfordinner.com
+            </a>
+          </p>
+        </div>
+      </div>
+
+      <Footer />
+    </main>
   );
 }
