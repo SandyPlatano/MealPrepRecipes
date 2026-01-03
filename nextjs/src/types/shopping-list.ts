@@ -81,6 +81,22 @@ export const INGREDIENT_CATEGORIES = [
   "Other",
 ] as const;
 
+// Optimized order for typical grocery store layout
+// Follows perimeter-first flow: Produce → Bakery → Meat → Dairy → Frozen → Center aisles
+export const STORE_FLOW_ORDER = [
+  "Produce",
+  "Bakery",
+  "Meat & Seafood",
+  "Dairy & Eggs",
+  "Frozen",
+  "Beverages",
+  "Pantry",
+  "Condiments",
+  "Spices",
+  "Snacks",
+  "Other",
+] as const;
+
 export type IngredientCategory = (typeof INGREDIENT_CATEGORIES)[number];
 
 // Helper to group items by category

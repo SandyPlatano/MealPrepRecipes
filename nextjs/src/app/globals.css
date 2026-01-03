@@ -9,6 +9,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Dark Mode Configuration - Class-based strategy
+   Only apply dark: variants when HTML has .dark class (not based on system preference)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Material Symbols - must be outside @layer for font to load correctly */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';

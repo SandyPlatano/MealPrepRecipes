@@ -28,6 +28,7 @@ import {
   type ShoppingListWithItems,
   type ShoppingListItem,
   type PantryItem,
+  STORE_FLOW_ORDER,
 } from "@/types/shopping-list";
 import { convertIngredientToSystem, type UnitSystem } from "@/lib/ingredient-scaler";
 import { triggerHaptic } from "@/lib/haptics";
@@ -37,7 +38,9 @@ import {
   useCategoryDnd,
   useStoreMode,
   useShoppingListHandlers,
+  useShoppingListRealtime,
 } from "./hooks";
+import { useRouter } from "next/navigation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,7 +64,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, ChevronUp, CalendarDays, Mail, ChefHat } from "lucide-react";
-import { RotateCcw, WifiOff, MoreVertical } from "lucide-react";
+import { RotateCcw, WifiOff, MoreVertical, Route } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
   DndContext,
@@ -79,7 +82,10 @@ import { SortableCategorySection, CategoryCardOverlay } from "./category-section
 import { AddItemForm } from "./add-item-form";
 import { ProgressBar } from "./progress-bar";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, ScanLine } from "lucide-react";
+import { BarcodeScanner } from "./barcode-scanner";
+import { ScanResultModal, type ScannedProduct } from "./scan-result-modal";
+import type { BarcodeLookupResponse } from "@/types/barcode";
 
 interface ShoppingListViewProps {
   shoppingList: ShoppingListWithItems;
@@ -188,6 +194,97 @@ export function ShoppingListView({
   // Offline support
   const { isOffline } = useOffline();
 
+  // Router for realtime refresh
+  const router = useRouter();
+
+  // Real-time sync for household shopping together
+  const { isConnected: isRealtimeConnected } = useShoppingListRealtime({
+    shoppingListId: shoppingList.id,
+    enabled: !isOffline && !!shoppingList.id,
+    onItemChange: () => {
+      // Refresh server data when another household member makes changes
+      router.refresh();
+    },
+  });
+
+  // Barcode scanning state
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [scannedProduct, setScannedProduct] = useState<ScannedProduct | null>(null);
+  const [isLookingUp, setIsLookingUp] = useState(false);
+  const [isScanResultOpen, setIsScanResultOpen] = useState(false);
+
+  // Handle barcode scan result
+  const handleBarcodeScanned = async (barcode: string) => {
+    setIsScannerOpen(false);
+    setIsLookingUp(true);
+    setIsScanResultOpen(true);
+
+    try {
+      const response = await fetch("/api/pantry/lookup-barcode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ barcode }),
+      });
+
+      const data: BarcodeLookupResponse = await response.json();
+
+      if (data.found && data.product) {
+        setScannedProduct({
+          barcode: data.product.barcode,
+          name: data.product.name,
+          brand: data.product.brand,
+          category: data.product.category,
+        });
+      } else {
+        // Product not found - let user enter manually
+        setScannedProduct({
+          barcode,
+          name: "",
+          category: "Other",
+        });
+        toast.info("Product not found. Please enter the name manually.");
+      }
+    } catch {
+      // Error during lookup - let user enter manually
+      setScannedProduct({
+        barcode,
+        name: "",
+        category: "Other",
+      });
+      toast.error("Could not look up product. Please enter the name manually.");
+    } finally {
+      setIsLookingUp(false);
+    }
+  };
+
+  // Handle adding scanned item to list
+  const handleAddScannedToList = async (name: string, category: string) => {
+    try {
+      const { addShoppingListItem } = await import("@/app/actions/shopping-list");
+      await addShoppingListItem({
+        ingredient: name,
+        category,
+      });
+      toast.success(`Added "${name}" to shopping list`);
+      router.refresh();
+    } catch {
+      toast.error("Failed to add item to list");
+    }
+  };
+
+  // Handle adding scanned item to pantry
+  const handleAddScannedToPantry = async (name: string, category: string) => {
+    try {
+      const { addToPantry } = await import("@/app/actions/pantry");
+      await addToPantry(name, category, "barcode");
+      toast.success(`Added "${name}" to pantry`);
+      // Refresh to update pantry count
+      router.refresh();
+    } catch {
+      toast.error("Failed to add item to pantry");
+    }
+  };
+
   // Helper function to get cook badge color
   const getCookBadgeColor = (cook: string) => {
     if (cookColors[cook]) {
@@ -287,6 +384,26 @@ export function ShoppingListView({
     <div className="flex flex-col gap-6">
       {/* Confetti celebration when all items checked */}
       <Confetti active={showConfetti} />
+
+      {/* Barcode Scanner */}
+      <BarcodeScanner
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onScanSuccess={handleBarcodeScanned}
+      />
+
+      {/* Scan Result Modal */}
+      <ScanResultModal
+        isOpen={isScanResultOpen}
+        onClose={() => {
+          setIsScanResultOpen(false);
+          setScannedProduct(null);
+        }}
+        product={scannedProduct}
+        isLoading={isLookingUp}
+        onAddToList={handleAddScannedToList}
+        onAddToPantry={handleAddScannedToPantry}
+      />
 
       {/* Substitution Sheet */}
       <SubstitutionSheet
@@ -392,15 +509,28 @@ export function ShoppingListView({
         </Collapsible>
       )}
 
-      {/* Add Item Form */}
-      <AddItemForm
-        newItem={newItem}
-        setNewItem={setNewItem}
-        newCategory={newCategory}
-        setNewCategory={setNewCategory}
-        isAdding={isAdding}
-        onSubmit={handleAddItem}
-      />
+      {/* Add Item Form with Scan Button */}
+      <div className="flex gap-2 items-end">
+        <div className="flex-1">
+          <AddItemForm
+            newItem={newItem}
+            setNewItem={setNewItem}
+            newCategory={newCategory}
+            setNewCategory={setNewCategory}
+            isAdding={isAdding}
+            onSubmit={handleAddItem}
+          />
+        </div>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-10 w-10 flex-shrink-0 rounded-full border-gray-300"
+          onClick={() => setIsScannerOpen(true)}
+          title="Scan barcode"
+        >
+          <ScanLine className="h-5 w-5" />
+        </Button>
+      </div>
 
       {/* Actions */}
       {shoppingList.items.length > 0 && (
@@ -487,14 +617,16 @@ export function ShoppingListView({
                 <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? "animate-spin" : ""}`} />
                 Refresh from Meal Plan
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setCategoryOrder([...STORE_FLOW_ORDER])}>
+                <Route className="h-4 w-4 mr-2" />
+                Sort for Store
+              </DropdownMenuItem>
               {categoryOrder && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleResetOrder}>
-                    <RotateCcw className="h-4 w-4 mr-2" />
-                    Reset Category Order
-                  </DropdownMenuItem>
-                </>
+                <DropdownMenuItem onClick={handleResetOrder}>
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Reset Category Order
+                </DropdownMenuItem>
               )}
               {checkedCount > 0 && (
                 <>

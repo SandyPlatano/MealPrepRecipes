@@ -416,11 +416,11 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
         onFocus={handlePrefetch}
       >
         <Card
-          className="group h-full bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:scale-[1.01] hover:border-gray-200 transition-all duration-300 ease-out flex flex-col cursor-pointer overflow-hidden animate-slide-up-fade relative"
+          className="group h-full bg-white rounded-sm border-[1.5px] border-[#1A1A1A] shadow-none hover:shadow-md hover:border-[#1A1A1A] transition-all duration-300 ease-out flex flex-col cursor-pointer overflow-hidden animate-slide-up-fade relative"
           style={animationIndex !== undefined ? { animationDelay: `${animationIndex * 50}ms`, animationFillMode: 'backwards' } : undefined}
         >
           {/* Image Section - ALWAYS present for consistent card height */}
-          <div className="relative w-full h-44 rounded-t-2xl overflow-hidden bg-[#FEF7E8]">
+          <div className="relative w-full h-44 overflow-hidden bg-[#1A1A1A]">
             {recipe.image_url ? (
               <Image
                 src={recipe.image_url}
@@ -432,9 +432,9 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYH/8QAIhAAAgEDAwUBAAAAAAAAAAAAAQIDAAQRBQYhEhMiMVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQADAQEBAAAAAAAAAAAAAAAAAQIDEUH/2gAMAwEAAhEDEQA/ALTce5Nw6XfRWOnWtjJAkccjGaN2LFhnHDDjgce/dSX9x73/AGb/AHfz/Sla1FNRlpHD9J//2Q=="
               />
             ) : (
-              /* Placeholder for cards without images - warm brand gradient */
-              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#FEF7E8] to-[#F5EFE0]">
-                <UtensilsCrossed className="size-12 text-[#C4B8A5]" />
+              /* Placeholder for cards without images - editorial dark */
+              <div className="absolute inset-0 flex items-center justify-center bg-[#1A1A1A]">
+                <UtensilsCrossed className="size-12 text-[#3A3A3A]" />
               </div>
             )}
 
@@ -499,16 +499,20 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
             )}
 
             {/* Floating Info Pill - Bottom of image */}
-            <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-sm shadow-sm text-xs font-medium text-gray-700">
+            <div className="absolute bottom-3 left-3 z-10 flex items-center gap-3 px-3 py-1.5 bg-[#1A1A1A] text-white text-[10px] font-medium uppercase tracking-wider">
               {currentRating && (
                 <>
-                  <Star className="size-3.5 fill-yellow-400 text-yellow-400" />
-                  <span>{currentRating.toFixed(1)}</span>
-                  <span className="text-gray-300">|</span>
+                  <span className="flex items-center gap-1">
+                    <Star className="size-3 fill-[#D9F99D] text-[#D9F99D]" />
+                    {currentRating.toFixed(1)}
+                  </span>
+                  <span className="w-px h-3 bg-white/30" />
                 </>
               )}
-              <Clock className="size-3.5 text-gray-500" />
-              <span>{metadata.totalTime}</span>
+              <span className="flex items-center gap-1">
+                <Clock className="size-3 text-white/70" />
+                {metadata.totalTime}
+              </span>
             </div>
 
             {/* More Menu - Top Right */}
@@ -624,38 +628,36 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
             )}
           </div>
 
-          {/* Title Section - prominent, no border */}
+          {/* Title Section - editorial with RECIPE label */}
           <div className="px-4 pt-4 pb-2 shrink-0">
-            <CardTitle className="text-lg font-semibold leading-tight line-clamp-2 text-[#1A1A1A]">
+            <span className="text-[10px] font-medium tracking-[0.15em] text-gray-400 uppercase mb-1.5 block">
+              RECIPE
+            </span>
+            <CardTitle className="text-xl font-serif leading-tight line-clamp-2 text-[#1A1A1A]">
               <HighlightText text={recipe.title} searchTerm={searchTerm} />
             </CardTitle>
           </div>
 
-          {/* Type Badge + Metadata Row - spaced, muted */}
+          {/* Type Badge + Metadata Row - editorial style */}
           <div className="px-4 pb-3 flex flex-col gap-2 shrink-0">
-            {/* Recipe Type Badge */}
+            {/* Recipe Type Badge - minimal border style */}
             <div
-              className={cn(
-                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium w-fit",
-                "transition-all duration-300 ease-out",
-                getRecipeTypeBadgeClasses(recipe.recipe_type)
-              )}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider border border-[#1A1A1A] w-fit transition-all duration-300 ease-out"
             >
-              {getRecipeIcon(recipe.recipe_type)}
               <span>{recipe.recipe_type}</span>
             </div>
 
-            {/* Metadata: Calories • Protein • Difficulty */}
-            <div className="flex items-center gap-3 text-sm text-gray-500">
+            {/* Metadata: Calories | Protein | Difficulty - editorial style */}
+            <div className="flex items-center gap-3 text-[11px] text-gray-500 uppercase tracking-wide">
               <span>{metadata.calories}</span>
-              <span className="text-gray-300">•</span>
+              <span className="w-px h-3 bg-gray-300" />
               <span>{metadata.protein}</span>
-              <span className="text-gray-300">•</span>
+              <span className="w-px h-3 bg-gray-300" />
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span
                     className={cn(
-                      "cursor-help underline decoration-dotted underline-offset-2",
+                      "cursor-help",
                       metadata.difficulty === "Easy" && "text-green-600",
                       metadata.difficulty === "Medium" && "text-amber-600",
                       metadata.difficulty === "Hard" && "text-red-600"
@@ -691,28 +693,27 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
               </Tooltip>
               {lastMadeDate && (
                 <>
-                  <span className="text-gray-300">•</span>
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                    Made{" "}
+                  <span className="w-px h-3 bg-gray-300" />
+                  <span className="text-[10px]">
                     {formatDistanceToNow(new Date(lastMadeDate), {
                       addSuffix: true,
                     })}
-                  </Badge>
+                  </span>
                 </>
               )}
             </div>
           </div>
           <CardContent className="flex flex-col flex-1 pt-0 px-4">
-            {/* Key Ingredients Section - subtle italic text, hidden on mobile */}
+            {/* Key Ingredients Section - editorial uppercase, hidden on mobile */}
             {!isMobile && (
-              <p className="text-sm text-gray-400 italic line-clamp-1 pb-3">
-                {recipe.ingredients.slice(0, 4).map((ingredient, idx) => (
+              <p className="text-[10px] text-gray-400 uppercase tracking-wide line-clamp-1 pb-3">
+                {recipe.ingredients.slice(0, 3).map((ingredient, idx) => (
                   <span key={idx}>
-                    {idx > 0 && ", "}
+                    {idx > 0 && " · "}
                     <HighlightText text={ingredient} searchTerm={searchTerm} />
                   </span>
                 ))}
-                {recipe.ingredients.length > 4 && "..."}
+                {recipe.ingredients.length > 3 && " +more"}
               </p>
             )}
 

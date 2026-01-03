@@ -36,3 +36,6 @@ export {
 
 // Celebration (confetti) hook
 export { useCelebration, type UseCelebrationOptions } from "./use-celebration";
+
+// Real-time sync for household shopping
+export { useShoppingListRealtime } from "./use-shopping-list-realtime";
