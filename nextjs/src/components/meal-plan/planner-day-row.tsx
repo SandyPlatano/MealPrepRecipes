@@ -255,47 +255,87 @@ export const PlannerDayRow = memo(function PlannerDayRow({
             ) : (
               <>
                 {/* Stack all meals vertically - each takes full width */}
-                {assignments.map((assignment) => (
-                  <div
-                    key={assignment.id}
-                    className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-secondary/50 border border-border/50 text-sm w-full"
-                  >
-                    <RecipePreviewPopover
-                      recipe={assignment.recipe}
-                      nutrition={nutritionData?.get(assignment.recipe_id) || null}
+                {assignments.map((assignment) => {
+                  const defaultColors = ["#3b82f6", "#a855f7", "#10b981", "#f59e0b", "#ec4899"];
+                  const cookColor = assignment.cook
+                    ? cookColors[assignment.cook] || defaultColors[cookNames.indexOf(assignment.cook) % defaultColors.length]
+                    : null;
+
+                  return (
+                    <div
+                      key={assignment.id}
+                      className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-secondary/50 border border-border/50 text-sm w-full"
+                      style={cookColor ? { borderLeftColor: cookColor, borderLeftWidth: '3px' } : undefined}
                     >
-                      <span className="flex-1 truncate font-medium hover:underline cursor-pointer min-w-0">
-                        {assignment.recipe.title}
-                      </span>
-                    </RecipePreviewPopover>
-                    <div className="flex items-center gap-0.5 flex-shrink-0">
-                      <Link href={`/app/recipes/${assignment.recipe.id}`} target="_blank">
-                        <Button variant="ghost" size="icon" className="size-6 hover:bg-background">
-                          <Eye className="size-3" />
+                      <RecipePreviewPopover
+                        recipe={assignment.recipe}
+                        nutrition={nutritionData?.get(assignment.recipe_id) || null}
+                      >
+                        <span className="flex-1 truncate font-medium hover:underline cursor-pointer min-w-0">
+                          {assignment.recipe.title}
+                        </span>
+                      </RecipePreviewPopover>
+                      <div className="flex items-center gap-0.5 flex-shrink-0">
+                        <Link href={`/app/recipes/${assignment.recipe.id}`} target="_blank">
+                          <Button variant="ghost" size="icon" className="size-6 hover:bg-background">
+                            <Eye className="size-3" />
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-6 hover:bg-background"
+                          onClick={() => {
+                            onRemoveMeal(assignment.id);
+                            setModalOpen(true);
+                          }}
+                        >
+                          <Pencil className="size-3" />
                         </Button>
-                      </Link>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-6 hover:bg-background"
-                        onClick={() => {
-                          onRemoveMeal(assignment.id);
-                          setModalOpen(true);
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-6 hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => onRemoveMeal(assignment.id)}
+                        >
+                          <Trash2 className="size-3" />
+                        </Button>
+                      </div>
+                      {/* Cook Selector - right side */}
+                      <Select
+                        value={assignment.cook || "none"}
+                        onValueChange={async (value) => {
+                          await onUpdateCook(assignment.id, value === "none" ? null : value);
                         }}
                       >
-                        <Pencil className="size-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-6 hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() => onRemoveMeal(assignment.id)}
-                      >
-                        <Trash2 className="size-3" />
-                      </Button>
+                        <SelectTrigger
+                          className="h-7 w-[120px] text-xs flex-shrink-0"
+                          style={cookColor ? { borderColor: cookColor } : undefined}
+                        >
+                          <ChefHat className="size-3 mr-1 flex-shrink-0" />
+                          <SelectValue placeholder="Cook" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">No cook</SelectItem>
+                          {cookNames.map((name) => {
+                            const color = cookColors[name] || defaultColors[cookNames.indexOf(name) % defaultColors.length];
+                            return (
+                              <SelectItem key={name} value={name}>
+                                <span className="flex items-center gap-2">
+                                  <span
+                                    className="size-2 rounded-full flex-shrink-0"
+                                    style={{ backgroundColor: color }}
+                                  />
+                                  {name}
+                                </span>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 {/* Add more button at the end */}
                 {!isPast && (
                   <QuickAddDropdown
