@@ -418,7 +418,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
           style={animationIndex !== undefined ? { animationDelay: `${animationIndex * 50}ms`, animationFillMode: 'backwards' } : undefined}
         >
           {/* Image Section - ALWAYS present for consistent card height */}
-          <div className="relative w-full h-40 rounded-t-xl overflow-hidden bg-[#F5F3EE] dark:bg-slate-700">
+          <div className="relative w-full h-40 rounded-t-xl overflow-hidden bg-[#FEF7E8]">
             {recipe.image_url ? (
               <Image
                 src={recipe.image_url}
@@ -430,9 +430,9 @@ export const RecipeCard = memo(function RecipeCard({ recipe, lastMadeDate, userA
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYH/8QAIhAAAgEDAwUBAAAAAAAAAAAAAQIDAAQRBQYhEhMiMVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQADAQEBAAAAAAAAAAAAAAAAAQIDEUH/2gAMAwEAAhEDEQA/ALTce5Nw6XfRWOnWtjJAkccjGaN2LFhnHDDjgce/dSX9x73/AGb/AHfz/Sla1FNRlpHD9J//2Q=="
               />
             ) : (
-              /* Placeholder for cards without images */
-              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#F5F3EE] to-[#EBE8E0] dark:from-slate-700 dark:to-slate-800">
-                <UtensilsCrossed className="size-12 text-gray-400/50 dark:text-slate-500" />
+              /* Placeholder for cards without images - warm brand gradient */
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#FEF7E8] to-[#F5EFE0]">
+                <UtensilsCrossed className="size-12 text-[#C4B8A5]" />
               </div>
             )}
 

@@ -92,16 +92,16 @@ export function SidebarNavItem({
         "focus-visible:ring-2 focus-visible:ring-[#1A1A1A] focus-visible:ring-offset-1",
         // Warm sidebar theme with lime accents (light mode only)
         isActive && [
-          "bg-[#D9F99D]/20",
+          "bg-[#D9F99D]/50",
           "!text-[#1A1A1A]",
           "font-semibold",
-          "border border-transparent",
+          "border-l-2 border-[#84CC16]",
           "hover:!text-[#1A1A1A]",
         ],
         !isActive && [
           "!text-[#4B5563]",
           "hover:!text-[#1A1A1A]",
-          "hover:bg-gray-100",
+          "hover:bg-[#D9F99D]/40",
           "border border-transparent",
           "focus-visible:!text-[#1A1A1A]",
         ]

@@ -293,6 +293,10 @@ function ImportDemo() {
     'Nutrition added',
   ];
 
+  // Track checked items count separately to avoid array reference in deps
+  const checkedCountRef = useRef(0);
+  checkedCountRef.current = checkedItems.length;
+
   useEffect(() => {
     if (reducedMotion) {
       // Show completed state for reduced motion
@@ -305,14 +309,14 @@ function ImportDemo() {
 
     if (phase === 'typing') {
       if (typedLength < fullUrl.length) {
-        timeout = setTimeout(() => setTypedLength(typedLength + 1), 50);
+        timeout = setTimeout(() => setTypedLength(prev => prev + 1), 50);
       } else {
         timeout = setTimeout(() => setPhase('checking'), 300);
       }
     } else if (phase === 'checking') {
-      if (checkedItems.length < 3) {
+      if (checkedCountRef.current < 3) {
         timeout = setTimeout(() => {
-          setCheckedItems([...checkedItems, checkedItems.length]);
+          setCheckedItems(prev => [...prev, prev.length]);
         }, 400);
       } else {
         timeout = setTimeout(() => setPhase('holding'), 1500);
@@ -326,7 +330,7 @@ function ImportDemo() {
     }
 
     return () => clearTimeout(timeout);
-  }, [phase, typedLength, checkedItems, reducedMotion, fullUrl.length]);
+  }, [phase, typedLength, reducedMotion, fullUrl.length]);
 
   const displayUrl = fullUrl.slice(0, typedLength);
   const showCursor = phase === 'typing' && !reducedMotion;
